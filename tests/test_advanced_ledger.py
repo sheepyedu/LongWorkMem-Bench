@@ -90,6 +90,12 @@ class AdvancedLedgerTests(unittest.TestCase):
             snapshots = run/'snapshots'
             frozen = snapshots/'3/frozen/2025-06.csv'
             june = Table(frozen).rows
+            for row in june:
+                row['line'] = row['line']+'.0'
+            write_rows(frozen,ledger.LEDGER,june)
+            self.assertEqual(sum(v[0] for v in ledger.checks(run,'B',1,1083).values()),40)
+            for row in june:
+                row['line'] = str(int(Decimal(row['line'])))
             june[0].update(net='0',qty_diff='-13',invoiced_amount='200001.51',
                            amount_diff='200001.51',flags='QA')
             write_rows(frozen,ledger.LEDGER,june)

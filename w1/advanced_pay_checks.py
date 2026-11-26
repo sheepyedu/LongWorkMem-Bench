@@ -43,7 +43,7 @@ def released(work, history=False):
     return dict(limits)
 
 
-def reconstruct(work, level, history=False):
+def reconstruct(work, level, history=False, rows=None):
     pools = released(work, history)
     directory = work / "input"
     master = {r["employee"]: r["home"] for r in read_csv(directory / "薪酬制度/人员台账.csv")}
@@ -55,7 +55,8 @@ def reconstruct(work, level, history=False):
         duties = read_csv(directory / "人事值班/签批派班.csv")
         caps = {(row["project"], row["employee"]): Decimal(row["cap"])
                 for row in read_csv(directory / "财务会签/个人合同上限.csv")}
-    rows = read_csv(directory / "工时中心/主账.csv") + read_csv(directory / "工时中心/补正.csv")
+    if rows is None:
+        rows = read_csv(directory / "工时中心/主账.csv") + read_csv(directory / "工时中心/补正.csv")
     hours, pending = defaultdict(Decimal), set()
     for r in latest(rows, ["site", "ticket"], "posted", "2025-08-03 18:00", {"已核", "作废"}, history):
         if r["decision"] == "作废" or not r["worked"].startswith("2025-07-"):
@@ -260,8 +261,9 @@ def numeric(row, field):
         return None
 
 
-def grade(run, variant, level, seed):
-    oracle = pristine(variant, level, seed)
+def grade(run, variant, level, seed, *, oracle=None):
+    if oracle is None:
+        oracle = pristine(variant, level, seed)
     pools, hours, pending = oracle["pools"], oracle["hours"], oracle["pending"]
     snap = run / "snapshots"
     release_table = Table(snap / "6/released.csv")

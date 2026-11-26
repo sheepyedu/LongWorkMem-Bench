@@ -8,16 +8,24 @@ from . import advanced_ledger, advanced_pay, advanced_mail
 from .runstate import ROUNDS, freeze, prepare
 
 
-DEPARTMENTS = ((advanced_ledger, 40), (advanced_pay, 35), (advanced_mail, 25))
+def departments(level):
+    if level in (1, 2):
+        return ((advanced_ledger, 40), (advanced_pay, 35), (advanced_mail, 25))
+    if level == 3:
+        from . import advanced_ledger_l3, advanced_pay_l3, advanced_mail_l3
+        return ((advanced_ledger_l3, 40), (advanced_pay_l3, 35), (advanced_mail_l3, 25))
+    raise ValueError(f"Unknown advanced W1 level {level}")
 
 
 def release(work, turn, variant, level, seed):
-    if turn not in ROUNDS or variant not in {"A", "B"} or level not in {1, 2}:
+    if turn not in ROUNDS or variant not in {"A", "B"} or level not in {1, 2, 3}:
         raise ValueError("Invalid W1 instance or turn")
     for folder in ("input", "inbox", "out"):
         (work / folder).mkdir(parents=True, exist_ok=True)
-    prompts = [department.release(work, turn, variant, level, seed) for department, _ in DEPARTMENTS]
+    prompts = [department.release(work, turn, variant, level, seed) for department, _ in departments(level)]
     prompt, = [prompt for prompt in prompts if prompt]
+    if level == 3 and turn == 3:
+        prompt += " 请同时办理技术移交通知上随关账到期的薪酬档案。"
     return prompt
 
 
@@ -36,7 +44,7 @@ def run_reference(run, variant, level, seed):
     turns = []
     for turn in ROUNDS:
         prompt = release(work, turn, variant, level, seed)
-        for department, _ in DEPARTMENTS:
+        for department, _ in departments(level):
             department.reference(run, turn, variant, level, seed)
         freeze(run, turn)
         turns.append(dict(turn=turn, public_digest=public_digest(work, prompt)))
@@ -56,7 +64,7 @@ def grade(run, variant=None):
     if any(not (run / "snapshots" / str(t)).is_dir() for t in ROUNDS):
         raise ValueError("Missing host snapshot")
     items = {}
-    for department, weight in DEPARTMENTS:
+    for department, weight in departments(manifest["level"]):
         checks = department.checks(run, manifest["variant"], manifest["level"], manifest["seed"])
         if items.keys() & checks.keys() or sum(maximum for _, maximum, _ in checks.values()) != weight:
             raise ValueError("Invalid checkpoint weights or duplicate labels")
@@ -74,7 +82,7 @@ if __name__ == "__main__":
     parser.add_argument("run", type=Path)
     parser.add_argument("--reference", action="store_true")
     parser.add_argument("--variant", choices=["A", "B"], default="A")
-    parser.add_argument("--level", type=int, choices=[1, 2], default=1)
+    parser.add_argument("--level", type=int, choices=[1, 2, 3], default=1)
     parser.add_argument("--seed", type=int, default=0)
     args = parser.parse_args()
     if args.reference:

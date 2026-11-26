@@ -208,6 +208,8 @@ def filed_rows(table, official):
         return None
     try:
         rows = table.project(spec.LEDGER.split(','))
+        for row in rows:
+            row['line'] = int(number(row['line']))
         if all(row['flags'] in ('','Q','A','QA') for row in rows):
             return rows
     except (ValueError, ArithmeticError):
