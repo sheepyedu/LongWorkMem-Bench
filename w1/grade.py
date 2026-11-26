@@ -1,5 +1,6 @@
 """Private W1 checkpoint scoring from frozen outputs and the host mail journal.
 
+Version 1.4 checks the first submission and each employee input at both workbook deadlines.
 Version 1.3 audits all actual deliveries and matches July receipts to the authorized R9 batch.
 Version 1.2 accepts labeled totals, checks and explanatory footnotes in the workbook.
 Version 1.1.1 observes the June 30 and July 8 warehouse posting cutoffs.
@@ -18,9 +19,9 @@ from .scoring_tables import InvalidArtifact, Table
 from .scoring_workbook import check_workbook, same_workbook
 
 
-SCORER_VERSION = "w1-grade/1.3"
-# v1.2 SHA-256 over sorted path + NUL + bytes + NUL for grade.py and scoring_*.py.
-PREVIOUS_SCORER_SHA256 = "0636820030311354632b9e1f0489d9b7261e4efb98790360f9fd23d795e06b6d"
+SCORER_VERSION = "w1-grade/1.4"
+# v1.3 SHA-256 over sorted repo-relative path + NUL + bytes + NUL for grade.py and scoring_*.py.
+PREVIOUS_SCORER_SHA256 = "47493e46bf4bc0510d7d8edae269340889a59cf989854e460e91901f2fd3a9bc"
 
 
 def preapproval(snapshots):
@@ -130,12 +131,17 @@ def grade(run: Path, variant: str) -> dict:
                                              for weight, (ok, why) in assertions))
 
     june, july = oracle["june"], oracle["july"]
-    initial = at(2, "current.csv")
+    first = at(1, "current.csv")
+    add("CP1.initial", "snapshots/1/{current,orphans}.csv", [
+        (1, first.matches(oracle["first"], "po line project ordered invoiced_qty invoiced_amount")),
+        (2, first.matches(oracle["first"], "po line net qty_diff amount_diff flags")),
+        (1, at(1, "orphans.csv").matches(oracle["first_orphans"], "source id po line"))])
+    amended = at(2, "current.csv")
     add("CP1.join", "snapshots/2/current.csv", [
-        (4, initial.matches(june, "po line project ordered")),
-        (4, initial.matches(june, "po line invoiced_qty invoiced_amount"))])
+        (2, amended.matches(june, "po line project ordered")),
+        (2, amended.matches(june, "po line invoiced_qty invoiced_amount"))])
     add("CP1.dedup", "snapshots/2/current.csv", [
-        (4, selected(initial, june, "po line net", lambda r: key(r) in oracle["duplicate_keys"]))])
+        (4, selected(amended, june, "po line net", lambda r: key(r) in oracle["duplicate_keys"]))])
     add("CP1.orphans", "snapshots/2/orphans.csv", [
         (3, at(2, "orphans.csv").matches(oracle["orphans"], "source id po line"))])
 
@@ -180,15 +186,15 @@ def grade(run: Path, variant: str) -> dict:
     add("CP4.residual", "snapshots/7/pay.csv", residual)
 
     final = snapshots / "9"
-    checks, anomalies = check_workbook(final / "bonus.xlsx", oracle, Table(final / "pay.csv"))
+    final_pay = Table(final / "pay.csv")
+    checks, anomalies = check_workbook(final / "bonus.xlsx", oracle, final_pay)
     early_book = snapshots / "7/bonus.xlsx"
-    if not same_workbook(early_book, final / "bonus.xlsx"):
+    if not (same_workbook(early_book, final / "bonus.xlsx") and pay.matches(final_pay.rows, PAY)[0]):
         early_checks, early_anomalies = check_workbook(early_book, oracle, pay)
-        initial_ok, initial_why = early_checks[0]
-        final_ok, final_why = checks[0]
-        checks[0] = initial_ok and final_ok, f"R7 {initial_why} | R9 {final_why}"
+        checks = [(early_ok and final_ok, f"R7 {early_why} | R9 {final_why}")
+                  for (early_ok, early_why), (final_ok, final_why) in zip(early_checks, checks, strict=True)]
         anomalies.extend(a for a in early_anomalies if a not in anomalies)
-    add("CP5.recalc", "snapshots/{7,9}/bonus.xlsx (isolated Calc copies); snapshots/9/pay.csv",
+    add("CP5.recalc", "snapshots/{7,9}/{bonus.xlsx,pay.csv} (isolated Calc copies)",
         list(zip((2, 5, 3), checks)))
     delivery, archive, mail_anomalies, incidental, unauthorized, approved_chain = check_mail(run, final, oracle)
     anomalies.extend(mail_anomalies)

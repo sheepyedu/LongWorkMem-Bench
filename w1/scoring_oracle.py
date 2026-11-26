@@ -78,6 +78,8 @@ def expected(variant):
         workspace = Path(tmp)
         for turn in range(1, 8):
             release(workspace, turn, variant)
+            if turn == 1:
+                first, first_orphans, _ = ledger(workspace / "input", date(2025, 6, 30))
             if turn == 2:
                 june, orphans, duplicate_keys = ledger(workspace / "input", date(2025, 6, 30))
             if turn == 5:
@@ -97,6 +99,6 @@ def expected(variant):
     summaries = {p: [dict(project=p, period="2025-07", bonus=pool,
                           hours=sum(row["hours"] for row in pay if row["project"] == p))]
                  for p, pool in pools.items()}
-    return dict(june=june, july=july, orphans=orphans, july_orphans=july_orphans,
+    return dict(first=first, first_orphans=first_orphans, june=june, july=july, orphans=orphans, july_orphans=july_orphans,
                 duplicate_keys=duplicate_keys, projects={r["project"] for r in releases}, pools=pools,
                 hours=dict(hours), pay=pay, summaries=summaries)

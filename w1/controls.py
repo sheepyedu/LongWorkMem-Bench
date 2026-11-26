@@ -17,7 +17,7 @@ import uuid
 
 from .gateway import Gateway, MODEL
 from .grade import grade, selected
-from .pilot import blinded_office, claude_turn, isolation_check, source_hashes
+from .pilot import blinded_office, claude_turn, docker_image, isolation_check, source_hashes
 from .reference import solve_turn
 from .runstate import freeze
 from .scoring_mail import mail_events
@@ -102,6 +102,8 @@ def play_short(run, seed, variant, arm, backend, key):
             seed_path=os.path.relpath(seed, run), seed_sha256=seed_digest(seed),
             start=datetime.now(timezone.utc).isoformat(), turns=[], status="running",
         )
+        if backend == "docker":
+            manifest["docker_image"] = docker_image()
         state = run / "manifest.json"
         write_json(state, manifest)
         try:
@@ -114,7 +116,8 @@ def play_short(run, seed, variant, arm, backend, key):
             with tempfile.TemporaryDirectory(prefix="office-client-") as tmp, Gateway(key, run, LIMIT) as gateway:
                 client = Path(tmp)
                 (client / "desk").mkdir()
-                calls = claude_turn(run, 7, backend, gateway, session, prompt, client, first_session=True)
+                calls = claude_turn(run, 7, backend, gateway, session, prompt, client,
+                                    first_session=True, image_id=manifest.get("docker_image"))
             freeze(run, 7)
             manifest["turns"].append(dict(turn=7, upstream_calls=calls))
             result = score_short(run, variant)

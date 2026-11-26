@@ -51,9 +51,10 @@ class ControlsTests(unittest.TestCase):
             root = Path(tmp)
             seed = controls.make_seed(root / "seed", "A")
             runs = []
-            def do_turn(run, turn, backend, gateway, session, prompt, client, *, first_session):
+            def do_turn(run, turn, backend, gateway, session, prompt, client, *, first_session, image_id):
                 self.assertEqual(turn, 7)
                 self.assertTrue(first_session)
+                self.assertEqual(image_id, "sha256:office-test")
                 self.assertEqual(gateway.limit, 50)
                 self.assertFalse(list((run / "work/notes").iterdir()))
                 self.assertFalse(list((run / "work/scratch").iterdir()))
@@ -67,10 +68,11 @@ class ControlsTests(unittest.TestCase):
                 return 3
             with patch.object(controls, "claude_turn", side_effect=do_turn), \
                  patch.object(controls, "isolation_check", return_value={"status":0,"output":"ok"}), \
+                 patch.object(controls, "docker_image", return_value="sha256:office-test"), \
                  patch.object(controls.platform, "platform", return_value="test"), \
                  patch.object(controls.subprocess, "check_output", return_value="dev\n"):
                 run = root / "current/A"
-                result = controls.play_short(run, seed, "A", "current", "seatbelt", "test-credential")
+                result = controls.play_short(run, seed, "A", "current", "docker", "test-credential")
             self.assertEqual(len(runs), 1)
             self.assertEqual(result["total"], 25)
             self.assertEqual(result["max"], 25)
@@ -80,6 +82,7 @@ class ControlsTests(unittest.TestCase):
             self.assertEqual(list(p.name for p in (run / "snapshots").iterdir()), ["7"])
             manifest = json.loads((run/"manifest.json").read_text())
             self.assertEqual(manifest["status"], "complete")
+            self.assertEqual(manifest["docker_image"], "sha256:office-test")
             self.assertEqual(manifest["limit"], 50)
             self.assertEqual(manifest["turns"], [{"turn": 7, "upstream_calls": 3}])
             self.assertEqual(manifest["prompt_sha256"], hashlib.sha256((run/"trace/prompt-7.txt").read_bytes()).hexdigest())

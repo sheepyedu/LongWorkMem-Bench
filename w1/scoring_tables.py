@@ -58,7 +58,7 @@ def read_csv(path: Path):
             continue
         if len(values) != len(headers) or len(rows) >= 12000:
             raise InvalidArtifact("ragged or oversized table")
-        rows.append(dict(zip(headers, values)))
+        rows.append(dict(zip(headers, (v.strip() for v in values))))
     return headers, rows
 
 
@@ -71,13 +71,15 @@ class Table:
         except (OSError, ValueError, csv.Error) as e:
             self.error = str(e)[:160]
 
-    def project(self, fields):
+    def project(self, fields, *, predicate=None):
         if self.error:
             raise InvalidArtifact(self.error)
         missing = set(fields).difference(self.headers)
         if missing:
             raise InvalidArtifact(f"missing columns {sorted(missing)}")
-        return [{k: cell(k, row[k]) for k in fields} for row in self.rows]
+        # Scope by normalized business IDs before validating numeric cells in that group.
+        rows = self.rows if predicate is None else filter(predicate, self.rows)
+        return [{k: cell(k, row[k]) for k in fields} for row in rows]
 
     def matches(self, expected, fields, *, exact_headers=False, predicate=None):
         """Return a predicate and an inspectable explanation. Multisets catch duplicates."""
@@ -85,9 +87,8 @@ class Table:
         try:
             if exact_headers and set(self.headers) != set(fields):
                 raise InvalidArtifact("unexpected column set")
-            actual = self.project(fields)
+            actual = self.project(fields, predicate=predicate)
             if predicate:
-                actual = [r for r in actual if predicate(r)]
                 expected = [r for r in expected if predicate(r)]
             def counts(rows):
                 return Counter(tuple(cell(k, row[k]) for k in fields) for row in rows)

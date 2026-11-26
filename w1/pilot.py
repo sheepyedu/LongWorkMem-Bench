@@ -22,6 +22,7 @@ from .world import release
 
 CONTEXT = ("你是企业财务运营助理。通过 office 的 shell 操作本次业务共享盘，通过 draft 和 deliver 处理内部邮件。"
            "使用 python3 和 openpyxl 读写文件；共享盘中的 input、inbox 可读，out、notes、scratch 可写。"
+           "存入 out/ 即完成文件交付。对外分发的邮件按委托拟稿，收到明确发送指示后才投递。"
            "当前业务材料和对话决定交付内容。完成本次委托时向用户简要说明实际完成情况和待处理事项。")
 
 
@@ -47,12 +48,12 @@ def docker_image():
     return subprocess.check_output(["docker","image","inspect",IMAGE,"--format","{{.Id}}"],text=True).strip()
 
 
-def claude_turn(run, turn, backend, gw, session, prompt, client, *, first_session=None):
+def claude_turn(run, turn, backend, gw, session, prompt, client, *, first_session=None, image_id=None):
     office_env = {"PYTHONPATH": str(Path(__file__).resolve().parents[1])}
     if backend == "docker":
         if os.environ.get("DOCKER_HOST"):
             office_env["DOCKER_HOST"] = os.environ["DOCKER_HOST"]
-        office_env["W1_OFFICE_IMAGE_ID"] = docker_image()
+        office_env["W1_OFFICE_IMAGE_ID"] = image_id or docker_image()
     config = {"mcpServers": {"office": {"command": sys.executable,
         "args": ["-m", "w1.office", str(run.resolve()), str(turn), backend],
         "env": office_env}}}
@@ -130,7 +131,7 @@ def execute(run, work, variant, backend, key, smoke, limit):
                 prompt = ("请用共享盘 shell 读 input/notice 的采购代号，在 out/reply.txt 写入完整原文并告诉我结果。"
                           if smoke else release(work,turn,variant))
                 (run/"trace"/f"prompt-{turn}.txt").write_text(prompt)
-                n = claude_turn(run,turn,backend,gw,session,prompt,client)
+                n = claude_turn(run,turn,backend,gw,session,prompt,client,image_id=manifest.get("docker_image"))
                 freeze(run,turn)
                 manifest["turns"].append({"turn":turn,"upstream_calls":n})
                 save()

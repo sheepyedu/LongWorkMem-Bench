@@ -63,3 +63,10 @@ END"""
                 self.assertNotIn(str(run),result["output"])
             self.assertFalse((run/"work").is_symlink())
             self.assertEqual((run/"work/out/document").read_text().strip(),"saved")
+
+
+class SubmissionPolicyTest(unittest.TestCase):
+    def test_office_instructions_explain_delivery_authorization(self):
+        from w1.pilot import CONTEXT
+        self.assertIn("存入 out/ 即完成文件交付", CONTEXT)
+        self.assertIn("收到明确发送指示后才投递", CONTEXT)
