@@ -106,3 +106,7 @@ python -m s1.review runs/s1-pair/A --turn 7
 八轮的宿主检查包括揭幕站和第二站（7＋8）、邀请赛两小场（7＋8）、回主赛首次真正出牌和全站累计（10＋5）、统一组正式锁定的构筑在两手公开租借牌上能否达到 15 游戏分（30）、自由组两场实际晋级和终局付款（10＋10＋5）。每轮的比赛分是公开游戏规则。宿主检查的各项权重、两版答案和评分实现不发送给模型。冷启动用全新 Claude 会话和空笔记进入同一报名台，只评统一席位，分母 30。
 
 在每条轨迹中按顺序读 `trace/prompt-N.txt`、`trace/turn-N.jsonl` 和 `trace/tools-N.jsonl`，用 `snapshots/N.json` 核实回复中的完成、得分、付费和报名陈述。`trace/api-*.json` 保存逐次请求与回执。独立复评使用冻结游戏材料和实际动作重放；新版本规则可能拒绝旧快照，复现原发布成绩应使用该次 manifest 标记的代码。输入损坏、快照缺失和成绩为零应分别检查。开发轨迹留在使用者的运行目录，不进入被测环境。
+
+## 进阶版验收
+
+`python -m unittest tests.test_advanced tests.test_paired tests.test_erp_window` 检查九轮的可重复发布、A/B 唯一事实差异、参考全分、配对回执和远程工作窗口。业务负例位于 `tests/test_advanced_ledger*`、`tests/test_advanced_pay*` 和 `tests/test_advanced_mail*`。四级与五级发布相同文件，五级每轮的用户请求另告知作业额度。正式运行与比分命令沿用上面的例子，只需替换级别、种子和新的运行目录。窗口条件的报告还给出每轮准许的批数、实际受理数及窗口关闭回执数。
