@@ -5,6 +5,7 @@ import unittest
 from unittest.mock import patch
 
 from w1.erp_window import LIMITS, windowed_shell
+from w1.paired import window_receipts
 
 
 class WindowTest(unittest.TestCase):
@@ -34,3 +35,23 @@ class WindowTest(unittest.TestCase):
         self.assertEqual(shell.call_count, LIMITS[4])
         self.assertEqual(sum(r.get("window_closed", False) for r in results), 10-LIMITS[4])
         self.assertTrue(all(r["remaining_batches"] >= 0 for r in results))
+
+    def test_paired_audit_checks_provider_window_receipts(self):
+        import json
+        from w1.runstate import ROUNDS
+        for turn in ROUNDS:
+            (self.run / f"trace/turn-{turn}.jsonl").write_text("")
+        with patch("w1.office.shell", return_value={"status":0, "output":"ok"}):
+            for i in range(LIMITS[4]+1):
+                event = self.call(i)
+                with (self.run / "trace/turn-4.jsonl").open("a") as f:
+                    call = {"type":"assistant","message":{"content":[{"type":"tool_use",
+                        "name":"mcp__office__shell","id":str(i)}]}}
+                    feedback = {"type":"user","message":{"content":[{"type":"tool_result",
+                        "tool_use_id":str(i), "content":[{"type":"text","text":json.dumps(event)}]}]}}
+                    for row in (call, feedback):
+                        f.write(json.dumps(row)+"\n")
+        self.assertEqual(window_receipts(self.run)[4], {"allowed":5,"used":5,"closed_replies":1})
+        (self.run / "trace/erp-window.sqlite").unlink()
+        with self.assertRaisesRegex(ValueError, "window"):
+            window_receipts(self.run)

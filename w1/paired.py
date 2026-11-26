@@ -5,6 +5,7 @@ import hashlib
 import json
 from pathlib import Path
 import re
+import sqlite3
 from statistics import mean
 
 from .advanced import DEPARTMENT_WEIGHTS as STAGES, grade
@@ -44,7 +45,59 @@ def read_manifest(run):
     hashes = m.get("file_hashes", {})
     require(isinstance(hashes, dict) and all(re.fullmatch("[0-9a-f]{64}", hashes.get(k, "")) for k in HARNESS),
             run, "missing harness file digests")
+    require(all(value and re.fullmatch("[0-9a-f]{64}", value) for _, value in harness_identity(m)),
+            run, "missing per-profile harness digests")
     return m
+
+
+def window_receipts(run):
+    from .erp_window import LIMITS
+    db_path = run / "trace/erp-window.sqlite"
+    stored = defaultdict(list)
+    if db_path.is_file():
+        with sqlite3.connect(db_path.resolve().as_uri() + "?mode=ro", uri=True) as db:
+            for turn, result in db.execute("SELECT turn,result FROM jobs"):
+                require(turn in LIMITS and result, run, "unfinished/unknown ERP window job")
+                receipt = json.loads(result)
+                require(type(receipt.get("status")) is int, run, "invalid ERP window receipt")
+                stored[turn].append(receipt["remaining_batches"])
+    output = {}
+    for turn, limit in LIMITS.items():
+        jobs = stored[turn]
+        require(len(jobs) <= limit and sorted(jobs) == list(range(limit-len(jobs), limit)),
+                run, f"R{turn} window balance disagrees with publicly announced quota")
+        shell, closed = set(), 0
+        for _, event in events(run / f"trace/turn-{turn}.jsonl"):
+            for b in (event or {}).get("message", {}).get("content", []):
+                if b.get("type") == "tool_use" and b.get("name") == "mcp__office__shell":
+                    shell.add(b["id"])
+                if b.get("type") != "tool_result" or b.get("tool_use_id") not in shell:
+                    continue
+                parts = b.get("content", [])
+                texts = [parts] if isinstance(parts, str) else [v.get("text", "") for v in parts]
+                for content in texts:
+                    try:
+                        feedback = json.loads(content)
+                    except (ValueError, TypeError):
+                        continue
+                    if isinstance(feedback, dict) and feedback.get("window_closed") is True:
+                        closed += 1
+                        break
+        require(not shell or db_path.is_file(), run, f"R{turn} window ledger missing")
+        require(len(jobs) <= len(shell), run, f"R{turn} window jobs lack model calls")
+        require(not closed or len(jobs) == limit, run, f"R{turn} premature window closure")
+        output[turn] = {"allowed":limit, "used":len(jobs), "closed_replies":closed}
+    return output
+
+
+def harness_identity(manifest):
+    files = dict(manifest["file_hashes"])
+    names = list(HARNESS)
+    if "claude.py" in files:
+        names.append("claude.py")
+    if manifest["level"] == 5:
+        names.extend(("erp_window.py", "office_protocol.py"))
+    return tuple((name, files.get(name)) for name in names)
 
 
 def completed_receipts(run, manifest):
@@ -123,11 +176,13 @@ def compare(paths):
         expected_inputs = None
         for model in MODELS:
             run, m = group[model]
-            environment = m["docker_image"], m["claude"], m["limit"], tuple(m["file_hashes"][k] for k in HARNESS)
+            environment = m["docker_image"], m["claude"], m["limit"], harness_identity(m)
             if cohort is None:
                 cohort = environment
             require(environment == cohort, run, "image, Claude version, request budget or office harness differs across runs")
             review, prompts = completed_receipts(run, m)
+            if level == 5:
+                review["erp_windows"] = window_receipts(run)
             inputs = ([r["public_digest"] for r in m["turns"]], prompts)
             require(expected_inputs is None or inputs == expected_inputs, run, "round materials or prompts differ within pair")
             expected_inputs = inputs
