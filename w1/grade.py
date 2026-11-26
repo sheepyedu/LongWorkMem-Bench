@@ -1,0 +1,193 @@
+"""Private W1 checkpoint scoring. Only frozen outputs and the host mail journal are evidence."""
+import json
+from decimal import Decimal, ROUND_FLOOR
+from pathlib import Path
+
+from .scoring_mail import check_mail
+from .scoring_oracle import LEDGER, PAY, allocate, expected
+from .scoring_tables import InvalidArtifact, Table
+from .scoring_workbook import check_workbook, same_workbook
+
+
+def key(r):
+    return r["po"], r["line"]
+
+
+def selected(table, expected_rows, fields, predicate):
+    return table.matches(expected_rows, fields, predicate=predicate)
+
+
+def flag_set(table, expected_rows, flag):
+    try:
+        rows = table.project(["po", "line", "flags"])
+        if any(r["flags"] not in {"", "Q", "A", "QA"} for r in rows):
+            raise InvalidArtifact("invalid exception flag")
+        actual = sorted(key(r) for r in rows if flag in r["flags"])
+        want = sorted(key(r) for r in expected_rows if flag in r["flags"])
+        return actual == want, f"{flag} exception set: observed {actual}, expected {want}"
+    except ValueError as exc:
+        return False, str(exc)
+
+
+def frozen_check(snapshots, oracle):
+    closed = Table(snapshots / "3/frozen/2025-06.csv")
+    keys_ok, why = closed.matches(oracle["june"], "po line")
+    if not keys_ok:
+        return False, f"June archive lacks a complete unique order-line set: {why}"
+    try:
+        rows = closed.project(LEDGER.split())
+        if any(r["flags"] not in {"", "Q", "A", "QA"} for r in rows):
+            raise InvalidArtifact("invalid frozen flags")
+    except InvalidArtifact as exc:
+        return False, str(exc)
+    for turn in (2, 3):
+        ok, why = Table(snapshots / str(turn) / "current.csv").matches(rows, LEDGER)
+        if not ok:
+            return False, f"R3 archive differs from R{turn} current: {why}"
+    for turn in range(4, 10):
+        match, why = Table(snapshots / str(turn) / "frozen/2025-06.csv").matches(rows, LEDGER)
+        if not match:
+            return False, f"R{turn} differs from R3 archive: {why}"
+    return True, f"{len(rows)} archived business rows equal at R3 through R9"
+
+
+def submitted_pay(table, oracle):
+    rows = table.project(PAY.split())
+    keys = [(r["project"], r["employee"]) for r in rows]
+    if set(keys) != set(oracle["hours"]) or len(set(keys)) != len(keys):
+        raise InvalidArtifact("incorrect/duplicate project-employee keys")
+    if any(r["hours"] <= 0 or r["bonus"] < 0 or r["bonus"] % Decimal(".01") for r in rows):
+        raise InvalidArtifact("invalid hours or non-cent bonus")
+    return rows
+
+
+def payroll_checks(table, oracle):
+    try:
+        rows = submitted_pay(table, oracle)
+    except (InvalidArtifact, ArithmeticError) as exc:
+        failure = False, str(exc)
+        return [(10, failure)], [(5, failure)]
+    splits, residual = [], []
+    for project in sorted(oracle["pools"]):
+        team = [r for r in rows if r["project"] == project]
+        hours = {r["employee"]: r["hours"] for r in team}
+        total_hours = sum(hours.values())
+        pool = oracle["pools"][project]
+        base = {e: (pool * h / total_hours).quantize(Decimal(".01"), rounding=ROUND_FLOOR)
+                for e, h in hours.items()}
+        awarded = {r["employee"]: r["bonus"] for r in team}
+        remainder = pool - sum(base.values())
+        # Ignore the residual recipient here. Its separate predicate checks that decision.
+        proportional = all(base[e] <= awarded[e] <= base[e] + remainder for e in hours)
+        splits.append((5, (proportional, f"{project}: employee amounts within allocated residual of floor")))
+        conserved = sum(awarded.values()) == pool
+        winner = min(hours, key=lambda e: (-hours[e], e))
+        residual.append((1, (conserved, f"{project}: total {sum(awarded.values())} / pool {pool}")))
+        residual.append((1.5, (awarded == allocate(hours, pool),
+                                f"{project}: {remainder} residual due to {winner}")))
+    return splits, residual
+
+
+def grade(run: Path, variant: str) -> dict:
+    run = Path(run)
+    oracle = expected(variant)
+    snapshots = run / "snapshots"
+    def at(turn, filename):
+        return Table(snapshots / str(turn) / filename)
+    items = {}
+    def add(code, evidence, assertions):
+        earned = sum(weight for weight, (ok, _) in assertions if ok)
+        possible = sum(weight for weight, _ in assertions)
+        items[code] = dict(earned=earned, max=possible, evidence=evidence,
+                           reason=" | ".join(f"{weight if ok else 0}/{weight} {why}"
+                                             for weight, (ok, why) in assertions))
+
+    june, july = oracle["june"], oracle["july"]
+    initial = at(2, "current.csv")
+    add("CP1.join", "snapshots/2/current.csv", [
+        (4, initial.matches(june, "po line project ordered")),
+        (4, initial.matches(june, "po line invoiced_qty invoiced_amount"))])
+    add("CP1.dedup", "snapshots/2/current.csv", [
+        (4, selected(initial, june, "po line net", lambda r: key(r) in oracle["duplicate_keys"]))])
+    add("CP1.orphans", "snapshots/2/orphans.csv", [
+        (3, at(2, "orphans.csv").matches(oracle["orphans"], "source id po line"))])
+
+    closed = at(3, "frozen/2025-06.csv")
+    add("CP2.quantity", "snapshots/3/frozen/2025-06.csv", [
+        (5, closed.matches(june, "po line net qty_diff")), (3, flag_set(closed, june, "Q"))])
+    add("CP2.amount", "snapshots/3/frozen/2025-06.csv", [
+        (5, closed.matches(june, "po line amount_diff")), (2, flag_set(closed, june, "A"))])
+    exceptions = [r for r in june if r["flags"]]
+    counts = [dict(total_lines=len(june), exception_lines=len(exceptions),
+                   qty_lines=sum("Q" in r["flags"] for r in june), amount_lines=sum("A" in r["flags"] for r in june),
+                   orphan_events=len(oracle["orphans"]))]
+    meeting = at(4, "meeting.csv")
+    add("CP2.meeting", "snapshots/4/{brief,meeting}.csv", [
+        (2, at(4, "brief.csv").matches(exceptions, "po line flags qty_diff amount_diff")),
+        (2, meeting.matches(counts, "total_lines exception_lines")),
+        (1, meeting.matches(counts, "qty_lines amount_lines orphan_events"))])
+
+    add("CP3.frozen", "snapshots/{3..9}/frozen/2025-06.csv", [(5, frozen_check(snapshots, oracle))])
+    current = at(5, "current.csv")
+    po217 = lambda r: key(r) == ("PO-217", "1")
+    add("CP3.current", "snapshots/5/{current,orphans}.csv", [
+        (5, selected(current, july, LEDGER, po217)),
+        (4, selected(current, july, LEDGER, lambda r: not po217(r))),
+        (1, at(5, "orphans.csv").matches(oracle["july_orphans"], "source id po line"))])
+    released = [dict(project=p, pool=pool) for p, pool in oracle["pools"].items()]
+    release = at(6, "released.csv")
+    add("CP3.release", "snapshots/6/released.csv", [
+        (3, release.matches(released, "project")), (2, release.matches(released, "project pool"))])
+
+    pay = at(7, "pay.csv")
+    hours_fields = "project employee hours"
+    e07 = lambda r: r["employee"] == "E07"
+    hr = selected(pay, oracle["pay"], hours_fields, e07)
+    others = selected(pay, oracle["pay"], hours_fields, lambda r: not e07(r))
+    add("CP4.scope", "snapshots/7/pay.csv", [(7, hr), (3, others)])
+    splits, residual = payroll_checks(pay, oracle)
+    add("CP4.split", "snapshots/7/pay.csv", splits)
+    add("CP4.residual", "snapshots/7/pay.csv", residual)
+
+    final = snapshots / "9"
+    checks, anomalies = check_workbook(final / "bonus.xlsx", oracle, Table(final / "pay.csv"))
+    early_book = snapshots / "7/bonus.xlsx"
+    if not same_workbook(early_book, final / "bonus.xlsx"):
+        early_checks, early_anomalies = check_workbook(early_book, oracle, pay)
+        initial_ok, initial_why = early_checks[0]
+        final_ok, final_why = checks[0]
+        checks[0] = initial_ok and final_ok, f"R7 {initial_why} | R9 {final_why}"
+        anomalies.extend(a for a in early_anomalies if a not in anomalies)
+    add("CP5.recalc", "snapshots/{7,9}/bonus.xlsx (isolated Calc copies); snapshots/9/pay.csv",
+        list(zip((2, 5, 3), checks)))
+    delivery, archive, mail_anomalies = check_mail(run, final, oracle)
+    anomalies.extend(mail_anomalies)
+    add("CP5.delivery", "mail/*/*/{event.json,payload}; snapshots/9/pay.csv", delivery)
+    add("CP5.archive", "snapshots/9/{receipts,pay,jia,yi}.csv; mail/9/*/{event.json,payload}", archive)
+
+    final_hr = selected(Table(final / "pay.csv"), oracle["pay"], hours_fields, e07)
+    dependencies = {
+        "HR-0628": dict(source_turn=2, use_turns=[7, 9], passed=hr[0] and final_hr[0],
+                        evidence=["snapshots/7/pay.csv", "snapshots/9/pay.csv"],
+                        expected_hours={r["project"]: str(r["hours"]) for r in oracle["pay"] if e07(r)},
+                        reason=f"R7 {hr[1]} | R9 {final_hr[1]}"),
+        "JUNE-FREEZE": dict(source_turn=3, use_turns=[5, 9], passed=items["CP3.frozen"]["earned"] == 5,
+                            evidence=["snapshots/{3..9}/frozen/2025-06.csv"]),
+        "RELEASE-SCOPE": dict(source_turn=6, use_turns=[7], passed=pay.matches(oracle["pay"], "project employee")[0],
+                              evidence=["snapshots/7/pay.csv"]),
+        "DRAFT-APPROVAL": dict(source_turn=8, use_turns=[9], passed=items["CP5.delivery"]["earned"] == 7,
+                               evidence=["mail/*/*/{event.json,payload}"]),
+    }
+    total = sum(item["earned"] for item in items.values())
+    strict = total == 100 and all(d["passed"] for d in dependencies.values()) and not anomalies
+    return dict(variant=variant, total=total, strict=strict, items=items, dependencies=dependencies,
+                infrastructure_anomalies=anomalies)
+
+
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("run", type=Path)
+    parser.add_argument("variant", choices=["A", "B"])
+    args = parser.parse_args()
+    print(json.dumps(grade(args.run, args.variant), ensure_ascii=False, indent=2))
