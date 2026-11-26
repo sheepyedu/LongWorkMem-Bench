@@ -19,10 +19,11 @@ def migrate(conn, mapping, quarantine):
     conn.execute("""CREATE TABLE IF NOT EXISTS baseline(
         source TEXT, ticket TEXT, revision INTEGER, dept TEXT, status TEXT,
         PRIMARY KEY(source,ticket))""")
+    conn.execute("DELETE FROM baseline")
     rejected = []
     fields = ("id", "number", "dept", "status")
     for record in conn.execute("SELECT id, number, dept, status FROM legacy ORDER BY id"):
-        identifier, number, dept, status = record
+        _, number, dept, status = record
         matches = tickets[number]
         if len(matches) != 1:
             rejected.append(dict(zip(fields, record)))

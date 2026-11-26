@@ -115,8 +115,22 @@ def audits(events, commits, expected, resumed, policy_id, hidden=False):
                  original.match(resumed_events.values or []), commits.match(resumed_commits.values or []))
 
 
+def replay_reports(probes, work, db, checkpoints, resumed_h3):
+    current_path = probes.output_path(work)
+    history_path = probes.output_path(work)
+    error = probes.command(work, f"{TICKETS} report {db} {current_path} {history_path}")
+    if error:
+        return False, error
+    summary = Rows.read(work, current_path, ("dept", "count"), "csv")
+    detail = Rows.read(work, history_path, DETAIL, "csv")
+    return every(summary.match(checkpoints[10].summary(), ordered=True),
+                 detail.project(neutral).match([neutral(r) for r in checkpoints[9].detail(3)], ordered=True),
+                 where(detail, lambda r: r[:2] == TARGET).match(
+                     where(resumed_h3, lambda r: r[:2] == TARGET).values or []))
+
+
 def replay_check(probes, snapshot, original, variant, resumed, policy_id, hidden):
-    with tempfile.TemporaryDirectory(prefix="c1-replay-") as tmp:
+    with tempfile.TemporaryDirectory(prefix="c1-replay-", dir=probes.temp_root) as tmp:
         work = Path(tmp) / "work"
         work.mkdir()
         # Only the submitted program and the recovered source bundle are available.
@@ -128,7 +142,8 @@ def replay_check(probes, snapshot, original, variant, resumed, policy_id, hidden
         inputs = work / "input"
         if hidden:
             perturb(inputs)
-        expect = timeline(inputs, variant)[10]
+        checkpoints = timeline(inputs, variant)
+        expect = checkpoints[10]
         db = "data/new.sqlite"
         quarantine = "out/new-quarantine.csv"
         error = probes.command(work, f"{TICKETS} replay input {db} {quarantine}")
@@ -138,7 +153,8 @@ def replay_check(probes, snapshot, original, variant, resumed, policy_id, hidden
         q = Rows.read(work, quarantine, QUARANTINE, "csv")
         ledger = every(audits(events, commits, expect, resumed[0], policy_id, hidden),
                        q.match(expect.quarantine, ordered=True))
-        state = compare_histories(histories(probes, work, db), expect, resumed[1], hidden=hidden)
+        state = every(compare_histories(histories(probes, work, db), expect, resumed[1], hidden=hidden),
+                      replay_reports(probes, work, db, checkpoints, resumed[1][3]))
         return ledger, state
 
 
@@ -153,35 +169,67 @@ def decision_checks(probes, snapshot, expected, inputs):
         events, _ = probes.audit(work)
         current = probes.query(work)
     key = lambda r: r[:2] == TARGET
-    amendment_ids = {r["event_id"] for r in records(inputs / "amendments.jsonl")}
+    amendments = records(inputs / "amendments.jsonl")
+    amendment_ids = {r["event_id"] for r in amendments}
+    related = {(r["source"], r["ticket"]) for r in amendments} - {TARGET}
+    primary = where(current, key).match([r for r in expected.detail() if key(r)])
+    others = where(current, lambda r: r[:2] in related).match([r for r in expected.detail() if r[:2] in related])
     items = {}
-    add_check(items, "CP4.decision", "R9 A/0017 effective row after adjudication",
-              (6, where(current, key).match([r for r in expected.detail() if key(r)])))
+    add_check(items, "CP4.decision", "R9 A/0017 and other entities addressed by this amendment batch",
+              (4, primary), (2, every(primary, others)))
     add_check(items, "CP4.audit", "R9 authorized and out-of-scope amendment decisions",
               (4, where(events, lambda r: r[0] in amendment_ids).match(
                   [(eid, expected.decisions[eid]) for eid in amendment_ids])))
     return items
 
 
+def result_record(run, variant, probes, items, rounds, maximum):
+    run = Path(run)
+    present = [n for n in rounds if (run / "snapshots" / str(n)).is_dir()]
+    coverage = dict(present=present, expected=list(rounds))
+    complete = True
+    if (run / "manifest.json").exists():
+        try:
+            manifest = json.loads(content(run, "manifest.json"))
+            status = manifest["status"]
+            declared = {r["turn"] for r in manifest["turns"]}
+            coverage["manifest_status"] = status
+            expected = set(rounds) if status == "complete" else declared.intersection(rounds)
+            complete = status == "complete" and expected <= declared
+            if expected - set(present):
+                probes.infrastructure.append(f"missing frozen snapshot(s) {sorted(expected - set(present))}")
+            if status == "complete" and expected - declared:
+                probes.infrastructure.append(f"missing manifest turn(s) {sorted(expected - declared)}")
+            if 6 in expected and (not (run / "fault").is_dir() or not (run / "fault.json").is_file()):
+                probes.infrastructure.append("missing controller fault archive or receipt")
+        except (KeyError, TypeError, ValueError, OSError) as exc:
+            probes.infrastructure.append(f"invalid controller manifest: {str(exc)[:200]}")
+    valid = not probes.infrastructure and complete
+    earned = sum(i["earned"] for i in items.values())
+    return dict(scorer=SCORER_VERSION, variant=variant, valid=valid, total=earned if valid else None,
+                observed_points=earned, max=maximum, checks=items, coverage=coverage, backend=probes.backend,
+                sandbox_image=probes.image,
+                infrastructure_errors=probes.infrastructure)
+
+
 def grade_control(run, variant, backend="seatbelt"):
     if variant not in ("A", "B") or backend not in ("seatbelt", "docker"):
         raise ValueError("expected variant A/B and seatbelt/docker")
-    probes = Probes(backend)
+    probes = Probes(backend, run)
     with tempfile.TemporaryDirectory(prefix="c1-control-oracle-") as tmp:
         source = Path(tmp)
         for turn in range(1, 13):
             world.release(source, turn, variant)
         inputs = source / "input"
         items = decision_checks(probes, Path(run) / "snapshots/9", timeline(inputs, variant)[9], inputs)
-    return dict(scorer=SCORER_VERSION, variant=variant, total=sum(i["earned"] for i in items.values()),
-                max=10, checks=items, infrastructure_errors=probes.infrastructure)
+    return result_record(run, variant, probes, items, [9], 10)
 
 
 def grade(run: Path, variant: str, backend="seatbelt") -> dict:
     run = Path(run)
     if variant not in ("A", "B") or backend not in ("seatbelt", "docker"):
         raise ValueError("expected variant A/B and seatbelt/docker")
-    probes = Probes(backend)
+    probes = Probes(backend, run)
     items = {}
 
     def add(code, evidence, *checks):
@@ -294,11 +342,11 @@ def grade(run: Path, variant: str, backend="seatbelt") -> dict:
         add("CP5.legacy", "R12 frozen project, original CSV/CLI", (5, legacy(probes, snap(12), inputs)))
 
     depends = ("CP4.decision", "CP4.audit", "CP5.policy")
-    return dict(scorer=SCORER_VERSION, variant=variant, total=sum(v["earned"] for v in items.values()),
-                max=100, checks=items, dependency=dict(source_turn=3, use_turns=[9, 11],
-                entity="A/0017", revision=3, event_ids=sorted(approved), checks=list(depends),
-                earned=sum(items[c]["earned"] for c in depends), max=14),
-                infrastructure_errors=probes.infrastructure)
+    result = result_record(run, variant, probes, items, range(1, 13), 100)
+    result["dependency"] = dict(source_turn=3, use_turns=[9, 11], entity="A/0017", revision=3,
+                                event_ids=sorted(approved), checks=list(depends), max=14,
+                                earned=sum(items[c]["earned"] for c in depends))
+    return result
 
 
 def main():

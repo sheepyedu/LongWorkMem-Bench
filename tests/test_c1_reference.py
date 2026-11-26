@@ -68,13 +68,16 @@ class ReferenceWalkthroughTest(unittest.TestCase):
             latest = self.runs[name] / "snapshots/11"
             history = {(r["source"], r["ticket"]): r for r in csv_rows(latest / "out/history.csv")}
             self.assertIn(("B", "0017"), history)
+            self.assertNotIn(("B", "L-27"), history)
             historic = history.pop(("A", "0017"))
             self.assertEqual((historic["revision"], historic["status"]), ("3", "closed"))
             command = "python3 project/tickets.py query data/tickets.sqlite"
             live = sandbox.shell(self.runs[name] / "work", command, backend=BACKEND)
             self.assertEqual(live["status"], 0, live)
             current = json.loads(live["output"])
-            self.assertNotIn(("A", "0017"), [(r["source"], r["ticket"]) for r in current])
+            live_keys = {(r["source"], r["ticket"]) for r in current}
+            self.assertNotIn(("A", "0017"), live_keys)
+            self.assertIn(("B", "L-27"), live_keys)
             readings.append((historic["dept"], history, current, csv_rows(latest / "out/current.csv")))
         self.assertNotEqual(readings[0][0], readings[1][0])
         self.assertEqual(readings[0][1:], readings[1][1:])

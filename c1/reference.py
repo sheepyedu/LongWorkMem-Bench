@@ -2,7 +2,6 @@
 import argparse
 import json
 from pathlib import Path
-import shutil
 import shlex
 
 from c1 import runstate, sandbox, world
@@ -105,10 +104,6 @@ def run_reference(run, variant, *, alternate=False, backend="seatbelt"):
     world.initialize(work)
     trace = run / "trace"
     trace.mkdir()
-    project = work / "project"
-
-    def install(name, target=None):
-        shutil.copyfile(IMPLEMENTATION / name, project / (target or name))
 
     for turn in range(1, 13):
         request = world.release(work, turn, variant)
@@ -122,12 +117,18 @@ def run_reference(run, variant, *, alternate=False, backend="seatbelt"):
                 raise RuntimeError(f"R{turn} {command} returned {result}")
             return result
 
+        def write_module(name, source):
+            execute(python_command(f"from pathlib import Path\nPath('project/{name}').write_text({source!r}, encoding='utf-8')"))
+
+        def install(name, target=None):
+            write_module(target or name, (IMPLEMENTATION / name).read_text(encoding="utf-8"))
+
         if turn == 1:
             execute(f"{CLI} import-csv scratch/legacy.sqlite input/legacy.csv")
             execute(f"{CLI} export-csv scratch/legacy.sqlite scratch/roundtrip.csv")
             execute(python_command(CHECK_CSV))
         elif turn == 2:
-            (project / "tickets.py").rename(project / "legacy.py")
+            execute("mv project/tickets.py project/legacy.py")
             install("tickets.py")
             install("migration.py")
             install("alternate_views.py" if alternate else "views.py", "views.py")
@@ -139,8 +140,7 @@ def run_reference(run, variant, *, alternate=False, backend="seatbelt"):
             if "允许按上述批准范围更正" in disposition:
                 install("decision.py")
             else:
-                (project / "decision.py").write_text(
-                    "def authorized(key, prior, proposed, approval):\n    return False\n")
+                write_module("decision.py", "def authorized(key, prior, proposed, approval):\n    return False\n")
             install("intake.py")
             execute(f"{CLI} ingest {LIVE} input/intake.jsonl")
         elif turn == 4:
