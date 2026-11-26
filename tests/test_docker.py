@@ -27,7 +27,7 @@ book.active['A1']=4
 book.active['B1']='=A1+5'
 book.save('out/example.xlsx')
 END
-soffice -env:UserInstallation=file:///tmp/office-profile --headless --convert-to xlsx --outdir scratch/recalculated out/example.xlsx
+soffice --headless --convert-to xlsx --outdir scratch/recalculated out/example.xlsx
 python3 - <<'END'
 from openpyxl import load_workbook
 v=load_workbook('scratch/recalculated/example.xlsx',data_only=True).active['B1'].value

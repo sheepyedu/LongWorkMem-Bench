@@ -3,4 +3,6 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends libreoffice-calc \
     && rm -rf /var/lib/apt/lists/*
 RUN pip install --no-cache-dir openpyxl==3.1.5 et-xmlfile==2.0.0
+# The office runs under the host UID and a read-only root. Give Calc a per-command profile.
+RUN sed -i 's|^UserInstallation=.*|UserInstallation=file:///tmp/office-calc-profile|' /usr/lib/libreoffice/program/bootstraprc
 WORKDIR /office
