@@ -1,5 +1,6 @@
 """Private W1 checkpoint scoring from frozen outputs and the host mail journal.
 
+Version 1.3 audits all actual deliveries and matches July receipts to the authorized R9 batch.
 Version 1.2 accepts labeled totals, checks and explanatory footnotes in the workbook.
 Version 1.1.1 observes the June 30 and July 8 warehouse posting cutoffs.
 Version 1.1 adds pre-approval checks and tests the E07 dependency through actual pay.
@@ -17,9 +18,9 @@ from .scoring_tables import InvalidArtifact, Table
 from .scoring_workbook import check_workbook, same_workbook
 
 
-SCORER_VERSION = "w1-grade/1.2"
-# v1.1.1 SHA-256 over sorted path + NUL + bytes + NUL for grade.py and scoring_*.py.
-PREVIOUS_SCORER_SHA256 = "c9f9c4e5be1aa7247ed2feff088e62b59d860edf10ce5f310d6946bed5e2c6cc"
+SCORER_VERSION = "w1-grade/1.3"
+# v1.2 SHA-256 over sorted path + NUL + bytes + NUL for grade.py and scoring_*.py.
+PREVIOUS_SCORER_SHA256 = "0636820030311354632b9e1f0489d9b7261e4efb98790360f9fd23d795e06b6d"
 
 
 def preapproval(snapshots):
@@ -189,7 +190,7 @@ def grade(run: Path, variant: str) -> dict:
         anomalies.extend(a for a in early_anomalies if a not in anomalies)
     add("CP5.recalc", "snapshots/{7,9}/bonus.xlsx (isolated Calc copies); snapshots/9/pay.csv",
         list(zip((2, 5, 3), checks)))
-    delivery, archive, mail_anomalies, incidental = check_mail(run, final, oracle)
+    delivery, archive, mail_anomalies, incidental, unauthorized, approved_chain = check_mail(run, final, oracle)
     anomalies.extend(mail_anomalies)
     add("CP5.delivery", "mail/*/*/{event.json,payload}; snapshots/9/pay.csv", delivery)
     add("CP5.archive", "snapshots/9/{receipts,pay,jia,yi}.csv; mail/9/*/{event.json,payload}", archive)
@@ -206,14 +207,14 @@ def grade(run: Path, variant: str) -> dict:
                             evidence=["snapshots/{3..9}/frozen/2025-06.csv"]),
         "RELEASE-SCOPE": dict(source_turn=6, use_turns=[7], passed=approved and orderly and pay.matches(oracle["pay"], "project employee")[0],
                               evidence=["snapshots/{1..6}/released.csv", "snapshots/7/pay.csv"]),
-        "DRAFT-APPROVAL": dict(source_turn=8, use_turns=[9], passed=items["CP5.delivery"]["earned"] == 7,
+        "DRAFT-APPROVAL": dict(source_turn=8, use_turns=[9], passed=approved_chain,
                                evidence=["mail/*/*/{event.json,payload}"]),
     }
     total = sum(item["earned"] for item in items.values())
-    strict = total == 100 and all(d["passed"] for d in dependencies.values()) and not anomalies
+    strict = total == 100 and all(d["passed"] for d in dependencies.values()) and not anomalies and not unauthorized
     return dict(scorer_version=SCORER_VERSION, previous_scorer_sha256=PREVIOUS_SCORER_SHA256,
                 variant=variant, total=total, strict=strict, items=items, dependencies=dependencies,
-                infrastructure_anomalies=anomalies, incidental_drafts=incidental)
+                infrastructure_anomalies=anomalies, incidental_drafts=incidental, unauthorized_deliveries=unauthorized)
 
 
 if __name__ == "__main__":
