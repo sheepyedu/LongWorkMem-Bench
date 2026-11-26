@@ -43,7 +43,7 @@ class PairedTests(unittest.TestCase):
                           "public_digest":hashlib.sha256(prompt.encode()).hexdigest()})
         save(run / "manifest.json", dict(task="W1-advanced",level=1,variant=variant,seed=seed,session=name,
              claude="2.1",backend="docker",docker_image="sha256:office",status="complete",model=model,
-             limit=350,turns=turns,isolation={"status":0}))
+             limit=350,turns=turns,file_hashes={k: 'c'*64 for k in ('gateway.py', 'pilot.py', 'office.py', 'mail.py', 'runstate.py')},isolation={"status":0}))
         return run
 
     def change(self, file, **kwargs):
@@ -101,6 +101,24 @@ class PairedTests(unittest.TestCase):
                     save(path, dict(saved,**change))
                     paired.compare([a,b])
             save(path,saved)
+
+    def test_mismatched_client_and_exposed_score_keys_rejected(self):
+        a = self.make("a", MODEL)
+        b = self.make("b", "qwen3.8-flash")
+        path = b / "manifest.json"
+        original = json.loads(path.read_bytes())
+        with patch("w1.paired.grade", side_effect=self.grade):
+            self.change(path, file_hashes=dict(original["file_hashes"], **{"office.py": "d"*64}))
+            with self.assertRaisesRegex(ValueError, "harness"):
+                paired.compare([a,b])
+            save(path, original)
+            private = {"scorer_version": "w1-advanced/1", "items": {"pay.workbook_edited_hours": {"earned": 2}}}
+            f = b / "trace/api-0002.json"
+            payload = json.loads(f.read_bytes())["request"]
+            payload["messages"].append({"role": "tool", "content": json.dumps(private)})
+            self.change(f, request=payload)
+            with self.assertRaisesRegex(ValueError, "scor"):
+                paired.compare([a,b])
 
     def test_missing_model_and_unrecovered_attempt_rejected(self):
         a = self.make("a", MODEL, retry=True)

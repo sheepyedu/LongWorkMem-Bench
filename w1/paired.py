@@ -17,6 +17,7 @@ QWEN = "qwen3.8-flash"
 MODELS = (MODEL, QWEN)
 STAGES = {"ledger": 40, "pay": 35, "mail": 25}
 HOLDOUT_SEEDS = {1733, 2671}
+HARNESS = ("gateway.py", "pilot.py", "office.py", "mail.py", "runstate.py")
 
 
 def require(condition, run, reason):
@@ -41,6 +42,9 @@ def read_manifest(run):
             run, "missing round request count or public material digest")
     require(type(m.get("limit")) is int and sum(r["upstream_calls"] for r in turns) <= m["limit"],
             run, "invalid request budget")
+    hashes = m.get("file_hashes", {})
+    require(isinstance(hashes, dict) and all(re.fullmatch("[0-9a-f]{64}", hashes.get(k, "")) for k in HARNESS),
+            run, "missing harness file digests")
     return m
 
 
@@ -49,6 +53,7 @@ def completed_receipts(run, manifest):
     review = summarize(run)
     for field in ("missing_request_files", "request_record_issues", "turn_record_issues"):
         require(not review[field], run, f"{field}: {review[field][:2]}")
+    require(not review["exposed_score_reports"], run, "host score report in office messages")
     require(review["models"] == [model], run, "provider model differs from declared model")
     missing_usage = set(review["attempts_without_usage"])
     retries, waiting = [], defaultdict(list)
@@ -119,10 +124,10 @@ def compare(paths):
         expected_inputs = None
         for model in MODELS:
             run, m = group[model]
-            environment = m["docker_image"], m["claude"], m["limit"]
+            environment = m["docker_image"], m["claude"], m["limit"], tuple(m["file_hashes"][k] for k in HARNESS)
             if cohort is None:
                 cohort = environment
-            require(environment == cohort, run, "image, Claude version or request budget differs across runs")
+            require(environment == cohort, run, "image, Claude version, request budget or office harness differs across runs")
             review, prompts = completed_receipts(run, m)
             inputs = ([r["public_digest"] for r in m["turns"]], prompts)
             require(expected_inputs is None or inputs == expected_inputs, run, "round materials or prompts differ within pair")

@@ -64,7 +64,9 @@ def summarize(run):
     record_issues, shell_failures = [], []
     tripwires = ("w1/scoring_", "CP1.join", "CP3.frozen", "CP4.scope", "CP5.recalc",
                  str(run.resolve()), "w1/grade.py", "w1/reference.py", "LongWorkMem-Bench",
-                 ".claude-manager/", "w1-grade/")
+                 ".claude-manager/", "w1-grade/", "w1/advanced", "w1-advanced/",
+                 "pay.workbook_edited_hours", "ledger.current.warehouse", "w1/paired.py")
+    exposed_reports = []
     for path in paths:
         try:
             row = json.loads(path.read_text(encoding="utf-8"))
@@ -87,6 +89,13 @@ def summarize(run):
         for marker in tripwires:
             if marker in wire:
                 flagged.append((path.name, marker))
+        for msg in payload.get("messages", []):
+            body = msg.get("content")
+            if (msg.get("role") in {"tool", "system", "user"} and isinstance(body, str) and
+                    '"scorer_version"' in body and "w1-advanced/" in body and
+                    '"items"' in body and '"earned"' in body):
+                exposed_reports.append(path.name)
+                break
         reply = row.get("response")
         usage = reply.get("usage") if isinstance(reply, dict) else None
         if usage is None:
@@ -141,7 +150,8 @@ def summarize(run):
     return {"status": manifest.get("status"), "models": sorted(models), "observed_usage": counts,
             "tools": tools, "attempts_without_usage": missing, "turns": dict(sorted(per_turn.items())),
             "missing_request_files": missing_files, "request_record_issues": record_issues,
-            "turn_record_issues": turn_issues, "shell_failures": shell_failures, "private_markers_in_requests": flagged}
+            "turn_record_issues": turn_issues, "shell_failures": shell_failures, "private_markers_in_requests": flagged,
+            "exposed_score_reports": exposed_reports}
 
 
 def show_turn(run, turn):
