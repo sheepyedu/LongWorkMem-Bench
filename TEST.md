@@ -1,5 +1,19 @@
 # W1 跨月关账测试指南
 
+## 进阶题和双模型复跑
+
+`--level 0` 保留原九轮开发题。进阶题的 `--seed` 确定业务数字、部分路由和签报。同种子、同级别的 A/B 只改第二轮 HR-0628 的生效月。运行器把每轮任务、当时可见的只读资料摘要、请求次数和办公镜像 ID 记入宿主 manifest。
+
+```sh
+python -m w1.advanced runs/advanced-reference --reference --level 2 --seed 431 --variant A
+python -m w1.pilot runs/dev-ds --backend docker --level 2 --seed 431 --variants A --limit 350
+python -m w1.pilot runs/dev-qwen --backend docker --level 2 --seed 431 --variants A --limit 350 --model qwen3.8-flash
+python -m w1.advanced runs/dev-ds/A
+python -m w1.paired runs/dev-ds/A runs/dev-qwen/A
+```
+
+DeepSeek 使用方舟模型 `deepseek-v4-1-flash-261017` 和宿主 `ARK_API_KEY`。千问使用用户配置的 OpenAI 兼容网关 `DEEPSEEK_BASE_URL` 和该网关独立的 `DEEPSEEK_API_KEY`，也可以在被提示时无回显输入。两者共用 Claude Code、三种办公工具、材料、九轮截止与请求预算。每次使用新的运行目录。`w1.paired` 检查同题两模型的九个材料摘要、实际推理回执和 CLI 结束记录，再汇总采购、薪酬和投递三个部分的成绩。可传入多个完整配对；开发和验证组分别执行。
+
 ## 本地准备
 
 需要 Python 3.12、openpyxl 和 LibreOffice Calc。将 `soffice` 加入 PATH，或将环境变量 `W1_SOFFICE` 指向可执行文件。跑模型时还需 Claude Code CLI。正式数据与轨迹目录使用独立空目录，每条会话占一个子目录。
