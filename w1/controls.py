@@ -20,6 +20,7 @@ from .grade import grade, selected
 from .pilot import blinded_office, claude_turn, isolation_check, source_hashes
 from .reference import solve_turn
 from .runstate import freeze
+from .scoring_mail import mail_events
 from .scoring_oracle import PAY, expected
 from .scoring_tables import Table
 from .world import release
@@ -73,7 +74,11 @@ def score_short(run, variant):
     items = {name: item for name, item in full["items"].items() if name.startswith("CP4.")}
     hr_passed, why = selected(Table(run / "snapshots/7/pay.csv"), expected(variant)["pay"], PAY,
                               lambda row: row["employee"] == "E07")
-    return dict(variant=variant, turn=7, scorer_version=full["scorer_version"], items=items,
+    journal, anomalies = mail_events(run)
+    mail = {"unsolicited_deliveries": [e for e, _ in journal if e["action"] == "deliver"],
+            "unsolicited_drafts": [e for e, _ in journal if e["action"] == "draft"],
+            "journal_anomalies": anomalies}
+    return dict(mail_side_effects=mail, variant=variant, turn=7, scorer_version=full["scorer_version"], items=items,
                 total=sum(item["earned"] for item in items.values()),
                 max=sum(item["max"] for item in items.values()), hr_passed=hr_passed, hr_reason=why)
 

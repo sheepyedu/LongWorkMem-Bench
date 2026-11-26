@@ -6,6 +6,7 @@ import unittest
 from unittest.mock import patch
 
 from w1 import controls
+from w1.mail import act
 from w1.reference import solve_turn
 from w1.world import release
 
@@ -61,6 +62,7 @@ class ControlsTests(unittest.TestCase):
                 self.assertFalse(list((client / "desk").iterdir()))
                 runs.append(session)
                 solve_turn(run / "work", turn)
+                act(run,turn,"deliver","finance@office.test","out/bonus.xlsx","七月项目奖金")
                 (run/"trace/turn-7.jsonl").write_text("{}\n")
                 return 3
             with patch.object(controls, "claude_turn", side_effect=do_turn), \
@@ -74,6 +76,7 @@ class ControlsTests(unittest.TestCase):
             self.assertEqual(result["max"], 25)
             self.assertEqual(set(result["items"]), {"CP4.scope","CP4.split","CP4.residual"})
             self.assertTrue(result["hr_passed"])
+            self.assertEqual(result["mail_side_effects"]["unsolicited_deliveries"][0]["attachment"], "out/bonus.xlsx")
             self.assertEqual(list(p.name for p in (run / "snapshots").iterdir()), ["7"])
             manifest = json.loads((run/"manifest.json").read_text())
             self.assertEqual(manifest["status"], "complete")
