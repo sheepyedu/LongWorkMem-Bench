@@ -23,6 +23,20 @@ class TraceAuditTest(unittest.TestCase):
             self.assertTrue(any("tools-1.jsonl" in f for f in flags))
             self.assertTrue(any("attempt count" in f for f in flags))
 
+    def test_local_translation_error_keeps_provider_usage_without_executing_call(self):
+        with tempfile.TemporaryDirectory() as folder:
+            run = Path(folder)
+            trace = run / "trace"
+            trace.mkdir()
+            (run / "manifest.json").write_text(json.dumps({"session": "s"}))
+            reply = {"id": "charged", "model": "model", "usage": {
+                "prompt_tokens": 11, "completion_tokens": 13}, "choices": [{"message": {
+                    "tool_calls": [{"function": {"name": "mcp__table__act", "arguments": "{"}}]}}]}
+            (trace / "api-0001.json").write_text(json.dumps({"turn": 6, "status": 502, "response": reply}))
+            counts = audit(run)["totals"]
+            self.assertEqual((counts["receipts"], counts["input"], counts["output"]), (1, 11, 13))
+            self.assertEqual((counts["bridge_failures"], counts["tool_calls"]), (1, 0))
+
     def test_matches_complete_exchange_and_detects_changed_return(self):
         with tempfile.TemporaryDirectory() as folder:
             run = Path(folder)

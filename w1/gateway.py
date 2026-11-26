@@ -167,6 +167,7 @@ class Gateway:
                     req = urllib.request.Request(URL, data=wire.encode(),
                             headers={"Authorization":"Bearer "+gw.key, "Content-Type":"application/json"})
                     with gw.opener.open(req, timeout=180) as resp:
+                        record["upstream_status"] = resp.status
                         record["status"] = resp.status
                         record["request_id"] = resp.headers.get("x-request-id") or resp.headers.get("x-tt-logid")
                         reply = json.load(resp)

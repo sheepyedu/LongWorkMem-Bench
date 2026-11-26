@@ -80,7 +80,7 @@ def audit(run):
                 remarks.append(f"{path.name}: unexpected tools {sorted(tools - ALLOWED)}")
             reply = record.get("response", {})
             usage = reply.get("usage", {})
-            if record.get("status") != 200 or not usage:
+            if not usage:
                 remarks.append(f"{path.name}: status={record.get('status')}, receipt={bool(usage)}")
                 continue
             usage_values = usage_counts(usage)
@@ -96,6 +96,10 @@ def audit(run):
             counts["output"] += usage_values["output"]
             counts["cached"] += usage_values.get("cache_read", 0)
             counts["peak_input"] = max(counts["peak_input"], usage["prompt_tokens"])
+            if record.get("status") != 200:
+                counts["bridge_failures"] += 1
+                remarks.append(f"{path.name}: bridge status {record.get('status')}, provider usage retained")
+                continue
             for call in reply["choices"][0]["message"].get("tool_calls") or []:
                 call_id = (turn, call["id"])
                 if call_id in expected_calls:
