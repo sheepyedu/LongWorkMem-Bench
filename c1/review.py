@@ -23,8 +23,8 @@ def audit(run):
     trace = run / "trace"
     manifest = json.loads((run / "manifest.json").read_text())
     counts = defaultdict(Counter)
-    flags, failures, markers = [], [], []
-    provider, forwarded = defaultdict(dict), defaultdict(dict)
+    flags, failures, markers, args_changed = [], [], [], []
+    provider, forwarded, locations = defaultdict(dict), defaultdict(dict), {}
     receipts, sessions = set(), set()
     paths = sorted(trace.glob("api-*.json"))
     expected = []
@@ -74,6 +74,7 @@ def audit(run):
             for call in reply["choices"][0]["message"].get("tool_calls", []):
                 fn = call["function"]
                 provider[turn][call["id"]] = [fn["name"], json.loads(fn["arguments"])]
+                locations[(turn, call["id"])] = path.name
         except (OSError, ValueError, TypeError, KeyError, IndexError, AttributeError) as exc:
             flags.append(f"{path.name}: {type(exc).__name__}: {str(exc)[:120]}")
     for turn in manifest["turns"]:
@@ -103,8 +104,15 @@ def audit(run):
                             failures.append({"turn": n, "line": line, "status": value.get("status")})
             except (ValueError, TypeError, KeyError, AttributeError) as exc:
                 flags.append(f"{path.name}:{line}: {type(exc).__name__}")
-        if terminals != [False] or cli != provider[n] or cli.keys() != results.keys():
-            flags.append(f"turn {n}: terminal/CLI/provider call mismatch")
+        if terminals != [False]:
+            flags.append(f"turn {n}: terminal results {terminals}")
+        if cli.keys() != provider[n].keys() or cli.keys() != results.keys():
+            flags.append(f"turn {n}: tool call or result IDs differ")
+        for cid in cli.keys() & provider[n].keys():
+            if cli[cid] != provider[n][cid]:
+                item = {"turn": n, "call_id": cid, "receipt": locations[n, cid]}
+                args_changed.append(item)
+                flags.append(f"turn {n}: provider and executed tool arguments differ at {locations[n, cid]} ({cid})")
         for cid in results:
             if forwarded[n].get(cid) != results[cid]:
                 flags.append(f"turn {n}: result differs or absent from next upstream input: {cid}")
@@ -131,7 +139,7 @@ def audit(run):
             else:
                 totals[k] += value
     return {"status": manifest["status"], "turns": dict(sorted(counts.items())), "totals": totals,
-            "shell_failures": failures, "private_markers": markers, "flags": flags}
+            "shell_failures": failures, "argument_differences": args_changed, "private_markers": markers, "flags": flags}
 
 
 if __name__ == "__main__":
