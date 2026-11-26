@@ -1,6 +1,8 @@
 """Independent checkpoint scoring of a frozen C1 run. Candidate code runs in disposable sandboxes."""
 import argparse
+import hashlib
 import json
+import shlex
 import shutil
 import tempfile
 from collections import Counter
@@ -11,7 +13,7 @@ from .grade_evidence import Probes, Rows, TICKETS, content
 from .grade_oracle import DETAIL, LEGACY, QUARANTINE, TARGET, read_csv, records, timeline
 from .runstate import freeze
 
-SCORER_VERSION = "c1-grade/1.0"
+SCORER_VERSION = "c1-grade/1.2"
 
 
 def every(*results):
@@ -27,6 +29,19 @@ def neutral(row):
     if row[:3] == (*TARGET, 3):
         return (*row[:3], "<decision>", row[4])
     return row
+
+
+def early_current(rows, expected, alternative=None):
+    # Until R10 the public query contract permits a full effective revision
+    # history. Validate the complete multiset before selecting its latest rows.
+    if rows.error or not any(rows.match(state.all_versions())[0] for state in (expected, alternative) if state):
+        return rows
+    latest = {}
+    for row in rows.values:
+        key = row[:2]
+        if key not in latest or row[2] > latest[key][2]:
+            latest[key] = row
+    return Rows([row for key, row in sorted(latest.items()) if row[4] != "withdrawn"])
 
 
 def contains_once(rows, required, index=0):
@@ -45,10 +60,45 @@ def legacy(probes, snapshot, inputs):
         fresh = Path(tempfile.mkdtemp(dir=work / "scratch"))
         base = str(fresh.relative_to(work))
         shutil.copyfile(inputs / "legacy.csv", fresh / "legacy.csv")
-        error = probes.command(work, f"{TICKETS} import-csv {base}/old.db {base}/legacy.csv && "
-                                     f"{TICKETS} export-csv {base}/old.db {base}/export.csv")
-        return Rows(error=error).match(expected) if error else Rows.read(
-            work, f"{base}/export.csv", LEGACY, "csv", legacy_format=True).match(expected, ordered=True)
+        command = (f"{TICKETS} import-csv {base}/old.db {base}/legacy.csv && "
+                   f"{TICKETS} export-csv {base}/old.db {base}/export.csv")
+        results = []
+        for repeat in (1, 2):
+            error = probes.command(work, command)
+            if error:
+                results.append((False, error))
+                continue
+            rows = Rows.read(work, f"{base}/export.csv", LEGACY, "csv", legacy_format=True)
+            results.append(rows.match(expected * repeat, ordered=True))
+        return (3, results[0]), (2, every(*results))
+
+
+def original_rows(probes, work, expected):
+    # Original legacy.id is a public tracing key. An export without id cannot detect renumbering.
+    path = probes.output_path(work)
+    script = ("import json,sqlite3; from pathlib import Path; "
+              "db=sqlite3.connect('data/tickets.sqlite'); db.execute('PRAGMA trusted_schema=OFF'); "
+              "rows=db.execute('SELECT id,number,dept,status FROM legacy ORDER BY id LIMIT 10001'); "
+              "print(json.dumps([dict(zip(('id','number','dept','status'), r)) for r in rows]))")
+    error = probes.command(work, f"python3 -I -S -c {shlex.quote(script)} > {path}")
+    if error:
+        return False, error
+    return Rows.read(work, path, QUARANTINE, "json").match(expected, ordered=True)
+
+
+def migration(probes, snapshot, expected):
+    with probes.workspace(snapshot) as work:
+        first = probes.query(work).match(expected.detail(), ordered=True)
+        raw = original_rows(probes, work, expected.legacy)
+        path = probes.output_path(work)
+        error = probes.command(work, f"{TICKETS} migrate data/tickets.sqlite input/mapping.csv {path}")
+        if error:
+            repeated = False, error
+        else:
+            repeated = every(probes.query(work).match(expected.detail(), ordered=True),
+                             original_rows(probes, work, expected.legacy),
+                             Rows.read(work, path, QUARANTINE, "csv").match(expected.quarantine, ordered=True))
+        return (3, first), (2, raw), (1, repeated)
 
 
 def fault_marker(run, inputs):
@@ -164,10 +214,10 @@ def add_check(items, code, evidence, *checks):
                        reason=" | ".join(f"{w if ok else 0}/{w} {why}" for w, (ok, why) in checks))
 
 
-def decision_checks(probes, snapshot, expected, inputs):
+def decision_checks(probes, snapshot, expected, alternative, inputs):
     with probes.workspace(snapshot) as work:
         events, _ = probes.audit(work)
-        current = probes.query(work)
+        current = early_current(probes.query(work), expected, alternative)
     key = lambda r: r[:2] == TARGET
     amendments = records(inputs / "amendments.jsonl")
     amendment_ids = {r["event_id"] for r in amendments}
@@ -181,6 +231,28 @@ def decision_checks(probes, snapshot, expected, inputs):
               (4, where(events, lambda r: r[0] in amendment_ids).match(
                   [(eid, expected.decisions[eid]) for eid in amendment_ids])))
     return items
+
+
+def original_dispatcher(run, snapshot, inputs, probes):
+    # The first formal cohorts received a different public batch.py. Preserve
+    # that importable API when reproducing their code. Business fixtures and
+    # expectations are independently regenerated by the host.
+    if not snapshot.is_dir():
+        return None
+    try:
+        source = content(snapshot, "input/batch.py").encode("utf-8")
+        digest = hashlib.sha256(source).hexdigest()
+        manifest = Path(run) / "manifest.json"
+        if manifest.exists():
+            hashes = json.loads(content(Path(run), "manifest.json")).get("source_hashes", {})
+            expected = hashes.get("c1/starter/worker.py") or hashes.get("c1/starter/batch.py")
+            if expected and digest != expected:
+                raise ValueError("frozen dispatcher differs from the recorded source hash")
+        (inputs / "batch.py").write_bytes(source)
+        return digest
+    except (ValueError, TypeError, OSError, AttributeError) as exc:
+        probes.infrastructure.append(f"R12 public dispatcher unavailable: {str(exc)[:200]}")
+        return None
 
 
 def result_record(run, variant, probes, items, rounds, maximum):
@@ -221,7 +293,8 @@ def grade_control(run, variant, backend="seatbelt"):
         for turn in range(1, 13):
             world.release(source, turn, variant)
         inputs = source / "input"
-        items = decision_checks(probes, Path(run) / "snapshots/9", timeline(inputs, variant)[9], inputs)
+        alternative = timeline(inputs, "A" if variant == "B" else "B")[9]
+        items = decision_checks(probes, Path(run) / "snapshots/9", timeline(inputs, variant)[9], alternative, inputs)
     return result_record(run, variant, probes, items, [9], 10)
 
 
@@ -247,18 +320,17 @@ def grade(run: Path, variant: str, backend="seatbelt") -> dict:
         for turn in range(1, 13):
             world.release(source, turn, variant)
         inputs = source / "input"
+        dispatcher = original_dispatcher(run, snap(12), inputs, probes)
         states = timeline(inputs, variant)
-        add("CP1.legacy", "R1 frozen project, pristine legacy.csv round trip", (5, legacy(probes, snap(1), inputs)))
-        with probes.workspace(snap(2)) as work:
-            migrated = probes.query(work)
-        add("CP1.migration", "R2 query and out/quarantine.csv",
-            (6, migrated.match(states[2].detail(), ordered=True)),
+        add("CP1.legacy", "R1 frozen project, pristine legacy.csv round trip", *legacy(probes, snap(1), inputs))
+        add("CP1.migration", "R2 migrated state, retained legacy rows, rerun and frozen quarantine",
+            *migration(probes, snap(2), states[2]),
             (4, at(2, "out/quarantine.csv", QUARANTINE).match(states[2].quarantine, ordered=True)))
 
         s4 = states[4]
         with probes.workspace(snap(4)) as work:
             events4, _ = probes.audit(work)
-            current4 = probes.query(work)
+            current4 = early_current(probes.query(work), s4)
         add("CP2.identity", "R4 query, all source and text ticket keys",
             (5, current4.project(lambda r: r[:2]).match([r[:2] for r in s4.detail()])))
         # Depth of business history and intake order have distinct evidence.
@@ -279,7 +351,7 @@ def grade(run: Path, variant: str, backend="seatbelt") -> dict:
         s6 = states[6]
         with probes.workspace(run / "fault") as work:
             e6, c6 = probes.audit(work)
-            q6 = probes.query(work)
+            q6 = early_current(probes.query(work), s6)
         interrupt = fault_marker(run, inputs)
         rolled_back = every(interrupt, e6.match(s6.decisions.items()), c6.match([(s,) for s in s6.shards]),
                             q6.match(s6.detail()))
@@ -287,7 +359,7 @@ def grade(run: Path, variant: str, backend="seatbelt") -> dict:
         for turn in (6, 7):
             with probes.workspace(snap(turn)) as work:
                 entries, commits = probes.audit(work)
-                current = probes.query(work)
+                current = early_current(probes.query(work), s6)
             held.append(every(entries.match(s6.decisions.items()), commits.match([(s,) for s in s6.shards]),
                               current.match(s6.detail())))
         add("CP3.atomic", "fault receipt + interrupted database; retain the stop through R6 and R7",
@@ -296,7 +368,7 @@ def grade(run: Path, variant: str, backend="seatbelt") -> dict:
         add("CP3.detour", "R7 out/failed.txt", (5, at(7, "out/failed.txt", (), "text").match(failed, ordered=True)))
         with probes.workspace(snap(8)) as work:
             e8, c8 = probes.audit(work)
-            q8 = probes.query(work)
+            q8 = early_current(probes.query(work), states[8])
         s8 = states[8]
         add("CP3.resume", "R8 complete business, event and shard sets",
             (3, set_match(q8, s8.detail())), (2, every(set_match(e8, s8.decisions.items()),
@@ -305,9 +377,9 @@ def grade(run: Path, variant: str, backend="seatbelt") -> dict:
             (2, contains_once(e8, s8.decisions)), (2, contains_once(c8, s8.shards)),
             (1, contains_once(q8.project(lambda r: (r[:2],)), [r[:2] for r in s8.detail()])))
 
-        items.update(decision_checks(probes, snap(9), states[9], inputs))
         # The dependency is the one disposition that flips between the two decisions.
         alternative = timeline(inputs, "A" if variant == "B" else "B")[9]
+        items.update(decision_checks(probes, snap(9), states[9], alternative, inputs))
         approved = [eid for eid, value in states[9].decisions.items() if alternative.decisions[eid] != value]
         (policy_id,) = approved
         with probes.workspace(snap(10)) as work:
@@ -339,10 +411,11 @@ def grade(run: Path, variant: str, backend="seatbelt") -> dict:
         hidden = replay_check(probes, snap(12), inputs, variant, resumed, policy_id, hidden=True)
         add("CP5.replay", "R12 submitted database, live resumed database, two fresh rebuilds",
             (2, saved), (2, plain[0]), (2, plain[1]), (2, hidden[0]), (2, hidden[1]))
-        add("CP5.legacy", "R12 frozen project, original CSV/CLI", (5, legacy(probes, snap(12), inputs)))
+        add("CP5.legacy", "R12 frozen project, original CSV/CLI", *legacy(probes, snap(12), inputs))
 
     depends = ("CP4.decision", "CP4.audit", "CP5.policy")
     result = result_record(run, variant, probes, items, range(1, 13), 100)
+    result["public_dispatcher_sha256"] = dispatcher
     result["dependency"] = dict(source_turn=3, use_turns=[9, 11], entity="A/0017", revision=3,
                                 event_ids=sorted(approved), checks=list(depends), max=14,
                                 earned=sum(items[c]["earned"] for c in depends))

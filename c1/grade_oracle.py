@@ -31,11 +31,13 @@ class Ledger:
             mapping[int(row["number"])].add(row["ticket"])
         self.revisions = defaultdict(dict)
         self.quarantine = []
+        self.legacy = []
         self.decisions = {}
         self.incoming = {}
         self.shards = []
         with closing(sqlite3.connect(inputs / "initial.sqlite")) as db:
             for row_id, number, dept, status in db.execute("SELECT id,number,dept,status FROM legacy ORDER BY id"):
+                self.legacy.append((row_id, number, dept, status))
                 tickets = mapping[number]
                 if len(tickets) == 1:
                     key = ("A", next(iter(tickets)))
@@ -77,6 +79,9 @@ class Ledger:
             if status != "withdrawn":
                 rows.append((*key, rev, dept, status))
         return rows
+
+    def all_versions(self):
+        return [(*key, rev, *value) for key, versions in self.revisions.items() for rev, value in versions.items()]
 
     def summary(self):
         return sorted(Counter(r[3] for r in self.detail()).items())

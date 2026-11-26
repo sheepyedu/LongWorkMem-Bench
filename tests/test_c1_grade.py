@@ -1,5 +1,6 @@
 """Negative controls for timing, artifact semantics, and independent replay."""
 import csv
+import hashlib
 import json
 import os
 import platform
@@ -9,9 +10,9 @@ import tempfile
 import unittest
 from contextlib import closing
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
-from c1.grade import grade, grade_control, result_record
+from c1.grade import early_current, grade, grade_control, original_dispatcher, result_record
 from c1.grade_evidence import Probes, Rows
 from c1.reference import run_reference
 
@@ -64,6 +65,35 @@ class EvidenceTests(unittest.TestCase):
             probe = Probes("docker", run)
             probe.execute(run, "true", 30)
             shell.assert_called_once_with(run, "true", backend="docker", timeout=30, image=image)
+
+    def test_replay_preserves_the_dispatcher_released_to_this_cohort(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            run = Path(tmp)
+            snapshot = run / "snapshots/12"
+            (snapshot / "input").mkdir(parents=True)
+            archived = snapshot / "input/batch.py"
+            archived.write_bytes(b"def main(): return 12\n")
+            digest = hashlib.sha256(archived.read_bytes()).hexdigest()
+            (run / "manifest.json").write_text(json.dumps({"source_hashes": {"c1/starter/batch.py": digest}}))
+            inputs = run / "replay-inputs"
+            inputs.mkdir()
+            (inputs / "batch.py").write_text("def dispatch(): return 7\n")
+            probes = Probes(BACKEND, run)
+            self.assertEqual(original_dispatcher(run, snapshot, inputs, probes), digest)
+            self.assertEqual((inputs / "batch.py").read_bytes(), archived.read_bytes())
+            archived.write_bytes(b"changed")
+            self.assertIsNone(original_dispatcher(run, snapshot, inputs, probes))
+            self.assertIn("recorded source hash", probes.infrastructure[0])
+
+    def test_early_history_projection_verifies_all_rows_and_multiplicities(self):
+        history = [("A", "0017", 1, "dispatch", "open"), ("A", "0017", 3, "ops", "closed")]
+        ledger = Mock()
+        ledger.all_versions.return_value = history
+        original = Rows(history[::-1])
+        self.assertEqual(early_current(original, ledger).values, history[1:])
+        for invalid in ([*history, history[0]], [(*history[0][:3], "wrong", "open"), history[1]],
+                        [*history, ("B", "99", 1, "x", "open")]):
+            self.assertEqual(early_current(Rows(invalid), ledger).values, invalid)
 
     def test_semantic_reader_rejects_duplicates_invalid_types_and_external_files(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -170,6 +200,44 @@ class GradeControls(unittest.TestCase):
             with self.subTest(key=key):
                 self.assertGreater(diffs.get(key, 0), 0)
         self.assertEqual(result["checks"]["CP4.history"]["earned"], 3)
+
+    def test_append_contract_and_lossless_rerun_have_separate_partial_credit(self):
+        run = self.copy_run()
+        snapshots = run / "snapshots"
+        # Skip subsequent legacy imports to expose a false upsert implementation.
+        for path in (snapshots / "1/project/tickets.py", snapshots / "12/project/legacy.py"):
+            path.write_text(path.read_text().replace(
+                "def import_csv(db, path):",
+                "def import_csv(db, path):\n"
+                "    if db.execute(\"SELECT 1 FROM sqlite_master WHERE name='legacy'\").fetchone():\n"
+                "        return"))
+        # Current rows and the delivered quarantine stay correct even after loss
+        # of an unmapped original row. Repeating migrate must expose that loss.
+        with closing(sqlite3.connect(snapshots / "2/data/tickets.sqlite")) as db, db:
+            db.execute("DELETE FROM legacy WHERE number=99")
+        result = grade(run, "B", BACKEND)
+        self.assertEqual(changed(result), {"CP1.legacy": 2, "CP1.migration": 3, "CP5.legacy": 2})
+
+    def test_verified_complete_history_keeps_early_points_and_later_current_stays_strict(self):
+        run = self.copy_run()
+        source = (
+            "\n_asof = current\n"
+            "def current(conn, through=None, arrived_by=None):\n"
+            "    if through is not None or arrived_by is not None:\n"
+            "        return _asof(conn, through, arrived_by)\n"
+            "    rows = {}\n"
+            "    for cut in range(5):\n"
+            "        for r in _asof(conn, cut):\n"
+            "            rows[r['source'], r['ticket'], r['revision']] = r\n"
+            "    return [rows[key] for key in sorted(rows)]\n")
+        for folder in [run / "fault", *[run / "snapshots" / str(n) for n in (4, 6, 7, 8, 9)]]:
+            path = folder / "project/views.py"
+            path.write_text(path.read_text() + source)
+        self.assertEqual(grade(run, "B", BACKEND)["total"], 100)
+        self.assertEqual(grade_control(run, "B", BACKEND)["total"], 10)
+        path = run / "snapshots/10/project/views.py"
+        path.write_text(path.read_text() + source)
+        self.assertEqual(changed(grade(run, "B", BACKEND)), {"CP4.withdraw": 5})
 
     def test_static_rebuild_passes_original_input_but_fails_perturbation(self):
         run = self.copy_run()
