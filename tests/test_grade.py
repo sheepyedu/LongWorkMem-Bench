@@ -232,3 +232,32 @@ class GradeTest(unittest.TestCase):
                 row = next(r for r in values[stage] if (r["po"], r["line"]) == ("PO-217", "1"))
                 self.assertEqual(row["net"], expected_net)
                 self.assertEqual({r["id"] for r in values[list_name] if r["po"] == "PO-X"}, eligible_orphans)
+
+    def test_workbook_total_and_note_rows_allow_equivalent_presentation(self):
+        final = self.golden()
+        baseline = load_workbook(final / "bonus.xlsx")
+        pay, pools = baseline["Pay"], baseline["Pools"]
+        pay.append([None])
+        pay.append(["合计", None, "=SUM(C2:C9)", "=ROUND(SUM(D2:D9),2)"])
+        pay.append(["说明：可在 C 列调整核准工时"])
+        pools.append([None])
+        pools.append(["校验：各项目差额合计", "=ROUND(SUM(D2:D3),2)"])
+        pools.append(["提示：修改 B 列的奖金池后重新计算"])
+        path = final / "decorated.xlsx"
+        baseline.save(path)
+        checks, errors = check_workbook(path, self.oracle, Table(final / "pay.csv"))
+        self.assertEqual(errors, [])
+        self.assertTrue(all(ok for ok, _ in checks), checks)
+
+        # A blank line or footer never terminates inspection of the remaining business rows.
+        for sheet, extra in [("Pay", ["丙", "E08", 3, 90]), ("Pay", ["合计", "E99", 3, 90]),
+                             ("Pay", ["甲", "E99", 1, 90]), ("Pools", ["丙", 3000])]:
+            with self.subTest(sheet=sheet, extra=extra):
+                book = load_workbook(path)
+                tab = book[sheet]
+                tab.append(extra)
+                tab.row_dimensions[tab.max_row].hidden = True
+                invalid = final / "extra-row.xlsx"
+                book.save(invalid)
+                checks, _ = check_workbook(invalid, self.oracle, Table(final / "pay.csv"))
+                self.assertFalse(any(ok for ok, _ in checks))

@@ -74,11 +74,33 @@ def headers(sheet, needed):
     return {h: names.index(h) + 1 for h in needed}
 
 
+def presentation_row(values):
+    """Allow labeled notes, totals, and reconciliation checks outside the employee ledger."""
+    label = values["project"]
+    if not isinstance(label, str) or values.get("employee") not in (None, ""):
+        return False
+    label = label.strip()
+    cells = [v for k, v in values.items() if k not in {"project", "employee"} and v not in (None, "")]
+    if re.match(r"^(?:说明|提示|备注|notes?|instructions?)\s*[:：]", label, re.IGNORECASE):
+        return not cells
+    if not re.match(r"^(?:合计|总计|小计|汇总|校验|核对|(?:grand )?total|subtotal|check)"
+                    r"(?:$|\s*[:：])", label, re.IGNORECASE):
+        return False
+    for value in cells:
+        if isinstance(value, str) and value.startswith("="):
+            continue
+        try:
+            number(value)
+        except InvalidArtifact:
+            return False
+    return True
+
+
 def data_rows(sheet, columns):
-    for row in range(2, sheet.max_row + 1):
-        values = {k: sheet.cell(row, col).value for k, col in columns.items()}
-        if any(v is not None for v in values.values()):
-            yield row, values
+    for index, row in enumerate(sheet.iter_rows(min_row=2, values_only=True), 2):
+        values = {key: row[column - 1] for key, column in columns.items()}
+        if any(v not in (None, "") for v in values.values()) and not presentation_row(values):
+            yield index, values
 
 
 def workbook_inputs(book):
@@ -106,16 +128,13 @@ def awards_match(path, expected):
     book = openpyxl.load_workbook(path, read_only=True, data_only=True)
     try:
         sheet = book["Pay"]
-        cols = headers(sheet, ("project", "employee", "bonus"))
+        cols = headers(sheet, ("project", "employee", "hours", "bonus"))
         actual = {}
-        for row in sheet.iter_rows(min_row=2, values_only=True):
-            project, employee, bonus = (row[cols[k] - 1] for k in ("project", "employee", "bonus"))
-            if project is employee is bonus is None:
-                continue
-            key = str(project).strip(), str(employee).strip()
+        for _, values in data_rows(sheet, cols):
+            key = str(values["project"]).strip(), str(values["employee"]).strip()
             if key in actual:
                 raise InvalidArtifact("duplicate recalculated pay row")
-            actual[key] = number(bonus)
+            actual[key] = number(values["bonus"])
         differences = [k for k, v in expected.items()
                        if k not in actual or abs(actual[k] - v) > number("0.0000001")]
         if actual.keys() != expected.keys() or differences:
