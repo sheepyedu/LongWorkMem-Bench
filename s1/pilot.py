@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import re
 import secrets
 import subprocess
 import sys
@@ -76,6 +77,57 @@ def config_for(run, turn, image):
     return {"mcpServers": {"table": command}}
 
 
+
+def table_preflight(run, image, client):
+    """Open a disposable game through the exact MCP launch command and mount."""
+    with tempfile.TemporaryDirectory(dir=run, prefix="preflight-") as tmp:
+        probe = Path(tmp)
+        game = new_game("A", 0)
+        prepare(probe, game)
+        open_turn(game, 1)
+        release(probe, 1, game)
+        cfg = config_for(probe, 1, image)["mcpServers"]["table"]
+        marker = secrets.token_hex(10)
+        calls = [
+            ("initialize", {"protocolVersion": "2025-06-18", "capabilities": {}}),
+            ("tools/list", {}),
+            ("resources/list", {}),
+            ("tools/call", {"name": "observe", "arguments": {}}),
+            ("tools/call", {"name": "act", "arguments": {"action":{"op":"note","text":marker}}}),
+            ("tools/call", {"name": "act", "arguments": {"action":{"op":"read_note"}}}),
+        ]
+        wire = "".join(json.dumps({"jsonrpc":"2.0","id":n,"method":method,"params":args}) + "\n"
+                       for n, (method, args) in enumerate(calls, start=1))
+        env = {"PATH": os.environ["PATH"], "HOME": str(client), "LANG": "en_US.UTF-8", **cfg["env"]}
+        proc = subprocess.run([cfg["command"], *cfg["args"]], cwd=client / "desk", env=env, input=wire,
+                              capture_output=True, text=True, timeout=50)
+        if proc.returncode:
+            raise RuntimeError("MCP preflight failed to open the disposable table: " + proc.stderr[-450:])
+        msgs = [json.loads(line) for line in proc.stdout.splitlines() if line.strip()]
+        if len(msgs) != len(calls) or [m.get("id") for m in msgs] != list(range(1, 7)):
+            raise RuntimeError("MCP preflight returned an incomplete protocol transcript")
+        names = {t["name"] for t in msgs[1]["result"]["tools"]}
+        results = [json.loads(m["result"]["content"][0]["text"]) for m in msgs[3:]]
+        if (msgs[0]["result"]["capabilities"] != {"tools": {}} or names != {"observe", "act"}
+                or msgs[2].get("error", {}).get("code") != -32601 or "commands" not in results[0]
+                or results[1].get("ok") is not True or results[2].get("note") != marker):
+            raise RuntimeError("MCP preflight failed capability, isolation or write/read checks")
+        return {"transport": "stdio", "tools": sorted(names), "resources": False,
+                "observation": True, "note_roundtrip": True}
+
+
+def verify_client(path):
+    with path.open(encoding="utf-8") as stream:
+        entries = [row for line in stream if (row := json.loads(line)).get("type") == "system"
+                   and row.get("subtype") == "init"]
+    if len(entries) != 1:
+        raise RuntimeError("Claude Code did not report its active MCP tools")
+    init = entries[0]
+    servers = [(s.get("name"), s.get("status")) for s in init.get("mcp_servers", [])]
+    if servers != [("table", "connected")] or set(init.get("tools", [])) != ALLOWED:
+        raise RuntimeError("Claude Code did not connect exclusively to the expected table tools")
+
+
 def play(run, variant, seed, credential, mode, limit, image=None):
     run = Path(run).resolve()
     run.mkdir(exist_ok=False, parents=True, mode=0o700)
@@ -104,6 +156,8 @@ def play(run, variant, seed, credential, mode, limit, image=None):
                       private_markers=(*PRIVATE_MARKERS, str(SOURCE), str(run))) as gateway):
             client = Path(tmp)
             (client / "desk").mkdir()
+            manifest["mcp_preflight"] = table_preflight(run, image, client)
+            write(journal, manifest)
             for index, turn in enumerate(turns):
                 if gateway.count >= limit:
                     manifest["status"] = "budget_exhausted"
@@ -123,9 +177,11 @@ def play(run, variant, seed, credential, mode, limit, image=None):
                     count = run_claude(run, turn, gateway, session, prompt, client,
                                       config=config_for(run, turn, image), context=CONTEXT,
                                       allowed=ALLOWED, first_session=index == 0)
+                    verify_client(run / "trace" / f"turn-{turn}.jsonl")
                 except RuntimeError:
                     if not gateway.budget_exhausted or mode == "smoke":
                         raise
+                    verify_client(run / "trace" / f"turn-{turn}.jsonl")
                     manifest["turns"].append({"turn": turn, "upstream_calls": gateway.count - before,
                                               "end": "budget_exhausted"})
                     manifest["status"] = "budget_exhausted"
@@ -150,13 +206,23 @@ def play(run, variant, seed, credential, mode, limit, image=None):
 def verify_smoke(run, value):
     calls = [json.loads(line) for line in (run / "trace/tools-1.jsonl").read_text().splitlines()]
     observed = any(c["tool"] == "observe" and c["result"].get("ok") is not False for c in calls)
-    reads = [c["n"] for c in calls if c["args"].get("action", {}).get("op") == "read_note"
-             and c["result"].get("note") == value]
-    writes = [c["n"] for c in calls if c["args"].get("action", {}) == {"op":"note","text":value}
-              and c["result"].get("ok")]
+    token = re.compile(r"(?<![a-zA-Z0-9_])" + re.escape(value) + r"(?![a-zA-Z0-9_])")
+    written = None
+    verified = False
+    for call in sorted(calls, key=lambda row: row["n"]):
+        if call["tool"] != "act" or call["result"].get("ok") is not True:
+            continue
+        action = call["args"].get("action", {})
+        if action.get("op") == "note":
+            written = action.get("text")
+            verified = False
+        elif (action.get("op") == "read_note" and isinstance(written, str)
+              and token.search(written) and call["result"].get("note") == written):
+            verified = True
     lines = [json.loads(line) for line in (run / "trace/turn-1.jsonl").read_text().splitlines()]
-    confirmed = any(e.get("type") == "result" and value in e.get("result", "") for e in lines)
-    if not (observed and reads and writes and min(writes) < max(reads) and confirmed):
+    confirmed = any(e.get("type") == "result" and not e.get("is_error")
+                    and token.search(e.get("result", "")) for e in lines)
+    if not (observed and verified and confirmed):
         raise RuntimeError("Smoke did not demonstrate observation, note persistence, readback and final receipt")
 
 

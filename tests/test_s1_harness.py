@@ -7,7 +7,7 @@ import unittest
 from unittest.mock import patch
 
 from s1.game import new_game, open_turn, scout_notice
-from s1.pilot import config_for, play
+from s1.pilot import config_for, play, verify_client, verify_smoke
 from s1.table import ALLOWED, game_call, prepare, release, serve, snapshot
 from w1.gateway import MODEL, translate
 
@@ -80,6 +80,9 @@ class LeagueHarnessTest(unittest.TestCase):
             self.assertTrue(kwargs["first_session"])
             self.assertEqual(kwargs["allowed"], ALLOWED)
             self.assertFalse(list((client / "desk").iterdir()))
+            (run / "trace" / f"turn-{turn}.jsonl").write_text(json.dumps(
+                {"type":"system","subtype":"init","tools":sorted(ALLOWED),
+                 "mcp_servers":[{"name":"table","status":"connected"}]}) + "\n")
             label = run.name
             prompts[label] = prompt
             tables[label] = game_call(run / "arena", turn, "observe", {}, "client", 1)
@@ -98,3 +101,37 @@ class LeagueHarnessTest(unittest.TestCase):
         for variant in "AB":
             self.assertNotIn(scout_notice(variant), prompts["Acurrent"])
             self.assertIn(scout_notice(variant), prompts[variant+"reminder"])
+
+    def test_claude_registration_disconnect_and_unexpected_tool(self):
+        path = self.root / "turn.jsonl"
+        for status, tools in (("failed", []), ("connected", [*ALLOWED,"Bash"])):
+            path.write_text(json.dumps({"type":"system","subtype":"init","tools":tools,
+                                       "mcp_servers":[{"name":"table","status":status}]}) + "\n")
+            with self.assertRaisesRegex(RuntimeError, "did not connect"):
+                verify_client(path)
+
+    def test_smoke_labeled_receipt_exact_read_order_and_write_success(self):
+        token = "deadbeef1234"
+        label = "交接代号：" + token
+        trace = self.run / "trace"
+        (trace / "turn-1.jsonl").write_text(json.dumps({"type":"result","result":"读回 " + token}))
+        def call(op, arg, reply):
+            return {"tool":"act","args":{"action":{"op":op, **arg}}, "result":reply}
+        good = call("note", {"text":label}, {"ok":True})
+        read = call("read_note", {}, {"ok":True,"note":label})
+        for valid, actions in [
+            (True, [good, read]),
+            (False, [read, good]),
+            (False, [good, call("read_note", {}, {"ok":True, "note":token})]),
+            (False, [call("note", {"text":label}, {"ok":False}), read]),
+            (False, [call("note", {"text":label+"7"}, {"ok":True}),
+                     call("read_note", {}, {"ok":True,"note":label+"7"})]),
+        ]:
+            rows = [{"tool":"observe","args":{},"result":{"venue":"开幕"}}] + actions
+            (trace / "tools-1.jsonl").write_text("".join(
+                json.dumps(dict(n=n, **row))+"\n" for n, row in enumerate(rows)))
+            if valid:
+                verify_smoke(self.run, token)
+            else:
+                with self.assertRaises(RuntimeError):
+                    verify_smoke(self.run, token)
