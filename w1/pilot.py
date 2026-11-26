@@ -42,7 +42,7 @@ def blinded_office(run, backend):
             shutil.move(str(anonymous), work)
 
 
-def claude_turn(run, turn, backend, gw, session, prompt, client):
+def claude_turn(run, turn, backend, gw, session, prompt, client, *, first_session=None):
     config = {"mcpServers": {"office": {"command": sys.executable,
         "args": ["-m", "w1.office", str(run.resolve()), str(turn), backend],
         "env": {"PYTHONPATH": str(Path(__file__).resolve().parents[1]),
@@ -57,11 +57,13 @@ def claude_turn(run, turn, backend, gw, session, prompt, client):
            "DISABLE_ERROR_REPORTING":"1", "CLAUDE_CODE_DISABLE_AUTO_MEMORY":"1",
            "CLAUDE_CODE_ATTRIBUTION_HEADER":"0", "ENABLE_TOOL_SEARCH":"false",
            "NO_PROXY":"127.0.0.1,localhost", "LANG": "en_US.UTF-8"}
+    if first_session is None:
+        first_session = turn == 1
     argv = [exe, "-p", "--bare", "--model", MODEL, "--strict-mcp-config", "--mcp-config", json.dumps(config),
             "--settings", "{}", "--setting-sources", "", "--tools", "", "--permission-mode", "dontAsk",
             "--allowedTools", "mcp__office__shell,mcp__office__draft,mcp__office__deliver",
             "--disable-slash-commands", "--system-prompt", CONTEXT, "--output-format", "stream-json", "--verbose",
-            "--session-id" if turn == 1 else "--resume", session]
+            "--session-id" if first_session else "--resume", session]
     gw.turn = turn
     start = gw.count
     stdout = run / "trace" / f"turn-{turn}.jsonl"
