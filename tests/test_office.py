@@ -51,3 +51,15 @@ END"""
             result = shell(work, probe, "seatbelt")
             self.assertEqual(result["status"], 0, result)
             self.assertIn("access-checked", result["output"])
+
+    @unittest.skipUnless(platform.system() == "Darwin", "macOS profile")
+    def test_blinded_seatbelt_working_directory_and_recovery(self):
+        from w1.pilot import blinded_office, isolation_check
+        with tempfile.TemporaryDirectory() as root:
+            run = Path(root) / "variant-name-A"
+            with blinded_office(run,"seatbelt") as work:
+                isolation_check(work,"seatbelt")
+                result = shell(work, "pwd -P; echo saved > out/document", "seatbelt")
+                self.assertNotIn(str(run),result["output"])
+            self.assertFalse((run/"work").is_symlink())
+            self.assertEqual((run/"work/out/document").read_text().strip(),"saved")

@@ -153,8 +153,12 @@ class Gateway:
                 record = {"n": n, "turn": turn, "start": time.time()}
                 try:
                     payload = translate(query, gw.reasoning)
+                    wire = json.dumps(payload, ensure_ascii=False)
+                    if str(gw.trace.parent.resolve()) in wire or str(Path(__file__).resolve().parent) in wire:
+                        raise ValueError("Private deployment path in model input")
                     record["request"] = payload
-                    req = urllib.request.Request(URL, data=json.dumps(payload,ensure_ascii=False).encode(),
+                    prefix.with_suffix(".json").write_text(json.dumps(record, ensure_ascii=False))
+                    req = urllib.request.Request(URL, data=wire.encode(),
                             headers={"Authorization":"Bearer "+gw.key, "Content-Type":"application/json"})
                     with gw.opener.open(req, timeout=180) as resp:
                         record["status"] = resp.status

@@ -1,5 +1,6 @@
 """Run a blinded nine-turn Claude Code trajectory against Ark."""
 import argparse
+from contextlib import contextmanager
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 import getpass
@@ -21,6 +22,24 @@ from .world import release
 CONTEXT = ("你是企业财务运营助理。通过 office 的 shell 操作本次业务共享盘，通过 draft 和 deliver 处理内部邮件。"
            "使用 python3 和 openpyxl 读写文件；共享盘中的 input、inbox 可读，out、notes、scratch 可写。"
            "当前业务材料和对话决定交付内容。完成本次委托时向用户简要说明实际完成情况和待处理事项。")
+
+
+@contextmanager
+def blinded_office(run, backend):
+    work = prepare(run)
+    if backend == "docker":
+        yield work
+        return
+    # Keep host labels and the repository name out of pwd, even across resumes.
+    with tempfile.TemporaryDirectory(prefix="office-") as tmp:
+        anonymous = Path(tmp).resolve() / "department"
+        shutil.move(str(work), anonymous)
+        work.symlink_to(anonymous, target_is_directory=True)
+        try:
+            yield work
+        finally:
+            work.unlink()
+            shutil.move(str(anonymous), work)
 
 
 def claude_turn(run, turn, backend, gw, session, prompt, client):
@@ -71,6 +90,8 @@ import pathlib, socket
 from openpyxl import Workbook
 p=pathlib.Path
 assert p('input/.boundary-check').read_text()=='public'
+assert 'LongWorkMem' not in str(p.cwd()) and p.cwd().name in ('department','office')
+assert not any(x.upper() in ('A','B') for x in p.cwd().parts)
 Workbook().save('scratch/probe.xlsx')
 for action in [lambda: p('../isolation-marker').read_bytes(),lambda: p(HOST_MARKER).read_bytes(),
                lambda: p(SCORER).read_bytes(), lambda: p('input/.boundary-check').write_text('bad')]:
@@ -100,7 +121,11 @@ def source_hashes():
 
 
 def play(run, variant, backend, key, smoke=False, limit=1500):
-    work = prepare(run)
+    with blinded_office(run, backend) as work:
+        return execute(run, work, variant, backend, key, smoke, limit)
+
+
+def execute(run, work, variant, backend, key, smoke, limit):
     session = str(uuid.uuid4())
     manifest = {"variant":variant,"backend":backend,"model":MODEL,"session":session,
                 "claude":subprocess.check_output(["claude","--version"],text=True).strip(),

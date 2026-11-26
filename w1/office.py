@@ -113,7 +113,8 @@ def serve(run: Path, turn: int, backend: str) -> None:
             if result is not None:
                 response["result"] = result
         except (OSError, ValueError, KeyError, TypeError) as exc:
-            response["result"] = {"isError": True, "content": [{"type": "text", "text": str(exc)}]}
+            detail = exc.strerror if isinstance(exc, OSError) else str(exc)
+            response["result"] = {"isError": True, "content": [{"type": "text", "text": detail}]}
         print(json.dumps(response, ensure_ascii=False), flush=True)
 
 
