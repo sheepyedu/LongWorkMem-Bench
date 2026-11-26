@@ -20,34 +20,35 @@ WRITABLE = ("out", "notes", "scratch")
 SHELL_TIMEOUT = 60
 
 
-def shell(work: Path, command: str, backend: str) -> dict:
+def shell(work: Path, command: str, backend: str, *, writable=WRITABLE, timeout=SHELL_TIMEOUT,
+          image=None, mount="/office", check_runtime=False, runtime_roots=()) -> dict:
     if not isinstance(command, str) or not command or len(command) > 100_000:
         raise ValueError("Expected a shell command up to 100,000 characters")
     work = work.resolve(strict=True)
-    if any((work / name).is_symlink() for name in WRITABLE):
+    if any((work / name).is_symlink() for name in writable):
         raise ValueError("Invalid writable directory")
     if backend == "docker":
         argv = ["docker", "run", "--rm", "--pull=never", "--network", "none", "--read-only", "--cap-drop", "ALL",
                 "--security-opt", "no-new-privileges", "--pids-limit", "96", "--memory", "640m",
                 "--user", f"{os.getuid()}:{os.getgid()}", "--tmpfs", "/tmp:rw,nosuid,nodev,size=128m",
-                "-e", "HOME=/office/notes", "-e", "PYTHONDONTWRITEBYTECODE=1",
-                "-v", f"{work}:/office:ro", "-w", "/office"]
-        for name in WRITABLE:
-            argv.extend(["-v", f"{work / name}:/office/{name}:rw"])
-        argv.extend([os.getenv("W1_OFFICE_IMAGE_ID") or IMAGE, "/bin/sh", "-c", command])
+                "-e", f"HOME={mount}/notes", "-e", "PYTHONDONTWRITEBYTECODE=1",
+                "-v", f"{work}:{mount}:ro", "-w", mount]
+        for name in writable:
+            argv.extend(["-v", f"{work / name}:{mount}/{name}:rw"])
+        argv.extend([image or os.getenv("W1_OFFICE_IMAGE_ID") or IMAGE, "/bin/sh", "-c", command])
         environment = os.environ.copy()
     elif backend == "seatbelt" and platform.system() == "Darwin":
         literal = json.dumps
         roots = ["/bin", "/sbin", "/usr/bin", "/usr/sbin", "/usr/lib", "/usr/share", "/System",
                  "/Library/Apple", "/private/var/select", "/private/etc/apache2/mime.types", str(Path(sys.base_prefix).resolve()), str(Path(sys.prefix).resolve()), str(work)]
-        roots = sorted(set(roots))
+        roots = sorted(set(roots) | set(runtime_roots))
         rules = ["(version 1)", "(deny default)", '(import "system.sb")', "(allow process-exec process-fork)",
                  "(allow sysctl-read)", "(allow file-read-metadata)",
                  '(allow file-read* (literal "/dev/null") (literal "/dev/urandom") (literal "/dev/random"))',
                  '(allow file-write* (literal "/dev/null"))',
                  '(allow mach-lookup (global-name "com.apple.system.logger") (global-name "com.apple.system.opendirectoryd.libinfo"))',
                  "(allow file-read* " + " ".join("(subpath " + literal(p) + ")" for p in roots) + ")",
-                 "(allow file-write* " + " ".join("(subpath " + literal(str(work / x)) + ")" for x in WRITABLE) + ")"]
+                 "(allow file-write* " + " ".join("(subpath " + literal(str(work / x)) + ")" for x in writable) + ")"]
         argv = ["/usr/bin/sandbox-exec", "-p", "\n".join(rules), "/bin/zsh", "-f", "-c", command]
         environment = {"PATH": str(Path(sys.executable).parent) + ":/usr/bin:/bin:/usr/sbin",
                        "HOME": str(work / "notes"), "TMPDIR": str(work / "scratch"),
@@ -61,7 +62,7 @@ def shell(work: Path, command: str, backend: str) -> dict:
         proc = subprocess.Popen(argv, cwd=work, stdout=output, stderr=subprocess.STDOUT, env=environment,
                                 stdin=subprocess.DEVNULL, start_new_session=True)
         try:
-            status = proc.wait(timeout=SHELL_TIMEOUT)
+            status = proc.wait(timeout=timeout)
         except subprocess.TimeoutExpired:
             os.killpg(proc.pid, signal.SIGKILL)
             proc.wait()
@@ -73,9 +74,12 @@ def shell(work: Path, command: str, backend: str) -> dict:
             if backend == "docker" and status == 124 and cid.exists():
                 subprocess.run(["docker","rm","-f",cid.read_text().strip()],env=environment,
                                stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=20)
+        cid_created = cid.exists()
         length = output.tell()
         output.seek(0)
         content = output.read(24_000).decode(errors="replace")
+    if check_runtime and backend == "docker" and status == 125 and not cid_created:
+        raise RuntimeError("Docker could not start the sandbox: " + content[:600])
     if length > 24_000:
         content += "\n[Output truncated. Use a narrower search.]"
     return {"status": status, "output": content}

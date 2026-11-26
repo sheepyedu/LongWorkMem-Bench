@@ -24,7 +24,10 @@ def plain(value):
     return "\n".join(block.get("text", "") for block in value if block.get("type") == "text")
 
 
-def translate(query, reasoning):
+OFFICE_TOOLS = frozenset("mcp__office__" + name for name in ("shell", "draft", "deliver"))
+
+
+def translate(query, reasoning, allowed=OFFICE_TOOLS):
     if query["model"] != MODEL:
         raise ValueError("Only the configured model is available")
     messages = []
@@ -55,7 +58,6 @@ def translate(query, reasoning):
             if body:
                 messages.append({"role": "user", "content": body})
     payload = {"model": MODEL, "messages": messages, "max_tokens": min(query["max_tokens"], 16384), "stream": False}
-    allowed = {"mcp__office__" + name for name in ("shell", "draft", "deliver")}
     if any(t["name"] not in allowed for t in query.get("tools", [])):
         raise ValueError("Unexpected tool in isolated Claude Code process")
     if query.get("tools"):
@@ -105,9 +107,12 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
 
 
 class Gateway:
-    def __init__(self, key, run: Path, limit=1500):
+    def __init__(self, key, run: Path, limit=1500, *, allowed=OFFICE_TOOLS, private_markers=()):
+        self.allowed = frozenset(allowed)
+        self.private_markers = tuple(private_markers)
         self.token = secrets.token_hex(32)
         self.turn, self.count, self.limit = 0, 0, limit
+        self.budget_exhausted = False
         self.reasoning = {}
         self.trace = run / "trace"
         self.lock = threading.Lock()
@@ -145,6 +150,7 @@ class Gateway:
                     return
                 with gw.lock:
                     if gw.count >= gw.limit:
+                        gw.budget_exhausted = True
                         self.respond(400, {"type":"error", "error":{"type":"invalid_request_error","message":"Run request budget exhausted"}})
                         return
                     gw.count += 1
@@ -152,15 +158,16 @@ class Gateway:
                 prefix = gw.trace / f"api-{n:04}"
                 record = {"n": n, "turn": turn, "start": time.time()}
                 try:
-                    payload = translate(query, gw.reasoning)
+                    payload = translate(query, gw.reasoning, gw.allowed)
                     wire = json.dumps(payload, ensure_ascii=False)
-                    if str(gw.trace.parent.resolve()) in wire or str(Path(__file__).resolve().parent) in wire:
+                    if any(marker in wire for marker in (str(gw.trace.parent.resolve()), str(Path(__file__).resolve().parent), *gw.private_markers)):
                         raise ValueError("Private deployment path in model input")
                     record["request"] = payload
                     prefix.with_suffix(".json").write_text(json.dumps(record, ensure_ascii=False))
                     req = urllib.request.Request(URL, data=wire.encode(),
                             headers={"Authorization":"Bearer "+gw.key, "Content-Type":"application/json"})
                     with gw.opener.open(req, timeout=180) as resp:
+                        record["upstream_status"] = resp.status
                         record["status"] = resp.status
                         record["request_id"] = resp.headers.get("x-request-id") or resp.headers.get("x-tt-logid")
                         reply = json.load(resp)
