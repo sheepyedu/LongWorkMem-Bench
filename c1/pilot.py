@@ -80,7 +80,7 @@ PY""".replace("PRIVATE", repr(private))
         (work / "scratch/probe.db").unlink(missing_ok=True)
 
 
-def run_session(run, variant, backend, key, *, mode="formal", limit=1500, start=None, hint=False):
+def run_session(run, variant, backend, key, *, mode="formal", limit=1500, start=None, hint=False, handoff=None):
     if mode != "smoke":
         from . import world
     run = Path(run).resolve()
@@ -109,7 +109,7 @@ def run_session(run, variant, backend, key, *, mode="formal", limit=1500, start=
                 work.rmdir()
                 if freeze(start, work):
                     raise ValueError("Control checkout contains unsupported files")
-                manifest.update(hint=hint)
+                manifest.update(hint=hint, common_handoff=handoff)
                 (work / "input/decision.txt").write_text(world.decision_text(world.POLICIES[variant]))
                 (work / "input/event-format.txt").write_text(world.EVENT_CONTRACT)
             else:
@@ -199,6 +199,11 @@ def main():
         p.error("Use distinct variants and a positive request budget")
     if args.backend == "docker":
         os.environ["C1_IMAGE"] = sandbox.image_id()
+    handoff = None
+    if args.controls_from:
+        from .controls import check_handoff
+        args.dest.parent.mkdir(parents=True, exist_ok=True)
+        handoff = check_handoff(args.controls_from.resolve(), args.backend, args.dest.parent)
     key = os.getenv("ARK_API_KEY") or getpass.getpass("Ark credential (hidden): ")
     jobs = []
     for v in args.variants:
@@ -208,7 +213,7 @@ def main():
     with ThreadPoolExecutor(max_workers=len(jobs)) as pool:
         pending = [pool.submit(run_session, args.dest / n, v, args.backend, key, hint=h,
                                mode="smoke" if args.smoke else ("control" if args.controls_from else ("handoff" if args.handoff else "formal")),
-                               start=args.controls_from, limit=args.limit or (60 if args.controls_from else 1500)) for n, v, h in jobs]
+                               start=args.controls_from, handoff=handoff, limit=args.limit or (60 if args.controls_from else 1500)) for n, v, h in jobs]
         for job in pending:
             job.result()
 

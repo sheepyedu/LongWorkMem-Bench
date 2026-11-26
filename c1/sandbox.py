@@ -18,12 +18,12 @@ def image_id():
                                     "--format", "{{.Id}}"], text=True).strip()
 
 
-def shell(work, command, backend="seatbelt", timeout=60):
+def shell(work, command, backend="seatbelt", timeout=60, *, image=None):
     # Homebrew's Python extension loads SQLite through its opt symlink.
     sqlite_lib = Path("/opt/homebrew/opt/sqlite/lib")
     libraries = (str(sqlite_lib), str(sqlite_lib.resolve())) if backend == "seatbelt" and sqlite_lib.exists() else ()
     return isolated_shell(Path(work), command, backend, writable=WRITABLE, timeout=timeout,
-                          image=os.getenv("C1_IMAGE", IMAGE), mount="/workspace", check_runtime=True, runtime_roots=libraries)
+                          image=image or os.getenv("C1_IMAGE", IMAGE), mount="/workspace", check_runtime=True, runtime_roots=libraries)
 
 
 def serve(work, backend, journal=None):
