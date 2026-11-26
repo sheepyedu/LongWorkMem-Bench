@@ -152,7 +152,7 @@ def check_mail(run, final, oracle):
 
     actions = {action: [(e, p) for e, p in events if e["action"] == action]
                for action in ("draft", "deliver")}
-    attachments = {item[0] for item in ROUTES.values()}
+    attachments = {filename for filename, _ in ROUTES.values()} | {"out/bonus.xlsx"}
     incidental = [e for e, _ in actions["draft"] if e["turn"] != 8 and e["attachment"] not in attachments]
     scoped_drafts = [(e, p) for e, p in actions["draft"] if e["turn"] == 8 or e["attachment"] in attachments]
     evidence = []

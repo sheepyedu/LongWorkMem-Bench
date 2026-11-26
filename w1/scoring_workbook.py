@@ -157,20 +157,19 @@ def check_workbook(path, oracle, payroll):
             results.mkdir()
             book = openpyxl.load_workbook(path, keep_links=False)
             pools, hours, pool_positions, positions = workbook_inputs(book)
-            if pools != oracle["pools"] or not hours:
-                return failed("workbook pools or hours missing/incorrect")
+            if pools != oracle["pools"] or hours.keys() != oracle["hours"].keys():
+                return failed("workbook pools or approved project-employee combinations differ")
             base_pay = payments(hours, pools)
-            ok, why = payroll.matches(base_pay, "project employee hours bonus")
-            if not ok:
-                return failed("workbook inputs and filed payroll disagree: " + why)
+            filed_ok, filed_why = payroll.matches(base_pay, "project employee hours bonus")
             variants = []
             scenarios = [("baseline", None, None)]
             for index, p in enumerate(sorted(pools)):
                 team = sorted(k for k in hours if k[0] == p)
                 if not team:
                     return failed("approved project missing payroll")
-                key = next((k for k in team if k[1] == "E07"), team[0])
-                scenarios.extend([(f"hours-{index}", key, None), (f"pool-{index}", None, p)])
+                for employee_index, key in enumerate(team):
+                    scenarios.append((f"hours-{index}-{employee_index}", key, None))
+                scenarios.append((f"pool-{index}", None, p))
             for case, changed_employee, changed_project in scenarios:
                 case_hours, case_pools = hours.copy(), pools.copy()
                 changed_cell = None
@@ -214,6 +213,9 @@ def check_workbook(path, oracle, payroll):
                     ok, why = awards_match(result, want)
                 else:
                     ok, why = False, "Calc produced no workbook"
+                if source.stem == "baseline" and not filed_ok:
+                    ok = False
+                    why += "; workbook inputs and filed payroll disagree: " + filed_why
                 by_kind[source.stem.split("-")[0]].append((ok, f"{label}: {why}"))
             return [(all(ok for ok, _ in cases), "; ".join(why for _, why in cases))
                     for cases in by_kind.values()], []
