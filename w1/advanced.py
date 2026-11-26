@@ -2,18 +2,21 @@
 import argparse
 import hashlib
 import json
+
 from pathlib import Path
 
 from . import advanced_ledger, advanced_pay, advanced_mail
 from .runstate import ROUNDS, freeze, prepare
 
 
+DEPARTMENT_WEIGHTS = {"ledger": 40, "pay": 35, "mail": 25}
+
 def departments(level):
     if level in (1, 2):
-        return ((advanced_ledger, 40), (advanced_pay, 35), (advanced_mail, 25))
+        return {"ledger": advanced_ledger, "pay": advanced_pay, "mail": advanced_mail}
     if level == 3:
         from . import advanced_ledger_l3, advanced_pay_l3, advanced_mail_l3
-        return ((advanced_ledger_l3, 40), (advanced_pay_l3, 35), (advanced_mail_l3, 25))
+        return {"ledger": advanced_ledger_l3, "pay": advanced_pay_l3, "mail": advanced_mail_l3}
     raise ValueError(f"Unknown advanced W1 level {level}")
 
 
@@ -22,7 +25,7 @@ def release(work, turn, variant, level, seed):
         raise ValueError("Invalid W1 instance or turn")
     for folder in ("input", "inbox", "out"):
         (work / folder).mkdir(parents=True, exist_ok=True)
-    prompts = [department.release(work, turn, variant, level, seed) for department, _ in departments(level)]
+    prompts = [department.release(work, turn, variant, level, seed) for department in departments(level).values()]
     prompt, = [prompt for prompt in prompts if prompt]
     if level == 3 and turn == 3:
         prompt += " 请同时办理技术移交通知上随关账到期的薪酬档案。"
@@ -44,7 +47,7 @@ def run_reference(run, variant, level, seed):
     turns = []
     for turn in ROUNDS:
         prompt = release(work, turn, variant, level, seed)
-        for department, _ in departments(level):
+        for department in departments(level).values():
             department.reference(run, turn, variant, level, seed)
         freeze(run, turn)
         turns.append(dict(turn=turn, public_digest=public_digest(work, prompt)))
@@ -64,14 +67,15 @@ def grade(run, variant=None):
     if any(not (run / "snapshots" / str(t)).is_dir() for t in ROUNDS):
         raise ValueError("Missing host snapshot")
     items = {}
-    for department, weight in departments(manifest["level"]):
+    for label, department in departments(manifest["level"]).items():
+        weight = DEPARTMENT_WEIGHTS[label]
         checks = department.checks(run, manifest["variant"], manifest["level"], manifest["seed"])
         if items.keys() & checks.keys() or sum(maximum for _, maximum, _ in checks.values()) != weight:
             raise ValueError("Invalid checkpoint weights or duplicate labels")
         for code, (earned, maximum, reason) in checks.items():
             if not 0 <= earned <= maximum:
                 raise ValueError(f"Invalid score for {code}")
-            items[code] = dict(earned=float(earned), max=maximum, reason=reason)
+            items[code] = dict(department=label, earned=float(earned), max=maximum, reason=reason)
     return dict(scorer_version="w1-advanced/1", variant=manifest["variant"],
                 level=manifest["level"], seed=manifest["seed"],
                 total=round(sum(item["earned"] for item in items.values()), 4), max=100, items=items)

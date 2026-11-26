@@ -7,7 +7,7 @@ from pathlib import Path
 import re
 from statistics import mean
 
-from .advanced import grade
+from .advanced import DEPARTMENT_WEIGHTS as STAGES, grade
 from .gateway import MODEL
 from .review import events, summarize
 from .runstate import ROUNDS
@@ -15,7 +15,6 @@ from .runstate import ROUNDS
 
 QWEN = "qwen3.8-flash"
 MODELS = (MODEL, QWEN)
-STAGES = {"ledger": 40, "pay": 35, "mail": 25}
 HOLDOUT_SEEDS = {1733, 2671}
 HARNESS = ("gateway.py", "pilot.py", "office.py", "mail.py", "runstate.py")
 
@@ -133,8 +132,8 @@ def compare(paths):
             require(expected_inputs is None or inputs == expected_inputs, run, "round materials or prompts differ within pair")
             expected_inputs = inputs
             assessment = grade(run)
-            stages = {s: round(sum(row["earned"] for code, row in assessment["items"].items()
-                                   if code.split(".", 1)[0] == s), 4) for s in STAGES}
+            stages = {s: round(sum(row["earned"] for row in assessment["items"].values()
+                                   if row["department"] == s), 4) for s in STAGES}
             model_stats[model] = {"run": str(run), "stages": stages, "total": assessment["total"],
                                   "scorer_version": assessment["scorer_version"], **review}
         gap = model_stats[MODEL]["total"] - model_stats[QWEN]["total"]

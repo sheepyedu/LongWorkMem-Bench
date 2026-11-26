@@ -56,7 +56,8 @@ class PairedTests(unittest.TestCase):
         m = json.loads((run / "manifest.json").read_bytes())
         earned = 65 if m["model"] == MODEL else (55 if m["variant"] == "A" else 59)
         return {"total":earned,"scorer_version":"v1","items":{
-            "ledger.a":{"earned":earned-35,"max":40}, "pay.b":{"earned":20,"max":35}, "mail.c":{"earned":15,"max":25}}}
+            "ledger.a":{"department":"ledger","earned":earned-35,"max":40},
+            "pay.b":{"department":"pay","earned":20,"max":35}, "mail3.c":{"department":"mail","earned":15,"max":25}}}
 
     def test_complete_pairs_and_proven_retry(self):
         ds = self.make("sd", MODEL, seed=1733, retry=True)
@@ -68,6 +69,7 @@ class PairedTests(unittest.TestCase):
         self.assertEqual(result["split"],"holdout")
         self.assertEqual(result["mean_paired_gap"],8)
         self.assertEqual(result["model_means"][MODEL]["total"],65)
+        self.assertEqual(result["model_means"][MODEL]["stages"]["mail"],15)
         self.assertEqual(result["model_means"]["qwen3.8-flash"]["stages"]["ledger"],22)
         summary = result["pairs"][0]["models"][MODEL]
         self.assertEqual(summary["usage"]["successful"],9)
