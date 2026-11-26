@@ -349,7 +349,7 @@ def _envelope(event):
     return tuple(event[k] for k in ("turn", "action", "recipient", "attachment", "subject"))
 
 
-def checks(run, variant, level, seed, *, roster=None, accepted_early=()):
+def checks(run, variant, level, seed, *, roster=None, accepted_early=(), scoped_early=()):
     wires, anomalies = mail_events(run)
     wires = [(event, path) for event, path in wires if event["receipt"] not in accepted_early]
     with TemporaryDirectory(prefix="treasury-office-") as tmp:
@@ -433,10 +433,12 @@ def checks(run, variant, level, seed, *, roster=None, accepted_early=()):
                 receipts.append(packet)
 
     for event, path in wires:
-        if event["action"] != "deliver":
+        if event["action"] != "deliver" or event["receipt"] in scoped_early:
             continue
         entry = next((e for e in orders if e["attachment"] == event["attachment"]), None)
-        if entry is None:
+        recipients = ({entry["recipient"]} | {op["recipient"] for op in plan.get(entry["packet"], [])}
+                      if entry is not None else set())
+        if event["recipient"] not in recipients:
             private.append(event["receipt"])
         elif entry["packet"] in BANKS:
             valid = {r["account"] for r in current.get(entry["packet"], []) if r["payable"] > 0}

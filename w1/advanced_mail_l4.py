@@ -160,7 +160,7 @@ def reference(run, turn, variant, level, seed):
     treasury._output(work / "out/verify_index.csv", INDEX, index)
 
 
-def _data_ok(path, fields, rows, *, scope=False):
+def _data_ok(path, fields, rows, *, scope=False, valid_prior=()):
     """Allow currency formatting while rejecting extra fields, records, or leaked cell text."""
     table = Table(path)
     cols = fields.split(",")
@@ -171,6 +171,8 @@ def _data_ok(path, fields, rows, *, scope=False):
         result = []
         for field in cols:
             value = r[field]
+            if field == "prior" and scope and value in valid_prior:
+                value = None
             if field in ("amount", "line"):
                 value = number(value)
                 if scope and field == "amount":
@@ -194,7 +196,7 @@ LATE = {"recognized": 1.5, "payable": 1.5, "review_routes": 1, "review_data": 1,
 
 def checks(run, variant, level, seed):
     journal, _ = mail_events(run)
-    accepted = set()
+    accepted, scoped = set(), set()
     results = {}
     final = run / "snapshots/9"
     milestones = list(EARLY) + [9]
@@ -206,11 +208,19 @@ def checks(run, variant, level, seed):
         expected_by_stage[STAGES[turn]] = set(orders)
         route, contents, archives = [], [], []
         for desk, (envelope, fields, rows, prior) in orders.items():
+            valid_prior = {""}
+            if turn == 5:
+                first_route = _orders(seed, 2, journal)[desk][0]
+                valid_prior.update(e["receipt"] for e, _ in journal if treasury._envelope(e) == first_route)
+            for event, payload in journal:
+                if (treasury._envelope(event)[1:] == envelope[1:] and
+                        _data_ok(payload, fields, rows, scope=True, valid_prior=valid_prior)):
+                    scoped.add(event["receipt"])
             event, payload = _unique(journal, envelope)
             if not event:
                 continue
             route.append(desk)
-            if _data_ok(payload, fields, rows, scope=True):
+            if event["receipt"] in scoped:
                 accepted.add(event["receipt"])
             if _data_ok(payload, fields, rows):
                 contents.append(desk)
@@ -230,7 +240,7 @@ def checks(run, variant, level, seed):
             for t in EARLY:
                 if t <= turn:
                     results[f"mail4.r{t}_record"] = (0, 1, f"extra or unrecognized entry in R{turn} index")
-    late = treasury.checks(run, variant, 3, seed, roster=_roster(variant, seed), accepted_early=accepted)
+    late = treasury.checks(run, variant, 3, seed, roster=_roster(variant, seed), accepted_early=accepted, scoped_early=scoped)
     for full_label, (points, maximum, reason) in late.items():
         label = full_label.split(".")[-1]
         weight = LATE[label]

@@ -81,4 +81,6 @@ class InquiryTest(unittest.TestCase):
             result = mail.checks(run, "A", 4, 431)
             self.assertEqual(result["mail4.r2_route"][0], .5)
             self.assertEqual(result["mail4.r5_content"][0], 1)
+            # All duplicates went to the AP desk authorized to see this exact site/period.
+            self.assertEqual(result["mail4.privacy"][0], 1)
             self.assertEqual(result["mail4.authorization"][0], 0)

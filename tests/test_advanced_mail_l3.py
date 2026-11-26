@@ -76,6 +76,15 @@ class TreasuryClearingTest(unittest.TestCase):
             self.assertEqual(scores["mail3.revised"][0], 3)
             self.assertLess(scores["mail3.disposition"][0], 3)
 
+    def test_actual_recipient_must_be_entitled_to_the_attachment_scope(self):
+        with TemporaryDirectory() as tmp:
+            run = self.office(Path(tmp))
+            orders = {r["packet"]: r for r in mail._orders(run / "work")}
+            finance = orders["FIN"]
+            act(run, 9, "deliver", orders["JA"]["recipient"], finance["attachment"], finance["subject"])
+            score = mail.checks(run, "A", 3, 431)
+            self.assertEqual(score["mail3.privacy"][0], 0)
+
     def test_actual_review_bytes_carry_forward_even_if_its_amount_was_wrong(self):
         with TemporaryDirectory() as tmp:
             run = self.office(Path(tmp), end=8)
