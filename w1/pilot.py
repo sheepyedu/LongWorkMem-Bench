@@ -15,7 +15,7 @@ import tempfile
 import uuid
 
 from .gateway import Gateway, MODEL
-from .office import shell
+from .office import IMAGE, shell
 from .runstate import ROUNDS, freeze, prepare
 from .world import release
 
@@ -42,11 +42,19 @@ def blinded_office(run, backend):
             shutil.move(str(anonymous), work)
 
 
+def docker_image():
+    return subprocess.check_output(["docker","image","inspect",IMAGE,"--format","{{.Id}}"],text=True).strip()
+
+
 def claude_turn(run, turn, backend, gw, session, prompt, client, *, first_session=None):
+    office_env = {"PYTHONPATH": str(Path(__file__).resolve().parents[1])}
+    if backend == "docker":
+        if os.environ.get("DOCKER_HOST"):
+            office_env["DOCKER_HOST"] = os.environ["DOCKER_HOST"]
+        office_env["W1_OFFICE_IMAGE_ID"] = docker_image()
     config = {"mcpServers": {"office": {"command": sys.executable,
         "args": ["-m", "w1.office", str(run.resolve()), str(turn), backend],
-        "env": {"PYTHONPATH": str(Path(__file__).resolve().parents[1]),
-                **({"DOCKER_HOST": os.environ["DOCKER_HOST"]} if os.getenv("DOCKER_HOST") else {})}}}}
+        "env": office_env}}}
     exe = shutil.which("claude")
     if not exe:
         raise RuntimeError("Claude Code executable missing")
@@ -62,7 +70,7 @@ def claude_turn(run, turn, backend, gw, session, prompt, client, *, first_sessio
     argv = [exe, "-p", "--bare", "--model", MODEL, "--strict-mcp-config", "--mcp-config", json.dumps(config),
             "--settings", "{}", "--setting-sources", "", "--tools", "", "--permission-mode", "dontAsk",
             "--allowedTools", "mcp__office__shell,mcp__office__draft,mcp__office__deliver",
-            "--disable-slash-commands", "--system-prompt", CONTEXT, "--output-format", "stream-json", "--verbose",
+            "--disable-slash-commands", "--system-prompt", CONTEXT + ("本办公室支持使用 soffice --headless 在副本上实际重算 Excel。" if backend == "docker" else ""), "--output-format", "stream-json", "--verbose",
             "--session-id" if first_session else "--resume", session]
     gw.turn = turn
     start = gw.count
@@ -134,6 +142,8 @@ def execute(run, work, variant, backend, key, smoke, limit):
                 "git":subprocess.check_output(["git","rev-parse","HEAD"],cwd=Path(__file__).resolve().parent,text=True).strip(),
                 "start":datetime.now(timezone.utc).isoformat(),"limit":limit,"upstream":"Ark Chat Completions, default thinking",
                 "smoke":smoke,"turns":[], "file_hashes": source_hashes()}
+    if backend == "docker":
+        manifest["docker_image"] = docker_image()
     state = run / "manifest.json"
     def save():
         state.write_text(json.dumps(manifest, ensure_ascii=False, indent=2))

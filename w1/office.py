@@ -3,10 +3,12 @@
 The host service never executes agent commands directly. The shell sees a
 read-only office and three writable folders, with no upstream credentials.
 """
+import contextlib
 import json
 import os
 from pathlib import Path
 import platform
+import signal
 import subprocess
 import sys
 import tempfile
@@ -25,14 +27,14 @@ def shell(work: Path, command: str, backend: str) -> dict:
     if any((work / name).is_symlink() for name in WRITABLE):
         raise ValueError("Invalid writable directory")
     if backend == "docker":
-        argv = ["docker", "run", "--rm", "--network", "none", "--read-only", "--cap-drop", "ALL",
+        argv = ["docker", "run", "--rm", "--pull=never", "--network", "none", "--read-only", "--cap-drop", "ALL",
                 "--security-opt", "no-new-privileges", "--pids-limit", "96", "--memory", "640m",
                 "--user", f"{os.getuid()}:{os.getgid()}", "--tmpfs", "/tmp:rw,nosuid,nodev,size=128m",
                 "-e", "HOME=/office/notes", "-e", "PYTHONDONTWRITEBYTECODE=1",
                 "-v", f"{work}:/office:ro", "-w", "/office"]
         for name in WRITABLE:
             argv.extend(["-v", f"{work / name}:/office/{name}:rw"])
-        argv.extend([IMAGE, "/bin/sh", "-c", command])
+        argv.extend([os.getenv("W1_OFFICE_IMAGE_ID") or IMAGE, "/bin/sh", "-c", command])
         environment = os.environ.copy()
     elif backend == "seatbelt" and platform.system() == "Darwin":
         literal = json.dumps
@@ -52,8 +54,10 @@ def shell(work: Path, command: str, backend: str) -> dict:
                        "TMPPREFIX": str(work / "scratch/sh"), "LANG": "en_US.UTF-8", "PYTHONDONTWRITEBYTECODE": "1", "PYTHONNOUSERSITE": "1"}
     else:
         raise ValueError("Select docker, or seatbelt on macOS")
-    with tempfile.TemporaryFile() as output:
-        import signal
+    with tempfile.TemporaryDirectory(prefix="office-command-") as custody, tempfile.TemporaryFile() as output:
+        cid = Path(custody) / "cid"
+        if backend == "docker":
+            argv[2:2] = ["--cidfile", str(cid)]
         proc = subprocess.Popen(argv, cwd=work, stdout=output, stderr=subprocess.STDOUT, env=environment,
                                 stdin=subprocess.DEVNULL, start_new_session=True)
         try:
@@ -62,6 +66,13 @@ def shell(work: Path, command: str, backend: str) -> dict:
             os.killpg(proc.pid, signal.SIGKILL)
             proc.wait()
             status = 124
+        finally:
+            # Prevent a shell background job from mutating a later business turn.
+            with contextlib.suppress(ProcessLookupError):
+                os.killpg(proc.pid, signal.SIGKILL)
+            if backend == "docker" and status == 124 and cid.exists():
+                subprocess.run(["docker","rm","-f",cid.read_text().strip()],env=environment,
+                               stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=20)
         length = output.tell()
         output.seek(0)
         content = output.read(24_000).decode(errors="replace")
