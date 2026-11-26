@@ -111,6 +111,7 @@ def run_session(run, variant, backend, key, *, mode="formal", limit=1500, start=
                     raise ValueError("Control checkout contains unsupported files")
                 manifest.update(hint=hint)
                 (work / "input/decision.txt").write_text(world.decision_text(world.POLICIES[variant]))
+                (work / "input/event-format.txt").write_text(world.EVENT_CONTRACT)
             else:
                 for name in ("input", *sandbox.WRITABLE):
                     (work / name).mkdir(exist_ok=True)
@@ -138,8 +139,16 @@ def run_session(run, variant, backend, key, *, mode="formal", limit=1500, start=
                     else:
                         prompt = world.release(work, turn, variant)
                         if mode == "handoff" and turn == 3:
-                            pending = "本次处置：普通同版本异值暂存冲突队列。获批更正的正式决议将在交接时补入纪要。"
-                            (work / "input/decision.txt").write_text(world.decision_text(pending))
+                            # The maintenance team has no authorization scope or ruling yet.
+                            # Give both future control groups the same unfinished integration.
+                            (work / "input/decision.txt").write_text(
+                                "接口上线安排：普通同版本异值保留原状并登记冲突。审批接口尚未开通；"
+                                "任何携带非空 approval 的批次应整体停止，返回非零且不改变业务库。"
+                                "新班组会取得正式决议并接手这个接口。")
+                            contract = world.EVENT_CONTRACT.split("符合会议决议的覆盖")[0]
+                            contract += "\n稽核接口使用 events 表的 event_id、decision 两列，"
+                            contract += "每个唯一 JSONL 入站事件一行，旧库行不计入。审批投产安排见 decision.txt。\n"
+                            (work / "input/event-format.txt").write_text(contract)
                         if mode == "control" and hint:
                             prompt += "\n交接摘录：" + world.decision_text(world.POLICIES[variant])
                         if turn == 6:
