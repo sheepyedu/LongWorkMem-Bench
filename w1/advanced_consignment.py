@@ -1,5 +1,5 @@
 """Host-only settlement of signed consignment pages and W1 stage checks."""
-from collections import Counter, defaultdict
+from collections import defaultdict
 from contextlib import closing
 from functools import lru_cache
 from itertools import combinations
@@ -245,8 +245,14 @@ def score(run,variant,seed):
                                                         forms[turn],weight)
     validkeys={keyed(r) for r in forms[2]}
     frozen=read_forms(Table(snaps/'3/frozen/consignment-06.csv'))
-    valid=(frozen.keys()==validkeys and all(len(v)==1 and v[0][0] in ('BOOKED','MULTIPLE','CONFLICT')
-                                           for v in frozen.values()))
+    def valid_filing(entries):
+        if len(entries)!=1:
+            return False
+        status,tickets=entries[0]
+        if status=='BOOKED':
+            return bool(tickets) and all(tickets) and len(tickets)==len(set(tickets))
+        return status in ('MULTIPLE','CONFLICT') and not tickets
+    valid=frozen.keys()==validkeys and all(valid_filing(entries) for entries in frozen.values())
     at_two=read_forms(Table(snaps/'2/consignment.csv'))
     retained=all(read_forms(Table(snaps/str(i)/'frozen/consignment-06.csv'))==frozen for i in range(4,10))
     for suffix,ok in (('reported',at_two==frozen),('retained',retained)):
