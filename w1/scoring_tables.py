@@ -1,6 +1,7 @@
 """Bounded, order-independent inspection of untrusted W1 submission tables."""
 import csv
 import io
+import re
 from collections import Counter
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
@@ -13,11 +14,15 @@ class InvalidArtifact(ValueError):
 NUMERIC = set("ordered net invoiced_qty invoiced_amount qty_diff amount_diff pool "
               "hours bonus total_lines exception_lines qty_lines amount_lines orphan_events".split())
 MAX_BYTES = 2 * 1024 * 1024
+GROUPED_NUMBER = re.compile(r"[+-]?[0-9]{1,3}(?:,[0-9]{3})+(?:[.][0-9]+)?")
 
 
 def number(value):
     try:
-        n = Decimal(str(value).strip())
+        text = str(value).strip()
+        if "," in text and GROUPED_NUMBER.fullmatch(text):
+            text = text.replace(",", "")
+        n = Decimal(text)
         if n.is_finite() and n.adjusted() <= 12 and n.as_tuple().exponent >= -24:
             return n
     except (InvalidOperation, ValueError):

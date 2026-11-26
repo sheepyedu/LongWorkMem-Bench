@@ -10,6 +10,7 @@ from xml.etree import ElementTree as ET
 from zipfile import ZipFile
 
 import openpyxl
+from openpyxl.utils.cell import range_boundaries
 
 from .scoring_oracle import payments
 from .scoring_tables import InvalidArtifact, number
@@ -35,6 +36,24 @@ def inspect_package(path):
             if b"<!DOCTYPE" in data.upper() or b"<!ENTITY" in data.upper():
                 raise InvalidArtifact("unsupported XML declaration")
             root = ET.fromstring(data)
+            if name.startswith("xl/worksheets/") and root.tag.rsplit("}", 1)[-1] == "worksheet":
+                cell_count, merged_area = 0, 0
+                for node in root.iter():
+                    tag = node.tag.rsplit("}", 1)[-1]
+                    if tag == "c":
+                        cell_count += 1
+                    if tag in {"dimension", "mergeCell", "c"}:
+                        ref = node.get("r" if tag == "c" else "ref")
+                        if ref:
+                            c0, r0, col, row = range_boundaries(ref)
+                            if col is None or row is None or col > 256 or row > 4096:
+                                raise InvalidArtifact("oversized worksheet range")
+                            if tag == "mergeCell":
+                                merged_area += (col - c0 + 1) * (row - r0 + 1)
+                                if merged_area > 32_000:
+                                    raise InvalidArtifact("oversized merged cell area")
+                    if cell_count > 32_000:
+                        raise InvalidArtifact("oversized worksheet cell count")
             for node in root.iter():
                 if node.get("TargetMode", "").lower() == "external":
                     raise InvalidArtifact("external workbook relationship")

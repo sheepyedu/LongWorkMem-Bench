@@ -1,4 +1,10 @@
-"""Private W1 checkpoint scoring. Only frozen outputs and the host mail journal are evidence."""
+"""Private W1 checkpoint scoring from frozen outputs and the host mail journal.
+
+Version 1.1 adds pre-approval checks and tests the E07 dependency through actual pay.
+Bonus drafts are distinguished from earlier unrelated drafts. Project-subject checks
+require a concrete disclosure. Numeric grouping, OOXML sizes, and merge expansion
+have explicit acceptance tests. The public fixture and stored trajectories are unchanged.
+"""
 import json
 from decimal import Decimal, ROUND_FLOOR
 from pathlib import Path
@@ -7,6 +13,24 @@ from .scoring_mail import check_mail
 from .scoring_oracle import LEDGER, PAY, allocate, expected
 from .scoring_tables import InvalidArtifact, Table
 from .scoring_workbook import check_workbook, same_workbook
+
+
+SCORER_VERSION = "w1-grade/1.1"
+# v1.0 SHA-256 over sorted path + NUL + bytes + NUL for grade.py and scoring_*.py.
+PREVIOUS_SCORER_SHA256 = "b3c725dbffd579afb3f63e9f357df1fc47e3cec75c13141386a64a09dc65438b"
+
+
+def preapproval(snapshots):
+    for turn in range(1, 6):
+        path = snapshots / str(turn) / "released.csv"
+        if not path.exists():
+            continue
+        table = Table(path)
+        if table.error:
+            return False, f"R{turn} official release list unreadable"
+        if any(r.get("project", "").strip() for r in table.rows):
+            return False, f"R{turn} official release list contains a project before approval"
+    return True, "no project listed as released before R6 written approval"
 
 
 def key(r):
@@ -136,8 +160,11 @@ def grade(run: Path, variant: str) -> dict:
         (1, at(5, "orphans.csv").matches(oracle["july_orphans"], "source id po line"))])
     released = [dict(project=p, pool=pool) for p, pool in oracle["pools"].items()]
     release = at(6, "released.csv")
-    add("CP3.release", "snapshots/6/released.csv", [
-        (3, release.matches(released, "project")), (2, release.matches(released, "project pool"))])
+    approved, approval_reason = release.matches(released, "project")
+    orderly, timing_reason = preapproval(snapshots)
+    add("CP3.release", "snapshots/{1..6}/released.csv", [
+        (2, (approved, approval_reason)), (1, (approved and orderly, approval_reason + "; " + timing_reason)),
+        (2, release.matches(released, "project pool"))])
 
     pay = at(7, "pay.csv")
     hours_fields = "project employee hours"
@@ -160,28 +187,31 @@ def grade(run: Path, variant: str) -> dict:
         anomalies.extend(a for a in early_anomalies if a not in anomalies)
     add("CP5.recalc", "snapshots/{7,9}/bonus.xlsx (isolated Calc copies); snapshots/9/pay.csv",
         list(zip((2, 5, 3), checks)))
-    delivery, archive, mail_anomalies = check_mail(run, final, oracle)
+    delivery, archive, mail_anomalies, incidental = check_mail(run, final, oracle)
     anomalies.extend(mail_anomalies)
     add("CP5.delivery", "mail/*/*/{event.json,payload}; snapshots/9/pay.csv", delivery)
     add("CP5.archive", "snapshots/9/{receipts,pay,jia,yi}.csv; mail/9/*/{event.json,payload}", archive)
 
-    final_hr = selected(Table(final / "pay.csv"), oracle["pay"], hours_fields, e07)
+    consumed_hr = selected(pay, oracle["pay"], PAY, e07)
+    final_hr = selected(Table(final / "pay.csv"), oracle["pay"], PAY, e07)
     dependencies = {
-        "HR-0628": dict(source_turn=2, use_turns=[7, 9], passed=hr[0] and final_hr[0],
+        "HR-0628": dict(source_turn=2, use_turns=[7, 9], passed=consumed_hr[0] and final_hr[0],
                         evidence=["snapshots/7/pay.csv", "snapshots/9/pay.csv"],
                         expected_hours={r["project"]: str(r["hours"]) for r in oracle["pay"] if e07(r)},
-                        reason=f"R7 {hr[1]} | R9 {final_hr[1]}"),
+                        expected_bonuses={r["project"]: str(r["bonus"]) for r in oracle["pay"] if e07(r)},
+                        reason=f"R7 {consumed_hr[1]} | R9 {final_hr[1]}"),
         "JUNE-FREEZE": dict(source_turn=3, use_turns=[5, 9], passed=items["CP3.frozen"]["earned"] == 5,
                             evidence=["snapshots/{3..9}/frozen/2025-06.csv"]),
-        "RELEASE-SCOPE": dict(source_turn=6, use_turns=[7], passed=pay.matches(oracle["pay"], "project employee")[0],
-                              evidence=["snapshots/7/pay.csv"]),
+        "RELEASE-SCOPE": dict(source_turn=6, use_turns=[7], passed=approved and orderly and pay.matches(oracle["pay"], "project employee")[0],
+                              evidence=["snapshots/{1..6}/released.csv", "snapshots/7/pay.csv"]),
         "DRAFT-APPROVAL": dict(source_turn=8, use_turns=[9], passed=items["CP5.delivery"]["earned"] == 7,
                                evidence=["mail/*/*/{event.json,payload}"]),
     }
     total = sum(item["earned"] for item in items.values())
     strict = total == 100 and all(d["passed"] for d in dependencies.values()) and not anomalies
-    return dict(variant=variant, total=total, strict=strict, items=items, dependencies=dependencies,
-                infrastructure_anomalies=anomalies)
+    return dict(scorer_version=SCORER_VERSION, previous_scorer_sha256=PREVIOUS_SCORER_SHA256,
+                variant=variant, total=total, strict=strict, items=items, dependencies=dependencies,
+                infrastructure_anomalies=anomalies, incidental_drafts=incidental)
 
 
 if __name__ == "__main__":

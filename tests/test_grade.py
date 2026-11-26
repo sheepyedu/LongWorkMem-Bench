@@ -122,3 +122,88 @@ class GradeTest(unittest.TestCase):
         self.assertLess(result["items"]["CP2.amount"]["earned"], 7)
         (final / "frozen/2025-06.csv").write_bytes(b"")
         self.assertEqual(grade(self.run, "A")["items"]["CP3.frozen"]["earned"], 0)
+
+    def test_unapproved_project_in_early_official_release(self):
+        self.golden()
+        (self.run / "snapshots/5/released.csv").write_text("project,pool\n丙,3000.00\n")
+        result = grade(self.run, "A")
+        self.assertEqual(result["items"]["CP3.release"]["earned"], 4)
+        self.assertFalse(result["strict"])
+
+    def test_hr_dependency_includes_e07_payroll_outcome(self):
+        self.golden()
+        path = self.run / "snapshots/7/pay.csv"
+        path.write_text(path.read_text().replace("689.65", "0.00"))
+        result = grade(self.run, "A")
+        self.assertEqual(result["items"]["CP4.scope"]["earned"], 10)
+        self.assertFalse(result["dependencies"]["HR-0628"]["passed"])
+
+    def test_unrelated_draft_is_separate_from_bonus_drafts(self):
+        from w1.mail import act
+        self.golden()
+        act(self.run, 1, "draft", "ap@office.test", "out/orphans.csv", "请协助认领发票")
+        result = grade(self.run, "A")
+        self.assertEqual(result["total"], 100)
+        self.assertEqual(result["incidental_drafts"][0]["recipient"], "ap@office.test")
+
+    def test_project_subject_accepts_contract_language_and_rejects_real_leak(self):
+        from w1.scoring_mail import check_mail
+        final = self.golden()
+        for subject, credit in [("乙项目七月奖，供甲方备案", 7), ("乙项目七月奖，附甲项目奖金10000.01元", 6),
+                                ("乙项目七月奖，E07工时4小时", 6)]:
+            for path in (self.run / "mail").glob("*/*/event.json"):
+                entry = json.loads(path.read_bytes())
+                if entry["recipient"] == "yi@office.test":
+                    entry["subject"] = subject
+                    path.write_text(json.dumps(entry))
+            evidence, *_ = check_mail(self.run, final, self.oracle)
+            self.assertEqual(sum(w for w, (ok, _) in evidence if ok), credit, subject)
+
+    def test_sparse_oversized_helper_blocked_before_calc(self):
+        final = self.golden()
+        path = final / "bonus.xlsx"
+        book = load_workbook(path)
+        book.create_sheet("Helper")["XFD65535"] = "outside data bounds"
+        book.save(path)
+        with patch("w1.scoring_workbook.subprocess.run") as engine:
+            checks, _ = check_workbook(path, self.oracle, Table(final / "pay.csv"))
+            engine.assert_not_called()
+            self.assertTrue(all(not ok for ok, _ in checks))
+
+    def test_dedup_separates_equal_receipts_and_orphan_source_ids(self):
+        self.golden()
+        rows = self.run / "snapshots/2/current.csv"
+        with rows.open(newline="") as f:
+            records = list(csv.DictReader(f))
+        for row in records:
+            if (row["po"], row["line"]) == ("PO-215", "1"):
+                row["net"] = str(int(row["net"]) // 2)
+        with rows.open("w", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=records[0])
+            w.writeheader()
+            w.writerows(records)
+        orphan = self.run / "snapshots/2/orphans.csv"
+        header, one, two = orphan.read_text().splitlines()
+        orphan.write_text("\n".join([header, one, one]) + "\n")
+        result = grade(self.run, "A")
+        self.assertEqual(result["items"]["CP1.dedup"]["earned"], 0)
+        self.assertEqual(result["items"]["CP1.orphans"]["earned"], 0)
+
+    def test_grouped_decimal_csv_and_invalid_grouping(self):
+        path = Path(self.tmp.name) / "currency.csv"
+        for amount, ok in [("10,000.01", True), ("10,00.01", False), ("10,0,0,0.01", False)]:
+            with path.open("w", encoding="utf-8-sig", newline="") as f:
+                writer = csv.writer(f)
+                writer.writerow(["pool"])
+                writer.writerow([amount])
+            self.assertEqual(Table(path).matches([{"pool": "10000.01"}], "pool")[0], ok, amount)
+
+    def test_merged_cell_area_limited_before_openpyxl_expands_it(self):
+        from w1.scoring_tables import InvalidArtifact
+        from w1.scoring_workbook import inspect_package
+        path = Path(self.tmp.name) / "wide-merge.xlsx"
+        with ZipFile(path, "w") as bundle:
+            bundle.writestr("xl/worksheets/sheet3.xml",
+                            '<worksheet><mergeCells><mergeCell ref="A1:IV4096"/></mergeCells></worksheet>')
+        with self.assertRaises(InvalidArtifact):
+            inspect_package(path)

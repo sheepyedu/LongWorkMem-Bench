@@ -80,7 +80,8 @@ def expected(variant):
             if turn == 5:
                 july, july_orphans, _ = ledger(workspace / "input")
         directory = workspace / "input"
-        pools = {r["project"]: number(r["pool"]) for r in read_csv(directory / "releases.csv")[1]
+        releases = read_csv(directory / "releases.csv")[1]
+        pools = {r["project"]: number(r["pool"]) for r in releases
                  if r["status"] == "已放行"}
         hours = defaultdict(Decimal)
         for row in read_csv(directory / "hours.csv")[1]:
@@ -94,4 +95,5 @@ def expected(variant):
                           hours=sum(row["hours"] for row in pay if row["project"] == p))]
                  for p, pool in pools.items()}
     return dict(june=june, july=july, orphans=orphans, july_orphans=july_orphans,
-                duplicate_keys=duplicate_keys, pools=pools, hours=dict(hours), pay=pay, summaries=summaries)
+                duplicate_keys=duplicate_keys, projects={r["project"] for r in releases}, pools=pools,
+                hours=dict(hours), pay=pay, summaries=summaries)
