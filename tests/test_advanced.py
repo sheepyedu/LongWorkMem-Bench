@@ -11,7 +11,7 @@ class AdvancedOfficeTest(unittest.TestCase):
     def test_every_release_is_repeatable_and_only_hr_differs_in_pair(self):
         with TemporaryDirectory() as tmp:
             root = Path(tmp)
-            for level in (1, 2, 3):
+            for level in (1, 2, 3, 4):
                 left, right, repeated = (root / f"{level}-{tag}" for tag in ("A", "B", "again"))
                 for turn in ROUNDS:
                     prompt = release(left, turn, "A", level, 431)
@@ -26,7 +26,7 @@ class AdvancedOfficeTest(unittest.TestCase):
 
     def test_reference_scores_and_incomplete_run_is_not_a_model_grade(self):
         with TemporaryDirectory() as tmp:
-            for level, variant in ((1, "A"), (2, "B"), (3, "A"), (3, "B")):
+            for level, variant in ((1, "A"), (2, "B"), (3, "A"), (3, "B"), (4, "A"), (4, "B")):
                 run = Path(tmp) / f"{level}-{variant}"
                 run_reference(run, variant, level, 431)
                 result = grade(run, variant)

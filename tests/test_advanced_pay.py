@@ -88,3 +88,39 @@ class AdvancedPayTests(unittest.TestCase):
             book.close()
             checks = recalc(path, Table(work / "out/pay.csv"), oracle)
             self.assertEqual([ratio for ratio, _ in checks], [1, 0, 0])
+
+    def test_penny_error_in_pool_does_not_hide_valid_formulas(self):
+        from w1.advanced_pay_checks import awards, pay_rows, pristine, recalc, workbook
+        from w1.reference import PAY, write_csv
+        from w1.scoring_tables import Table
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            oracle = pristine("A", 2, 13)
+            submitted_pools = oracle["pools"].copy()
+            submitted_pools["甲"] += Decimal(".01")
+            hours, caps = oracle["hours"], oracle["caps"]
+            workbook(root / "bonus.xlsx", submitted_pools, hours, caps)
+            write_csv(root / "pay.csv", PAY, pay_rows(hours, awards(hours, submitted_pools, caps)))
+            checks = recalc(root / "bonus.xlsx", Table(root / "pay.csv"), oracle)
+            self.assertEqual([ratio for ratio, _ in checks], [0, 1, 1], checks)
+
+    def test_static_one_cent_pools_cannot_get_credit_for_unchanged_outputs(self):
+        from openpyxl import load_workbook
+        from w1.advanced_pay_checks import awards, pay_rows, pristine, recalc, workbook
+        from w1.reference import PAY, write_csv
+        from w1.scoring_tables import Table
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            oracle = pristine("A", 1, 17)
+            hours, caps = oracle["hours"], oracle["caps"]
+            pools = dict.fromkeys(oracle["pools"], Decimal(".01"))
+            nominal = awards(hours, pools, caps)
+            path = root / "bonus.xlsx"
+            workbook(path, pools, hours, caps)
+            book = load_workbook(path)
+            for ix, key in enumerate(sorted(hours), 2):
+                book["Pay"].cell(ix, 4, nominal[key])
+            book.save(path)
+            book.close()
+            write_csv(root / "pay.csv", PAY, pay_rows(hours, nominal))
+            self.assertEqual([r for r,_ in recalc(path, Table(root / "pay.csv"), oracle)], [0, 0, 0])

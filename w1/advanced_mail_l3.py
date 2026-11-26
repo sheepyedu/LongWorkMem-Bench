@@ -277,19 +277,20 @@ def _output(path, fields, rows):
     _csv(path, fields, ([row[k] for k in fields.split(",")] for row in rows))
 
 
-def _filed(run, work, variant, seed, turn):
+def _filed(run, work, variant, seed, turn, keys=None):
     payroll = Table(run / "snapshots/7/pay.csv")
-    keys = base._approved_keys(variant, 2, seed)
+    if keys is None:
+        keys = base._approved_keys(variant, 2, seed)
     cash = _cashbook(work, payroll, keys, turn)
     return cash, base._contents(work, payroll, keys, 1), keys
 
 
-def reference(run, turn, variant, level, seed):
+def reference(run, turn, variant, level, seed, *, roster=None):
     if turn not in (8, 9):
         return
     work = run / "work"
     orders = _orders(work)
-    cash, regular, keys = _filed(run, work, variant, seed, turn)
+    cash, regular, keys = _filed(run, work, variant, seed, turn, roster)
     _output(work / "out/settlement.csv", CASH, [row for team in cash.values() for row in team])
     if turn == 8:
         for entry in orders:
@@ -348,15 +349,16 @@ def _envelope(event):
     return tuple(event[k] for k in ("turn", "action", "recipient", "attachment", "subject"))
 
 
-def checks(run, variant, level, seed):
+def checks(run, variant, level, seed, *, roster=None, accepted_early=()):
     wires, anomalies = mail_events(run)
+    wires = [(event, path) for event, path in wires if event["receipt"] not in accepted_early]
     with TemporaryDirectory(prefix="treasury-office-") as tmp:
         work = Path(tmp)
         (work / "inbox").mkdir()
         for turn in (2, 4, 6, 8, 9):
             release(work, turn, variant, 3, seed)
         orders = _orders(work)
-        initial, regular, keys = _filed(run, work, variant, seed, 8)
+        initial, regular, keys = _filed(run, work, variant, seed, 8, roster)
         current = _cashbook(work, Table(run / "snapshots/7/pay.csv"), keys, 9)
         plan = _actions(work, orders, initial, current, wires)
     scores = {}

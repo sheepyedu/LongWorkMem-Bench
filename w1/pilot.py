@@ -193,7 +193,7 @@ def main():
     p.add_argument("--smoke",action="store_true")
     p.add_argument("--limit",type=int,default=1500)
     p.add_argument("--model", choices=[MODEL, "qwen3.8-flash"], default=MODEL)
-    p.add_argument("--level", type=int, choices=[0, 1, 2, 3], default=0)
+    p.add_argument("--level", type=int, choices=[0, 1, 2, 3, 4], default=0)
     p.add_argument("--seed", type=int, default=0)
     args=p.parse_args()
     if len(set(args.variants))!=len(args.variants):

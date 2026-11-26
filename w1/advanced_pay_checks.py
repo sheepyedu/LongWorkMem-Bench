@@ -43,7 +43,7 @@ def released(work, history=False):
     return dict(limits)
 
 
-def reconstruct(work, level, history=False, rows=None):
+def reconstruct(work, level, history=False, rows=None, orders=None):
     pools = released(work, history)
     directory = work / "input"
     master = {r["employee"]: r["home"] for r in read_csv(directory / "薪酬制度/人员台账.csv")}
@@ -62,9 +62,6 @@ def reconstruct(work, level, history=False, rows=None):
         if r["decision"] == "作废" or not r["worked"].startswith("2025-07-"):
             continue
         emp, day, project = r["employee"], r["worked"], r["project"]
-        if project == "待查":
-            pending.add((r["site"], r["ticket"]))
-            continue
         if project == "共享":
             project = master[emp]
             if emp == employee:
@@ -72,14 +69,32 @@ def reconstruct(work, level, history=False, rows=None):
             for duty in duties:
                 if duty["employee"] == emp and duty["from"] <= day <= duty["to"]:
                     project = duty["project"]
-        if project in pools:
-            h = Decimal(r["units"])
-            hours[project, emp] += h / 60 if r["unit"] == "MIN" else h
+        key = r["site"], r["ticket"]
+        quantity = Decimal(r["units"]) / (60 if r["unit"] == "MIN" else 1)
+        parts = [(project, quantity)]
+        if orders and key in orders:
+            order = orders[key]
+            moved = quantity * Decimal(order["percent"]) / 100
+            parts = [(project, quantity - moved), (order["destination"], moved)]
+        for target, h in parts:
+            if h > 0 and target == "待查":
+                pending.add(key)
+            elif h > 0 and target in pools:
+                hours[target, emp] += h
     return pools, dict(hours), caps, pending
 
 
-def awards(hours, pools, caps):
+def settlement_hours(hours, carry):
+    if carry is None:
+        return hours
+    # June carry is already settled. July earns only the increase in quarter-to-date units.
+    return {k: h + (max(0, carry[k] + h - 40) - max(0, carry[k] - 40)) / Decimal(2)
+            for k, h in hours.items()}
+
+
+def awards(hours, pools, caps, carry=None):
     """Allocate integral cents, including the case where giving away the residual would breach a cap."""
+    hours = settlement_hours(hours, carry)
     result = {}
     for project, budget in pools.items():
         cents = int(budget * 100)
@@ -117,7 +132,7 @@ def pristine(variant, level, seed):
         return dict(pools=pools, hours=hours, caps=caps, pending=pending, pay=pay_rows(hours, awards(hours, pools, caps)))
 
 
-def workbook(path, pools, hours, caps):
+def workbook(path, pools, hours, caps, carry=None):
     book = Workbook()
     pool_sheet = book.active
     pool_sheet.title = "Pools"
@@ -127,23 +142,32 @@ def workbook(path, pools, hours, caps):
     pay = book.create_sheet("Pay")
     pay.append([*PAY, "cap_cents", "pool_cents", "team_hours", "floor_cents", "primary_winner",
                 "nominal_cents", "cap_binds", "fixed_cents", "fixed_hours", "new_floor", "eligible_winner"])
+    if carry is not None:
+        pay.cell(1, 16, "quarter_weight")
+        pay.cell(1, 17, "prior_hours")
     end = len(hours) + 1
     def span(column):
         return f"${column}$2:${column}${end}"
-    project, staff, hrs, limit, base, locked, redistributed = map(span, "ABCEHKN")
+    project, staff, limit, base, locked, redistributed = map(span, "ABEHKN")
+    weight_col = "P" if carry is not None else "C"
+    hrs = span(weight_col)
     for r, ((p, employee), value) in enumerate(sorted(hours.items()), 2):
-        share = f'COUNTIFS({project},A{r},{hrs},">"&C{r})+COUNTIFS({project},A{r},{hrs},C{r},{staff},"<"&B{r})'
+        weight = f"{weight_col}{r}"
+        share = f'COUNTIFS({project},A{r},{hrs},">"&{weight})+COUNTIFS({project},A{r},{hrs},{weight},{staff},"<"&B{r})'
         free = f'{project},A{r},{locked},0'
-        free_rank = f'COUNTIFS({free},{hrs},">"&C{r})+COUNTIFS({free},{hrs},C{r},{staff},"<"&B{r})'
+        free_rank = f'COUNTIFS({free},{hrs},">"&{weight})+COUNTIFS({free},{hrs},{weight},{staff},"<"&B{r})'
         pay.append([
             p, employee, value, f'=(N{r}+IF(O{r},F{r}-SUMIF({project},A{r},{redistributed}),0))/100',
             int(caps[p, employee] * 100) if (p, employee) in caps else -1,
             f'=ROUND(SUMIF(Pools!$A$2:$A$3,A{r},Pools!$B$2:$B$3)*100,0)',
-            f'=SUMIF({project},A{r},{hrs})', f'=INT(F{r}*C{r}/G{r})', f'=IF(({share})=0,1,0)',
+            f'=SUMIF({project},A{r},{hrs})', f'=INT(F{r}*{weight}/G{r})', f'=IF(({share})=0,1,0)',
             f'=H{r}+IF(I{r},F{r}-SUMIF({project},A{r},{base}),0)',
-            f'=IF(AND(E{r}>=0,OR(F{r}*C{r}>=E{r}*G{r},J{r}>E{r})),1,0)',
+            f'=IF(AND(E{r}>=0,OR(F{r}*{weight}>=E{r}*G{r},J{r}>E{r})),1,0)',
             f'=SUMIFS({limit},{project},A{r},{locked},1)', f'=SUMIFS({hrs},{project},A{r},{locked},1)',
-            f'=IF(K{r},E{r},INT((F{r}-L{r})*C{r}/(G{r}-M{r})))', f'=IF(AND(K{r}=0,({free_rank})=0),1,0)'])
+            f'=IF(K{r},E{r},INT((F{r}-L{r})*{weight}/(G{r}-M{r})))', f'=IF(AND(K{r}=0,({free_rank})=0),1,0)'])
+        if carry is not None:
+            pay.cell(r, 16, f"=C{r}+(MAX(0,Q{r}+C{r}-40)-MAX(0,Q{r}-40))/2")
+            pay.cell(r, 17, carry[p, employee])
         pay.cell(r, 4).number_format = "0.00"
     book.save(path)
     book.close()
@@ -167,8 +191,10 @@ def recalc(path, submitted, oracle):
         inspect_package(path)
         book = load_workbook(path, keep_links=False)
         pools, hours, budget_cells, time_cells = workbook_inputs(book)
-        if pools != oracle["pools"] or set(hours) != set(oracle["hours"]):
-            raise InvalidArtifact("released pools or project-employee roster differ")
+        if pools.keys() != oracle["pools"].keys() or hours.keys() != oracle["hours"].keys():
+            raise InvalidArtifact("released projects or project-employee roster differ")
+        if any(v <= 0 or v % CENT for v in pools.values()):
+            raise InvalidArtifact("pool must be a positive amount in whole cents")
     except Exception as exc:
         return [(0, str(exc)[:160]) for _ in range(3)]
     engine = os.getenv("W1_SOFFICE") or shutil.which("soffice") or shutil.which("libreoffice")
@@ -181,20 +207,33 @@ def recalc(path, submitted, oracle):
         calculated.mkdir()
         # Check all editable hours in a set of isolated workbooks, plus both sides of each contractual ceiling.
         cases = [("base", None, None)]
-        baseline = awards(hours, pools, oracle["caps"])
+        baseline = awards(hours, pools, oracle["caps"], oracle.get("carry"))
         for key, value in sorted(hours.items()):
             changed = value + Decimal("5.25")
-            trial_hours = {**hours, key: changed}
-            if awards(trial_hours, pools, oracle["caps"]) == baseline:
-                # An already capped employee may take more hours without changing anyone's award.
-                # Give that employee only a small fraction of the team's hours to test the other side.
+            def changes_awards(value):
+                trial = {**hours, key: value}
+                return awards(trial, pools, oracle["caps"], oracle.get("carry")) != baseline
+
+            if not changes_awards(changed):
+                # A capped employee may not earn more, and a tiny pool may pay only the leading
+                # employee. Probe both sides and count only edits which actually change an award.
                 other_hours = sum(h for k, h in hours.items() if k[0] == key[0] and k != key)
-                changed = other_hours / Decimal("10000")
-            cases.append(("hours", key, changed))
+                alternatives = (other_hours / Decimal("10000"), other_hours * 10,
+                                other_hours / Decimal("1e18"))
+                changed = next((value for value in alternatives if changes_awards(value)), None)
+            if changed is not None:
+                cases.append(("hours", key, changed))
+            if "carry" in oracle:
+                threshold = 40 - oracle["carry"][key]
+                if threshold > 0:
+                    opposite = threshold / 2 if value > threshold else threshold + 6
+                    if changes_awards(opposite):
+                        cases.append(("hours", key, opposite))
         for p, pool in sorted(pools.items()):
             cases.append(("pool", p, pool + Decimal("39.43")))
             if oracle["caps"]:
-                cases.extend([("pool", p, Decimal("25.03")), ("pool", p, pool * 7)])
+                low = Decimal("25.03") if pool != Decimal("25.03") else Decimal("12.57")
+                cases.extend([("pool", p, low), ("pool", p, pool * 7)])
         wants, arguments = [], []
         try:
             for index, (kind, key, change) in enumerate(cases):
@@ -214,7 +253,7 @@ def recalc(path, submitted, oracle):
                 if cell:
                     cell.value = original
                 arguments.append(str(name))
-                wants.append((kind, str(key), name.name, awards(edit_hours, edit_pools, oracle["caps"])))
+                wants.append((kind, str(key), name.name, awards(edit_hours, edit_pools, oracle["caps"], oracle.get("carry"))))
         except Exception as exc:
             return [(0, f"invalid calculation inputs: {str(exc)[:100]}") for _ in range(3)]
         finally:
@@ -234,14 +273,14 @@ def recalc(path, submitted, oracle):
             except Exception:
                 ok = False
             if kind == "base":
-                ok = ok and submitted.matches(pay_rows(hours, expected), PAY)[0]
+                ok = ok and pools == oracle["pools"] and hours == oracle["hours"] and submitted.matches(oracle["pay"], PAY)[0]
             outcomes[kind].append((key, ok))
         result = []
         for kind in ("base", "hours", "pool"):
             observations = outcomes[kind]
             failed = [key for key, ok in observations if not ok]
             passed = len(observations) - len(failed)
-            result.append((passed / len(observations), f"{passed}/{len(observations)} Calc {kind} cases; failed {failed[:4]}"))
+            result.append((passed / len(observations) if observations else 0, f"{passed}/{len(observations)} Calc {kind} cases; failed {failed[:4]}"))
         return result
 
 
@@ -295,7 +334,7 @@ def grade(run, variant, level, seed, *, oracle=None):
         actual = {k: numeric(paid.get(k, {}), "bonus") for k in team}
         correct_keys = team == {k for k in keys if k[0] == p} and team <= paid.keys()
         if correct_keys and all(v is not None and v > 0 for v in submitted_h.values()):
-            expected = awards(submitted_h, {p: budget}, oracle["caps"])
+            expected = awards(submitted_h, {p: budget}, oracle["caps"], oracle.get("carry"))
         else:
             expected = {(r["project"], r["employee"]): r["bonus"] for r in oracle["pay"] if r["project"] == p}
         bonuses += sum(actual[k] == expected[k] for k in team)

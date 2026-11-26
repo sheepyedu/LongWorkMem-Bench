@@ -108,6 +108,17 @@ class AdvancedDispatchTest(unittest.TestCase):
         self.assertEqual(scores["mail.disposition"], 6)
         self.assertLess(scores["mail.custody"], 4)
 
+    def test_manager_amount_cell_cannot_disclose_staff_even_with_correct_headers(self):
+        run = self.complete(1)
+        journal, _ = mail_events(run)
+        sent = next(path for e, path in journal if e["turn"] == 9 and
+                    e["action"] == "deliver" and e["attachment"] != "out/pay.csv")
+        with sent.open() as handle:
+            row, = csv.DictReader(handle)
+        row["bonus"] = "E07 获 110.00 元"
+        _csv(sent, mail.FIELDS["JA"], [[row[k] for k in mail.FIELDS["JA"].split(",")]])
+        self.assertEqual(self.grade(run, 1)["mail.authorization"], 0)
+
     def test_wrong_roster_limits_scope_and_receipt_forgery_is_local(self):
         run = self.complete(2)
         index = run / "snapshots/9/dispatch.csv"

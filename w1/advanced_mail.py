@@ -263,9 +263,13 @@ def reference(run: Path, turn: int, variant: str, level: int, seed: int):
 
 
 def _within_scope(path, packet, keys, accounts):
-    from .scoring_tables import Table
+    from .scoring_tables import InvalidArtifact, Table
     table = Table(path)
     if table.error or not table.rows or set(table.headers) != set(FIELDS[packet].split(",")):
+        return False
+    try:
+        table.project([field for field in ("hours", "bonus") if field in table.headers])
+    except InvalidArtifact:
         return False
     if packet == "FIN":
         return all((row["project"], row["employee"]) in keys for row in table.rows)

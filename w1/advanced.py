@@ -2,7 +2,6 @@
 import argparse
 import hashlib
 import json
-
 from pathlib import Path
 
 from . import advanced_ledger, advanced_pay, advanced_mail
@@ -11,24 +10,30 @@ from .runstate import ROUNDS, freeze, prepare
 
 DEPARTMENT_WEIGHTS = {"ledger": 40, "pay": 35, "mail": 25}
 
+
 def departments(level):
     if level in (1, 2):
         return {"ledger": advanced_ledger, "pay": advanced_pay, "mail": advanced_mail}
     if level == 3:
         from . import advanced_ledger_l3, advanced_pay_l3, advanced_mail_l3
         return {"ledger": advanced_ledger_l3, "pay": advanced_pay_l3, "mail": advanced_mail_l3}
+    if level == 4:
+        from . import advanced_ledger_l4, advanced_pay_l4, advanced_mail_l4
+        return {"ledger": advanced_ledger_l4, "pay": advanced_pay_l4, "mail": advanced_mail_l4}
     raise ValueError(f"Unknown advanced W1 level {level}")
 
 
 def release(work, turn, variant, level, seed):
-    if turn not in ROUNDS or variant not in {"A", "B"} or level not in {1, 2, 3}:
+    if turn not in ROUNDS or variant not in {"A", "B"} or level not in {1, 2, 3, 4}:
         raise ValueError("Invalid W1 instance or turn")
     for folder in ("input", "inbox", "out"):
         (work / folder).mkdir(parents=True, exist_ok=True)
     prompts = [department.release(work, turn, variant, level, seed) for department in departments(level).values()]
     prompt, = [prompt for prompt in prompts if prompt]
-    if level == 3 and turn == 3:
+    if level >= 3 and turn == 3:
         prompt += " 请同时办理技术移交通知上随关账到期的薪酬档案。"
+    if level == 4 and turn in (2, 5, 6):
+        prompt += " 请一并执行今日签发的核验函，并保留邮箱实际回执。"
     return prompt
 
 
@@ -76,7 +81,7 @@ def grade(run, variant=None):
             if not 0 <= earned <= maximum:
                 raise ValueError(f"Invalid score for {code}")
             items[code] = dict(department=label, earned=float(earned), max=maximum, reason=reason)
-    return dict(scorer_version="w1-advanced/1", variant=manifest["variant"],
+    return dict(scorer_version="w1-advanced/2", variant=manifest["variant"],
                 level=manifest["level"], seed=manifest["seed"],
                 total=round(sum(item["earned"] for item in items.values()), 4), max=100, items=items)
 
@@ -86,7 +91,7 @@ if __name__ == "__main__":
     parser.add_argument("run", type=Path)
     parser.add_argument("--reference", action="store_true")
     parser.add_argument("--variant", choices=["A", "B"], default="A")
-    parser.add_argument("--level", type=int, choices=[1, 2, 3], default=1)
+    parser.add_argument("--level", type=int, choices=[1, 2, 3, 4], default=1)
     parser.add_argument("--seed", type=int, default=0)
     args = parser.parse_args()
     if args.reference:
