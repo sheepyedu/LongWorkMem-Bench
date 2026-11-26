@@ -141,13 +141,22 @@ def compare(paths):
     means = {}
     for model in MODELS:
         runs = [pair["models"][model] for pair in result]
-        means[model] = {"total":round(mean(r["total"] for r in runs), 4),
+        totals = [r["total"] for r in runs]
+        means[model] = {"total":round(mean(totals), 4), "range":[min(totals), max(totals)],
+                        "perfect_runs":totals.count(100),
                         "stages":{s:round(mean(r["stages"][s] for r in runs), 4) for s in STAGES},
                         "attempts":sum(r["usage"]["attempts"] for r in runs),
                         "requests_with_usage":sum(r["usage"]["successful"] for r in runs)}
-    return {"level": level, "split": splits.pop(), "pair_count": len(result), "stage_maxima": STAGES,
+    gaps = [pair["paired_gap"] for pair in result]
+    by_seed = defaultdict(list)
+    for pair in result:
+        by_seed[pair["seed"]].append(pair["paired_gap"])
+    return {"gap_by_seed":{s:round(mean(values), 4) for s, values in by_seed.items()},
+            "paired_outcomes":{"deepseek_higher":sum(g > 0 for g in gaps), "ties":gaps.count(0),
+                               "qwen_higher":sum(g < 0 for g in gaps)},
+            "level": level, "split": splits.pop(), "pair_count": len(result), "stage_maxima": STAGES,
             "docker_image": cohort[0], "claude": cohort[1], "request_limit": cohort[2], "pairs": result,
-            "model_means": means, "mean_paired_gap": round(mean(p["paired_gap"] for p in result), 4)}
+            "model_means": means, "mean_paired_gap": round(mean(gaps), 4)}
 
 
 if __name__ == "__main__":
