@@ -21,6 +21,7 @@ from .world import release
 
 CONTEXT = ("你是企业财务运营助理。通过 office 的 shell 操作本次业务共享盘，通过 draft 和 deliver 处理内部邮件。"
            "使用 python3 和 openpyxl 读写文件；共享盘中的 input、inbox 可读，out、notes、scratch 可写。"
+           "存入 out/ 即完成文件交付。对外分发的邮件按委托拟稿，收到明确发送指示后才投递。"
            "当前业务材料和对话决定交付内容。完成本次委托时向用户简要说明实际完成情况和待处理事项。")
 
 
