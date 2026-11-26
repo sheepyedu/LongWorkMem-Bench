@@ -1,15 +1,24 @@
 """Host-side audit of each provider receipt, Claude message and game tool exchange."""
 import argparse
 from collections import Counter
+from contextlib import contextmanager
 import json
 from pathlib import Path
 
-from w1.review import show_turn
+from w1.review import show_turn, usage_counts
 from .table import ALLOWED
 
 
 def key(value):
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+
+@contextmanager
+def check_record(location, remarks):
+    try:
+        yield
+    except (OSError, ValueError, TypeError, KeyError, IndexError, AttributeError, RecursionError) as exc:
+        remarks.append(f"{location}: invalid record ({type(exc).__name__})")
 
 
 def rows(path, remarks):
@@ -36,9 +45,15 @@ def tool_result(block):
 
 
 def audit(run):
-    manifest = json.loads((run / "manifest.json").read_text())
+    run = Path(run)
     trace = run / "trace"
     remarks = []
+    manifest = {}
+    with check_record("manifest.json", remarks):
+        value = json.loads((run / "manifest.json").read_bytes())
+        if not isinstance(value, dict) or not isinstance(value.get("turns", []), list):
+            raise ValueError("invalid manifest")
+        manifest = value
     per_turn = {}
     totals = Counter()
     expected_calls = {}
@@ -47,60 +62,70 @@ def audit(run):
     markers = ("s1/grade.py", "s1.grade", "s1-grade/", "snapshots/7.json", "table.sqlite",
                str(run.resolve()), ".claude-manager/worktrees/", ".claude-manager/runs/")
     for path in sorted(trace.glob("api-*.json")):
-        record = json.loads(path.read_text())
-        turn = record["turn"]
-        counts = per_turn.setdefault(turn, Counter())
-        counts["attempts"] += 1
-        wire = record.get("request", {})
-        serialized = key(wire)
-        for marker in markers:
-            if marker in serialized:
-                remarks.append(f"{path.name}: private marker {marker}")
-        tools = {tool["function"]["name"] for tool in wire.get("tools", [])}
-        actual_tools.update(tools)
-        if tools - ALLOWED:
-            remarks.append(f"{path.name}: unexpected tools {sorted(tools - ALLOWED)}")
-        reply = record.get("response", {})
-        usage = reply.get("usage", {})
-        if record.get("status") != 200 or not usage:
-            remarks.append(f"{path.name}: status={record.get('status')}, receipt={bool(usage)}")
-            continue
-        models.add(reply.get("model"))
-        receipt = record.get("request_id") or reply.get("id")
-        if not receipt or receipt in receipts:
-            remarks.append(f"{path.name}: missing or repeated receipt ID")
-        receipts.add(receipt)
-        counts["receipts"] += 1
-        counts["input"] += usage["prompt_tokens"]
-        counts["output"] += usage["completion_tokens"]
-        counts["cached"] += (usage.get("prompt_tokens_details") or {}).get("cached_tokens", 0)
-        counts["peak_input"] = max(counts["peak_input"], usage["prompt_tokens"])
-        for call in reply["choices"][0]["message"].get("tool_calls") or []:
-            call_id = (turn, call["id"])
-            if call_id in expected_calls:
-                remarks.append(f"{path.name}: duplicate tool call ID")
-            expected_calls[call_id] = (call["function"]["name"], json.loads(call["function"]["arguments"]))
+        with check_record(path.name, remarks):
+            record = json.loads(path.read_bytes())
+            turn = record["turn"]
+            if type(turn) is not int:
+                raise ValueError("invalid turn")
+            counts = per_turn.setdefault(turn, Counter())
+            counts["attempts"] += 1
+            wire = record.get("request", {})
+            serialized = key(wire)
+            for marker in markers:
+                if marker in serialized:
+                    remarks.append(f"{path.name}: private marker {marker}")
+            tools = {tool["function"]["name"] for tool in wire.get("tools", [])}
+            actual_tools.update(tools)
+            if tools - ALLOWED:
+                remarks.append(f"{path.name}: unexpected tools {sorted(tools - ALLOWED)}")
+            reply = record.get("response", {})
+            usage = reply.get("usage", {})
+            if record.get("status") != 200 or not usage:
+                remarks.append(f"{path.name}: status={record.get('status')}, receipt={bool(usage)}")
+                continue
+            usage_values = usage_counts(usage)
+            if usage_values is None or not isinstance(reply.get("model"), str):
+                raise ValueError("incomplete response")
+            models.add(reply["model"])
+            receipt = record.get("request_id") or reply.get("id")
+            if not receipt or receipt in receipts:
+                remarks.append(f"{path.name}: missing or repeated receipt ID")
+            receipts.add(receipt)
+            counts["receipts"] += 1
+            counts["input"] += usage_values["input"]
+            counts["output"] += usage_values["output"]
+            counts["cached"] += usage_values.get("cache_read", 0)
+            counts["peak_input"] = max(counts["peak_input"], usage["prompt_tokens"])
+            for call in reply["choices"][0]["message"].get("tool_calls") or []:
+                call_id = (turn, call["id"])
+                if call_id in expected_calls:
+                    remarks.append(f"{path.name}: duplicate tool call ID")
+                expected_calls[call_id] = (call["function"]["name"], json.loads(call["function"]["arguments"]))
 
     for path in sorted(trace.glob("turn-*.jsonl")):
-        turn = int(path.stem.split("-")[1])
+        if not path.stem.removeprefix("turn-").isdigit():
+            remarks.append(f"{path.name}: invalid turn number")
+            continue
+        turn = int(path.stem.removeprefix("turn-"))
         counts = per_turn.setdefault(turn, Counter())
         calls, results = {}, {}
         terminals = []
         for line, entry in rows(path, remarks):
-            if entry.get("session_id"):
-                sessions.add(entry["session_id"])
-            if entry.get("subtype") == "compact_boundary":
-                counts["compactions"] += 1
-            if entry["type"] == "result":
-                terminals.append(entry.get("is_error"))
-            for block in entry.get("message", {}).get("content", []):
-                if block["type"] == "tool_use":
-                    calls[block["id"]] = (block["name"], block["input"])
-                elif block["type"] == "tool_result":
-                    try:
-                        results[block["tool_use_id"]] = tool_result(block)
-                    except (TypeError, ValueError, KeyError):
-                        remarks.append(f"{path.name}:{line}: result outside the game protocol")
+            with check_record(f"{path.name}:{line}", remarks):
+                if entry.get("session_id"):
+                    sessions.add(entry["session_id"])
+                if entry.get("subtype") == "compact_boundary":
+                    counts["compactions"] += 1
+                if entry["type"] == "result":
+                    terminals.append(entry.get("is_error"))
+                for block in entry.get("message", {}).get("content", []):
+                    if block["type"] == "tool_use":
+                        calls[block["id"]] = (block["name"], block["input"])
+                    elif block["type"] == "tool_result":
+                        try:
+                            results[block["tool_use_id"]] = tool_result(block)
+                        except (TypeError, ValueError, KeyError):
+                            remarks.append(f"{path.name}:{line}: result outside the game protocol")
         if terminals != [False]:
             remarks.append(f"{path.name}: terminal results {terminals}")
         upstream = {cid: action for (t, cid), action in expected_calls.items() if t == turn}
@@ -111,21 +136,23 @@ def audit(run):
         ledger = Counter()
         journal = trace / f"tools-{turn}.jsonl"
         if journal.exists():
-            for _, row in rows(journal, remarks):
-                ledger[key([row["tool"], row["args"], row["result"]])] += 1
-                counts["tool_calls"] += 1
-                if row["result"].get("ok") is False:
-                    counts["rejections"] += 1
+            for line, row in rows(journal, remarks):
+                with check_record(f"{journal.name}:{line}", remarks):
+                    ledger[key([row["tool"], row["args"], row["result"]])] += 1
+                    counts["tool_calls"] += 1
+                    if row["result"].get("ok") is False:
+                        counts["rejections"] += 1
         else:
             remarks.append(f"{journal.name}: missing host journal")
         if cli != ledger:
             remarks.append(f"{path.name}: actual tool exchanges differ from host journal")
     for scheduled in manifest.get("turns", []):
-        number = scheduled["turn"]
-        if per_turn.get(number, {}).get("attempts", 0) != scheduled["upstream_calls"]:
-            remarks.append(f"turn {number}: provider attempt count differs from manifest")
-        if not (trace / f"turn-{number}.jsonl").is_file():
-            remarks.append(f"turn {number}: missing Claude stream")
+        with check_record("manifest.json", remarks):
+            number = scheduled["turn"]
+            if per_turn.get(number, {}).get("attempts", 0) != scheduled["upstream_calls"]:
+                remarks.append(f"turn {number}: provider attempt count differs from manifest")
+            if not (trace / f"turn-{number}.jsonl").is_file():
+                remarks.append(f"turn {number}: missing Claude stream")
     if len(sessions) != 1 or manifest.get("session") not in sessions:
         remarks.append("Claude session identity mismatch")
     for counts in per_turn.values():

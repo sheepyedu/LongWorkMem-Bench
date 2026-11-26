@@ -7,6 +7,22 @@ from s1.review import audit
 
 
 class TraceAuditTest(unittest.TestCase):
+    def test_corrupt_traces_and_missing_receipts_are_diagnosed(self):
+        with tempfile.TemporaryDirectory() as folder:
+            run = Path(folder)
+            trace = run / "trace"
+            trace.mkdir()
+            (run / "manifest.json").write_text(json.dumps({"session": "s", "status": "complete",
+                "turns": [{"turn": 1, "upstream_calls": 2}]}), encoding="utf-8-sig")
+            (trace / "api-0001.json").write_text('{"turn":')
+            (trace / "turn-1.jsonl").write_text('{}\n{"type":"assistant","message":null}\n')
+            (trace / "tools-1.jsonl").write_text('{"result":null}')
+            flags = audit(run)["audit_flags"]
+            self.assertTrue(any("api-0001.json" in f for f in flags))
+            self.assertTrue(any("turn-1.jsonl" in f for f in flags))
+            self.assertTrue(any("tools-1.jsonl" in f for f in flags))
+            self.assertTrue(any("attempt count" in f for f in flags))
+
     def test_matches_complete_exchange_and_detects_changed_return(self):
         with tempfile.TemporaryDirectory() as folder:
             run = Path(folder)
