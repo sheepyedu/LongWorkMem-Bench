@@ -1,6 +1,7 @@
 """Release one engineering shift's public materials into an isolated checkout."""
 import csv
 import json
+import shlex
 import shutil
 import sqlite3
 from contextlib import closing
@@ -156,7 +157,10 @@ BATCH_CONTRACT = """夜班调度接口说明
 
 
 def batch_command(fault=False):
-    return "python3 input/batch.py --interrupt" if fault else "python3 input/batch.py"
+    if fault:
+        source = Path(__file__).with_name("interruption.py").read_text()
+        return "python3 -I -S -c " + shlex.quote(source)
+    return "python3 input/batch.py"
 
 
 def release(work, turn, variant):
@@ -177,7 +181,7 @@ def release(work, turn, variant):
     elif turn == 4:
         _jsonl(inputs / "late.jsonl", _late())
     elif turn == 5:
-        shutil.copyfile(STARTER / "batch.py", inputs / "batch.py")
+        shutil.copyfile(STARTER / "worker.py", inputs / "batch.py")
         (inputs / "batch-contract.txt").write_text(BATCH_CONTRACT, encoding="utf-8")
         (inputs / "sample").mkdir(exist_ok=True)
         _jsonl(inputs / "sample/trial.jsonl", [_event("trial", 1, "S", "001", 1, "service", "open")])

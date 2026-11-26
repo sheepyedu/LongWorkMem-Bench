@@ -67,6 +67,16 @@ class C1WorldTests(unittest.TestCase):
             self.assertNotEqual((work / "data/tickets.sqlite").read_bytes(), old)
             self.assertEqual((work / "input/initial.sqlite").read_bytes(), old)
 
+    def test_public_scheduler_does_not_reveal_the_future_fault(self):
+        with TemporaryDirectory() as temp:
+            work = Path(temp) / "workspace"
+            for turn in range(1, 6):
+                world.release(work, turn, "A")
+            public = (work / "input/batch.py").read_text()
+            for marker in ("s17-02", "017.jsonl", "--interrupt", "os._exit", "precommit_interrupt"):
+                self.assertNotIn(marker, public)
+            self.assertFalse((work / "input/shards").exists())
+
     def test_real_sqlite_interrupt_and_recovery(self):
         # Exercise the controller with a small compatible writer, independent of the C1 reference solution.
         writer = '''
