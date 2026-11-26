@@ -1,0 +1,82 @@
+"""Advanced W1 public releases, host-side reference run, and checkpoint grading."""
+import argparse
+import hashlib
+import json
+from pathlib import Path
+
+from . import advanced_ledger, advanced_pay, advanced_mail
+from .runstate import ROUNDS, freeze, prepare
+
+
+DEPARTMENTS = ((advanced_ledger, 40), (advanced_pay, 35), (advanced_mail, 25))
+
+
+def release(work, turn, variant, level, seed):
+    if turn not in ROUNDS or variant not in {"A", "B"} or level not in {1, 2}:
+        raise ValueError("Invalid W1 instance or turn")
+    for folder in ("input", "inbox", "out"):
+        (work / folder).mkdir(parents=True, exist_ok=True)
+    prompts = [department.release(work, turn, variant, level, seed) for department, _ in DEPARTMENTS]
+    prompt, = [prompt for prompt in prompts if prompt]
+    return prompt
+
+
+def public_digest(work, prompt):
+    digest = hashlib.sha256(prompt.encode() + b"\0")
+    for folder in ("input", "inbox"):
+        for path in sorted((work / folder).rglob("*")):
+            if path.is_file():
+                digest.update(str(path.relative_to(work)).encode() + b"\0")
+                digest.update(hashlib.sha256(path.read_bytes()).digest())
+    return digest.hexdigest()
+
+
+def run_reference(run, variant, level, seed):
+    work = prepare(run)
+    turns = []
+    for turn in ROUNDS:
+        prompt = release(work, turn, variant, level, seed)
+        for department, _ in DEPARTMENTS:
+            department.reference(run, turn, variant, level, seed)
+        freeze(run, turn)
+        turns.append(dict(turn=turn, public_digest=public_digest(work, prompt)))
+    manifest = dict(task="W1-advanced", status="complete", variant=variant, level=level,
+                    seed=seed, reference=True, turns=turns)
+    (run / "manifest.json").write_text(json.dumps(manifest, indent=2))
+
+
+def grade(run, variant=None):
+    manifest = json.loads((run / "manifest.json").read_bytes())
+    if manifest.get("task") != "W1-advanced" or manifest.get("status") != "complete" or manifest.get("smoke"):
+        raise ValueError("A completed advanced W1 session is required")
+    if variant is not None and variant != manifest["variant"]:
+        raise ValueError("Requested variant differs from the frozen run")
+    if [t["turn"] for t in manifest["turns"]] != list(ROUNDS):
+        raise ValueError("Incomplete turn manifest")
+    if any(not (run / "snapshots" / str(t)).is_dir() for t in ROUNDS):
+        raise ValueError("Missing host snapshot")
+    items = {}
+    for department, weight in DEPARTMENTS:
+        checks = department.checks(run, manifest["variant"], manifest["level"], manifest["seed"])
+        if items.keys() & checks.keys() or sum(maximum for _, maximum, _ in checks.values()) != weight:
+            raise ValueError("Invalid checkpoint weights or duplicate labels")
+        for code, (earned, maximum, reason) in checks.items():
+            if not 0 <= earned <= maximum:
+                raise ValueError(f"Invalid score for {code}")
+            items[code] = dict(earned=float(earned), max=maximum, reason=reason)
+    return dict(scorer_version="w1-advanced/1", variant=manifest["variant"],
+                level=manifest["level"], seed=manifest["seed"],
+                total=round(sum(item["earned"] for item in items.values()), 4), max=100, items=items)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("run", type=Path)
+    parser.add_argument("--reference", action="store_true")
+    parser.add_argument("--variant", choices=["A", "B"], default="A")
+    parser.add_argument("--level", type=int, choices=[1, 2], default=1)
+    parser.add_argument("--seed", type=int, default=0)
+    args = parser.parse_args()
+    if args.reference:
+        run_reference(args.run, args.variant, args.level, args.seed)
+    print(json.dumps(grade(args.run), ensure_ascii=False, indent=2))

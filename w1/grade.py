@@ -118,6 +118,10 @@ def payroll_checks(table, oracle):
 
 def grade(run: Path, variant: str) -> dict:
     run = Path(run)
+    manifest = run / "manifest.json"
+    if manifest.is_file() and json.loads(manifest.read_bytes()).get("task") == "W1-advanced":
+        from . import advanced
+        return advanced.grade(run, variant)
     oracle = expected(variant)
     snapshots = run / "snapshots"
     def at(turn, filename):
