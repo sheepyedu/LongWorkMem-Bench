@@ -1,0 +1,33 @@
+{
+  "archive_sha256": "89d4480b483ca2e0555ba96cc7d73c16c78802b17cd822044d5f7f27ab0558bf",
+  "orders": 300,
+  "receipts": 285,
+  "quantity": 15,
+  "amount": 25,
+  "gold_amount": 10,
+  "overlap": 15,
+  "missing": 20,
+  "orphans": 5,
+  "quantity_ids_match": true,
+  "amount_ids_match": false,
+  "amount_only_ids_match": true,
+  "missing_ids_match": true,
+  "orphan_ids_match": true,
+  "excluded_amount_ids": [
+    "PO-2026-10607",
+    "PO-2026-11619",
+    "PO-2026-14490",
+    "PO-2026-14964",
+    "PO-2026-16273",
+    "PO-2026-17514",
+    "PO-2026-17667",
+    "PO-2026-21715",
+    "PO-2026-27149",
+    "PO-2026-32889",
+    "PO-2026-32952",
+    "PO-2026-32988",
+    "PO-2026-34639",
+    "PO-2026-39294",
+    "PO-2026-41441"
+  ]
+}
