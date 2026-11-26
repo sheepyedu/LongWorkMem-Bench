@@ -54,6 +54,11 @@ class LeagueGameTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             open_turn(states[0], 1)
 
+    def test_opening_explains_who_advances_the_season(self):
+        prompt = open_turn(new_game("A", 31), 1)
+        self.assertIn("主办方会发来下一站委托", prompt)
+        self.assertNotIn("报名台完成", prompt)
+
     def test_standard_optima_and_reproducible_seeds(self):
         fixtures = set()
         for seed in range(12):
