@@ -169,7 +169,7 @@ def solve_turn(workspace: Path, turn: int, *, mail=None):
     work = Path(workspace)
     out = work / "out"
     if turn in (1, 2, 5):
-        reconcile(work, date(2025, 7, 31) if turn == 5 else date(2025, 6, 30))
+        reconcile(work, date(2025, 7, 8) if turn == 5 else date(2025, 6, 30))
     elif turn == 3:
         freeze = out / "frozen/2025-06.csv"
         freeze.parent.mkdir(parents=True, exist_ok=True)

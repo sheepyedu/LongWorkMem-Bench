@@ -207,3 +207,28 @@ class GradeTest(unittest.TestCase):
                             '<worksheet><mergeCells><mergeCell ref="A1:IV4096"/></mergeCells></worksheet>')
         with self.assertRaises(InvalidArtifact):
             inspect_package(path)
+
+    def test_oracle_uses_inclusive_june_30_and_july_8_posting_cutoffs(self):
+        from w1.world import release
+
+        def release_with_future_receipts(work, turn, variant):
+            request = release(work, turn, variant)
+            if turn == 2:
+                with (work / "input/receipts_cutoff.csv").open("w", newline="") as f:
+                    writer = csv.writer(f)
+                    writer.writerow(["event", "po", "line", "date", "qty"])
+                    for day, qty in [("06-30", 3), ("07-01", 5), ("07-08", 11), ("07-09", 7)]:
+                        writer.writerow([day, "PO-217", "1", "2025-" + day, qty])
+                    writer.writerow(["july-orphan", "PO-X", "1", "2025-07-01", 1])
+                    writer.writerow(["later-orphan", "PO-X", "1", "2025-07-09", 1])
+            return request
+
+        with patch("w1.scoring_oracle.release", release_with_future_receipts):
+            values = expected("A")
+        for stage, expected_net, list_name, eligible_orphans in [
+            ("june", 93, "orphans", set()), ("july", 119, "july_orphans", {"july-orphan"})
+        ]:
+            with self.subTest(stage=stage):
+                row = next(r for r in values[stage] if (r["po"], r["line"]) == ("PO-217", "1"))
+                self.assertEqual(row["net"], expected_net)
+                self.assertEqual({r["id"] for r in values[list_name] if r["po"] == "PO-X"}, eligible_orphans)

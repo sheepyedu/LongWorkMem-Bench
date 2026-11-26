@@ -1,5 +1,6 @@
 """Private W1 checkpoint scoring from frozen outputs and the host mail journal.
 
+Version 1.1.1 observes the June 30 and July 8 warehouse posting cutoffs.
 Version 1.1 adds pre-approval checks and tests the E07 dependency through actual pay.
 Bonus drafts are distinguished from earlier unrelated drafts. Project-subject checks
 require a concrete disclosure. Numeric grouping, OOXML sizes, and merge expansion
@@ -15,9 +16,9 @@ from .scoring_tables import InvalidArtifact, Table
 from .scoring_workbook import check_workbook, same_workbook
 
 
-SCORER_VERSION = "w1-grade/1.1"
-# v1.0 SHA-256 over sorted path + NUL + bytes + NUL for grade.py and scoring_*.py.
-PREVIOUS_SCORER_SHA256 = "b3c725dbffd579afb3f63e9f357df1fc47e3cec75c13141386a64a09dc65438b"
+SCORER_VERSION = "w1-grade/1.1.1"
+# v1.1 SHA-256 over sorted path + NUL + bytes + NUL for grade.py and scoring_*.py.
+PREVIOUS_SCORER_SHA256 = "8ac65422ce83b85ee710ffc30174abd63cb40b6540dfe23ba07a2f451eb4b458"
 
 
 def preapproval(snapshots):

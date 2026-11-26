@@ -1,5 +1,6 @@
 """Private independent business calculation from the controller's pristine public releases."""
 from collections import Counter, defaultdict
+from datetime import date
 from decimal import Decimal, ROUND_FLOOR
 from tempfile import TemporaryDirectory
 from pathlib import Path
@@ -12,7 +13,7 @@ PAY = "project employee hours bonus"
 SUMMARY = "project period hours bonus"
 
 
-def ledger(directory):
+def ledger(directory, cutoff):
     def rows(filename):
         return read_csv(directory / filename)[1]
 
@@ -21,6 +22,8 @@ def ledger(directory):
     duplicate_keys = set()
     for file in sorted(directory.glob("receipts_*.csv")):
         for r in read_csv(file)[1]:
+            if date.fromisoformat(r["date"]) > cutoff:
+                continue
             key = r["po"], r["line"]
             if r["event"] in receipts:
                 duplicate_keys.add(key)
@@ -76,9 +79,9 @@ def expected(variant):
         for turn in range(1, 8):
             release(workspace, turn, variant)
             if turn == 2:
-                june, orphans, duplicate_keys = ledger(workspace / "input")
+                june, orphans, duplicate_keys = ledger(workspace / "input", date(2025, 6, 30))
             if turn == 5:
-                july, july_orphans, _ = ledger(workspace / "input")
+                july, july_orphans, _ = ledger(workspace / "input", date(2025, 7, 8))
         directory = workspace / "input"
         releases = read_csv(directory / "releases.csv")[1]
         pools = {r["project"]: number(r["pool"]) for r in releases

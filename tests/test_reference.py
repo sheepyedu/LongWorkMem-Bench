@@ -34,7 +34,7 @@ class ReferenceBusinessRulesTest(unittest.TestCase):
             receipt = ("receive-X", "PO-X", "01", "2025-06-12", 10)
             write_table(inputs / "receipts_june.csv", header,
                         [receipt, ("receive-Y", "PO-Y", "01", "2025-06-10", 1),
-                         ("august-Y", "PO-Y", "01", "2025-08-01", 5)])
+                         ("july-9-Y", "PO-Y", "01", "2025-07-09", 5)])
             write_table(inputs / "invoices.csv", ("invoice_line", "po", "line", "qty", "amount"),
                         [("bill-X", "PO-X", "01", 10, "22.50"), ("bill-Y", "PO-Y", "01", 1, "3.00"),
                          ("orphan", "PO-Z", "01", 1, "3.00")])
@@ -54,7 +54,7 @@ class ReferenceBusinessRulesTest(unittest.TestCase):
                                                        "amount_lines", "orphan_events")],
                              ["1", "1", "1", "1"])
             write_table(inputs / "receipts_july.csv", header,
-                        [("receive-X-late", "PO-X", "01", "2025-07-05", 2)])
+                        [("receive-X-late", "PO-X", "01", "2025-07-08", 2)])
             write_table(inputs / "invoices_july.csv", ("invoice_line", "po", "line", "qty", "amount"),
                         [("bill-X", "PO-X", "01", 10, "22.50"), ("credit-Y", "PO-Y", "01", 0, "-3.00")])
             solve_turn(work, 5)
