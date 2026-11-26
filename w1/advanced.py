@@ -17,14 +17,14 @@ def departments(level):
     if level == 3:
         from . import advanced_ledger_l3, advanced_pay_l3, advanced_mail_l3
         return {"ledger": advanced_ledger_l3, "pay": advanced_pay_l3, "mail": advanced_mail_l3}
-    if level == 4:
+    if level in (4, 5):
         from . import advanced_ledger_l4, advanced_pay_l4, advanced_mail_l4
         return {"ledger": advanced_ledger_l4, "pay": advanced_pay_l4, "mail": advanced_mail_l4}
     raise ValueError(f"Unknown advanced W1 level {level}")
 
 
 def release(work, turn, variant, level, seed):
-    if turn not in ROUNDS or variant not in {"A", "B"} or level not in {1, 2, 3, 4}:
+    if turn not in ROUNDS or variant not in {"A", "B"} or level not in {1, 2, 3, 4, 5}:
         raise ValueError("Invalid W1 instance or turn")
     for folder in ("input", "inbox", "out"):
         (work / folder).mkdir(parents=True, exist_ok=True)
@@ -32,8 +32,11 @@ def release(work, turn, variant, level, seed):
     prompt, = [prompt for prompt in prompts if prompt]
     if level >= 3 and turn == 3:
         prompt += " 请同时办理技术移交通知上随关账到期的薪酬档案。"
-    if level == 4 and turn in (2, 5, 6):
+    if level >= 4 and turn in (2, 5, 6):
         prompt += " 请一并执行今日签发的核验函，并保留邮箱实际回执。"
+    if level == 5:
+        from .erp_window import notice
+        prompt += notice(turn)
     return prompt
 
 
@@ -91,7 +94,7 @@ if __name__ == "__main__":
     parser.add_argument("run", type=Path)
     parser.add_argument("--reference", action="store_true")
     parser.add_argument("--variant", choices=["A", "B"], default="A")
-    parser.add_argument("--level", type=int, choices=[1, 2, 3, 4], default=1)
+    parser.add_argument("--level", type=int, choices=[1, 2, 3, 4, 5], default=1)
     parser.add_argument("--seed", type=int, default=0)
     args = parser.parse_args()
     if args.reference:

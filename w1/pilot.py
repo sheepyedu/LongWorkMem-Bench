@@ -54,8 +54,11 @@ def claude_turn(run, turn, backend, gw, session, prompt, client, *, first_sessio
         if os.environ.get("DOCKER_HOST"):
             office_env["DOCKER_HOST"] = os.environ["DOCKER_HOST"]
         office_env["W1_OFFICE_IMAGE_ID"] = image_id or docker_image()
+    manifest = run / "manifest.json"
+    windowed = manifest.is_file() and json.loads(manifest.read_bytes()).get("level") == 5
+    server = "w1.erp_window" if windowed else "w1.office"
     config = {"mcpServers": {"office": {"command": sys.executable,
-        "args": ["-m", "w1.office", str(run.resolve()), str(turn), backend],
+        "args": ["-m", server, str(run.resolve()), str(turn), backend],
         "env": office_env}}}
     context = CONTEXT + ("本办公室支持使用 soffice --headless 在副本上实际重算 Excel。" if backend == "docker" else "")
     return run_claude(run, turn, gw, session, prompt, client, config=config, context=context,
@@ -165,7 +168,7 @@ def main():
     p.add_argument("--smoke",action="store_true")
     p.add_argument("--limit",type=int,default=1500)
     p.add_argument("--model", choices=[MODEL, "qwen3.8-flash"], default=MODEL)
-    p.add_argument("--level", type=int, choices=[0, 1, 2, 3, 4], default=0)
+    p.add_argument("--level", type=int, choices=[0, 1, 2, 3, 4, 5], default=0)
     p.add_argument("--seed", type=int, default=0)
     args=p.parse_args()
     if len(set(args.variants))!=len(args.variants):

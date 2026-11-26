@@ -11,7 +11,7 @@ class AdvancedOfficeTest(unittest.TestCase):
     def test_every_release_is_repeatable_and_only_hr_differs_in_pair(self):
         with TemporaryDirectory() as tmp:
             root = Path(tmp)
-            for level in (1, 2, 3, 4):
+            for level in (1, 2, 3, 4, 5):
                 left, right, repeated = (root / f"{level}-{tag}" for tag in ("A", "B", "again"))
                 for turn in ROUNDS:
                     prompt = release(left, turn, "A", level, 431)
@@ -24,9 +24,19 @@ class AdvancedOfficeTest(unittest.TestCase):
                     differences = {p for p in a if a[p] != b[p]}
                     self.assertEqual(differences, {Path("inbox/HR-0628.eml")} if turn >= 2 else set())
 
+    def test_windows_add_only_the_public_batch_notice(self):
+        from w1.erp_window import notice
+        with TemporaryDirectory() as tmp:
+            plain, window = Path(tmp) / "plain", Path(tmp) / "window"
+            for turn in ROUNDS:
+                original = release(plain, turn, "A", 4, 431)
+                timed = release(window, turn, "A", 5, 431)
+                self.assertEqual(timed, original + notice(turn))
+                self.assertEqual(public_digest(window, original), public_digest(plain, original))
+
     def test_reference_scores_and_incomplete_run_is_not_a_model_grade(self):
         with TemporaryDirectory() as tmp:
-            for level, variant in ((1, "A"), (2, "B"), (3, "A"), (3, "B"), (4, "A"), (4, "B")):
+            for level, variant in ((1, "A"), (2, "B"), (3, "A"), (3, "B"), (4, "A"), (4, "B"), (5, "A")):
                 run = Path(tmp) / f"{level}-{variant}"
                 run_reference(run, variant, level, 431)
                 result = grade(run, variant)
