@@ -1,6 +1,7 @@
 """Compare paired runs and isolate audit decisions affected by the R2 handover."""
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 import tempfile
@@ -53,6 +54,19 @@ def authority_reversals(directory, seed, level, snapshot_dir="snapshots"):
     }
 
 
+def released_material(run, turn):
+    source = run / "snapshots" / str(turn) / "input"
+    result = {
+        p.relative_to(source).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+        for p in source.rglob("*")
+        if p.is_file()
+    }
+    result["__user_prompt__"] = hashlib.sha256(
+        (run / "trace" / f"prompt-{turn}.txt").read_bytes()
+    ).hexdigest()
+    return result
+
+
 def compare(a, b, seeds, score_name):
     rows, memory = [], []
     for seed in seeds:
@@ -78,7 +92,22 @@ def compare(a, b, seeds, score_name):
                     raise ValueError(
                         f"Paired inputs differ at {seed}-{variant}: {field}"
                     )
-            rows.append({"seed": seed, "variant": variant, "scores": grades})
+            if manifests[0]["session"] == manifests[1]["session"]:
+                raise ValueError("Compared runs share a session")
+            count = min(len(m["turns"]) for m in manifests)
+            for turn in range(1, count + 1):
+                if released_material(
+                    a / f"{seed}-{variant}", turn
+                ) != released_material(b / f"{seed}-{variant}", turn):
+                    raise ValueError(f"Inputs differ at {seed}-{variant} turn {turn}")
+            rows.append(
+                {
+                    "seed": seed,
+                    "variant": variant,
+                    "scores": grades,
+                    "verified_turns": count,
+                }
+            )
         memory.append(
             [
                 authority_reversals(folder, seed, manifests[0]["level"])

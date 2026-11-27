@@ -70,3 +70,28 @@ class CheckoutTests(unittest.TestCase):
         self.assertEqual(result_value(rejection), {'client_error': rejection})
         with self.assertRaises(ValueError):
             result_value('unexpected unstructured output')
+
+    def test_dispatch_captures_exact_accepted_shell_call_across_tool_restarts(self):
+        import io
+        from unittest.mock import patch
+        from c1 import sandbox
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            work = root / 'work'
+            work.mkdir()
+            dest, journal = root/'signed', root/'journal.jsonl'
+            def write(_work, command, backend):
+                (work/'delivery').write_text(command)
+                return {'status': 0, 'output': command}
+            def serve(commands):
+                events = [dict(id=i, method='tools/call', params=dict(name='shell', arguments={'command':cmd}))
+                          for i,cmd in enumerate(commands)]
+                with patch('sys.stdin',io.StringIO('\n'.join(map(json.dumps,events)))), patch('sys.stdout',io.StringIO()) as output:
+                    sandbox.serve(work,'docker',journal,dest,4)
+                self.assertNotIn(str(dest),output.getvalue())
+            with patch.object(sandbox,'shell',write):
+                serve(['one','two','three'])
+                self.assertFalse(dest.exists())
+                serve(['four','five'])
+            self.assertEqual((dest/'delivery').read_text(),'four')
+            self.assertEqual((work/'delivery').read_text(),'five')
