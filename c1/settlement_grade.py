@@ -163,7 +163,7 @@ def matches(got, expected, field=None):
 def grade_snapshot(run, backend, snapshot_dir):
     run = Path(run).resolve()
     m = json.loads((run / "manifest.json").read_text())
-    advanced = m["level"] == 2
+    advanced = m["level"] >= 2
     details = {}
     checks = {}
     missing = []
@@ -316,6 +316,15 @@ def grade_snapshot(run, backend, snapshot_dir):
                 for name, ok in details.items()
             }
         )
+    if m["level"] == 3:
+        from .reserve_grade import grade_phase
+
+        checks = {name: [v * 0.75, w * 0.75] for name, (v, w) in checks.items()}
+        snap = run / snapshot_dir / "7"
+        if not snap.exists():
+            missing.append(7)
+        approvers = settlement.generate(m["seed"], 2, m["variant"])[3]
+        grade_phase(snap, m["seed"], m["variant"], approvers, probes, checks)
     total = sum(x[0] for x in checks.values())
     valid = not probes.infrastructure and (
         (m.get("status") == "complete" and not missing)
