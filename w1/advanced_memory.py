@@ -138,6 +138,8 @@ def normalized(field, value):
         return number(value)
     if field == "desk":
         value = unicodedata.normalize("NFKC", value).strip()
+        if re.fullmatch(r"[0-9]{4}", value):
+            return "岗" + value
         if re.fullmatch(r"内控岗\s*:?\s*(?:IC-01|\(IC-01\))", value):
             return "IC-01"
     return value

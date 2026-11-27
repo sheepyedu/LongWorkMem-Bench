@@ -86,3 +86,9 @@ class MandateTests(unittest.TestCase):
             self.assertTrue(mem.equal({"desk":value},want,["desk"]))
         for wrong in ("IC-010", "IC-01 / IC-02", "内控岗 IC-02"):
             self.assertFalse(mem.equal({"desk":wrong},want,["desk"]))
+
+    def test_numeric_desk_id_keeps_four_digit_identity_and_scope(self):
+        self.assertTrue(mem.equal({"desk":"7084"},{"desk":"岗7084"},["desk"]))
+        self.assertFalse(mem.equal({"desk":"7085"},{"desk":"岗7084"},["desk"]))
+        self.assertFalse(mem.equal({"desk":"7084 / 7085"},{"desk":"岗7084"},["desk"]))
+        self.assertFalse(mem.equal({"authority":"7084"},{"authority":"常7084"},["authority"]))

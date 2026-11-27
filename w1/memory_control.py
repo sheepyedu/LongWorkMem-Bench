@@ -37,7 +37,7 @@ def assess(run, seed, variant, turn, prior):
                      memory.equal(actual[r["office"],r["case"]][0],r,[f]) for r in want) for f in fields}
     complete = sum(len(actual.get((r["office"],r["case"]),[])) == 1 and
                    memory.equal(actual[r["office"],r["case"]][0],r,fields) for r in want)
-    return dict(cases=denominator, correct_by_field=matches, all_fields=complete, scorer_version="reserve/1.1")
+    return dict(cases=denominator, correct_by_field=matches, all_fields=complete, scorer_version="reserve/1.2")
 
 
 def play(run, seed, variant, turn, reminder, model, url, key):
