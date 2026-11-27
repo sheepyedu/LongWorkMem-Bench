@@ -101,7 +101,7 @@ def grade(run, variant=None):
             if not 0 <= earned <= maximum:
                 raise ValueError(f"Invalid score for {code}")
             items[code] = dict(department=label, earned=float(earned)*factor, max=maximum*factor, reason=reason)
-    return dict(scorer_version="w1-advanced/3.1" if manifest["level"] >= 7 else "w1-advanced/2", variant=manifest["variant"],
+    return dict(scorer_version="w1-advanced/3.4" if manifest["level"] >= 7 else "w1-advanced/2.1", variant=manifest["variant"],
                 level=manifest["level"], seed=manifest["seed"],
                 total=round(sum(item["earned"] for item in items.values()), 4), max=100, items=items)
 
