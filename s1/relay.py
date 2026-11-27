@@ -26,9 +26,10 @@ class Notice:
 
 
 class Season:
-    def __init__(self, seed, level, variant="A"):
-        if level not in LEVELS or variant not in ("A", "B"):
+    def __init__(self, seed, level, variant="A", edition="original"):
+        if level not in LEVELS or variant not in ("A", "B") or edition not in ("original", "warehouse"):
             raise ValueError("invalid scenario")
+        self.edition = edition
         self.seed, self.level, self.variant = seed, level, variant
         n, self.capacity = LEVELS[level]
         rng = Random(f"relay/v1/{seed}")
@@ -40,6 +41,14 @@ class Season:
         for k in self.teams[::2]:
             initial = self.base[k][0]
             self.flip[k] = initial.replace("P", "x").replace("F", "P").replace("x", "F")
+        if edition == "warehouse":
+            # Both opening histories inherit the same older inventory slip.
+            stock_rng = Random(f"warehouse/v1/{seed}")
+            self.stock = {team: list(row) for team, row in self.base.items()}
+            for team in self.teams:
+                field = stock_rng.randrange(4)
+                domain = [v for v in VALUES[field] if v != self.base[team][field]]
+                self.stock[team][field] = stock_rng.choice(domain)
         if variant == "B":
             for team, kit in self.flip.items():
                 self.base[team][0] = kit
@@ -82,6 +91,9 @@ class Season:
         else:
             instruction += "\n本次订单（依次为队号、取用哪个赛段的生效配置）：\n" + "、".join(
                 f"{team}/{phase}" for team, phase in self.jobs[turn])
+            if self.edition == "warehouse":
+                instruction += "\n季前仓单（队号 器材 箱签 领牌员 交接台；仅供核对，可能早在开幕时就已变动）：\n" + "\n".join(
+                    " ".join([team, *self.stock[team]]) for team, _ in self.jobs[turn])
         return instruction
 
     def expected(self, team, phase):
@@ -100,6 +112,10 @@ P/F分别为对子/同色，1/4分别为一次/持续装；领队必须按已批
 第4班预选，第5班邀请，第7班决赛，第8班按订单所列当时赛段重建历史凭证（以第4或第5班当时的有效授权为准，即使那时未实际订购该队）。
 届时系统才抽出所需队伍。每班用一个 JSON 对象提交，例如 {"note":"交接簿全文","orders":{"12":["P4","38","松","北"]}}。无订单时 orders 可省略。
 订单一经提交就实际配发；赛后统一验收。note 可用任何紧凑编码；覆盖旧簿，超长仅留前段，省略原样保留。请直接提交，无需复述。"""
+WAREHOUSE_RULES = RULES.replace(
+    '例如 {"note":"交接簿全文","orders":{"12":["P4","38","松","北"]}}',
+    '顶层 note 为交接簿全文，orders 为对象，以本班订单里的队号作键，值是四项实际配置的 JSON 数组'
+) + "每次订单附同队季前仓单供核对，开幕领用册和其后生效的批准始终优先。换班后不能按单号调档。四项齐全的单据逐队受理，器材与箱签决定上桌验收，领牌员与交接台决定送达验收。"
 HANDOVER = "第4、7、8班开班时换人，只有交接簿随队，其余班沿用当前会话。"
 CONTINUOUS = "八班由同一人连续值班，保留本赛季对话。"
 
@@ -138,7 +154,7 @@ def submit(season, turn, reply, old_note):
             rejected.append(team)
             continue
         fields = [str(x).strip() for x in row]
-        if any(value not in domain for value, domain in zip(fields, VALUES)):
+        if season.edition == "original" and any(value not in domain for value, domain in zip(fields, VALUES)):
             rejected.append(team)
             continue
         booked[team] = fields

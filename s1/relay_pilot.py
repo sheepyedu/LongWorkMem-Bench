@@ -11,7 +11,7 @@ import uuid
 from w1.claude import run_claude
 from w1.gateway import Gateway, MODEL, URL
 from .pilot import write
-from .relay import CONTINUOUS, HANDOVER, RULES, WEIGHTS, Season, decode, grade, submit
+from .relay import CONTINUOUS, HANDOVER, RULES, WAREHOUSE_RULES, WEIGHTS, Season, decode, grade, submit
 
 
 def final_result(path):
@@ -26,7 +26,7 @@ def evaluate(run):
     meta = json.loads((run / "manifest.json").read_text())
     if meta["status"] != "complete":
         raise ValueError("incomplete run")
-    season = Season(meta["seed"], meta["level"], meta["variant"])
+    season = Season(meta["seed"], meta["level"], meta["variant"], meta.get("edition", "original"))
     received, note = {}, ""
     for row in meta["turns"]:
         turn = row["turn"]
@@ -55,9 +55,10 @@ def evaluate(run):
     return grade(season, received)
 
 
-def run_one(dest, model, level, seed, arm, condition, direct_response=False):
-    season = Season(seed, level, arm)
-    run = dest / f"L{level}-{seed}-{arm}-{model}-{condition}"
+def run_one(dest, model, level, seed, arm, condition, direct_response=False, edition="original"):
+    season = Season(seed, level, arm, edition)
+    prefix = "warehouse-" if edition == "warehouse" else ""
+    run = dest / f"{prefix}L{level}-{seed}-{arm}-{model}-{condition}"
     run.mkdir(parents=True, exist_ok=False, mode=0o700)
     (run / "trace").mkdir()
     remote_name = MODEL if model == "deepseek" else "qwen3.8-flash"
@@ -65,7 +66,7 @@ def run_one(dest, model, level, seed, arm, condition, direct_response=False):
     url = URL if model == "deepseek" else os.environ["DEEPSEEK_BASE_URL"].rstrip("/") + "/chat/completions"
     meta = {"status": "running", "model": remote_name, "variant": arm, "seed": seed,
             "level": level, "condition": condition, "turns": [], "request_limit": 32, "transport_timeout_seconds": 600,
-            "direct_response": direct_response,
+            "direct_response": direct_response, "edition": edition,
             "git": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=Path(__file__).parent, text=True).strip(),
             "cli": subprocess.check_output(["claude", "--version"], text=True).strip()}
     write(run / "manifest.json", meta)
@@ -83,7 +84,8 @@ def run_one(dest, model, level, seed, arm, condition, direct_response=False):
                     session = str(uuid.uuid4())
                 originals = [t for t in season.bulletins if t < turn] if condition == "evidence" else []
                 prompt = season.prompt(turn, note, condition, originals)
-                context = RULES + ("本班为独立受理，只依现有记录办理。" if cold else
+                public_rules = WAREHOUSE_RULES if edition == "warehouse" else RULES
+                context = public_rules + ("本班为独立受理，只依现有记录办理。" if cold else
                                    HANDOVER if condition == "relay" else CONTINUOUS)
                 (run / "trace" / f"prompt-{turn}.txt").write_text(prompt)
                 calls = []
@@ -125,9 +127,10 @@ def main():
     p.add_argument("--condition", choices=["relay","continuous","current","evidence"], default="relay")
     p.add_argument("--workers", type=int, default=4)
     p.add_argument("--direct-response", action="store_true", help="disable provider thinking for both models")
+    p.add_argument("--edition", choices=["original", "warehouse"], default="original")
     args = p.parse_args()
     with ThreadPoolExecutor(max_workers=args.workers) as pool:
-        jobs = [pool.submit(run_one, args.dest.resolve(), model, args.level, seed, arm, args.condition, args.direct_response)
+        jobs = [pool.submit(run_one, args.dest.resolve(), model, args.level, seed, arm, args.condition, args.direct_response, args.edition)
                 for seed in args.seeds for arm in args.variants for model in args.models]
         for job in jobs:
             job.result()

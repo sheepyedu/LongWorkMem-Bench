@@ -34,7 +34,7 @@ def dependency_groups(season, row):
 def inspect(run):
     meta = json.loads((run / "manifest.json").read_text())
     result = evaluate(run)
-    season = Season(meta["seed"], meta["level"], meta["variant"])
+    season = Season(meta["seed"], meta["level"], meta["variant"], meta.get("edition", "original"))
     counts, labels = Counter(), defaultdict(lambda: [0, 0])
     flags = []
     attempts = sorted((run / "trace").glob("api-*.json"))
@@ -115,12 +115,12 @@ def inspect(run):
             labels[name][1] += 1
     return {"score": result["total"], "groups": result["groups"], "counts": counts, "fields": labels,
             "flags": flags, "seed": meta["seed"], "variant": meta["variant"], "model": meta["model"],
-            "direct_response": meta.get("direct_response", False), "level": meta["level"], "condition": meta["condition"]}
+            "edition": meta.get("edition", "original"), "direct_response": meta.get("direct_response", False), "level": meta["level"], "condition": meta["condition"]}
 
 
 def compare(reports):
     by_seed = defaultdict(dict)
-    configs = {(r["condition"], r["level"], r.get("direct_response", False)) for r in reports}
+    configs = {(r["condition"], r["level"], r.get("direct_response", False), r.get("edition", "original")) for r in reports}
     if len(configs) != 1:
         raise ValueError("pair a single condition and level")
     for report in reports:

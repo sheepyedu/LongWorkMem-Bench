@@ -108,3 +108,21 @@ class CalibrationReviewTest(unittest.TestCase):
                                                       expected=season.expected(team, phase))))
         self.assertEqual(labels(7, "决赛"), {("撤回后回退", 0), ("邀请专项到期", 1)})
         self.assertEqual(labels(8, "邀请"), {("历史截止", 0), ("历史截止", 3)})
+
+
+class WarehouseTest(unittest.TestCase):
+    def test_archive_is_stale_and_identical_across_counterfactuals(self):
+        for level in LEVELS:
+            for seed in (5, 15, 25):
+                a,b=(Season(seed, level, v, "warehouse") for v in "AB")
+                self.assertEqual(a.stock,b.stock)
+                self.assertTrue(all(sum(x!=y for x,y in zip(a.stock[k], a.base[k]))==1 for k in a.teams))
+                for turn in WEIGHTS:
+                    self.assertEqual(a.prompt(turn,"","relay"),b.prompt(turn,"","relay"))
+                    orders={k:from_archive(a,k,ph) for k,ph in a.jobs[turn]}
+                    team=next(iter(orders))
+                    orders[team][0]="未知"
+                    rec=submit(a,turn,{"orders":orders},"")
+                    self.assertEqual(rec["rejected"],[])
+                    self.assertAlmostEqual(grade(a,{str(turn):rec})["groups"][str(turn)],
+                                           WEIGHTS[turn]*(1-1/(2*len(orders))))
