@@ -161,3 +161,32 @@ class SettlementTests(unittest.TestCase):
             {"a": None},
         )
         self.assertEqual(audit_map({"audit": {}}), {})
+
+    def test_archived_mandates_and_signer_change_independent_decisions(self):
+        import shutil
+        from c1 import reserve, reserve_reference
+        from c1.reserve_grade import expected
+
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            project = work / "project"
+            project.mkdir()
+            for turn in range(1, 8):
+                world.release(work, turn, "B", 149, 3)
+                if turn in reserve.STAGES:
+                    shutil.copyfile(
+                        work / "input" / reserve.NOTICE, project / f"notice-{turn}.csv"
+                    )
+            a, b = world.generate(149, 2, "B")[3]
+            rows = reserve.requests(149, a, b, 0)
+            for signer in (a, b):
+                (project / "authority.txt").write_text(signer)
+                actual = reserve_reference.settle(project, work / "input")
+                oracle = expected(149, signer, rows)
+                for field in oracle:
+                    self.assertTrue(matches(actual, oracle, field))
+            self.assertNotEqual(expected(149, a, rows)["posted"], oracle["posted"])
+            (project / "notice-1.csv").unlink()
+            changed = reserve_reference.settle(project, work / "input")
+            self.assertNotEqual(changed["decisions"], actual["decisions"])
+            self.assertLess(len(changed["posted"]), len(actual["posted"]))
