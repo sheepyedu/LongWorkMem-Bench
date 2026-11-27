@@ -138,3 +138,5 @@ python -m s1.circuit_review runs/circuit/D*
 `--history regional` 为每区独立保留一个会话，区序和订单与连续条件一致。复评逐轮核对系统提示、用户公文、Claude 会话编号、真实上游回复及配发记录，分别列示实测累计输入、首次提交输入、单次峰值与缓存命中。开发种子及独立验证结果见 `docs/research/s1-circuit.md`。
 
 正式混合赛的运行参数为 `--desks 10 --qualifiers 2 --level 2`。中途主动整理资料的短对照使用 `--history handover`，在赛季中点由模型用 note 提交最多 5,500 字符的摘要，下一轮新会话只能带入实际留存的摘要。连续主赛没有这个切换。
+
+同场复测 GPT-6.1 Sol 可执行 `python -m s1.circuit runs/gpt-sol --models gpt-6.1-sol --desks 10 --qualifiers 2 --level 2 --seeds 39107 88469 --variants A B`。宿主读取 `OPENAI_BASE_URL` 与 `OPENAI_API_KEY`。该路由最低支持 low 推理档，审计要求实际发送此档位、返回指定模型并能从终端提交重建分数。

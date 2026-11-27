@@ -144,6 +144,21 @@ class CircuitTest(unittest.TestCase):
                 result["usage"]["first_submission_input"], sum(range(1, 17)) * 17
             )
             self.assertEqual(result["usage"]["peak_input"], 16 * 17)
+            manifest = run / "manifest.json"
+            write(manifest, dict(json.loads(manifest.read_text()), model="gpt-6.1-sol"))
+            for path in trace.glob("api-*.json"):
+                packet = json.loads(path.read_text())
+                packet["request"].update(model="gpt-6.1-sol", reasoning_effort="low")
+                del packet["request"]["thinking"]
+                packet["response"].update(model="gpt-6.1-sol")
+                write(path, packet)
+            self.assertEqual(audit(run)["total"], 0)
+            packet["request"]["reasoning_effort"] = "high"
+            write(path, packet)
+            with self.assertRaisesRegex(ValueError, "low reasoning"):
+                audit(run)
+            packet["request"]["reasoning_effort"] = "low"
+            write(path, packet)
             write(run / "receipt-9.json", {})
             with self.assertRaisesRegex(ValueError, "mismatch"):
                 audit(run)

@@ -10,6 +10,13 @@ class GatewayTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             translate(query, {}, model=MODEL)
 
+    def test_gpt_sol_uses_supported_low_effort_and_same_output_limit(self):
+        model = "gpt-6.1-sol"
+        payload = translate({"model":model, "max_tokens":32000, "messages":[]}, {}, model=model)
+        self.assertEqual(payload["reasoning_effort"], "low")
+        self.assertEqual(payload["max_completion_tokens"], 16384)
+        self.assertNotIn("max_tokens", payload)
+
     def test_tool_history_and_exact_usage(self):
         memory = {}
         msg = anthropic({"id": "id", "model": MODEL,
