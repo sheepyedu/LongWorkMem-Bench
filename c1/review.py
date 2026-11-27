@@ -3,6 +3,7 @@ import argparse
 import hashlib
 from collections import Counter, defaultdict
 import json
+import re
 from pathlib import Path
 
 from w1.review import events, show_turn, usage_counts
@@ -27,6 +28,8 @@ def audit(run):
     manifest = json.loads((run / "manifest.json").read_text())
     counts = defaultdict(Counter)
     flags, failures, markers, args_changed = [], [], [], []
+    assistant_origin_markers = []
+    established_filenames = set()
     provider, forwarded, locations = defaultdict(dict), defaultdict(dict), {}
     receipts, sessions = set(), set()
     pending, retries = defaultdict(list), []
@@ -73,7 +76,18 @@ def audit(run):
                            "reserve_grade", "reserve_reference", "guarantee.rerun",
                            "LongWorkMem-Bench", ".claude-manager/", str(run.resolve())):
                 if marker in sent:
-                    markers.append([path.name, marker])
+                    hits = [msg for msg in wire.get("messages", []) if marker in encoded(msg)]
+                    # An assistant can name its own output after a business operation.
+                    # Keep host/tool occurrences and mixed or unrecognized text for investigation.
+                    only_assistant = hits and all(msg["role"] == "assistant" for msg in hits)
+                    filename = re.compile(r"scratch/guarantee\.rerun[0-9]*(?:\.report)?\.json\b")
+                    if (marker == "guarantee.rerun" and only_assistant
+                            and marker not in encoded({k: v for k, v in wire.items() if k != "messages"})
+                            and (marker in established_filenames or all(marker not in filename.sub("", encoded(msg)) for msg in hits))):
+                        established_filenames.add(marker)
+                        assistant_origin_markers.append([path.name, marker])
+                    else:
+                        markers.append([path.name, marker])
             for message in wire["messages"]:
                 if message["role"] == "tool":
                     value = result_value(message["content"])
@@ -197,7 +211,7 @@ def audit(run):
             else:
                 totals[k] += value
     return {"status": manifest["status"], "turns": dict(sorted(counts.items())), "totals": totals,
-            "unforwarded_at_budget": unforwarded_at_budget, "shell_failures": failures, "retry_attempts": retries, "argument_differences": args_changed, "private_markers": markers, "flags": flags}
+            "unforwarded_at_budget": unforwarded_at_budget, "shell_failures": failures, "retry_attempts": retries, "argument_differences": args_changed, "assistant_origin_markers": assistant_origin_markers, "private_markers": markers, "flags": flags}
 
 
 if __name__ == "__main__":

@@ -143,21 +143,31 @@ def load_output(work, name):
         return None
 
 
+def canonical_rows(rows):
+    return Counter(json.dumps(row, ensure_ascii=False, separators=(",", ":")) for row in rows)
+
+
 def matches(got, expected, field=None):
     if field is not None:
         if not isinstance(got, dict):
             return False
         got = got.get(field)
         expected = expected[field]
-    if not isinstance(got, list):
-        return False
+    return isinstance(got, list) and canonical_rows(got) == canonical_rows(expected)
 
-    def canonical(rows):
-        return Counter(
-            json.dumps(row, ensure_ascii=False, separators=(",", ":")) for row in rows
-        )
 
-    return canonical(got) == canonical(expected)
+def row_difference(got, expected):
+    actual = canonical_rows(got) if isinstance(got, list) else Counter()
+    target = canonical_rows(expected)
+    return {"expected_rows": len(expected), "missing": (target - actual).total(),
+            "extra": (actual - target).total(), "array_present": isinstance(got, list)}
+
+
+def describe_fields(differences, prefix, got, expected):
+    for field, rows in expected.items():
+        if not matches(got, expected, field):
+            actual = got.get(field) if isinstance(got, dict) else None
+            differences[prefix + "." + field] = row_difference(actual, rows)
 
 
 def checkpoint_path(run, manifest, directory, turn):
@@ -182,6 +192,7 @@ def grade_snapshot(run, backend, snapshot_dir):
     run = Path(run).resolve()
     m = json.loads((run / "manifest.json").read_text())
     advanced = m["level"] >= 2
+    differences = {}
     details = {}
     checks = {}
     missing = []
@@ -216,9 +227,13 @@ def grade_snapshot(run, backend, snapshot_dir):
                     if k not in ranks or ranks[k][0] < rank:
                         ranks[k] = (rank, r["result"])
                 expected = [[*k, v[0][0]] for k, v in ranks.items() if v[1] == "failed"]
+                if m.get("protocol") and not matches(got, expected):
+                    differences["incident.latest"] = row_difference(got, expected)
                 record("incident.latest", 6, matches(got, expected))
                 continue
             exp = ledger(inp, json.loads((inp / "jobs" / f"{name}.json").read_text()))
+            if m.get("protocol"):
+                describe_fields(differences, name, got, exp)
             if advanced:
                 for field in ("lots", "usage", "travel"):
                     if field in exp:
@@ -230,6 +245,8 @@ def grade_snapshot(run, backend, snapshot_dir):
         for p in archives:
             expected = ledger(inp, json.loads(p.read_text()))
             got = load_output(snap, p.stem)
+            if m.get("protocol"):
+                describe_fields(differences, p.stem, got, expected)
             outcomes.append(
                 all(matches(got, expected, f) for f in ("accounts", "audit", "totals"))
             )
@@ -299,7 +316,7 @@ def grade_snapshot(run, backend, snapshot_dir):
                     remote = Path(unique) / "desk-input"
                     shutil.copytree(hidden / "input", remote)
                     relative = remote.relative_to(work)
-                    if m.get("dispatch_window"):
+                    if m.get("withdraw_handover", bool(m.get("dispatch_window"))):
                         (remote / "handover.txt").unlink()
                     # Compute expectations from the host's signed copy.
                     expected_input = hidden / "input"
@@ -321,6 +338,10 @@ def grade_snapshot(run, backend, snapshot_dir):
                         got = json.loads(content(work, dest))
                     except (ValueError, OSError, RecursionError):
                         got = None
+                    if m.get("protocol"):
+                        describe_fields(differences, f"rerun.{trial}", got, expected)
+                        if err:
+                            differences[f"rerun.{trial}.execution"] = err
                     record(
                         f"rerun.{trial}",
                         4,
@@ -342,7 +363,7 @@ def grade_snapshot(run, backend, snapshot_dir):
         if not snap.exists():
             missing.append(7)
         approvers = settlement.generate(m["seed"], 2, m["variant"])[3]
-        grade_phase(snap, m["seed"], m["variant"], approvers, probes, checks)
+        grade_phase(snap, m["seed"], m["variant"], approvers, probes, checks, differences if m.get("protocol") else None)
     total = sum(x[0] for x in checks.values())
     valid = not probes.infrastructure and (
         (m.get("status") == "complete" and not missing)
@@ -354,6 +375,7 @@ def grade_snapshot(run, backend, snapshot_dir):
     return dict(
         total=round(total, 2) if valid else None,
         observed_points=round(total, 2),
+        **({"row_differences": differences} if m.get("protocol") else {}),
         max=round(sum(x[1] for x in checks.values())),
         checks=checks,
         valid=valid,
@@ -365,6 +387,9 @@ def grade_snapshot(run, backend, snapshot_dir):
 def grade(run, backend="docker"):
     latest = grade_snapshot(run, backend, "snapshots")
     manifest = json.loads((Path(run) / "manifest.json").read_text())
+    if manifest.get("protocol") and manifest.get("status") == "budget_exhausted":
+        latest.update(total=None, valid=False, incomplete_reason="experiment_request_budget",
+                      unreached_turns=list(range(len(manifest["turns"])+2, 8)))
     if not manifest.get("dispatch_window"):
         return latest
     dispatch = grade_snapshot(run, backend, "dispatch")

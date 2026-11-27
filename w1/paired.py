@@ -40,7 +40,7 @@ def read_manifest(run):
     require(all(type(r.get("upstream_calls")) is int and r["upstream_calls"] > 0 and
                 re.fullmatch(r"[0-9a-f]{64}", r.get("public_digest", "")) for r in turns),
             run, "missing round request count or public material digest")
-    require(type(m.get("limit")) is int and sum(r["upstream_calls"] for r in turns) <= m["limit"],
+    require(("limit" in m and m["limit"] is None) or (type(m.get("limit")) is int and sum(r["upstream_calls"] for r in turns) <= m["limit"]),
             run, "invalid request budget")
     hashes = m.get("file_hashes", {})
     require(isinstance(hashes, dict) and all(re.fullmatch("[0-9a-f]{64}", hashes.get(k, "")) for k in HARNESS),
@@ -203,12 +203,12 @@ def compare(paths):
         expected_inputs = None
         for model in MODELS:
             run, m = group[model]
-            environment = m["docker_image"], m["claude"], m["limit"], harness_identity(m)
+            environment = m["docker_image"], m["claude"], m["limit"], harness_identity(m), m.get("erp_window", level in (5, 6, 7, 8))
             if cohort is None:
                 cohort = environment
             require(environment == cohort, run, "image, Claude version, request budget or office harness differs across runs")
             review, prompts = completed_receipts(run, m)
-            if level in (5, 6, 7, 8):
+            if m.get("erp_window", level in (5, 6, 7, 8)):
                 review["erp_windows"] = window_receipts(run, level)
             inputs = ([r["public_digest"] for r in m["turns"]], prompts)
             require(expected_inputs is None or inputs == expected_inputs, run, "round materials or prompts differ within pair")

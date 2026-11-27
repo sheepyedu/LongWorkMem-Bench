@@ -17,8 +17,8 @@ class SingleSessionTests(unittest.TestCase):
             with patch("sys.argv", ["pilot", str(dest)]), patch.object(pilot, "provider", return_value=("url", "key")), \
                     patch.object(pilot, "play") as play:
                 pilot.main()
-            play.assert_called_once_with(dest.resolve(), "A", "docker", "key", False, 350,
-                                         model=pilot.MODEL, url="url", level=8, seed=0)
+            play.assert_called_once_with(dest.resolve(), "A", "docker", "key", False, None,
+                                         model=pilot.MODEL, url="url", level=8, seed=17217, erp_window=False)
             self.assertFalse(dest.exists())
 
     def test_outcome_and_turn_evidence_are_scored_once(self):

@@ -1,0 +1,11 @@
+**
+!benchmark_protocol.py
+!s1/
+!s1/__init__.py
+!s1/circuit.py
+!s1/relay.py
+!s1/engine.py
+!w1/
+!w1/__init__.py
+!w1/claude.py
+!w1/gateway.py

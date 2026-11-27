@@ -1,5 +1,7 @@
 """Run a blinded nine-turn Claude Code trajectory against Ark."""
 import argparse
+from benchmark_protocol import PROTOCOL, PUBLIC_SEED, PUBLIC_VARIANT
+
 from contextlib import contextmanager
 from datetime import datetime, timezone
 import getpass
@@ -19,7 +21,7 @@ from .office import IMAGE, shell
 from .runstate import ROUNDS, freeze, prepare
 
 CONTEXT = ("你是企业财务运营助理。通过 office 的 shell 操作本次业务共享盘，通过 draft 和 deliver 处理内部邮件。"
-           "使用 python3 和 openpyxl 读写文件；共享盘中的 input、inbox 可读，out、notes、scratch 可写。"
+           "使用 python3 和 openpyxl 读写文件；长输出可重定向至 scratch/ 分段读取，文件类型可用 Python 检查。共享盘中的 input、inbox 可读，out、notes、scratch 可写。"
            "存入 out/ 即完成文件交付。对外分发的邮件按委托拟稿，收到明确发送指示后才投递。"
            "当前业务材料和对话决定交付内容。完成本次委托时向用户简要说明实际完成情况和待处理事项。")
 
@@ -66,7 +68,8 @@ def claude_turn(run, turn, backend, gw, session, prompt, client, *, first_sessio
             office_env["DOCKER_HOST"] = os.environ["DOCKER_HOST"]
         office_env["W1_OFFICE_IMAGE_ID"] = image_id or docker_image()
     manifest = run / "manifest.json"
-    windowed = manifest.is_file() and json.loads(manifest.read_bytes()).get("level") in (5, 6, 7, 8)
+    info = json.loads(manifest.read_bytes()) if manifest.is_file() else {}
+    windowed = info.get("erp_window", info.get("level") in (5, 6, 7, 8))
     server = "w1.erp_window" if windowed else "w1.office"
     config = {"mcpServers": {"office": {"command": sys.executable,
         "args": ["-m", server, str(run.resolve()), str(turn), backend],
@@ -120,12 +123,12 @@ def source_hashes():
             for f in sorted(Path(__file__).parent.glob("*.py"))}
 
 
-def play(run, variant, backend, key, smoke=False, limit=1500, *, model=MODEL, url=URL, level=8, seed=0):
+def play(run, variant, backend, key, smoke=False, limit=None, *, model=MODEL, url=URL, level=8, seed=PUBLIC_SEED, erp_window=False):
     with blinded_office(run, backend) as work:
-        return execute(run, work, variant, backend, key, smoke, limit, model, url, level, seed)
+        return execute(run, work, variant, backend, key, smoke, limit, model, url, level, seed, erp_window)
 
 
-def execute(run, work, variant, backend, key, smoke, limit, model=MODEL, url=URL, level=8, seed=0):
+def execute(run, work, variant, backend, key, smoke, limit, model=MODEL, url=URL, level=8, seed=PUBLIC_SEED, erp_window=False):
     session = str(uuid.uuid4())
     manifest = {"variant":variant,"backend":backend,"model":model,"session":session,
                 "claude":subprocess.check_output(["claude","--version"],text=True).strip(),
@@ -134,13 +137,15 @@ def execute(run, work, variant, backend, key, smoke, limit, model=MODEL, url=URL
                 "smoke":smoke,"turns":[], "file_hashes": source_hashes()}
     if level:
         from . import advanced
-        manifest.update(task="W1-advanced", level=level, seed=seed)
+        manifest.update(task="W1-advanced", level=level, seed=seed, protocol=PROTOCOL, erp_window=erp_window,
+                        condition="public" if seed == PUBLIC_SEED and variant == PUBLIC_VARIANT and not erp_window and limit is None and not smoke and backend == "docker" else "experiment")
     if backend == "docker":
         manifest["docker_image"] = docker_image()
     state = run / "manifest.json"
     def save():
         state.write_text(json.dumps(manifest, ensure_ascii=False, indent=2))
     save()
+    gw = None
     try:
         manifest["isolation"] = isolation_check(work, backend)
         with tempfile.TemporaryDirectory(prefix="office-client-") as tmp, Gateway(key, run,limit,model=model,url=url) as gw:
@@ -151,7 +156,7 @@ def execute(run, work, variant, backend, key, smoke, limit, model=MODEL, url=URL
                 if smoke:
                     prompt = "请用共享盘 shell 读 input/notice 的采购代号，在 out/reply.txt 写入完整原文并告诉我结果。"
                 else:
-                    prompt = advanced.release(work, turn, variant, level, seed)
+                    prompt = advanced.release(work, turn, variant, level, seed, erp_window=erp_window)
                 (run/"trace"/f"prompt-{turn}.txt").write_text(prompt)
                 n = claude_turn(run,turn,backend,gw,session,prompt,client,image_id=manifest.get("docker_image"))
                 freeze(run,turn)
@@ -165,7 +170,8 @@ def execute(run, work, variant, backend, key, smoke, limit, model=MODEL, url=URL
                     raise RuntimeError("Claude tool round trip did not return the office value")
         manifest["status"]="complete"
     except Exception as exc:
-        manifest["status"]="error"; manifest["error"]=str(exc)
+        manifest["status"] = "budget_exhausted" if gw and gw.budget_exhausted else "error"
+        manifest["error"] = str(exc)
         raise
     finally:
         manifest["end"]=datetime.now(timezone.utc).isoformat()
@@ -190,17 +196,18 @@ def main():
     p.add_argument("dest",type=Path)
     p.add_argument("--backend",choices=["docker","seatbelt"],default="docker")
     p.add_argument("--smoke",action="store_true")
-    p.add_argument("--limit",type=int,default=350)
+    p.add_argument("--limit",type=int,help="Optional experiment-only request budget")
     p.add_argument("--model", choices=[MODEL, "qwen3.8-flash"], default=MODEL)
     p.add_argument("--level", type=int, choices=[8], default=8)
-    p.add_argument("--seed", type=int, default=0)
+    p.add_argument("--seed", type=int, default=PUBLIC_SEED)
+    p.add_argument("--erp-window", action="store_true", help="Historical diagnostic with limited shell batches")
     args=p.parse_args()
     try:
         url, key = provider(args.model)
     except ValueError as exc:
         p.error(str(exc))
-    play(args.dest.resolve(), "A", args.backend, key, args.smoke, args.limit,
-         model=args.model, url=url, level=args.level, seed=args.seed)
+    play(args.dest.resolve(), PUBLIC_VARIANT, args.backend, key, args.smoke, args.limit,
+         model=args.model, url=url, level=args.level, seed=args.seed, erp_window=args.erp_window)
 
 
 

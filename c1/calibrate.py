@@ -1,6 +1,7 @@
 """Run paired staged C1 settlements with two OpenAI-compatible upstreams."""
 
 import argparse
+from benchmark_protocol import PUBLIC_SEED, PUBLIC_VARIANT
 from concurrent.futures import ThreadPoolExecutor
 import getpass
 import os
@@ -13,17 +14,17 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("dest", type=Path)
     p.add_argument("--level", type=int, choices=(3,), default=3)
-    p.add_argument("--seeds", nargs="+", type=int, required=True)
-    p.add_argument("--variants", nargs="+", choices=("A", "B"), default=["A", "B"])
+    p.add_argument("--seeds", nargs="+", type=int, default=[PUBLIC_SEED])
+    p.add_argument("--variants", nargs="+", choices=("A", "B"), default=[PUBLIC_VARIANT])
     p.add_argument("--model", default=MODEL)
     p.add_argument("--url", default=URL)
-    p.add_argument("--limit", type=int, default=180)
+    p.add_argument("--limit", type=int, help="Optional experiment-only request budget")
     p.add_argument(
-        "--dispatch-after", type=int, choices=range(1, 51), metavar="COMMANDS", default=2
+        "--dispatch-after", type=int, choices=range(1, 51), metavar="COMMANDS", help="Optional timed-dispatch diagnostic"
     )
     p.add_argument("--rotate", action="store_true", help=argparse.SUPPRESS)
     args = p.parse_args()
-    if args.limit < 1 or len(set(args.seeds)) != len(args.seeds) or len(set(args.variants)) != len(args.variants):
+    if (args.limit is not None and args.limit < 1) or len(set(args.seeds)) != len(args.seeds) or len(set(args.variants)) != len(args.variants):
         p.error("Use distinct seeds and variants and a positive request budget")
     key = os.getenv("C1_UPSTREAM_KEY") or getpass.getpass(
         "Upstream credential (hidden): "

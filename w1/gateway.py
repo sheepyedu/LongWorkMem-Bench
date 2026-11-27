@@ -57,7 +57,7 @@ def translate(query, reasoning, allowed=OFFICE_TOOLS, *, model=MODEL):
             body = plain(parts)
             if body:
                 messages.append({"role": "user", "content": body})
-    payload = {"model": model, "messages": messages, "max_tokens": min(query["max_tokens"], 16384), "stream": False}
+    payload = {"model": model, "messages": messages, "max_tokens": query["max_tokens"], "stream": False}
     if model == "gpt-6.1-sol":
         payload["reasoning_effort"] = "low"
         payload["max_completion_tokens"] = payload.pop("max_tokens")
@@ -110,7 +110,9 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
 
 
 class Gateway:
-    def __init__(self, key, run: Path, limit=1500, *, allowed=OFFICE_TOOLS, private_markers=(), model=MODEL, url=URL, timeout=180, direct_response=False):
+    def __init__(self, key, run: Path, limit=None, *, allowed=OFFICE_TOOLS, private_markers=(), model=MODEL, url=URL, timeout=180, direct_response=False):
+        if limit is not None and (type(limit) is not int or limit < 1):
+            raise ValueError("experiment request budget must be positive")
         self.allowed = frozenset(allowed)
         self.private_markers = tuple(private_markers)
         self.token = secrets.token_hex(32)
@@ -157,7 +159,7 @@ class Gateway:
                     self.respond(404, {})
                     return
                 with gw.lock:
-                    if gw.count >= gw.limit:
+                    if gw.limit is not None and gw.count >= gw.limit:
                         gw.budget_exhausted = True
                         self.respond(400, {"type":"error", "error":{"type":"invalid_request_error","message":"Run request budget exhausted"}})
                         return
@@ -187,7 +189,12 @@ class Gateway:
                         record["request_id"] = resp.headers.get("x-request-id") or resp.headers.get("x-tt-logid")
                         reply = json.load(resp)
                     record["response"] = reply
-                    message = anthropic(reply, gw.reasoning)
+                    try:
+                        message = anthropic(reply, gw.reasoning)
+                    except json.JSONDecodeError:
+                        reason = reply["choices"][0].get("finish_reason")
+                        record["failure_kind"] = "truncated_tool_arguments" if reason == "length" else "invalid_tool_arguments"
+                        raise
                     record["end"] = time.time()
                     prefix.with_suffix(".json").write_text(json.dumps(record, ensure_ascii=False))
                     if query.get("stream"):
@@ -199,6 +206,7 @@ class Gateway:
                     status = getattr(exc, "code", 502)
                     detail = exc.read(1000).decode(errors="replace") if isinstance(exc, urllib.error.HTTPError) else str(exc)
                     detail = detail.replace(gw.key, "[redacted]")
+                    record.setdefault("failure_kind", "transport_timeout" if isinstance(exc, TimeoutError) else "gateway_or_upstream_error")
                     record.update(end=time.time(), error=detail, status=status)
                     prefix.with_suffix(".json").write_text(json.dumps(record, ensure_ascii=False))
                     with contextlib.suppress(OSError):

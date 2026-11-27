@@ -25,7 +25,7 @@ def run_claude(run, turn, gw, session, prompt, client, *, config, context, allow
     start = gw.count
     stdout = run / "trace" / f"turn-{turn}.jsonl"
     with stdout.open("x") as out, (run/"trace"/f"turn-{turn}.stderr").open("x") as err:
-        proc = subprocess.run(argv, cwd=client/"desk", env=env, input=prompt, text=True, stdout=out, stderr=err, timeout=1800)
+        proc = subprocess.run(argv, cwd=client/"desk", env=env, input=prompt, text=True, stdout=out, stderr=err)
     result = None
     with stdout.open() as stream:
         for line in stream:

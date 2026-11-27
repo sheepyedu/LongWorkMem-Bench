@@ -81,7 +81,8 @@ def shell(work: Path, command: str, backend: str, *, writable=WRITABLE, timeout=
     if check_runtime and backend == "docker" and status == 125 and not cid_created:
         raise RuntimeError("Docker could not start the sandbox: " + content[:600])
     if length > 24_000:
-        content += "\n[Output truncated. Use a narrower search.]"
+        content += (f"\n[Output truncated: showing 24000 of {length} bytes. "
+                    "Redirect long output to a file in scratch/ and read it in smaller sections.]")
     return {"status": status, "output": content}
 
 

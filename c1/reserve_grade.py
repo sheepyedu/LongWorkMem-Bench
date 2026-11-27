@@ -43,8 +43,8 @@ def expected(seed, authority, requests):
     return result
 
 
-def grade_phase(snap, seed, variant, approvers, probes, checks):
-    from .settlement_grade import load_output, matches
+def grade_phase(snap, seed, variant, approvers, probes, checks, differences=None):
+    from .settlement_grade import load_output, matches, describe_fields
 
     authority = approvers[0 if variant == "A" else 1]
 
@@ -66,6 +66,8 @@ def grade_phase(snap, seed, variant, approvers, probes, checks):
 
     want = expected(seed, authority, reserve.requests(seed, *approvers, 0))
     got = load_output(snap, "guarantee")
+    if differences is not None:
+        describe_fields(differences, "guarantee", got, want)
     for cut in reserve.CUTS:
         for field, weight in (("decisions", 3), ("posted", 2), ("balance", 2)):
             checks[f"guarantee.{cut}.{field}"] = [
@@ -90,5 +92,9 @@ def grade_phase(snap, seed, variant, approvers, probes, checks):
         except (ValueError, OSError, RecursionError):
             got = None
         want = expected(seed, authority, batches)
+        if differences is not None:
+            describe_fields(differences, "guarantee.rerun", got, want)
+            if err:
+                differences["guarantee.rerun.execution"] = err
         ok = not err and all(matches(got, want, f) for f in want)
         checks["guarantee.rerun"] = [4 * ok, 4]

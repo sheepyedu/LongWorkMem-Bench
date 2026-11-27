@@ -2,6 +2,8 @@
 from contextlib import contextmanager
 from datetime import datetime, timezone
 import hashlib
+from benchmark_protocol import PROTOCOL, PUBLIC_SEED, PUBLIC_VARIANT
+
 import json
 import os
 from pathlib import Path
@@ -18,7 +20,7 @@ from .runstate import freeze
 
 ALLOWED = {"mcp__workshop__shell"}
 CONTEXT = ("你是客服平台的开发维护工程师。通过 workshop 的 shell 在交接的同一份本地工作区完成各次委托。"
-           "可用 python3 和标准库 SQLite；input 放来件，project 放源程序，data 放业务数据库，out 放交付，"
+           "可用 python3 和标准库 SQLite；计时可用 Python 的 time 模块。长输出可存入 scratch/ 分段读取。input 放来件，project 放源程序，data 放业务数据库，out 放交付，"
            "notes 和 scratch 可自行使用。可以编写测试、维护工作笔记，按业务入口核实结果。每次结束时简报实际完成及遗留事项。")
 
 
@@ -76,8 +78,24 @@ PY""".replace("PRIVATE", repr(private))
         (work / "scratch/probe.db").unlink(missing_ok=True)
 
 
-def run_session(run, variant, backend, key, *, limit=180, model=MODEL, url=URL, level=3, seed=0, window=2, rotate=True):
+def release_turn(work, turn, variant, seed, level, window, rotate):
     from . import settlement
+    prompt = settlement.release(work, turn, variant, seed, level)
+    if rotate and turn == 1:
+        prompt += " 本周第5、7轮由新班组接手。班组仅交接工作文件和笔记；请保存后续结账所需的原始约定。"
+    if rotate and turn in (5, 7):
+        prompt = "新班组上岗。请根据工位的源码、交付和前班笔记接手。 " + prompt
+    if window:
+        prompt += (f" 客户在本轮第 {window} 次工作区 shell 调用结束时取件（若提前结束则当时取件）。"
+                   "请安排好查阅和执行，可在一条命令内批处理。取件后仍可检查和补交轮末修复版。")
+    if turn == 2:
+        prompt += " 交接通知 handover.txt 仅本轮可阅；请自行保留后续所需的授权信息。"
+    if turn == 3:
+        (work / "input/handover.txt").unlink()
+    return prompt
+
+
+def run_session(run, variant, backend, key, *, limit=None, model=MODEL, url=URL, level=3, seed=PUBLIC_SEED, window=None, rotate=True):
     run = Path(run).resolve()
     run.mkdir(parents=True, mode=0o700, exist_ok=False)
     for name in ("trace", "snapshots"):
@@ -91,7 +109,10 @@ def run_session(run, variant, backend, key, *, limit=180, model=MODEL, url=URL, 
                 "claude": subprocess.check_output(["claude", "--version"], text=True).strip(),
                 "git": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=package, text=True).strip(),
                 "source_hashes": {str(p.relative_to(package.parent)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}}
-    manifest.update(level=level, seed=seed, endpoint=url, dispatch_window=window, rotation_turns=[5, 7] if rotate else [])
+    manifest.update(protocol=PROTOCOL, withdraw_handover=True, level=level, seed=seed, endpoint=url,
+                    dispatch_window=window, rotation_turns=[5, 7] if rotate else [],
+                    condition="public" if (seed == PUBLIC_SEED and variant == PUBLIC_VARIANT and rotate
+                                           and not window and limit is None and backend == "docker") else "experiment")
     if backend == "docker":
         manifest["image"] = sandbox.image_id()
     def save():
@@ -120,18 +141,7 @@ def run_session(run, variant, backend, key, *, limit=180, model=MODEL, url=URL, 
                         client = Path(tmp) / f"shift-{turn}"
                         (client / "desk").mkdir(parents=True)
                         gateway.reasoning.clear()
-                    prompt = settlement.release(work, turn, variant, seed, level)
-                    if rotate and turn == 1:
-                        prompt += " 本周第5、7轮由新班组接手。班组仅交接工作文件和笔记；请保存后续结账所需的原始约定。"
-                    if new_shift:
-                        prompt = "新班组上岗。请根据工位的源码、交付和前班笔记接手。 " + prompt
-                    if window:
-                        prompt += (f" 客户在本轮第 {window} 次工作区 shell 调用结束时取件（若提前结束则当时取件）。"
-                                   "请安排好查阅和执行，可在一条命令内批处理。取件后仍可检查和补交轮末修复版。")
-                        if turn == 2:
-                            prompt += " 交接通知 handover.txt 仅本轮可阅；请自行保留后续所需的授权信息。"
-                        if turn == 3:
-                            (work / "input/handover.txt").unlink()
+                    prompt = release_turn(work, turn, variant, seed, level, window, rotate)
                     (run / "trace" / f"prompt-{turn}.txt").write_text(prompt)
                     config = {"mcpServers": {"workshop": {"command": sys.executable, "args": [
                         "-m", "c1.sandbox", str(work), backend, str(run / "trace" / f"tools-{turn}.jsonl")], "env": env}}}

@@ -137,6 +137,15 @@ class SettlementTests(unittest.TestCase):
                 else patch.object(Probes, "command", reference_command)
             )
             with executor:
+                manifest_path = run / "manifest.json"
+                original = manifest_path.read_text()
+                public = json.loads(original)
+                public.update(protocol="public-v1", withdraw_handover=True, dispatch_window=None)
+                manifest_path.write_text(json.dumps(public))
+                score = grade(run)
+                self.assertEqual(score["total"], 100)
+                self.assertEqual(score["row_differences"], {})
+                manifest_path.write_text(original)
                 self.assertEqual(grade(run)["total"], 100)
                 (run / "dispatch/4/out/incident.json").write_bytes(b"\xffbad")
                 (run / "dispatch/6/out/close.json").write_text("null")

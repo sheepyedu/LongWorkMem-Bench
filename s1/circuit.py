@@ -12,6 +12,8 @@ import subprocess
 import tempfile
 import uuid
 
+from benchmark_protocol import PUBLIC_SEED, PUBLIC_VARIANT, PROTOCOL
+from .engine import exchange, open_engine
 from w1.claude import run_claude
 from w1.gateway import Gateway, MODEL, URL
 from .relay import Season, WEIGHTS, decode, grade, submit, unique_fields
@@ -42,10 +44,12 @@ SINGLE_RULES = RULES.replace("收文班可以回复 {}。", "收文班用 regist
 
 class Circuit:
     def __init__(self, seed, variant, desks, level, qualifiers=0, *, version=2):
-        if version not in (1, 2) or (version == 2 and variant != "A"):
+        if version not in (1, 2, 3) or (version >= 2 and variant != "A"):
             raise ValueError("invalid circuit edition")
         self.version = version
-        self.rules = SINGLE_RULES if version == 2 else RULES
+        self.rules = SINGLE_RULES if version >= 2 else RULES
+        if version >= 3:
+            self.rules += '\n登记示例 {"register":{"12":["P4","38","松","北"]}}。队号也可对应仅含本轮指定赛段名的对象，其值为同一四项数组。格式错误会收到一次重交通知。'
         if not 2 <= desks <= 24:
             raise ValueError("desks must be between 2 and 24")
         if not 0 <= qualifiers < desks:
@@ -82,16 +86,34 @@ class Circuit:
         # Exclude the short edition's handover-specific note and capacity notice.
         _, material = season.prompt(stage, "", "continuous").split("（空）\n", 1)
         prompt = f"总台第{turn}轮｜{desk}第{stage}班\n" + material
-        if self.version == 2 and stage in REGISTER_PHASE:
+        if self.version >= 2 and stage in REGISTER_PHASE:
             teams = "、".join(self.register_teams(desk, stage))
             prompt += f"\n登记任务：{REGISTER_PHASE[stage]}，队号 {teams}。请在 register 中填入截至本班的配置。"
         halfway = len(self.schedule) // 2
         if history == "handover":
             if turn in (1, halfway):
-                prompt += f"\n换班安排：第{halfway}轮末在该轮 JSON 的 note 内提交全区摘要，最多保留前 5500 个字符。下一轮新开会话，仅这份摘要随队。"
+                prompt += f"\n换班安排：第{halfway}轮末在该轮 JSON 的 note 内提交全区摘要，{'最多保留前 5500 个字符。' if self.version < 3 else '摘要全文交接。'}下一轮新开会话，仅这份摘要随队。"
             elif turn == halfway + 1:
                 prompt += "\n上一班实际留存的摘要：\n" + (memo or "（空）")
         return prompt
+
+    def submission(self, turn, command, history="continuous"):
+        desk, stage = self.schedule[turn - 1]
+        if self.version >= 3 and stage in REGISTER_PHASE:
+            rows = command.get("register")
+            teams = self.register_teams(desk, stage)
+            if not isinstance(rows, dict) or set(rows) != set(teams):
+                raise ValueError("register 须以本班列出的队号作键")
+            normalized = {}
+            for team in teams:
+                row = rows[team]
+                if isinstance(row, dict) and set(row) == {REGISTER_PHASE[stage]}:
+                    row = row[REGISTER_PHASE[stage]]
+                if not isinstance(row, list) or len(row) != 4 or not all(type(v) in (int, str) for v in row):
+                    raise ValueError(f"队号 {team} 需要四项数组，或以本班赛段名包裹该数组")
+                normalized[team] = row
+            command = {**command, "register": normalized}
+        return self.receipt(turn, command, history)
 
     def receipt(self, turn, command, history="continuous"):
         desk, stage = self.schedule[turn - 1]
@@ -103,7 +125,7 @@ class Circuit:
             "rejected": receipt["rejected"],
         }
 
-        if self.version == 2 and stage in REGISTER_PHASE:
+        if self.version >= 2 and stage in REGISTER_PHASE:
             rows = command.get("register", {})
             if not isinstance(rows, dict):
                 raise ValueError("register 须为按队号填写的对象")
@@ -117,7 +139,7 @@ class Circuit:
 
         if history == "handover" and turn == len(self.schedule) // 2:
             note = command.get("note", "")
-            result.update(memo=note[:5500], memo_length=len(note))
+            result.update(memo=note if self.version >= 3 else note[:5500], memo_length=len(note))
         return result
 
     def score(self, receipts):
@@ -131,7 +153,7 @@ class Circuit:
         scores = {
             desk: grade(season, by_desk[desk]) for desk, season in self.seasons.items()
         }
-        if self.version == 2:
+        if self.version >= 2:
             for desk, details in scores.items():
                 season = self.seasons[desk]
                 groups = {stage: value * 0.70 for stage, value in details["groups"].items()}
@@ -153,7 +175,7 @@ class Circuit:
             for k in next(iter(scores.values()))["groups"]
         }
         result = dict(total=round(sum(groups.values()), 3), groups=groups, desks=scores)
-        if self.version == 2:
+        if self.version >= 2:
             result["registration_points"] = round(sum(groups[str(s)] for s in REGISTER_PHASE), 3)
             result["outcome_points"] = round(sum(groups[str(s)] for s in WEIGHTS), 3)
         return result
@@ -162,9 +184,9 @@ class Circuit:
 def read_command(text, version):
     if version == 1:
         return decode(text)
-    if version not in (2, 3):
+    if version not in (2, 3, 4):
         raise ValueError("unknown parser version")
-    if version == 3:
+    if version >= 3:
         try:
             whole = json.loads(text)
         except (ValueError, RecursionError):
@@ -181,9 +203,9 @@ def read_command(text, version):
         raise ValueError("请只交一个完整的 JSON 对象") from exc
     if obj and all(k.isascii() and k.isdigit() for k in obj):
         return {"orders": obj}
-    allowed = {"orders", "note", "register"} if version == 3 else {"orders", "note"}
+    allowed = {"orders", "note", "register"} if version >= 3 else {"orders", "note"}
     if obj.keys() - allowed:
-        raise ValueError("单据须有 orders 或 note 字段，或直接以队号作键")
+        raise ValueError("单据须有 orders、register 或 note 字段，或直接以队号作键" if version == 4 else "单据须有 orders 或 note 字段，或直接以队号作键")
     return obj
 
 
@@ -214,6 +236,7 @@ def audit(run):
         "You are a Claude agent, built on Anthropic's Claude Agent SDK.\n" + circuit.rules,
     )
     public_history = defaultdict(list)
+    run_history = []
     ids = set()
     history = meta.get("history", "continuous")
     if history == "regional":
@@ -233,6 +256,7 @@ def audit(run):
             session = meta["next_session"]
         fresh = session not in public_history
         public_history[session].append(prompt)
+        run_history.append(prompt)
         if (
             calls not in ([t], [t, t + turns])
             or (trace / f"prompt-{t}.txt").read_text() != prompt
@@ -269,7 +293,7 @@ def audit(run):
                     or req.get("tools")
                     or [m["content"] for m in msgs if m["role"] == "system"]
                     not in ([public_systems[0]], [public_systems[1]])
-                    or ((idx == t or circuit.version == 2) and msgs[-1] != {"role": "user", "content": expected_prompt})
+                    or ((idx == t or circuit.version >= 2) and msgs[-1] != {"role": "user", "content": expected_prompt})
                 ):
                     raise ValueError(f"R{t}: unexpected API prompt")
                 reply = packet.get("response", {})
@@ -305,9 +329,11 @@ def audit(run):
                 counts["input"] += n
                 counts["output"] += usage["completion_tokens"]
                 counts["peak_input"] = max(counts["peak_input"], n)
-                counts["cached_input"] += (
-                    usage.get("prompt_tokens_details") or {}
-                ).get("cached_tokens", 0)
+                cached = (usage.get("prompt_tokens_details") or {}).get("cached_tokens")
+                if cached is None:
+                    counts["missing_cache_usage"] += 1
+                else:
+                    counts["cached_input"] += cached
                 counts["calls"] += 1
                 if (
                     reply["choices"][0]["message"].get("content") or ""
@@ -315,17 +341,21 @@ def audit(run):
                     if idx == t and not matched:
                         counts["first_submission_input"] += n
                         visible = {m["content"] for m in msgs if m["role"] == "user"}
+                        if circuit.version >= 3:
+                            counts["turns_with_full_run_history"] += int(all(p in visible for p in run_history))
+                            if history == "handover" and t == turns // 2 + 1:
+                                counts["prior_prompt_messages_at_handover"] = sum(p in visible for p in run_history[:-1])
                         if all(p in visible for p in public_history[session]):
                             counts["turns_with_full_public_history"] += 1
                     matched = True
             if not matched:
                 raise ValueError(f"R{t}: no matching upstream result")
             try:
-                receipt = circuit.receipt(
+                receipt = circuit.submission(
                     t, read_command(answer, meta.get("parser_version", 1)), history
                 )
             except ValueError as exc:
-                if circuit.version == 2 and calls == [t]:
+                if circuit.version >= 2 and calls == [t]:
                     raise ValueError(f"R{t}: missing format retry") from exc
                 expected_prompt = f"单据格式未接收：{exc}。请重交本轮单据。"
                 continue
@@ -341,9 +371,9 @@ def audit(run):
 
 
 def run_one(
-    dest, model, seed, variant, desks, level, history="continuous", qualifiers=0
+    dest, model, seed, variant, desks, level, history="handover", qualifiers=0, limit=None
 ):
-    circuit = Circuit(seed, variant, desks, level, qualifiers)
+    circuit = Circuit(seed, variant, desks, level, qualifiers, version=3)
     total = len(circuit.schedule)
     prefix = history + "-" if history != "continuous" else ""
     if qualifiers:
@@ -366,8 +396,11 @@ def run_one(
         else {}
     )
     meta = dict(
-        parser_version=3,
-        score_version=2,
+        parser_version=4,
+        score_version=3, protocol=PROTOCOL, limit=limit,
+        condition="public" if (seed == PUBLIC_SEED and variant == PUBLIC_VARIANT and desks == 10
+                               and level == 2 and qualifiers == 2 and history == "handover" and limit is None)
+        else "experiment",
         history=history,
         regional_sessions=sessions,
         seed=seed,
@@ -388,13 +421,15 @@ def run_one(
         meta["next_session"] = str(uuid.uuid4())
     memo = ""
     write(run / "manifest.json", meta)
+    gateway = None
     try:
         with (
+            open_engine(seed, variant, desks, level, qualifiers) as (engine, image),
             tempfile.TemporaryDirectory(prefix="circuit-") as tmp,
             Gateway(
                 key,
                 run,
-                3 * total,
+                limit,
                 allowed=(),
                 model=name,
                 url=url,
@@ -402,10 +437,12 @@ def run_one(
                 direct_response=model != "gpt-6.1-sol",
             ) as gateway,
         ):
+            meta["engine_image"] = image
+            write(run / "manifest.json", meta)
             client = Path(tmp)
             (client / "desk").mkdir()
             for t in range(1, total + 1):
-                prompt = circuit.prompt(t, history, memo)
+                prompt = exchange(engine, "prompt", t, history, memo)
                 (run / "trace" / f"prompt-{t}.txt").write_text(prompt)
                 desk, stage = circuit.schedule[t - 1]
                 session_id = sessions.get(desk, session)
@@ -429,10 +466,10 @@ def run_one(
                         first_session=fresh and idx == t,
                     )
                     try:
-                        receipt = circuit.receipt(
+                        receipt = exchange(engine, "submit",
                             t,
                             read_command(
-                                final_result(run / "trace" / f"turn-{idx}.jsonl"), 3
+                                final_result(run / "trace" / f"turn-{idx}.jsonl"), meta["parser_version"]
                             ),
                             history,
                         )
@@ -440,7 +477,7 @@ def run_one(
                     except ValueError as exc:
                         prompt = f"单据格式未接收：{exc}。请重交本轮单据。"
                 else:
-                    receipt = circuit.receipt(t, {}, history)
+                    receipt = exchange(engine, "empty", t, history)
                 memo = receipt.get("memo", memo)
                 write(run / f"receipt-{t}.json", receipt)
                 meta["calls"].append(calls)
@@ -450,7 +487,7 @@ def run_one(
         meta["status"] = "complete"
         print(run.name, result["total"], result["usage"], flush=True)
     except Exception as exc:
-        meta.update(status="error", error=str(exc).replace(key, "[redacted]"))
+        meta.update(status="budget_exhausted" if gateway and gateway.budget_exhausted else "error", error=str(exc).replace(key, "[redacted]"))
         raise
     finally:
         write(run / "manifest.json", meta)
@@ -459,7 +496,7 @@ def run_one(
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("dest", type=Path)
-    parser.add_argument("--seeds", nargs="+", type=int, required=True)
+    parser.add_argument("--seeds", nargs="+", type=int, default=[PUBLIC_SEED])
     parser.add_argument(
         "--models",
         nargs="+",
@@ -471,11 +508,12 @@ def main():
         "--qualifiers", type=int, default=2, help="number of small six-team districts"
     )
     parser.add_argument("--level", type=int, choices=range(1, 5), default=2)
+    parser.add_argument("--limit", type=int, help="Optional experiment-only request budget")
     parser.add_argument("--workers", type=int, default=4)
     parser.add_argument(
         "--history",
         choices=["continuous", "regional", "handover"],
-        default="continuous",
+        default="handover",
     )
     args = parser.parse_args()
     with ThreadPoolExecutor(args.workers) as pool:
@@ -485,11 +523,12 @@ def main():
                 args.dest.resolve(),
                 m,
                 s,
-                "A",
+                PUBLIC_VARIANT,
                 args.desks,
                 args.level,
                 args.history,
                 args.qualifiers,
+                args.limit,
             )
             for s in args.seeds
             for m in args.models

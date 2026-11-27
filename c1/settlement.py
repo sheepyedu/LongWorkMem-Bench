@@ -35,7 +35,7 @@ FINAL = """归档交割：input/jobs/close.json 为主结算；另对 input/jobs
 FUNDING = """财务数据字典：每个credit的cents是该整笔凭证的总分币，工时单位不可拆。凭证的第i个单位（从0开始）的成本为 floor((i+1)*cents/units)-floor(i*cents/units)。
 所有处置遵循先进先出。挑选顺序取原credit的(day,order)，再取原凭证单位序号升序；调拨后保留原始序号与成本。一个账户可能收到同一凭证的多个不连续片段。
 每次交割的 JSON 另存 lots：每行[tenant,当前工单号,原credit的eid,剩余单位,剩余分币]；usage：每行[已准use的eid,原credit的eid,耗用单位,耗用分币]。相同键合为一行，零单位不出行。"""
-TRANSFER_COST = """从本轮起另交 travel，每行[已入账的负腿eid,原credit的eid,调拨单位,调拨分币]，按前期财务数据字典取用；业务撤回时重演产生新的分摊，不能留下已撤回的调拨分摊。"""
+TRANSFER_COST = """从本轮起所有新交件（含历史截止日的归档方案）均须含 travel；没有调拨时交 "travel": []。每行[已入账的负腿eid,原credit的eid,调拨单位,调拨分币]，按前期财务数据字典取用；业务撤回时重演产生新的分摊，不能留下已撤回的调拨分摊。"""
 
 
 def write_json(path, obj):

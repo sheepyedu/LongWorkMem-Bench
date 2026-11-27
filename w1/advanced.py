@@ -1,5 +1,6 @@
 """Advanced W1 public releases, host-side reference run, and checkpoint grading."""
 import argparse
+from benchmark_protocol import PUBLIC_SEED, PUBLIC_VARIANT
 import hashlib
 import json
 from pathlib import Path
@@ -35,7 +36,7 @@ def departments(level):
     raise ValueError(f"Unknown advanced W1 level {level}")
 
 
-def release(work, turn, variant, level, seed):
+def release(work, turn, variant, level, seed, *, erp_window=True):
     if turn not in ROUNDS or variant not in {"A", "B"} or level not in {1, 2, 3, 4, 5, 6, 7, 8}:
         raise ValueError("Invalid W1 instance or turn")
     for folder in ("input", "inbox", "out"):
@@ -49,7 +50,7 @@ def release(work, turn, variant, level, seed):
     if level in (7, 8):
         from .advanced_memory import release as issue_mandate
         prompt += issue_mandate(work, turn, seed)
-    if level in (5, 6, 7, 8):
+    if erp_window and level in (5, 6, 7, 8):
         from .erp_window import notice
         prompt += notice(turn, level)
     return prompt
@@ -65,11 +66,11 @@ def public_digest(work, prompt):
     return digest.hexdigest()
 
 
-def run_reference(run, variant, level, seed):
+def run_reference(run, variant, level, seed, *, erp_window=False):
     work = prepare(run)
     turns = []
     for turn in ROUNDS:
-        prompt = release(work, turn, variant, level, seed)
+        prompt = release(work, turn, variant, level, seed, erp_window=erp_window)
         for department in departments(level).values():
             department.reference(run, turn, variant, level, seed)
         freeze(run, turn)
@@ -125,8 +126,8 @@ if __name__ == "__main__":
     parser.add_argument("--legacy", action="store_true", help="Reproduce the archived calibration score")
     parser.add_argument("--details", action="store_true", help="Include underlying evidence for each checkpoint")
     parser.add_argument("--level", type=int, choices=[8], default=8)
-    parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument("--seed", type=int, default=PUBLIC_SEED)
     args = parser.parse_args()
     if args.reference:
-        run_reference(args.run, "A", args.level, args.seed)
+        run_reference(args.run, PUBLIC_VARIANT, args.level, args.seed)
     print(json.dumps(grade(args.run, legacy=args.legacy, details=args.details), ensure_ascii=False, indent=2))

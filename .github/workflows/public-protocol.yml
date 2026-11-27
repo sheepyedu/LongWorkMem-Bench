@@ -1,0 +1,20 @@
+name: Public protocol regression
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  offline-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r w1/requirements.txt
+      - run: |
+          python -m unittest tests.test_public_protocol w1.tests.test_gateway c1.tests.test_c1_runner
+          python scripts/summarize_audit.py
+          git diff --exit-code -- docs/results/advanced-audit-20261127/dispersion.csv
+      - run: |
+          docker build -f s1/Circuit.Dockerfile -t longworkmem-circuit:1 .
+          S1_TEST_DOCKER=1 python -m unittest s1.tests.test_engine

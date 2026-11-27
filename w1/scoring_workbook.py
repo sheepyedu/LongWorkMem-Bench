@@ -1,18 +1,12 @@
-"""Inspect and perturb an isolated copy of the submitted .xlsx using LibreOffice Calc."""
+"""Inspect submitted workbook structure and read recalculated awards."""
 import filecmp
-import os
-from pathlib import Path
 import re
-import shutil
-import subprocess
-from tempfile import TemporaryDirectory
 from xml.etree import ElementTree as ET
 from zipfile import ZipFile
 
 import openpyxl
 from openpyxl.utils.cell import range_boundaries
 
-from .scoring_oracle import payments
 from .scoring_tables import InvalidArtifact, number
 
 
@@ -144,86 +138,6 @@ def awards_match(path, expected):
         return True, f"{len(actual)} recalculated employee amounts and project totals match"
     finally:
         book.close()
-
-
-def check_workbook(path, oracle, payroll):
-    """Return three predicates (baseline, edited hours, edited pools) and infrastructure errors."""
-    reasons = ["baseline", "hours", "pool"]
-    def failed(message):
-        return [(False, f"{name}: {message}") for name in reasons], []
-    try:
-        inspect_package(path)
-        with TemporaryDirectory(prefix="w1-calc-") as tmp:
-            directory = Path(tmp)
-            results = directory / "calculated"
-            results.mkdir()
-            book = openpyxl.load_workbook(path, keep_links=False)
-            pools, hours, pool_positions, positions = workbook_inputs(book)
-            if pools != oracle["pools"] or hours.keys() != oracle["hours"].keys():
-                return failed("workbook pools or approved project-employee combinations differ")
-            base_pay = payments(hours, pools)
-            filed_ok, filed_why = payroll.matches(base_pay, "project employee hours bonus")
-            variants = []
-            scenarios = [("baseline", None, None)]
-            for index, p in enumerate(sorted(pools)):
-                team = sorted(k for k in hours if k[0] == p)
-                if not team:
-                    return failed("approved project missing payroll")
-                for employee_index, key in enumerate(team):
-                    scenarios.append((f"hours-{index}-{employee_index}", key, None))
-                scenarios.append((f"pool-{index}", None, p))
-            for case, changed_employee, changed_project in scenarios:
-                case_hours, case_pools = hours.copy(), pools.copy()
-                changed_cell = None
-                if changed_employee:
-                    case_hours[changed_employee] += 7
-                    changed_cell = book["Pay"].cell(*positions[changed_employee])
-                    value = case_hours[changed_employee]
-                if changed_project:
-                    case_pools[changed_project] += number("13.79")
-                    changed_cell = book["Pools"].cell(*pool_positions[changed_project])
-                    value = case_pools[changed_project]
-                if changed_cell is not None:
-                    original = changed_cell.value
-                    changed_cell.value = float(value)
-                source = directory / f"{case}.xlsx"
-                book.save(source)
-                if changed_cell is not None:
-                    changed_cell.value = original
-                want = {(r["project"], r["employee"]): r["bonus"] for r in payments(case_hours, case_pools)}
-                label = (f"employee {changed_employee} hours +7" if changed_employee else
-                         f"project {changed_project} pool +13.79" if changed_project else "baseline")
-                variants.append((source, want, label))
-            book.close()
-            engine = os.environ.get("W1_SOFFICE") or shutil.which("soffice") or shutil.which("libreoffice")
-            if not engine:
-                return failed("Calc unavailable")[0], ["LibreOffice Calc executable missing"]
-            command = [engine, f"-env:UserInstallation={(directory / 'profile').as_uri()}",
-                       "--headless", "--nologo", "--norestore", "--convert-to",
-                       "xlsx:Calc MS Excel 2007 XML", "--outdir", str(results)]
-            try:
-                proc = subprocess.run(command + [str(s) for s, _, _ in variants], cwd=directory,
-                                      timeout=60, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            except (FileNotFoundError, PermissionError) as e:
-                return failed("Calc unavailable")[0], [f"LibreOffice launch failed: {type(e).__name__}"]
-            if proc.returncode:
-                return failed(f"Calc rejected workbook (exit {proc.returncode})")
-            by_kind = {name: [] for name in reasons}
-            for source, want, label in variants:
-                result = results / source.name
-                if result.exists():
-                    ok, why = awards_match(result, want)
-                else:
-                    ok, why = False, "Calc produced no workbook"
-                if source.stem == "baseline" and not filed_ok:
-                    ok = False
-                    why += "; workbook inputs and filed payroll disagree: " + filed_why
-                by_kind[source.stem.split("-")[0]].append((ok, f"{label}: {why}"))
-            return [(all(ok for ok, _ in cases), "; ".join(why for _, why in cases))
-                    for cases in by_kind.values()], []
-    except Exception as e:
-        # A corrupt candidate-controlled OOXML package can also raise parser/library-specific errors.
-        return failed(f"{type(e).__name__}: {str(e)[:160]}")
 
 
 def same_workbook(a, b):
