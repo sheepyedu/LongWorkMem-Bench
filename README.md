@@ -67,4 +67,4 @@ S1 连续跨区长赛季把各区八班穿插进同一个 Claude Code 会话。�
 
 长赛季支持单独指定 `--models gpt-6.1-sol`，用 Claude Code 运行相同材料；路由使用 low 推理档。
 
-C1 工时结算使用同一批分站来件对比两个模型的签收和轮末交付。三级另加第七轮，按三张已撤下的临时授权通知回到保证金台，对三个历史截止日逐件重演。运行方式见 [测试指南](TEST.md#c1-六轮工时结算)，试跑成绩和模型自述核验见 [工时与保证金校准](docs/research/c1-settlement-calibration.md)。
+C1 工时结算使用同一批分站来件对比两个模型的签收和轮末交付。三级另加第七轮，按三张已撤下的临时授权通知回到保证金台，对三个历史截止日逐件重演。当前校准配置为 `--level 3 --rotate --dispatch-after 2 --limit 180`。两个独立种子的 A/B 共四个配对上，DeepSeek 为 43.52，千问为 35.91。运行方式见 [测试指南](TEST.md#c1-六轮工时结算)，试跑成绩和模型自述核验见 [工时与保证金校准](docs/research/c1-settlement-calibration.md)。
