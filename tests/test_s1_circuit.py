@@ -24,6 +24,16 @@ class CircuitTest(unittest.TestCase):
         self.assertNotIn("memo", c.receipt(mid, {"note": note}))
         self.assertEqual(c.receipt(mid, {}, "handover")["memo"], "")
 
+    def test_mixed_districts_preserve_same_schedule_and_assignment(self):
+        a, b = [Circuit(13, v, 10, 2, 2) for v in "AB"]
+        self.assertEqual(a.schedule, b.schedule)
+        self.assertEqual(a.schedule, Circuit(13, "A", 10, 2).schedule)
+        self.assertEqual([len(s.teams) for s in a.seasons.values()], [14] * 8 + [6] * 2)
+        for i, (_, stage) in enumerate(a.schedule, 1):
+            self.assertEqual(a.prompt(i) == b.prompt(i), stage != 1)
+        with self.assertRaises(ValueError):
+            Circuit(13, "A", 10, 2, 10)
+
     def test_delayed_pair_and_score(self):
         a, b = [Circuit(4, arm, 9, 2) for arm in "AB"]
         self.assertEqual(a.schedule, b.schedule)

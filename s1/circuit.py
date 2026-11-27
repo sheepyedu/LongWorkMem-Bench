@@ -25,11 +25,18 @@ RULES = """你是跨赛区联赛器材总台领队，各区轮流送件，全程
 
 
 class Circuit:
-    def __init__(self, seed, variant, desks, level):
+    def __init__(self, seed, variant, desks, level, qualifiers=0):
         if not 2 <= desks <= 24:
             raise ValueError("desks must be between 2 and 24")
+        if not 0 <= qualifiers < desks:
+            raise ValueError("small district count must be below total districts")
         self.seasons = {
-            f"区{i + 1:02}": Season(seed * 100 + i, level, variant, "warehouse")
+            f"区{i + 1:02}": Season(
+                seed * 100 + i,
+                1 if i >= desks - qualifiers else level,
+                variant,
+                "warehouse",
+            )
             for i in range(desks)
         }
         self.schedule = []
@@ -107,7 +114,13 @@ def read_command(text, version):
 
 def audit(run):
     meta = json.loads((run / "manifest.json").read_text())
-    circuit = Circuit(meta["seed"], meta["variant"], meta["desks"], meta["level"])
+    circuit = Circuit(
+        meta["seed"],
+        meta["variant"],
+        meta["desks"],
+        meta["level"],
+        meta.get("qualifiers", 0),
+    )
     turns = len(circuit.schedule)
     if len(meta["calls"]) != turns:
         raise ValueError("missing scheduled turns")
@@ -244,10 +257,14 @@ def audit(run):
     return result
 
 
-def run_one(dest, model, seed, variant, desks, level, history="continuous"):
-    circuit = Circuit(seed, variant, desks, level)
+def run_one(
+    dest, model, seed, variant, desks, level, history="continuous", qualifiers=0
+):
+    circuit = Circuit(seed, variant, desks, level, qualifiers)
     total = len(circuit.schedule)
     prefix = history + "-" if history != "continuous" else ""
+    if qualifiers:
+        prefix += f"Q{qualifiers}-"
     run = dest / f"{prefix}D{desks}-L{level}-{seed}-{variant}-{model}"
     run.mkdir(mode=0o700, parents=True, exist_ok=False)
     (run / "trace").mkdir()
@@ -272,6 +289,7 @@ def run_one(dest, model, seed, variant, desks, level, history="continuous"):
         seed=seed,
         variant=variant,
         desks=desks,
+        qualifiers=qualifiers,
         level=level,
         model=name,
         session=session,
@@ -366,6 +384,9 @@ def main():
         default=["deepseek", "qwen"],
     )
     parser.add_argument("--desks", type=int, required=True)
+    parser.add_argument(
+        "--qualifiers", type=int, default=0, help="number of small six-team districts"
+    )
     parser.add_argument("--level", type=int, choices=range(1, 5), default=2)
     parser.add_argument("--workers", type=int, default=4)
     parser.add_argument(
@@ -385,6 +406,7 @@ def main():
                 args.desks,
                 args.level,
                 args.history,
+                args.qualifiers,
             )
             for s in args.seeds
             for v in args.variants

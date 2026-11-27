@@ -15,7 +15,13 @@ def review(run):
     saved = json.loads((run / "grade.json").read_text())
     if result["desks"] != saved["desks"] or result["total"] != saved["total"]:
         raise ValueError(f"{run.name}: stored grade does not match")
-    circuit = Circuit(meta["seed"], meta["variant"], meta["desks"], meta["level"])
+    circuit = Circuit(
+        meta["seed"],
+        meta["variant"],
+        meta["desks"],
+        meta["level"],
+        meta.get("qualifiers", 0),
+    )
     stock_receipts = []
     changed = hits = historical = recovered = 0
     for turn, (desk, stage) in enumerate(circuit.schedule, 1):
