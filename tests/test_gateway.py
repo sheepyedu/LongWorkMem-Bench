@@ -4,6 +4,12 @@ from w1.gateway import MODEL, anthropic, stream_events, translate
 
 
 class GatewayTest(unittest.TestCase):
+    def test_model_is_selected_by_host_for_each_session(self):
+        query = {"model": "qwen3.8-flash", "max_tokens": 900, "messages": []}
+        self.assertEqual(translate(query, {}, model="qwen3.8-flash")["model"], query["model"])
+        with self.assertRaises(ValueError):
+            translate(query, {}, model=MODEL)
+
     def test_tool_history_and_exact_usage(self):
         memory = {}
         msg = anthropic({"id": "id", "model": MODEL,
