@@ -190,7 +190,10 @@ def compare(paths):
     splits = {"holdout" if seed in HOLDOUT_SEEDS else "development" for _, seed, _ in groups}
     if len(splits) != 1:
         raise ValueError("Compare development and holdout instances separately")
-    stage_maxima = weights(next(iter(groups))[0])
+    level = next(iter(groups))[0]
+    if level == 8 and any(variant != "A" for _, _, variant in groups):
+        raise ValueError("The standard W1 comparison uses one canonical session per seed and model")
+    stage_maxima = weights(level)
     cohort = None
     result = []
     for (level, seed, variant), group in sorted(groups.items()):
@@ -231,7 +234,7 @@ def compare(paths):
     for pair in result:
         by_seed[pair["seed"]].append(pair["paired_gap"])
     counterfactuals = {}
-    if level in (7, 8):
+    if level == 7:
         from .advanced_memory import contrast
         for seed in by_seed:
             if all((level,seed,v) in groups for v in ("A","B")):

@@ -1,7 +1,6 @@
 """Run a blinded nine-turn Claude Code trajectory against Ark."""
 import argparse
 from contextlib import contextmanager
-from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 import getpass
 import json
@@ -192,26 +191,20 @@ def provider(model):
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument("dest",type=Path)
-    p.add_argument("--variants",nargs="+",choices=["A","B"],default=["A","B"])
     p.add_argument("--backend",choices=["docker","seatbelt"],default="docker")
     p.add_argument("--smoke",action="store_true")
-    p.add_argument("--limit",type=int,default=1500)
+    p.add_argument("--limit",type=int,default=350)
     p.add_argument("--model", choices=[MODEL, "qwen3.8-flash"], default=MODEL)
-    p.add_argument("--level", type=int, choices=[0, 1, 2, 3, 4, 5, 6, 7, 8], default=0)
+    p.add_argument("--level", type=int, choices=[0, 1, 2, 3, 4, 5, 6, 7, 8], default=8)
     p.add_argument("--seed", type=int, default=0)
     args=p.parse_args()
-    if len(set(args.variants))!=len(args.variants):
-        p.error("Use each variant at most once per destination")
-    dest=args.dest.resolve(); dest.mkdir(parents=True,exist_ok=True)
     try:
         url, key = provider(args.model)
     except ValueError as exc:
         p.error(str(exc))
-    with ThreadPoolExecutor(max_workers=len(args.variants)) as pool:
-        batch=[pool.submit(play,dest/v,v,args.backend,key,args.smoke,args.limit,
-                           model=args.model,url=url,level=args.level,seed=args.seed) for v in args.variants]
-        for item in batch:
-            item.result()
+    play(args.dest.resolve(), "A", args.backend, key, args.smoke, args.limit,
+         model=args.model, url=url, level=args.level, seed=args.seed)
+
 
 
 if __name__ == "__main__":

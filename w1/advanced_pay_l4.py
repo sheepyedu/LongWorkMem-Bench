@@ -161,7 +161,7 @@ def dispatch_check(run, official):
     return round(3*correct/denominator,4), 3, f"R7 jointly signed effective instructions {correct}/{denominator}"
 
 
-def checks(run, variant, level, seed):
+def checks(run, variant, level, seed, *, whole_rows=False):
     oracle = pristine(variant,seed)
     weights = {"pay.archive_coverage":1, "pay.archive_employee":1, "pay.archive_contract":2, "pay.archive_retained":1,
                "pay.release_scope":1, "pay.released_pool":2, "pay.roster":1, "pay.pending_tickets":2,
@@ -173,4 +173,11 @@ def checks(run, variant, level, seed):
     for code, (earned, maximum, reason) in components.items():
         weight = weights[code]
         result[code] = round(weight*earned/maximum,4), weight, reason
+    if whole_rows:
+        paid, submitted = payroll.keyed_rows(Table(run / "snapshots/7/pay.csv"), ("project", "employee"))
+        expected = {(r["project"], r["employee"]): r for r in oracle["pay"]}
+        total = len(submitted | expected.keys())
+        correct = sum(all(payroll.numeric(paid[k], f) == payroll.numeric(expected[k], f)
+                          for f in ("hours", "bonus")) for k in paid.keys() & expected.keys())
+        result["pay.correct_rows"] = correct / total, 1, f"R7 employee, project, hours and bonus {correct}/{total}"
     return result
