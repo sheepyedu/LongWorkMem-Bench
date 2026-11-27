@@ -16,7 +16,7 @@ import tempfile
 import uuid
 
 from w1.claude import run_claude
-from w1.gateway import Gateway, MODEL
+from w1.gateway import Gateway, MODEL, URL
 from . import sandbox
 from .runstate import freeze
 
@@ -80,7 +80,7 @@ PY""".replace("PRIVATE", repr(private))
         (work / "scratch/probe.db").unlink(missing_ok=True)
 
 
-def run_session(run, variant, backend, key, *, mode="formal", limit=1500, start=None, hint=False, handoff=None):
+def run_session(run, variant, backend, key, *, mode="formal", limit=1500, start=None, hint=False, handoff=None, model=MODEL, url=URL, level=1, seed=0):
     if mode != "smoke":
         from . import world
     run = Path(run).resolve()
@@ -91,11 +91,14 @@ def run_session(run, variant, backend, key, *, mode="formal", limit=1500, start=
     package = Path(__file__).resolve().parent
     files = [p for p in package.rglob("*.py") if "__pycache__" not in p.parts]
     files.extend(package.parent / "w1" / name for name in ("claude.py", "gateway.py", "office.py"))
-    manifest = {"mode": mode, "variant": variant, "backend": backend, "model": MODEL, "session": session,
+    manifest = {"mode": mode, "variant": variant, "backend": backend, "model": model, "session": session,
                 "start": timestamp(), "limit": limit, "turns": [], "status": "running",
                 "claude": subprocess.check_output(["claude", "--version"], text=True).strip(),
                 "git": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=package, text=True).strip(),
                 "source_hashes": {str(p.relative_to(package.parent)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}}
+    if mode == "settlement":
+        from . import settlement
+        manifest.update(level=level, seed=seed, endpoint=url)
     if backend == "docker":
         manifest["image"] = sandbox.image_id()
     def save():
@@ -122,6 +125,8 @@ def run_session(run, variant, backend, key, *, mode="formal", limit=1500, start=
             if mode == "smoke":
                 (work / "input/notice").write_text(smoke_value)
             turns = (1, 2) if mode == "smoke" else ((9,) if mode == "control" else range(1, 9 if mode == "handoff" else 13))
+            if mode == "settlement":
+                turns = range(1, 7)
             env = {"PYTHONPATH": str(package.parent)}
             for name in ("DOCKER_HOST", "DOCKER_CONTEXT"):
                 if os.getenv(name):
@@ -129,13 +134,15 @@ def run_session(run, variant, backend, key, *, mode="formal", limit=1500, start=
             if backend == "docker":
                 env["C1_IMAGE"] = manifest["image"]
             with tempfile.TemporaryDirectory(prefix="service-client-") as tmp, Gateway(
-                    key, run, limit, allowed=ALLOWED, private_markers=(str(package), "c1-grade/", ".claude-manager/worktrees/")) as gateway:
+                    key, run, limit, allowed=ALLOWED, model=model, url=url, private_markers=(str(package), "c1-grade/", ".claude-manager/worktrees/")) as gateway:
                 client = Path(tmp)
                 (client / "desk").mkdir()
                 for index, turn in enumerate(turns):
                     if mode == "smoke":
                         prompt = ("请用工作区 shell 将 input/notice 的交接编号写入 data/desk.sqlite 的 handoff(code TEXT) 表一行，核实后告知。"
                                   if turn == 1 else "请重新从刚才那张数据库表读取交接编号，写入 out/receipt.txt，文件中只放编号。")
+                    elif mode == "settlement":
+                        prompt = settlement.release(work, turn, variant, seed, level)
                     else:
                         prompt = world.release(work, turn, variant)
                         if mode == "handoff" and turn == 3:
