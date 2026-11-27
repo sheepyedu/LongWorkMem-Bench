@@ -95,3 +95,26 @@ class CheckoutTests(unittest.TestCase):
                 serve(['four','five'])
             self.assertEqual((dest/'delivery').read_text(),'four')
             self.assertEqual((work/'delivery').read_text(),'five')
+
+    def test_transport_timeout_requires_same_payload_retry_and_has_unknown_usage(self):
+        from c1.pilot import ALLOWED
+        with tempfile.TemporaryDirectory() as temp:
+            run=Path(temp)
+            trace=run/'trace'
+            trace.mkdir()
+            (run/'manifest.json').write_text(json.dumps(dict(turns=[dict(turn=1, upstream_calls=2)],
+                                                           session='s',status='complete',model='m')))
+            wire=dict(model='m',messages=[],tools=[dict(function=dict(name=k)) for k in ALLOWED])
+            first=dict(n=1,turn=1,status=502,error='timed out',request=wire)
+            second=dict(n=2,turn=1,status=200,request=wire,response=dict(id='response',model='m',
+                        usage=dict(prompt_tokens=100,completion_tokens=10),choices=[dict(message={})]))
+            (trace/'api-0001.json').write_text(json.dumps(first))
+            (trace/'api-0002.json').write_text(json.dumps(second))
+            (trace/'turn-1.jsonl').write_text(json.dumps(dict(type='result',is_error=False,session_id='s'))+'\n')
+            summary=audit(run)
+            self.assertEqual(summary['flags'],[])
+            self.assertEqual(summary['retry_attempts'][0]['retry'],'api-0002.json')
+            self.assertEqual(summary['totals']['unknown_usage'],1)
+            second['request']={**wire,'max_tokens':20}
+            (trace/'api-0002.json').write_text(json.dumps(second))
+            self.assertTrue(any('matching retry' in issue for issue in audit(run)['flags']))

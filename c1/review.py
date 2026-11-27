@@ -1,5 +1,6 @@
 """Reconcile every upstream exchange with Claude's transcript and the actual workspace journal."""
 import argparse
+import hashlib
 from collections import Counter, defaultdict
 import json
 from pathlib import Path
@@ -28,6 +29,7 @@ def audit(run):
     flags, failures, markers, args_changed = [], [], [], []
     provider, forwarded, locations = defaultdict(dict), defaultdict(dict), {}
     receipts, sessions = set(), set()
+    pending, retries = defaultdict(list), []
     paths = sorted(trace.glob("api-*.json"))
     expected = []
     for turn in manifest["turns"]:
@@ -61,6 +63,17 @@ def audit(run):
                         flags.append(f"{path.name}: changed tool history {cid}")
                     forwarded[turn][cid] = value
             reply = row.get("response", {})
+            fingerprint = turn, hashlib.sha256(sent.encode()).digest()
+            status = row.get("status", 0)
+            if status in (408, 409, 425, 429) or 500 <= status < 600:
+                if not row.get("error"):
+                    flags.append(f"{path.name}: missing failure reason")
+                retry = {"receipt":path.name,"status":status,"usage_known":bool(reply.get("usage")),"retry":None}
+                retries.append(retry)
+                pending[fingerprint].append(retry)
+                if not reply:
+                    counts[turn]["unknown_usage"] += 1
+                    continue
             if reply.get("model") != manifest["model"]:
                 flags.append(f"{path.name}: absent or different response model")
             usage = usage_counts(reply["usage"])
@@ -70,18 +83,24 @@ def audit(run):
             counts[turn]["peak_input"] = max(counts[turn]["peak_input"], usage["input"])
             if row.get("status") == 200:
                 counts[turn]["successful"] += 1
-            else:
+                for retry in pending.pop(fingerprint, []):
+                    retry["retry"] = path.name
+            elif fingerprint not in pending:
                 flags.append(f"{path.name}: delivery status {row.get('status')}")
             ids = {(field, value) for field, value in (("request", row.get("request_id")), ("reply", reply.get("id"))) if value}
             if not ids or ids & receipts:
                 flags.append(f"{path.name}: missing or duplicate receipt")
             receipts.update(ids)
+            if status != 200:
+                continue
             for call in reply["choices"][0]["message"].get("tool_calls", []):
                 fn = call["function"]
                 provider[turn][call["id"]] = [fn["name"], json.loads(fn["arguments"])]
                 locations[(turn, call["id"])] = path.name
         except (OSError, ValueError, TypeError, KeyError, IndexError, AttributeError) as exc:
             flags.append(f"{path.name}: {type(exc).__name__}: {str(exc)[:120]}")
+    for attempts in pending.values():
+        flags.append(f"{attempts[-1]['receipt']}: no matching retry succeeded")
     for turn in manifest["turns"]:
         n = turn["turn"]
         cli, results, terminals = {}, {}, []
@@ -148,7 +167,7 @@ def audit(run):
             else:
                 totals[k] += value
     return {"status": manifest["status"], "turns": dict(sorted(counts.items())), "totals": totals,
-            "shell_failures": failures, "argument_differences": args_changed, "private_markers": markers, "flags": flags}
+            "shell_failures": failures, "retry_attempts": retries, "argument_differences": args_changed, "private_markers": markers, "flags": flags}
 
 
 if __name__ == "__main__":
