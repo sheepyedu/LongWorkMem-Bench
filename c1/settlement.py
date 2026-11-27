@@ -1,4 +1,5 @@
 """Public C1 follow-on: staged cross-desk settlement data and release contracts."""
+
 import csv
 import json
 from pathlib import Path
@@ -36,63 +37,126 @@ FUNDING = """财务数据字典：每个credit的cents是该整笔凭证的总�
 每次交割的 JSON 另存 lots：每行[tenant,当前工单号,原credit的eid,剩余单位,剩余分币]；usage：每行[已准use的eid,原credit的eid,耗用单位,耗用分币]。相同键合为一行，零单位不出行。"""
 TRANSFER_COST = """从本轮起另交 travel，每行[已入账的负腿eid,原credit的eid,调拨单位,调拨分币]，按前期财务数据字典取用；业务撤回时重演产生新的分摊，不能留下已撤回的调拨分摊。"""
 
+
 def write_json(path, obj):
     path.write_text(json.dumps(obj, ensure_ascii=False), encoding="utf8")
 
 
 def generate(seed, level, variant):
     rng = random.Random(seed)
-    size = (64 if level == 1 else 192)
+    size = 64 if level == 1 else 192
     tenants = ["ops", "field", "lab"]
     aliases = []
     batches = {n: [] for n in NAMES}
     lanes = {k: 0 for k in ("e", "w", "n")}
     cuts = {}
     seq = 0
-    approvers = rng.sample(["north-chair","late-shift","dispatch-4","audit-2","duty-9","panel-6"],2)
+    approvers = rng.sample(
+        ["north-chair", "late-shift", "dispatch-4", "audit-2", "duty-9", "panel-6"], 2
+    )
+
     def add(batch, tenant, ticket, day, kind, units, lane=None, **extra):
         nonlocal seq
         seq += 1
         lane = lane or rng.choice(list(lanes))
         lanes[lane] += 1
-        row = dict(eid=f"E{seed:x}-{seq:05}", tenant=tenant,ticket=ticket,lane=lane,seq=lanes[lane],
-                   day=day,order=seq,kind=kind,units=units,dept=tenant,**extra)
-        if level==2 and kind=="credit": row["cents"]=rng.randint(1,units*14)
+        row = dict(
+            eid=f"E{seed:x}-{seq:05}",
+            tenant=tenant,
+            ticket=ticket,
+            lane=lane,
+            seq=lanes[lane],
+            day=day,
+            order=seq,
+            kind=kind,
+            units=units,
+            dept=tenant,
+            **extra,
+        )
+        if level == 2 and kind == "credit":
+            row["cents"] = rng.randint(1, units * 14)
         batches[batch].append(row)
         return row
+
     for i in range(size):
-        t=tenants[i%3]; a=f"{i:04}"; b=f"{i:03}"
-        for acct in (a,b):
-            add("intake",t,acct,1,"credit",rng.randint(5,18))
-            add("intake",t,acct,4,"use",rng.randint(4,20))
-        aliases.extend([(t,"D"+a,2,5,a),(t,"D"+a,6,12,b)])
-    cuts["intake"]=dict(lanes)
+        t = tenants[i % 3]
+        a = f"{i:04}"
+        b = f"{i:03}"
+        for acct in (a, b):
+            add("intake", t, acct, 1, "credit", rng.randint(5, 18))
+            add("intake", t, acct, 4, "use", rng.randint(4, 20))
+        aliases.extend([(t, "D" + a, 2, 5, a), (t, "D" + a, 6, 12, b)])
+    cuts["intake"] = dict(lanes)
     for i in range(size):
-        add("routing",tenants[i%3],"D"+f"{i:04}",rng.choice((2,5,6,8)),"credit",rng.randint(1,7))
-    cuts["routing"]=dict(lanes)
+        add(
+            "routing",
+            tenants[i % 3],
+            "D" + f"{i:04}",
+            rng.choice((2, 5, 6, 8)),
+            "credit",
+            rng.randint(1, 7),
+        )
+    cuts["routing"] = dict(lanes)
     for i in range(size):
-        ref=f"T{i//3:03}";t=tenants[i%3]; a=f"{i:04}"; b=f"{i:03}"; qty=rng.randint(4,16)
-        order_day=rng.choice((3,5,7))
-        add("cutover",t,a,order_day,"leg",-qty,"w",ref=ref)
-        if i%7!=0:
-            add("cutover",t,b,order_day+1,"leg",qty if i%13 else qty+1,"e",ref=ref)
-        if level==2 and i%19==0:
-            add("cutover",t,"D"+a,8,"leg",qty,"n",ref=ref)
-        add("cutover",t,b,9,"use",rng.randint(8,16))
-    cuts["cutover"]=dict(lanes)
-    cuts["incident"]=dict(lanes)
+        ref = f"T{i // 3:03}"
+        t = tenants[i % 3]
+        a = f"{i:04}"
+        b = f"{i:03}"
+        qty = rng.randint(4, 16)
+        order_day = rng.choice((3, 5, 7))
+        add("cutover", t, a, order_day, "leg", -qty, "w", ref=ref)
+        if i % 7 != 0:
+            add(
+                "cutover",
+                t,
+                b,
+                order_day + 1,
+                "leg",
+                qty if i % 13 else qty + 1,
+                "e",
+                ref=ref,
+            )
+        if level == 2 and i % 19 == 0:
+            add("cutover", t, "D" + a, 8, "leg", qty, "n", ref=ref)
+        add("cutover", t, b, 9, "use", rng.randint(8, 16))
+    cuts["cutover"] = dict(lanes)
+    cuts["incident"] = dict(lanes)
     for i in range(size):
-        t=tenants[i%3]; ref=f"T{i//3:03}"; b=f"{i:03}"
-        if i%7==0:
-            orig=next(r for r in batches["cutover"] if r.get("ref")==ref and r["tenant"]==t and r["units"]<0)
-            add("corrections",t,b,6,"leg",-orig["units"],"e",ref=ref)
-        for j in range(2 if level==2 and i%3==0 else 1):
-            add("corrections",t,b,8+j,"recall",0,"n",ref=ref, signer=approvers[(i+j)%2])
-        if i%4==0: add("corrections",t,f"{i:04}",2,"credit",4)
-    cuts["corrections"]=dict(lanes)
+        t = tenants[i % 3]
+        ref = f"T{i // 3:03}"
+        b = f"{i:03}"
+        if i % 7 == 0:
+            orig = next(
+                r
+                for r in batches["cutover"]
+                if r.get("ref") == ref and r["tenant"] == t and r["units"] < 0
+            )
+            add("corrections", t, b, 6, "leg", -orig["units"], "e", ref=ref)
+        for j in range(2 if level == 2 and i % 3 == 0 else 1):
+            add(
+                "corrections",
+                t,
+                b,
+                8 + j,
+                "recall",
+                0,
+                "n",
+                ref=ref,
+                signer=approvers[(i + j) % 2],
+            )
+        if i % 4 == 0:
+            add("corrections", t, f"{i:04}", 2, "credit", 4)
+    cuts["corrections"] = dict(lanes)
     for i in range(size):
-        add("close",tenants[i%3],"D"+f"{i:04}",rng.randint(3,10),"use",rng.randint(4,17))
-    cuts["close"]=dict(lanes)
+        add(
+            "close",
+            tenants[i % 3],
+            "D" + f"{i:04}",
+            rng.randint(3, 10),
+            "use",
+            rng.randint(4, 17),
+        )
+    cuts["close"] = dict(lanes)
     for rows in batches.values():
         rows.extend(rows[::11])
         rng.shuffle(rows)
@@ -100,36 +164,74 @@ def generate(seed, level, variant):
 
 
 def release(work, turn, variant, seed, level):
-    work=Path(work); inp=work/"input"; jobs=inp/"jobs"; pk=inp/"packets"
-    for p in (jobs,pk): p.mkdir(parents=True,exist_ok=True)
-    name=NAMES[turn-1]
-    batches,cuts,aliases,approvers=generate(seed,level,variant)
-    if turn==1:
-        (inp/"interface.txt").write_text(FORMAT)
-        if level==2: (inp/"finance.txt").write_text(FUNDING)
-    if turn==2:
-        with (inp/"aliases.csv").open("w",newline="") as f:
-            writer=csv.writer(f);writer.writerow(["tenant","raw","start","end","canon"]);writer.writerows(aliases)
-        (inp/"routing.txt").write_text(ROUTE)
-        (inp/"handover.txt").write_text("今期跨台调拨的撤令由 "+approvers[0 if variant=="A" else 1]+" 单独签发；后续各次交割沿用。")
-    if turn==3:(inp/"transfer.txt").write_text(TRANSFER+(TRANSFER_COST if level==2 else ""))
-    if turn==4:
-        rng=random.Random(seed+80)
-        rows=[dict(site=f"S{i%4}",job=f"J{i%31}",attempt=(i//124)%4,stamp=i,result=rng.choice(["failed","done","retry"])) for i in range(640 if level==1 else 2048)]
+    work = Path(work)
+    inp = work / "input"
+    jobs = inp / "jobs"
+    pk = inp / "packets"
+    for p in (jobs, pk):
+        p.mkdir(parents=True, exist_ok=True)
+    name = NAMES[turn - 1]
+    batches, cuts, aliases, approvers = generate(seed, level, variant)
+    if turn == 1:
+        (inp / "interface.txt").write_text(FORMAT)
+        if level == 2:
+            (inp / "finance.txt").write_text(FUNDING)
+    if turn == 2:
+        with (inp / "aliases.csv").open("w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow(["tenant", "raw", "start", "end", "canon"])
+            writer.writerows(aliases)
+        (inp / "routing.txt").write_text(ROUTE)
+        (inp / "handover.txt").write_text(
+            "今期跨台调拨的撤令由 "
+            + approvers[0 if variant == "A" else 1]
+            + " 单独签发；后续各次交割沿用。"
+        )
+    if turn == 3:
+        (inp / "transfer.txt").write_text(
+            TRANSFER + (TRANSFER_COST if level == 2 else "")
+        )
+    if turn == 4:
+        rng = random.Random(seed + 80)
+        rows = [
+            dict(
+                site=f"S{i % 4}",
+                job=f"J{i % 31}",
+                attempt=(i // 124) % 4,
+                stamp=i,
+                result=rng.choice(["failed", "done", "retry"]),
+            )
+            for i in range(640 if level == 1 else 2048)
+        ]
         rng.shuffle(rows)
-        (inp/"incident.jsonl").write_text("".join(json.dumps(row)+"\n" for row in rows))
+        (inp / "incident.jsonl").write_text(
+            "".join(json.dumps(row) + "\n" for row in rows)
+        )
         return INCIDENT
-    if turn==5:(inp/"appeal.txt").write_text(RECALL)
-    rows=batches[name]
-    for k in range(3 if level==1 else 9):
-        chunk=rows[k::3 if level==1 else 9]
-        (pk/f"{name}-{k:02}.jsonl").write_text("".join(json.dumps(x)+"\n" for x in chunk))
-    plan=dict(day=12,lanes=cuts[name])
-    write_json(jobs/(name+".json"),plan)
-    if turn==6:
-        for j in range(3 if level==1 else 9):
-            lanes={k:cuts[NAMES[(j+i)%5]][k] for i,k in enumerate(plan["lanes"])}
-            write_json(jobs/f"archive-{j}.json",dict(day=4+j%6,lanes=lanes))
-    text=["请接手工单工时对账，按 interface.txt 实现可复跑入口并结算首批。","换绑表与当班交接已到，请按新登记结算。","跨台调拨已上线，核对各站发来的两联单。","", "回到工单。迟到的补正、撤令和处理约定已到，请按已签口径完成本批。",FINAL][turn-1]
-    if level==2 and turn==1: text+=" 同时纳入财务数据字典 finance.txt 的单位成本归集。"
-    return text+f" 本轮方案 input/jobs/{name}.json，交 out/{name}.json。入口 {RUN}。"
+    if turn == 5:
+        (inp / "appeal.txt").write_text(RECALL)
+    rows = batches[name]
+    for k in range(3 if level == 1 else 9):
+        chunk = rows[k :: 3 if level == 1 else 9]
+        (pk / f"{name}-{k:02}.jsonl").write_text(
+            "".join(json.dumps(x) + "\n" for x in chunk)
+        )
+    plan = dict(day=12, lanes=cuts[name])
+    write_json(jobs / (name + ".json"), plan)
+    if turn == 6:
+        for j in range(3 if level == 1 else 9):
+            lanes = {
+                k: cuts[NAMES[(j + i) % 5]][k] for i, k in enumerate(plan["lanes"])
+            }
+            write_json(jobs / f"archive-{j}.json", dict(day=4 + j % 6, lanes=lanes))
+    text = [
+        "请接手工单工时对账，按 interface.txt 实现可复跑入口并结算首批。",
+        "换绑表与当班交接已到，请按新登记结算。",
+        "跨台调拨已上线，核对各站发来的两联单。",
+        "",
+        "回到工单。迟到的补正、撤令和处理约定已到，请按已签口径完成本批。",
+        FINAL,
+    ][turn - 1]
+    if level == 2 and turn == 1:
+        text += " 同时纳入财务数据字典 finance.txt 的单位成本归集。"
+    return text + f" 本轮方案 input/jobs/{name}.json，交 out/{name}.json。入口 {RUN}。"

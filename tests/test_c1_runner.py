@@ -1,4 +1,6 @@
 import json
+import os
+import platform
 from pathlib import Path
 import tempfile
 import unittest
@@ -39,3 +41,25 @@ class CheckoutTests(unittest.TestCase):
             summary = audit(run)
             self.assertTrue(any("manifest has 1 attempts" in issue for issue in summary["flags"]))
             self.assertTrue(any("turn-1.jsonl:1" in issue for issue in summary["flags"]))
+
+    @unittest.skipUnless(platform.system() == "Darwin" or os.getenv("C1_TEST_DOCKER") == "1",
+                         "requires an isolated code backend")
+    def test_untouched_starter_only_earns_legacy_compatibility_and_preservation(self):
+        from c1 import sandbox, world
+        from c1.grade import grade
+        backend = "docker" if os.getenv("C1_TEST_DOCKER") == "1" else "seatbelt"
+        with tempfile.TemporaryDirectory(dir=os.getenv("C1_TEST_ROOT")) as directory:
+            run = Path(directory)
+            for turn in range(1, 13):
+                work = run / "work"
+                world.release(work, turn, "B")
+                if turn == 6:
+                    stopped = sandbox.shell(work, world.batch_command(True), backend)
+                    self.assertNotEqual(stopped["status"], 86)
+                    (run / "fault.json").write_text(json.dumps(stopped))
+                    freeze(work, run / "fault")
+                freeze(work, run / "snapshots" / str(turn))
+            result = grade(run, "B", backend)
+            earned = {key: item["earned"] for key, item in result["checks"].items() if item["earned"]}
+            self.assertTrue(result["valid"], result["infrastructure_errors"])
+            self.assertEqual(earned, {"CP1.legacy": 5, "CP1.migration": 2, "CP5.legacy": 5})

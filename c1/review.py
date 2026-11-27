@@ -45,6 +45,7 @@ def audit(run):
             if wire["model"] != manifest["model"]:
                 flags.append(f"{path.name}: request model differs")
             for marker in ("c1.grade", "c1/grade", "c1/reference", "c1-grade/", "CP4.decision", "CP5.replay",
+                           "settlement_grade", "settlement_reference", "archive.preserved", "lineage.close", "dispatch-v1",
                            "LongWorkMem-Bench", ".claude-manager/", str(run.resolve())):
                 if marker in encoded(wire):
                     markers.append([path.name, marker])

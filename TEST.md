@@ -92,3 +92,52 @@ python -m s1.review runs/s1-pair/A --turn 7
 八轮的宿主检查包括揭幕站和第二站（7＋8）、邀请赛两小场（7＋8）、回主赛首次真正出牌和全站累计（10＋5）、统一组正式锁定的构筑在两手公开租借牌上能否达到 15 游戏分（30）、自由组两场实际晋级和终局付款（10＋10＋5）。每轮的比赛分是公开游戏规则。宿主检查的各项权重、两版答案和评分实现不发送给模型。冷启动用全新 Claude 会话和空笔记进入同一报名台，只评统一席位，分母 30。
 
 在每条轨迹中按顺序读 `trace/prompt-N.txt`、`trace/turn-N.jsonl` 和 `trace/tools-N.jsonl`，用 `snapshots/N.json` 核实回复中的完成、得分、付费和报名陈述。`trace/api-*.json` 保存逐次请求与回执。独立复评使用冻结游戏材料和实际动作重放；新版本规则可能拒绝旧快照，复现原发布成绩应使用该次 manifest 标记的代码。输入损坏、快照缺失和成绩为零应分别检查。开发轨迹留在使用者的运行目录，不进入被测环境。
+
+## C1 工单事件库
+
+C1 使用 Python 3.12 和标准库。准备本地 Docker 的 Python 镜像，运行器在每批会话开始时按镜像 ID 固定实际运行环境。macOS 开发机也可选择 Seatbelt。所有运行都使用新的目标目录。独立 Docker VM 若仅共享指定目录，请将运行路径和 `C1_TEST_ROOT` 设在可写共享目录内，并导出该 VM 的 `DOCKER_HOST`。凭证通过隐藏输入或 `ARK_API_KEY` 传给宿主。
+
+```sh
+docker pull python:3.12-slim
+python -m unittest discover -v -p 'test_c1*.py'
+C1_TEST_DOCKER=1 python -m unittest discover -v -p 'test_c1*.py'
+python -m c1.reference runs/c1-reference --variant B --backend docker
+python -m c1.grade runs/c1-reference --variant B --backend docker
+python -m c1.pilot runs/c1-smoke --smoke --variants A --limit 16
+python -m c1.pilot runs/c1-pair --variants A B --limit 1500
+python -m c1.grade runs/c1-pair/A --variant A --backend docker
+python -m c1.review runs/c1-pair/A
+python -m c1.review runs/c1-pair/A --turn 9
+```
+
+两轮联测实际创建 SQLite 表并跨轮回读随机编号。正式十二轮沿用同一个 Claude 会话，两个变体使用独立工作卷。第六轮的宿主作业在分片事务内退出，`fault.json` 和 `fault/` 保留代理收到通知前的现场。每轮结束的 `snapshots/N/` 包含完整源码、线上数据库、隔离清单、输出、笔记和实际收到的业务材料。复评在新副本中运行候选程序，真实检查历史查询、审核记录和冷启动重放。首次重建使用原始数据，第二次打乱可交换事件、重复发送并引入一个新实体。
+
+| 检查点 | 分值 | 独立证据 |
+|---|---:|---|
+| 旧接口与迁移 | 15 | 第 1 轮原命令 CSV 回归，第 2 轮唯一编号恢复及歧义行清单 |
+| 接入与版本 | 20 | 第 4 轮实体身份、乱序状态、重发与普通冲突 |
+| 分片与切回 | 20 | 事务退出时的冻结现场、独立日志失败 ID、第 8 轮无遗漏且无重复 |
+| 审批与历史 | 20 | 第 9 轮当前归属与批次处置，第 10 轮撤销范围与分版本历史 |
+| 报表与灾备 | 25 | 第 11 轮部门计数、月末明细，第 12 轮交付与两次独立重放和旧调用方回归 |
+
+按同一冻结件可重复判分。CSV 按字段读取，允许标准引号、BOM 和不同换行；公开契约要求顺序的输出检查排序。两个版本固定采用同一策略时，A、B 至少有一版的关键处置失败。除工程总分外，分别读第 9 轮当前归属、审批适用范围、审计与月末历史中的 14 分。宿主不能运行评分环境时，查看 `valid` 和 `infrastructure_errors`。
+
+```sh
+python -m c1.pilot runs/c1-common --handoff --variants A
+python -m c1.pilot runs/c1-controls --controls-from runs/c1-common/A/snapshots/8 --variants A B --limit 60
+python -m c1.grade runs/c1-controls/B-current --variant B --backend docker --control
+```
+
+公共交接只处理原先开放的业务。短对照各从同一份 R8 源码和数据库发起全新会话，在正常业务档案中还原本变体决议。提醒组还在第 9 轮委托中直接获得决议摘录。第 9 轮短对照满分 10。审阅时结合 `trace/turn-N.jsonl`、`tools-N.jsonl`、`api-*.json` 及冻结文件，区分复述、主动回查、已有实现和当前修改。
+
+### C1 六轮工时结算
+
+使用 Python 3.12、Claude Code 和上述 Docker 环境。两个上游须分别指定模型和各自的兼容端点，用隐藏输入传入对应凭证。为两个模型使用不同空目录，相同的种子、A/B、请求上限与签收窗口。
+
+```sh
+python -m c1.calibrate runs/dispatch-model1 --level 2 --dispatch-after 4 --seeds 41 83 --model MODEL --url CHAT_COMPLETIONS_URL
+python -m c1.settlement_grade runs/dispatch-model1/41-A --backend docker
+python -m c1.review runs/dispatch-model1/41-A
+```
+
+每回合的第 4 条命令执行完即签收，提前结束则在结束时签收。可以批处理命令。轮末仍可修复。总分为签收成绩的 2/3 加轮末成绩的 1/3，两项单列。无签收窗口的等级 1、2 使用轮末交付。等级 2 含 192 对编号、9 份分片/批、9 组历史水位，要求按原凭证单位序号保存 FIFO 归属和分币。R2 当班签发人会影响 R5 撤令与 R6 归档。在限时签收版本，R3 起须使用此前保留的交接信息。空交、部分错行、顺序变化、新工单重跑及未按时交付分别检查。
