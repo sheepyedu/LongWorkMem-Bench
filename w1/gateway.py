@@ -107,7 +107,7 @@ class NoRedirect(urllib.request.HTTPRedirectHandler):
 
 
 class Gateway:
-    def __init__(self, key, run: Path, limit=1500, *, allowed=OFFICE_TOOLS, private_markers=(), model=MODEL, url=URL):
+    def __init__(self, key, run: Path, limit=1500, *, allowed=OFFICE_TOOLS, private_markers=(), model=MODEL, url=URL, timeout=180, direct_response=False):
         self.allowed = frozenset(allowed)
         self.private_markers = tuple(private_markers)
         self.token = secrets.token_hex(32)
@@ -116,7 +116,8 @@ class Gateway:
         self.reasoning = {}
         self.trace = run / "trace"
         self.lock = threading.Lock()
-        self.model, self.url = model, url
+        self.model, self.url, self.timeout = model, url, timeout
+        self.direct_response = direct_response
         handlers = [NoRedirect()]
         if url.startswith("http://"):
             handlers.append(urllib.request.ProxyHandler({}))
@@ -163,6 +164,13 @@ class Gateway:
                 record = {"n": n, "turn": turn, "start": time.time()}
                 try:
                     payload = translate(query, gw.reasoning, gw.allowed, model=gw.model)
+                    if gw.direct_response:
+                        if gw.model == MODEL:
+                            payload["thinking"] = {"type": "disabled"}
+                        elif gw.model == "qwen3.8-flash":
+                            payload.update(enable_thinking=False, chat_template_kwargs={"enable_thinking": False})
+                        else:
+                            raise ValueError("Unknown direct-response model")
                     wire = json.dumps(payload, ensure_ascii=False)
                     if any(marker in wire for marker in (str(gw.trace.parent.resolve()), str(Path(__file__).resolve().parent), *gw.private_markers)):
                         raise ValueError("Private deployment path in model input")
@@ -170,7 +178,7 @@ class Gateway:
                     prefix.with_suffix(".json").write_text(json.dumps(record, ensure_ascii=False))
                     req = urllib.request.Request(gw.url, data=wire.encode(),
                             headers={"Authorization":"Bearer "+gw.key, "Content-Type":"application/json"})
-                    with gw.opener.open(req, timeout=180) as resp:
+                    with gw.opener.open(req, timeout=gw.timeout) as resp:
                         record["upstream_status"] = resp.status
                         record["status"] = resp.status
                         record["request_id"] = resp.headers.get("x-request-id") or resp.headers.get("x-tt-logid")
