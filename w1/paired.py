@@ -50,19 +50,20 @@ def read_manifest(run):
     return m
 
 
-def window_receipts(run):
-    from .erp_window import LIMITS
+def window_receipts(run, level=5):
+    from .erp_window import limits_for
+    limits = limits_for(level)
     db_path = run / "trace/erp-window.sqlite"
     stored = defaultdict(list)
     if db_path.is_file():
         with sqlite3.connect(db_path.resolve().as_uri() + "?mode=ro", uri=True) as db:
             for turn, result in db.execute("SELECT turn,result FROM jobs"):
-                require(turn in LIMITS and result, run, "unfinished/unknown ERP window job")
+                require(turn in limits and result, run, "unfinished/unknown ERP window job")
                 receipt = json.loads(result)
                 require(type(receipt.get("status")) is int, run, "invalid ERP window receipt")
                 stored[turn].append(receipt["remaining_batches"])
     output = {}
-    for turn, limit in LIMITS.items():
+    for turn, limit in limits.items():
         jobs = stored[turn]
         require(len(jobs) <= limit and sorted(jobs) == list(range(limit-len(jobs), limit)),
                 run, f"R{turn} window balance disagrees with publicly announced quota")
@@ -95,7 +96,7 @@ def harness_identity(manifest):
     names = list(HARNESS)
     if "claude.py" in files:
         names.append("claude.py")
-    if manifest["level"] == 5:
+    if manifest["level"] in (5, 6):
         names.extend(("erp_window.py", "office_protocol.py"))
     return tuple((name, files.get(name)) for name in names)
 
@@ -181,8 +182,8 @@ def compare(paths):
                 cohort = environment
             require(environment == cohort, run, "image, Claude version, request budget or office harness differs across runs")
             review, prompts = completed_receipts(run, m)
-            if level == 5:
-                review["erp_windows"] = window_receipts(run)
+            if level in (5, 6):
+                review["erp_windows"] = window_receipts(run, level)
             inputs = ([r["public_digest"] for r in m["turns"]], prompts)
             require(expected_inputs is None or inputs == expected_inputs, run, "round materials or prompts differ within pair")
             expected_inputs = inputs

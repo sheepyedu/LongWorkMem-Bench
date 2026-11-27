@@ -1,4 +1,5 @@
 """Hosted ERP batch windows. Mail stays available after a connection window closes."""
+from functools import partial
 import hashlib
 import json
 from pathlib import Path
@@ -12,17 +13,24 @@ from .runstate import ROUNDS
 LIMITS = dict(zip(ROUNDS, (9, 8, 5, 5, 10, 6, 12, 8, 8), strict=True))
 
 
-def notice(turn):
-    return (f" 本部本次远程ERP作业窗口可提交{LIMITS[turn]}批共享盘作业。一次shell调用占一批，"
+SHORT_SHIFT = dict(zip(ROUNDS, (4, 5, 3, 3, 5, 3, 6, 5, 5), strict=True))
+
+
+def limits_for(level):
+    return {5: LIMITS, 6: SHORT_SHIFT}[level]
+
+
+def notice(turn, level=5):
+    return (f" 本部本次远程ERP作业窗口可提交{limits_for(level)[turn]}批共享盘作业。一次shell调用占一批，"
             "同一批可以连续执行多条命令或任意批量脚本，建议合并取件、办理及核对。"
             "已执行但命令出错也占一批，回执会显示余量。草稿、投递与文字汇报单独办理。"
             "用尽本次作业批数请汇报实际完成情况，下一委托会开新窗口，工作盘保留。")
 
 
-def windowed_shell(run: Path, turn: int, request_id, command: str, backend="docker"):
+def windowed_shell(run: Path, turn: int, request_id, command: str, backend="docker", *, limits=LIMITS):
     if not isinstance(command, str) or not command or len(command) > 100_000:
         raise ValueError("Expected a shell command up to 100,000 characters")
-    limit = LIMITS[turn]
+    limit = limits[turn]
     key = (turn, json.dumps(request_id), hashlib.sha256(command.encode()).hexdigest())
     db = sqlite3.connect(run / "trace/erp-window.sqlite", timeout=30)
     try:
@@ -57,4 +65,7 @@ def windowed_shell(run: Path, turn: int, request_id, command: str, backend="dock
 
 if __name__ == "__main__":
     from .office_protocol import serve
-    serve(Path(sys.argv[1]), int(sys.argv[2]), sys.argv[3], windowed_shell)
+    run = Path(sys.argv[1])
+    manifest = run / "manifest.json"
+    level = json.loads(manifest.read_bytes())["level"] if manifest.exists() else 5
+    serve(run, int(sys.argv[2]), sys.argv[3], partial(windowed_shell, limits=limits_for(level)))

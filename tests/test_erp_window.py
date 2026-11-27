@@ -55,3 +55,14 @@ class WindowTest(unittest.TestCase):
         (self.run / "trace/erp-window.sqlite").unlink()
         with self.assertRaisesRegex(ValueError, "window"):
             window_receipts(self.run)
+
+    def test_short_shift_uses_its_announced_allowance(self):
+        from w1.erp_window import limits_for, notice
+        limits = limits_for(6)
+        self.assertEqual(list(limits.values()), [4, 5, 3, 3, 5, 3, 6, 5, 5])
+        self.assertIn("4批", notice(1, 6))
+        with patch("w1.office.shell", return_value={"status":0, "output":"ok"}):
+            for i in range(4):
+                result = windowed_shell(self.run, 1, i, "read", limits=limits)
+                self.assertEqual(result["remaining_batches"], 3-i)
+            self.assertTrue(windowed_shell(self.run, 1, 5, "read", limits=limits)["window_closed"])
