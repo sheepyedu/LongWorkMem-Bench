@@ -110,3 +110,5 @@ python -m s1.review runs/s1-pair/A --turn 7
 ## 进阶版验收
 
 `python -m unittest tests.test_advanced tests.test_paired tests.test_erp_window` 检查九轮的可重复发布、A/B 唯一事实差异、参考全分、配对回执和远程工作窗口。业务负例位于 `tests/test_advanced_ledger*`、`tests/test_advanced_pay*` 和 `tests/test_advanced_mail*`。四级与五级发布相同文件，五级每轮的用户请求另告知作业额度。正式运行与比分命令沿用上面的例子，只需替换级别、种子和新的运行目录。窗口条件的报告还给出每轮准许的批数、实际受理数及窗口关闭回执数。
+
+七、八级共有 84 个计分项，另有 A/B 双边对照。在同一个种子上将两个模型的 A、B 共四个目录传给 `w1.paired`，查看 `memory_counterfactual` 中两边都处理正确的应变案件和应保持案件。重复提交同一个版本会失去应变案件正确数。单轮短对照可运行 `python -m w1.memory_control runs/reserve-short --turn 8 --seed 431 --variant A`；千问另选新目录并加 `--model qwen3.8-flash`。只给当前现场与附三次历史授权原文的两组，从相同参考交接状态开始，输出逐字段和整案正确数，独立于九轮正式成绩。
