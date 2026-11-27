@@ -1,0 +1,735 @@
+{
+  "total": 32.95,
+  "observed_points": 32.95,
+  "row_differences": {
+    "corrections.accounts": {
+      "expected_rows": 384,
+      "missing": 384,
+      "extra": 0,
+      "array_present": false
+    },
+    "corrections.audit": {
+      "expected_rows": 1851,
+      "missing": 1851,
+      "extra": 0,
+      "array_present": false
+    },
+    "corrections.totals": {
+      "expected_rows": 3,
+      "missing": 3,
+      "extra": 0,
+      "array_present": false
+    },
+    "corrections.lots": {
+      "expected_rows": 535,
+      "missing": 535,
+      "extra": 0,
+      "array_present": false
+    },
+    "corrections.usage": {
+      "expected_rows": 363,
+      "missing": 363,
+      "extra": 0,
+      "array_present": false
+    },
+    "corrections.travel": {
+      "expected_rows": 33,
+      "missing": 33,
+      "extra": 0,
+      "array_present": false
+    },
+    "close.accounts": {
+      "expected_rows": 384,
+      "missing": 384,
+      "extra": 0,
+      "array_present": false
+    },
+    "close.audit": {
+      "expected_rows": 2043,
+      "missing": 2043,
+      "extra": 0,
+      "array_present": false
+    },
+    "close.totals": {
+      "expected_rows": 3,
+      "missing": 3,
+      "extra": 0,
+      "array_present": false
+    },
+    "close.lots": {
+      "expected_rows": 504,
+      "missing": 504,
+      "extra": 0,
+      "array_present": false
+    },
+    "close.usage": {
+      "expected_rows": 433,
+      "missing": 433,
+      "extra": 0,
+      "array_present": false
+    },
+    "close.travel": {
+      "expected_rows": 24,
+      "missing": 24,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-0.accounts": {
+      "expected_rows": 384,
+      "missing": 384,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-0.audit": {
+      "expected_rows": 796,
+      "missing": 796,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-0.totals": {
+      "expected_rows": 3,
+      "missing": 3,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-0.lots": {
+      "expected_rows": 384,
+      "missing": 384,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-0.usage": {
+      "expected_rows": 204,
+      "missing": 204,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-0.travel": {
+      "expected_rows": 0,
+      "missing": 0,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-1.accounts": {
+      "expected_rows": 384,
+      "missing": 384,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-1.audit": {
+      "expected_rows": 981,
+      "missing": 981,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-1.totals": {
+      "expected_rows": 3,
+      "missing": 3,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-1.lots": {
+      "expected_rows": 439,
+      "missing": 439,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-1.usage": {
+      "expected_rows": 212,
+      "missing": 212,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-1.travel": {
+      "expected_rows": 0,
+      "missing": 0,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-2.accounts": {
+      "expected_rows": 384,
+      "missing": 384,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-2.audit": {
+      "expected_rows": 1157,
+      "missing": 1157,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-2.totals": {
+      "expected_rows": 3,
+      "missing": 3,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-2.lots": {
+      "expected_rows": 527,
+      "missing": 527,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-2.usage": {
+      "expected_rows": 228,
+      "missing": 228,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-2.travel": {
+      "expected_rows": 45,
+      "missing": 45,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-3.accounts": {
+      "expected_rows": 384,
+      "missing": 384,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-3.audit": {
+      "expected_rows": 1168,
+      "missing": 1168,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-3.totals": {
+      "expected_rows": 3,
+      "missing": 3,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-3.lots": {
+      "expected_rows": 484,
+      "missing": 484,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-3.usage": {
+      "expected_rows": 206,
+      "missing": 206,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-3.travel": {
+      "expected_rows": 35,
+      "missing": 35,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-4.accounts": {
+      "expected_rows": 384,
+      "missing": 384,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-4.audit": {
+      "expected_rows": 1101,
+      "missing": 1101,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-4.totals": {
+      "expected_rows": 3,
+      "missing": 3,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-4.lots": {
+      "expected_rows": 493,
+      "missing": 493,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-4.usage": {
+      "expected_rows": 209,
+      "missing": 209,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-4.travel": {
+      "expected_rows": 0,
+      "missing": 0,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-5.accounts": {
+      "expected_rows": 384,
+      "missing": 384,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-5.audit": {
+      "expected_rows": 978,
+      "missing": 978,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-5.totals": {
+      "expected_rows": 3,
+      "missing": 3,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-5.lots": {
+      "expected_rows": 479,
+      "missing": 479,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-5.usage": {
+      "expected_rows": 236,
+      "missing": 236,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-5.travel": {
+      "expected_rows": 0,
+      "missing": 0,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-6.accounts": {
+      "expected_rows": 384,
+      "missing": 384,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-6.audit": {
+      "expected_rows": 869,
+      "missing": 869,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-6.totals": {
+      "expected_rows": 3,
+      "missing": 3,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-6.lots": {
+      "expected_rows": 395,
+      "missing": 395,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-6.usage": {
+      "expected_rows": 212,
+      "missing": 212,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-6.travel": {
+      "expected_rows": 0,
+      "missing": 0,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-7.accounts": {
+      "expected_rows": 384,
+      "missing": 384,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-7.audit": {
+      "expected_rows": 1052,
+      "missing": 1052,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-7.totals": {
+      "expected_rows": 3,
+      "missing": 3,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-7.lots": {
+      "expected_rows": 463,
+      "missing": 463,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-7.usage": {
+      "expected_rows": 228,
+      "missing": 228,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-7.travel": {
+      "expected_rows": 23,
+      "missing": 23,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-8.accounts": {
+      "expected_rows": 384,
+      "missing": 384,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-8.audit": {
+      "expected_rows": 1101,
+      "missing": 1101,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-8.totals": {
+      "expected_rows": 3,
+      "missing": 3,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-8.lots": {
+      "expected_rows": 484,
+      "missing": 484,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-8.usage": {
+      "expected_rows": 206,
+      "missing": 206,
+      "extra": 0,
+      "array_present": false
+    },
+    "archive-8.travel": {
+      "expected_rows": 35,
+      "missing": 35,
+      "extra": 0,
+      "array_present": false
+    },
+    "rerun.0.accounts": {
+      "expected_rows": 384,
+      "missing": 384,
+      "extra": 0,
+      "array_present": false
+    },
+    "rerun.0.audit": {
+      "expected_rows": 2043,
+      "missing": 2043,
+      "extra": 0,
+      "array_present": false
+    },
+    "rerun.0.totals": {
+      "expected_rows": 3,
+      "missing": 3,
+      "extra": 0,
+      "array_present": false
+    },
+    "rerun.0.lots": {
+      "expected_rows": 505,
+      "missing": 505,
+      "extra": 0,
+      "array_present": false
+    },
+    "rerun.0.usage": {
+      "expected_rows": 397,
+      "missing": 397,
+      "extra": 0,
+      "array_present": false
+    },
+    "rerun.0.travel": {
+      "expected_rows": 21,
+      "missing": 21,
+      "extra": 0,
+      "array_present": false
+    },
+    "rerun.0.execution": "command exited 1: t = settle(input_dir, json.load(source))\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/project/settle.py\", line 100, in settle\n    raise ValueError('Invalid units: ' + e['eid'])\nValueError: Invalid units: E6680-01521\n",
+    "rerun.2.accounts": {
+      "expected_rows": 384,
+      "missing": 384,
+      "extra": 0,
+      "array_present": false
+    },
+    "rerun.2.audit": {
+      "expected_rows": 2043,
+      "missing": 2043,
+      "extra": 0,
+      "array_present": false
+    },
+    "rerun.2.totals": {
+      "expected_rows": 3,
+      "missing": 3,
+      "extra": 0,
+      "array_present": false
+    },
+    "rerun.2.lots": {
+      "expected_rows": 520,
+      "missing": 520,
+      "extra": 0,
+      "array_present": false
+    },
+    "rerun.2.usage": {
+      "expected_rows": 411,
+      "missing": 411,
+      "extra": 0,
+      "array_present": false
+    },
+    "rerun.2.travel": {
+      "expected_rows": 18,
+      "missing": 18,
+      "extra": 0,
+      "array_present": false
+    },
+    "rerun.2.execution": "command exited 1: t = settle(input_dir, json.load(source))\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/project/settle.py\", line 100, in settle\n    raise ValueError('Invalid units: ' + e['eid'])\nValueError: Invalid units: E6682-01521\n",
+    "guarantee.decisions": {
+      "expected_rows": 1444,
+      "missing": 1444,
+      "extra": 0,
+      "array_present": false
+    },
+    "guarantee.posted": {
+      "expected_rows": 105,
+      "missing": 105,
+      "extra": 0,
+      "array_present": false
+    },
+    "guarantee.balance": {
+      "expected_rows": 36,
+      "missing": 36,
+      "extra": 0,
+      "array_present": false
+    },
+    "guarantee.rerun.decisions": {
+      "expected_rows": 1463,
+      "missing": 1463,
+      "extra": 0,
+      "array_present": false
+    },
+    "guarantee.rerun.posted": {
+      "expected_rows": 131,
+      "missing": 131,
+      "extra": 0,
+      "array_present": false
+    },
+    "guarantee.rerun.balance": {
+      "expected_rows": 36,
+      "missing": 36,
+      "extra": 0,
+      "array_present": false
+    },
+    "guarantee.rerun.execution": "command exited 2: python3: can't open file '/workspace/project/reserve.py': [Errno 2] No such file or directory\n"
+  },
+  "max": 100,
+  "checks": {
+    "intake.accounts": [
+      1.3499999999999999,
+      1.3499999999999999
+    ],
+    "intake.audit": [
+      1.3499999999999999,
+      1.3499999999999999
+    ],
+    "intake.totals": [
+      0.8999999999999999,
+      0.8999999999999999
+    ],
+    "routing.accounts": [
+      1.7999999999999998,
+      1.7999999999999998
+    ],
+    "routing.audit": [
+      1.7999999999999998,
+      1.7999999999999998
+    ],
+    "routing.totals": [
+      0.8999999999999999,
+      0.8999999999999999
+    ],
+    "cutover.accounts": [
+      2.6999999999999997,
+      2.6999999999999997
+    ],
+    "cutover.audit": [
+      3.1500000000000004,
+      3.1500000000000004
+    ],
+    "cutover.totals": [
+      1.3499999999999999,
+      1.3499999999999999
+    ],
+    "incident.latest": [
+      2.6999999999999997,
+      2.6999999999999997
+    ],
+    "corrections.accounts": [
+      0.0,
+      3.5999999999999996
+    ],
+    "corrections.audit": [
+      0.0,
+      5.3999999999999995
+    ],
+    "corrections.totals": [
+      0.0,
+      1.7999999999999998
+    ],
+    "close.accounts": [
+      0.0,
+      1.3499999999999999
+    ],
+    "close.audit": [
+      0.0,
+      1.3499999999999999
+    ],
+    "close.totals": [
+      0.0,
+      0.8999999999999999
+    ],
+    "archive.cuts": [
+      0.0,
+      3.5999999999999996
+    ],
+    "archive.preserved": [
+      1.7999999999999998,
+      1.7999999999999998
+    ],
+    "rerun.0": [
+      0.0,
+      1.7999999999999998
+    ],
+    "rerun.1": [
+      1.7999999999999998,
+      1.7999999999999998
+    ],
+    "rerun.2": [
+      0.0,
+      1.7999999999999998
+    ],
+    "rerun.3": [
+      1.7999999999999998,
+      1.7999999999999998
+    ],
+    "lineage.intake.lots": [
+      1.3636363636363635,
+      1.3636363636363635
+    ],
+    "lineage.intake.usage": [
+      1.3636363636363635,
+      1.3636363636363635
+    ],
+    "lineage.routing.lots": [
+      1.3636363636363635,
+      1.3636363636363635
+    ],
+    "lineage.routing.usage": [
+      1.3636363636363635,
+      1.3636363636363635
+    ],
+    "lineage.cutover.lots": [
+      1.3636363636363635,
+      1.3636363636363635
+    ],
+    "lineage.cutover.usage": [
+      1.3636363636363635,
+      1.3636363636363635
+    ],
+    "lineage.cutover.travel": [
+      1.3636363636363635,
+      1.3636363636363635
+    ],
+    "lineage.corrections.lots": [
+      0.0,
+      1.3636363636363635
+    ],
+    "lineage.corrections.usage": [
+      0.0,
+      1.3636363636363635
+    ],
+    "lineage.corrections.travel": [
+      0.0,
+      1.3636363636363635
+    ],
+    "lineage.close.lots": [
+      0.0,
+      1.3636363636363635
+    ],
+    "lineage.close.usage": [
+      0.0,
+      1.3636363636363635
+    ],
+    "lineage.close.travel": [
+      0.0,
+      1.3636363636363635
+    ],
+    "lineage.archive-0": [
+      0.0,
+      1.3636363636363635
+    ],
+    "lineage.archive-1": [
+      0.0,
+      1.3636363636363635
+    ],
+    "lineage.archive-2": [
+      0.0,
+      1.3636363636363635
+    ],
+    "lineage.archive-3": [
+      0.0,
+      1.3636363636363635
+    ],
+    "lineage.archive-4": [
+      0.0,
+      1.3636363636363635
+    ],
+    "lineage.archive-5": [
+      0.0,
+      1.3636363636363635
+    ],
+    "lineage.archive-6": [
+      0.0,
+      1.3636363636363635
+    ],
+    "lineage.archive-7": [
+      0.0,
+      1.3636363636363635
+    ],
+    "lineage.archive-8": [
+      0.0,
+      1.3636363636363635
+    ],
+    "guarantee.3.decisions": [
+      0,
+      3
+    ],
+    "guarantee.3.posted": [
+      0,
+      2
+    ],
+    "guarantee.3.balance": [
+      0,
+      2
+    ],
+    "guarantee.6.decisions": [
+      0,
+      3
+    ],
+    "guarantee.6.posted": [
+      0,
+      2
+    ],
+    "guarantee.6.balance": [
+      0,
+      2
+    ],
+    "guarantee.9.decisions": [
+      0,
+      3
+    ],
+    "guarantee.9.posted": [
+      0,
+      2
+    ],
+    "guarantee.9.balance": [
+      0,
+      2
+    ],
+    "guarantee.rerun": [
+      0,
+      4
+    ]
+  },
+  "valid": true,
+  "missing": [],
+  "infrastructure": []
+}

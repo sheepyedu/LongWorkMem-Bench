@@ -1,0 +1,1 @@
+换绑表与当班交接已到，请按新登记结算。 本轮方案 input/jobs/routing.json，交 out/routing.json。入口 python3 project/settle.py INPUT_DIR PLAN_JSON OUTPUT_JSON。 交接通知 handover.txt 仅本轮可阅；请自行保留后续所需的授权信息。

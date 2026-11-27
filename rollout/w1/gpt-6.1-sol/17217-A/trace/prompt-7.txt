@@ -1,0 +1,1 @@
+七月工时双方已移交，依本期放行和在办人事、薪酬制度办理实发。交 out/pay.csv（project,employee,hours,bonus）和 out/time_review.csv（site,ticket），另交 out/bonus.xlsx，Pools 页 project,pool，Pay 页 project,employee,hours,bonus。财务改任一现有行的正工时或正数奖金池后，个人奖金和项目合计须按同一办法自动重算。 两厂交来的均为终端实录，沿用关账时移交的技术口径换算为计薪工时。 本批季度结转与追溯调班按先前签发的合同、联签要求办理，附生效指令表 out/time_transfers.csv。

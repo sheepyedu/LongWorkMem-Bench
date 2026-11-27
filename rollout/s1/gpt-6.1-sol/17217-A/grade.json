@@ -1,0 +1,6891 @@
+{
+  "total": 100.0,
+  "groups": {
+    "4": 14.0,
+    "5": 10.5,
+    "7": 28.0,
+    "8": 17.5,
+    "1": 7.5,
+    "2": 7.5,
+    "3": 7.5,
+    "6": 7.5
+  },
+  "desks": {
+    "区01": {
+      "total": 100.0,
+      "groups": {
+        "4": 14.0,
+        "5": 10.5,
+        "7": 28.0,
+        "8": 17.5,
+        "1": 7.5,
+        "2": 7.5,
+        "3": 7.5,
+        "6": 7.5
+      },
+      "rows": [
+        {
+          "turn": 4,
+          "team": "89",
+          "phase": "预选",
+          "expected": [
+            "P4",
+            "93",
+            "松",
+            "东"
+          ],
+          "actual": [
+            "P4",
+            "93",
+            "松",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "71",
+          "phase": "预选",
+          "expected": [
+            "F1",
+            "66",
+            "杏",
+            "东"
+          ],
+          "actual": [
+            "F1",
+            "66",
+            "杏",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "82",
+          "phase": "预选",
+          "expected": [
+            "P4",
+            "91",
+            "柳",
+            "东"
+          ],
+          "actual": [
+            "P4",
+            "91",
+            "柳",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "93",
+          "phase": "预选",
+          "expected": [
+            "P4",
+            "33",
+            "杏",
+            "东"
+          ],
+          "actual": [
+            "P4",
+            "33",
+            "杏",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "57",
+          "phase": "预选",
+          "expected": [
+            "F4",
+            "56",
+            "柏",
+            "西"
+          ],
+          "actual": [
+            "F4",
+            "56",
+            "柏",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "56",
+          "phase": "预选",
+          "expected": [
+            "F4",
+            "15",
+            "松",
+            "南"
+          ],
+          "actual": [
+            "F4",
+            "15",
+            "松",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "55",
+          "phase": "预选",
+          "expected": [
+            "F4",
+            "97",
+            "柳",
+            "西"
+          ],
+          "actual": [
+            "F4",
+            "97",
+            "柳",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "24",
+          "phase": "邀请",
+          "expected": [
+            "P4",
+            "16",
+            "槐",
+            "北"
+          ],
+          "actual": [
+            "P4",
+            "16",
+            "槐",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "71",
+          "phase": "邀请",
+          "expected": [
+            "F1",
+            "78",
+            "杏",
+            "东"
+          ],
+          "actual": [
+            "F1",
+            "78",
+            "杏",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "42",
+          "phase": "邀请",
+          "expected": [
+            "P4",
+            "21",
+            "桃",
+            "东"
+          ],
+          "actual": [
+            "P4",
+            "21",
+            "桃",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "57",
+          "phase": "邀请",
+          "expected": [
+            "F4",
+            "56",
+            "柏",
+            "北"
+          ],
+          "actual": [
+            "F4",
+            "56",
+            "柏",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "51",
+          "phase": "邀请",
+          "expected": [
+            "F1",
+            "16",
+            "榆",
+            "南"
+          ],
+          "actual": [
+            "F1",
+            "16",
+            "榆",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "38",
+          "phase": "邀请",
+          "expected": [
+            "F1",
+            "95",
+            "杉",
+            "东"
+          ],
+          "actual": [
+            "F1",
+            "95",
+            "杉",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "56",
+          "phase": "邀请",
+          "expected": [
+            "F4",
+            "15",
+            "松",
+            "西"
+          ],
+          "actual": [
+            "F4",
+            "15",
+            "松",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "42",
+          "phase": "决赛",
+          "expected": [
+            "P4",
+            "21",
+            "杏",
+            "南"
+          ],
+          "actual": [
+            "P4",
+            "21",
+            "杏",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "71",
+          "phase": "决赛",
+          "expected": [
+            "F1",
+            "66",
+            "槐",
+            "东"
+          ],
+          "actual": [
+            "F1",
+            "66",
+            "槐",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "35",
+          "phase": "决赛",
+          "expected": [
+            "P4",
+            "41",
+            "松",
+            "西"
+          ],
+          "actual": [
+            "P4",
+            "41",
+            "松",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "19",
+          "phase": "决赛",
+          "expected": [
+            "F4",
+            "49",
+            "松",
+            "东"
+          ],
+          "actual": [
+            "F4",
+            "49",
+            "松",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "24",
+          "phase": "决赛",
+          "expected": [
+            "P4",
+            "16",
+            "柏",
+            "北"
+          ],
+          "actual": [
+            "P4",
+            "16",
+            "柏",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "55",
+          "phase": "决赛",
+          "expected": [
+            "F4",
+            "97",
+            "榆",
+            "东"
+          ],
+          "actual": [
+            "F4",
+            "97",
+            "榆",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "93",
+          "phase": "决赛",
+          "expected": [
+            "P4",
+            "33",
+            "柏",
+            "西"
+          ],
+          "actual": [
+            "P4",
+            "33",
+            "柏",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "19",
+          "phase": "预选",
+          "expected": [
+            "F1",
+            "49",
+            "松",
+            "东"
+          ],
+          "actual": [
+            "F1",
+            "49",
+            "松",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "57",
+          "phase": "邀请",
+          "expected": [
+            "F4",
+            "56",
+            "柏",
+            "北"
+          ],
+          "actual": [
+            "F4",
+            "56",
+            "柏",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "51",
+          "phase": "预选",
+          "expected": [
+            "F1",
+            "40",
+            "榆",
+            "南"
+          ],
+          "actual": [
+            "F1",
+            "40",
+            "榆",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "38",
+          "phase": "邀请",
+          "expected": [
+            "F1",
+            "95",
+            "杉",
+            "东"
+          ],
+          "actual": [
+            "F1",
+            "95",
+            "杉",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "55",
+          "phase": "预选",
+          "expected": [
+            "F4",
+            "97",
+            "柳",
+            "西"
+          ],
+          "actual": [
+            "F4",
+            "97",
+            "柳",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "93",
+          "phase": "邀请",
+          "expected": [
+            "P4",
+            "33",
+            "杏",
+            "西"
+          ],
+          "actual": [
+            "P4",
+            "33",
+            "杏",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "35",
+          "phase": "预选",
+          "expected": [
+            "P4",
+            "39",
+            "杏",
+            "西"
+          ],
+          "actual": [
+            "P4",
+            "39",
+            "杏",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        }
+      ],
+      "register": [
+        {
+          "stage": 1,
+          "phase": "预选",
+          "team": "54",
+          "actual": [
+            "F4",
+            "43",
+            "桃",
+            "北"
+          ],
+          "expected": [
+            "F4",
+            "43",
+            "桃",
+            "北"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 1,
+          "phase": "预选",
+          "team": "35",
+          "actual": [
+            "F1",
+            "39",
+            "杏",
+            "西"
+          ],
+          "expected": [
+            "F1",
+            "39",
+            "杏",
+            "西"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 2,
+          "phase": "决赛",
+          "team": "54",
+          "actual": [
+            "F4",
+            "32",
+            "桃",
+            "北"
+          ],
+          "expected": [
+            "F4",
+            "32",
+            "桃",
+            "北"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 2,
+          "phase": "决赛",
+          "team": "35",
+          "actual": [
+            "P4",
+            "39",
+            "杏",
+            "西"
+          ],
+          "expected": [
+            "P4",
+            "39",
+            "杏",
+            "西"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 3,
+          "phase": "邀请",
+          "team": "51",
+          "actual": [
+            "F1",
+            "16",
+            "榆",
+            "南"
+          ],
+          "expected": [
+            "F1",
+            "16",
+            "榆",
+            "南"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 3,
+          "phase": "邀请",
+          "team": "71",
+          "actual": [
+            "F1",
+            "78",
+            "杏",
+            "东"
+          ],
+          "expected": [
+            "F1",
+            "78",
+            "杏",
+            "东"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 6,
+          "phase": "决赛",
+          "team": "42",
+          "actual": [
+            "P4",
+            "21",
+            "杏",
+            "南"
+          ],
+          "expected": [
+            "P4",
+            "21",
+            "杏",
+            "南"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 6,
+          "phase": "决赛",
+          "team": "24",
+          "actual": [
+            "P4",
+            "16",
+            "柏",
+            "北"
+          ],
+          "expected": [
+            "P4",
+            "16",
+            "柏",
+            "北"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        }
+      ]
+    },
+    "区02": {
+      "total": 100.0,
+      "groups": {
+        "4": 14.0,
+        "5": 10.5,
+        "7": 28.0,
+        "8": 17.5,
+        "1": 7.5,
+        "2": 7.5,
+        "3": 7.5,
+        "6": 7.5
+      },
+      "rows": [
+        {
+          "turn": 4,
+          "team": "36",
+          "phase": "预选",
+          "expected": [
+            "P1",
+            "68",
+            "桃",
+            "西"
+          ],
+          "actual": [
+            "P1",
+            "68",
+            "桃",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "60",
+          "phase": "预选",
+          "expected": [
+            "F1",
+            "58",
+            "杉",
+            "南"
+          ],
+          "actual": [
+            "F1",
+            "58",
+            "杉",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "46",
+          "phase": "预选",
+          "expected": [
+            "P1",
+            "80",
+            "榆",
+            "西"
+          ],
+          "actual": [
+            "P1",
+            "80",
+            "榆",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "29",
+          "phase": "预选",
+          "expected": [
+            "P1",
+            "13",
+            "松",
+            "北"
+          ],
+          "actual": [
+            "P1",
+            "13",
+            "松",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "92",
+          "phase": "预选",
+          "expected": [
+            "P1",
+            "37",
+            "杉",
+            "东"
+          ],
+          "actual": [
+            "P1",
+            "37",
+            "杉",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "80",
+          "phase": "预选",
+          "expected": [
+            "P4",
+            "57",
+            "松",
+            "南"
+          ],
+          "actual": [
+            "P4",
+            "57",
+            "松",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "89",
+          "phase": "预选",
+          "expected": [
+            "F1",
+            "98",
+            "柳",
+            "北"
+          ],
+          "actual": [
+            "F1",
+            "98",
+            "柳",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "29",
+          "phase": "邀请",
+          "expected": [
+            "P1",
+            "88",
+            "松",
+            "北"
+          ],
+          "actual": [
+            "P1",
+            "88",
+            "松",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "46",
+          "phase": "邀请",
+          "expected": [
+            "P1",
+            "67",
+            "榆",
+            "西"
+          ],
+          "actual": [
+            "P1",
+            "67",
+            "榆",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "90",
+          "phase": "邀请",
+          "expected": [
+            "P1",
+            "54",
+            "柏",
+            "西"
+          ],
+          "actual": [
+            "P1",
+            "54",
+            "柏",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "86",
+          "phase": "邀请",
+          "expected": [
+            "P4",
+            "12",
+            "杉",
+            "北"
+          ],
+          "actual": [
+            "P4",
+            "12",
+            "杉",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "75",
+          "phase": "邀请",
+          "expected": [
+            "F1",
+            "11",
+            "松",
+            "东"
+          ],
+          "actual": [
+            "F1",
+            "11",
+            "松",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "44",
+          "phase": "邀请",
+          "expected": [
+            "P1",
+            "29",
+            "槐",
+            "北"
+          ],
+          "actual": [
+            "P1",
+            "29",
+            "槐",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "49",
+          "phase": "邀请",
+          "expected": [
+            "F1",
+            "83",
+            "松",
+            "北"
+          ],
+          "actual": [
+            "F1",
+            "83",
+            "松",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "44",
+          "phase": "决赛",
+          "expected": [
+            "P1",
+            "72",
+            "槐",
+            "东"
+          ],
+          "actual": [
+            "P1",
+            "72",
+            "槐",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "60",
+          "phase": "决赛",
+          "expected": [
+            "F1",
+            "48",
+            "杉",
+            "南"
+          ],
+          "actual": [
+            "F1",
+            "48",
+            "杉",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "86",
+          "phase": "决赛",
+          "expected": [
+            "P1",
+            "71",
+            "杉",
+            "北"
+          ],
+          "actual": [
+            "P1",
+            "71",
+            "杉",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "46",
+          "phase": "决赛",
+          "expected": [
+            "P1",
+            "92",
+            "榆",
+            "西"
+          ],
+          "actual": [
+            "P1",
+            "92",
+            "榆",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "49",
+          "phase": "决赛",
+          "expected": [
+            "F1",
+            "21",
+            "松",
+            "北"
+          ],
+          "actual": [
+            "F1",
+            "21",
+            "松",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "29",
+          "phase": "决赛",
+          "expected": [
+            "P1",
+            "13",
+            "柳",
+            "北"
+          ],
+          "actual": [
+            "P1",
+            "13",
+            "柳",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "36",
+          "phase": "决赛",
+          "expected": [
+            "P1",
+            "68",
+            "桃",
+            "西"
+          ],
+          "actual": [
+            "P1",
+            "68",
+            "桃",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "36",
+          "phase": "预选",
+          "expected": [
+            "P1",
+            "68",
+            "桃",
+            "西"
+          ],
+          "actual": [
+            "P1",
+            "68",
+            "桃",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "80",
+          "phase": "邀请",
+          "expected": [
+            "P4",
+            "73",
+            "松",
+            "南"
+          ],
+          "actual": [
+            "P4",
+            "73",
+            "松",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "92",
+          "phase": "预选",
+          "expected": [
+            "P1",
+            "37",
+            "杉",
+            "东"
+          ],
+          "actual": [
+            "P1",
+            "37",
+            "杉",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "90",
+          "phase": "邀请",
+          "expected": [
+            "P1",
+            "54",
+            "柏",
+            "西"
+          ],
+          "actual": [
+            "P1",
+            "54",
+            "柏",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "86",
+          "phase": "预选",
+          "expected": [
+            "P4",
+            "12",
+            "杉",
+            "北"
+          ],
+          "actual": [
+            "P4",
+            "12",
+            "杉",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "49",
+          "phase": "邀请",
+          "expected": [
+            "F1",
+            "83",
+            "松",
+            "北"
+          ],
+          "actual": [
+            "F1",
+            "83",
+            "松",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "89",
+          "phase": "预选",
+          "expected": [
+            "F1",
+            "98",
+            "柳",
+            "北"
+          ],
+          "actual": [
+            "F1",
+            "98",
+            "柳",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        }
+      ],
+      "register": [
+        {
+          "stage": 1,
+          "phase": "预选",
+          "team": "60",
+          "actual": [
+            "F1",
+            "58",
+            "松",
+            "南"
+          ],
+          "expected": [
+            "F1",
+            "58",
+            "松",
+            "南"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 1,
+          "phase": "预选",
+          "team": "90",
+          "actual": [
+            "P4",
+            "44",
+            "柏",
+            "西"
+          ],
+          "expected": [
+            "P4",
+            "44",
+            "柏",
+            "西"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 2,
+          "phase": "决赛",
+          "team": "29",
+          "actual": [
+            "P1",
+            "13",
+            "松",
+            "北"
+          ],
+          "expected": [
+            "P1",
+            "13",
+            "松",
+            "北"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 2,
+          "phase": "决赛",
+          "team": "73",
+          "actual": [
+            "F4",
+            "49",
+            "杏",
+            "北"
+          ],
+          "expected": [
+            "F4",
+            "49",
+            "杏",
+            "北"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 3,
+          "phase": "邀请",
+          "team": "89",
+          "actual": [
+            "F1",
+            "99",
+            "柳",
+            "北"
+          ],
+          "expected": [
+            "F1",
+            "99",
+            "柳",
+            "北"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 3,
+          "phase": "邀请",
+          "team": "46",
+          "actual": [
+            "P1",
+            "67",
+            "榆",
+            "西"
+          ],
+          "expected": [
+            "P1",
+            "67",
+            "榆",
+            "西"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 6,
+          "phase": "决赛",
+          "team": "29",
+          "actual": [
+            "P1",
+            "13",
+            "柳",
+            "北"
+          ],
+          "expected": [
+            "P1",
+            "13",
+            "柳",
+            "北"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 6,
+          "phase": "决赛",
+          "team": "80",
+          "actual": [
+            "P4",
+            "57",
+            "松",
+            "西"
+          ],
+          "expected": [
+            "P4",
+            "57",
+            "松",
+            "西"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        }
+      ]
+    },
+    "区03": {
+      "total": 100.0,
+      "groups": {
+        "4": 14.0,
+        "5": 10.5,
+        "7": 28.0,
+        "8": 17.5,
+        "1": 7.5,
+        "2": 7.5,
+        "3": 7.5,
+        "6": 7.5
+      },
+      "rows": [
+        {
+          "turn": 4,
+          "team": "78",
+          "phase": "预选",
+          "expected": [
+            "P4",
+            "18",
+            "柏",
+            "南"
+          ],
+          "actual": [
+            "P4",
+            "18",
+            "柏",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "56",
+          "phase": "预选",
+          "expected": [
+            "F1",
+            "19",
+            "榆",
+            "南"
+          ],
+          "actual": [
+            "F1",
+            "19",
+            "榆",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "39",
+          "phase": "预选",
+          "expected": [
+            "P1",
+            "60",
+            "杏",
+            "西"
+          ],
+          "actual": [
+            "P1",
+            "60",
+            "杏",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "79",
+          "phase": "预选",
+          "expected": [
+            "F4",
+            "34",
+            "柏",
+            "东"
+          ],
+          "actual": [
+            "F4",
+            "34",
+            "柏",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "27",
+          "phase": "预选",
+          "expected": [
+            "F4",
+            "97",
+            "榆",
+            "南"
+          ],
+          "actual": [
+            "F4",
+            "97",
+            "榆",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "40",
+          "phase": "预选",
+          "expected": [
+            "F1",
+            "62",
+            "榆",
+            "东"
+          ],
+          "actual": [
+            "F1",
+            "62",
+            "榆",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "10",
+          "phase": "预选",
+          "expected": [
+            "F1",
+            "62",
+            "柏",
+            "南"
+          ],
+          "actual": [
+            "F1",
+            "62",
+            "柏",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "41",
+          "phase": "邀请",
+          "expected": [
+            "P1",
+            "31",
+            "柳",
+            "东"
+          ],
+          "actual": [
+            "P1",
+            "31",
+            "柳",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "79",
+          "phase": "邀请",
+          "expected": [
+            "F4",
+            "34",
+            "柏",
+            "东"
+          ],
+          "actual": [
+            "F4",
+            "34",
+            "柏",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "76",
+          "phase": "邀请",
+          "expected": [
+            "P1",
+            "16",
+            "杏",
+            "西"
+          ],
+          "actual": [
+            "P1",
+            "16",
+            "杏",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "40",
+          "phase": "邀请",
+          "expected": [
+            "F1",
+            "62",
+            "榆",
+            "东"
+          ],
+          "actual": [
+            "F1",
+            "62",
+            "榆",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "56",
+          "phase": "邀请",
+          "expected": [
+            "F1",
+            "19",
+            "榆",
+            "南"
+          ],
+          "actual": [
+            "F1",
+            "19",
+            "榆",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "10",
+          "phase": "邀请",
+          "expected": [
+            "F1",
+            "56",
+            "柏",
+            "南"
+          ],
+          "actual": [
+            "F1",
+            "56",
+            "柏",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "39",
+          "phase": "邀请",
+          "expected": [
+            "P1",
+            "60",
+            "桃",
+            "西"
+          ],
+          "actual": [
+            "P1",
+            "60",
+            "桃",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "40",
+          "phase": "决赛",
+          "expected": [
+            "F1",
+            "62",
+            "榆",
+            "南"
+          ],
+          "actual": [
+            "F1",
+            "62",
+            "榆",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "43",
+          "phase": "决赛",
+          "expected": [
+            "F4",
+            "75",
+            "杏",
+            "北"
+          ],
+          "actual": [
+            "F4",
+            "75",
+            "杏",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "42",
+          "phase": "决赛",
+          "expected": [
+            "P1",
+            "99",
+            "桃",
+            "东"
+          ],
+          "actual": [
+            "P1",
+            "99",
+            "桃",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "78",
+          "phase": "决赛",
+          "expected": [
+            "P4",
+            "18",
+            "榆",
+            "南"
+          ],
+          "actual": [
+            "P4",
+            "18",
+            "榆",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "41",
+          "phase": "决赛",
+          "expected": [
+            "P4",
+            "31",
+            "柳",
+            "东"
+          ],
+          "actual": [
+            "P4",
+            "31",
+            "柳",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "39",
+          "phase": "决赛",
+          "expected": [
+            "P1",
+            "60",
+            "杏",
+            "北"
+          ],
+          "actual": [
+            "P1",
+            "60",
+            "杏",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "56",
+          "phase": "决赛",
+          "expected": [
+            "P4",
+            "19",
+            "榆",
+            "西"
+          ],
+          "actual": [
+            "P4",
+            "19",
+            "榆",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "70",
+          "phase": "预选",
+          "expected": [
+            "F4",
+            "72",
+            "杏",
+            "西"
+          ],
+          "actual": [
+            "F4",
+            "72",
+            "杏",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "39",
+          "phase": "邀请",
+          "expected": [
+            "P1",
+            "60",
+            "桃",
+            "西"
+          ],
+          "actual": [
+            "P1",
+            "60",
+            "桃",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "27",
+          "phase": "预选",
+          "expected": [
+            "F4",
+            "97",
+            "榆",
+            "南"
+          ],
+          "actual": [
+            "F4",
+            "97",
+            "榆",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "40",
+          "phase": "邀请",
+          "expected": [
+            "F1",
+            "62",
+            "榆",
+            "东"
+          ],
+          "actual": [
+            "F1",
+            "62",
+            "榆",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "79",
+          "phase": "预选",
+          "expected": [
+            "F4",
+            "34",
+            "柏",
+            "东"
+          ],
+          "actual": [
+            "F4",
+            "34",
+            "柏",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "10",
+          "phase": "邀请",
+          "expected": [
+            "F1",
+            "56",
+            "柏",
+            "南"
+          ],
+          "actual": [
+            "F1",
+            "56",
+            "柏",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "41",
+          "phase": "预选",
+          "expected": [
+            "P4",
+            "31",
+            "柳",
+            "东"
+          ],
+          "actual": [
+            "P4",
+            "31",
+            "柳",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        }
+      ],
+      "register": [
+        {
+          "stage": 1,
+          "phase": "预选",
+          "team": "42",
+          "actual": [
+            "F1",
+            "99",
+            "桃",
+            "东"
+          ],
+          "expected": [
+            "F1",
+            "99",
+            "桃",
+            "东"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 1,
+          "phase": "预选",
+          "team": "39",
+          "actual": [
+            "F4",
+            "60",
+            "杏",
+            "西"
+          ],
+          "expected": [
+            "F4",
+            "60",
+            "杏",
+            "西"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 2,
+          "phase": "决赛",
+          "team": "76",
+          "actual": [
+            "P1",
+            "16",
+            "杏",
+            "西"
+          ],
+          "expected": [
+            "P1",
+            "16",
+            "杏",
+            "西"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 2,
+          "phase": "决赛",
+          "team": "78",
+          "actual": [
+            "P4",
+            "18",
+            "柏",
+            "北"
+          ],
+          "expected": [
+            "P4",
+            "18",
+            "柏",
+            "北"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 3,
+          "phase": "邀请",
+          "team": "10",
+          "actual": [
+            "F1",
+            "56",
+            "柏",
+            "南"
+          ],
+          "expected": [
+            "F1",
+            "56",
+            "柏",
+            "南"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 3,
+          "phase": "邀请",
+          "team": "76",
+          "actual": [
+            "P1",
+            "16",
+            "杏",
+            "西"
+          ],
+          "expected": [
+            "P1",
+            "16",
+            "杏",
+            "西"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 6,
+          "phase": "决赛",
+          "team": "39",
+          "actual": [
+            "P1",
+            "60",
+            "杏",
+            "北"
+          ],
+          "expected": [
+            "P1",
+            "60",
+            "杏",
+            "北"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 6,
+          "phase": "决赛",
+          "team": "43",
+          "actual": [
+            "F4",
+            "75",
+            "杏",
+            "北"
+          ],
+          "expected": [
+            "F4",
+            "75",
+            "杏",
+            "北"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        }
+      ]
+    },
+    "区04": {
+      "total": 100.0,
+      "groups": {
+        "4": 14.0,
+        "5": 10.5,
+        "7": 28.0,
+        "8": 17.5,
+        "1": 7.5,
+        "2": 7.5,
+        "3": 7.5,
+        "6": 7.5
+      },
+      "rows": [
+        {
+          "turn": 4,
+          "team": "34",
+          "phase": "预选",
+          "expected": [
+            "P4",
+            "48",
+            "松",
+            "东"
+          ],
+          "actual": [
+            "P4",
+            "48",
+            "松",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "32",
+          "phase": "预选",
+          "expected": [
+            "F4",
+            "43",
+            "松",
+            "东"
+          ],
+          "actual": [
+            "F4",
+            "43",
+            "松",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "20",
+          "phase": "预选",
+          "expected": [
+            "F1",
+            "92",
+            "柳",
+            "东"
+          ],
+          "actual": [
+            "F1",
+            "92",
+            "柳",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "59",
+          "phase": "预选",
+          "expected": [
+            "P4",
+            "42",
+            "杏",
+            "东"
+          ],
+          "actual": [
+            "P4",
+            "42",
+            "杏",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "99",
+          "phase": "预选",
+          "expected": [
+            "P1",
+            "74",
+            "杉",
+            "南"
+          ],
+          "actual": [
+            "P1",
+            "74",
+            "杉",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "91",
+          "phase": "预选",
+          "expected": [
+            "P4",
+            "80",
+            "杏",
+            "西"
+          ],
+          "actual": [
+            "P4",
+            "80",
+            "杏",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "26",
+          "phase": "预选",
+          "expected": [
+            "F4",
+            "32",
+            "榆",
+            "东"
+          ],
+          "actual": [
+            "F4",
+            "32",
+            "榆",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "59",
+          "phase": "邀请",
+          "expected": [
+            "P4",
+            "42",
+            "杏",
+            "南"
+          ],
+          "actual": [
+            "P4",
+            "42",
+            "杏",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "34",
+          "phase": "邀请",
+          "expected": [
+            "P4",
+            "48",
+            "松",
+            "东"
+          ],
+          "actual": [
+            "P4",
+            "48",
+            "松",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "94",
+          "phase": "邀请",
+          "expected": [
+            "P1",
+            "17",
+            "杏",
+            "西"
+          ],
+          "actual": [
+            "P1",
+            "17",
+            "杏",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "74",
+          "phase": "邀请",
+          "expected": [
+            "F1",
+            "75",
+            "榆",
+            "南"
+          ],
+          "actual": [
+            "F1",
+            "75",
+            "榆",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "69",
+          "phase": "邀请",
+          "expected": [
+            "P4",
+            "56",
+            "槐",
+            "东"
+          ],
+          "actual": [
+            "P4",
+            "56",
+            "槐",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "66",
+          "phase": "邀请",
+          "expected": [
+            "F4",
+            "81",
+            "柳",
+            "北"
+          ],
+          "actual": [
+            "F4",
+            "81",
+            "柳",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "99",
+          "phase": "邀请",
+          "expected": [
+            "P1",
+            "74",
+            "杉",
+            "东"
+          ],
+          "actual": [
+            "P1",
+            "74",
+            "杉",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "91",
+          "phase": "决赛",
+          "expected": [
+            "P4",
+            "28",
+            "杏",
+            "南"
+          ],
+          "actual": [
+            "P4",
+            "28",
+            "杏",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "59",
+          "phase": "决赛",
+          "expected": [
+            "P4",
+            "42",
+            "柳",
+            "北"
+          ],
+          "actual": [
+            "P4",
+            "42",
+            "柳",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "30",
+          "phase": "决赛",
+          "expected": [
+            "P1",
+            "20",
+            "桃",
+            "西"
+          ],
+          "actual": [
+            "P1",
+            "20",
+            "桃",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "94",
+          "phase": "决赛",
+          "expected": [
+            "P1",
+            "72",
+            "杏",
+            "西"
+          ],
+          "actual": [
+            "P1",
+            "72",
+            "杏",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "71",
+          "phase": "决赛",
+          "expected": [
+            "P1",
+            "33",
+            "槐",
+            "南"
+          ],
+          "actual": [
+            "P1",
+            "33",
+            "槐",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "32",
+          "phase": "决赛",
+          "expected": [
+            "F4",
+            "21",
+            "松",
+            "东"
+          ],
+          "actual": [
+            "F4",
+            "21",
+            "松",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "99",
+          "phase": "决赛",
+          "expected": [
+            "P1",
+            "74",
+            "杉",
+            "南"
+          ],
+          "actual": [
+            "P1",
+            "74",
+            "杉",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "71",
+          "phase": "预选",
+          "expected": [
+            "F1",
+            "32",
+            "槐",
+            "南"
+          ],
+          "actual": [
+            "F1",
+            "32",
+            "槐",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "94",
+          "phase": "邀请",
+          "expected": [
+            "P1",
+            "17",
+            "杏",
+            "西"
+          ],
+          "actual": [
+            "P1",
+            "17",
+            "杏",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "20",
+          "phase": "预选",
+          "expected": [
+            "F1",
+            "92",
+            "柳",
+            "东"
+          ],
+          "actual": [
+            "F1",
+            "92",
+            "柳",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "26",
+          "phase": "邀请",
+          "expected": [
+            "F4",
+            "32",
+            "榆",
+            "东"
+          ],
+          "actual": [
+            "F4",
+            "32",
+            "榆",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "99",
+          "phase": "预选",
+          "expected": [
+            "P1",
+            "74",
+            "杉",
+            "南"
+          ],
+          "actual": [
+            "P1",
+            "74",
+            "杉",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "66",
+          "phase": "邀请",
+          "expected": [
+            "F4",
+            "81",
+            "柳",
+            "北"
+          ],
+          "actual": [
+            "F4",
+            "81",
+            "柳",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "74",
+          "phase": "预选",
+          "expected": [
+            "F1",
+            "75",
+            "柳",
+            "南"
+          ],
+          "actual": [
+            "F1",
+            "75",
+            "柳",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        }
+      ],
+      "register": [
+        {
+          "stage": 1,
+          "phase": "预选",
+          "team": "71",
+          "actual": [
+            "F1",
+            "32",
+            "松",
+            "南"
+          ],
+          "expected": [
+            "F1",
+            "32",
+            "松",
+            "南"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 1,
+          "phase": "预选",
+          "team": "66",
+          "actual": [
+            "F4",
+            "39",
+            "杉",
+            "北"
+          ],
+          "expected": [
+            "F4",
+            "39",
+            "杉",
+            "北"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 2,
+          "phase": "决赛",
+          "team": "99",
+          "actual": [
+            "P1",
+            "74",
+            "杉",
+            "南"
+          ],
+          "expected": [
+            "P1",
+            "74",
+            "杉",
+            "南"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 2,
+          "phase": "决赛",
+          "team": "32",
+          "actual": [
+            "F4",
+            "91",
+            "松",
+            "东"
+          ],
+          "expected": [
+            "F4",
+            "91",
+            "松",
+            "东"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 3,
+          "phase": "邀请",
+          "team": "91",
+          "actual": [
+            "P4",
+            "80",
+            "杏",
+            "西"
+          ],
+          "expected": [
+            "P4",
+            "80",
+            "杏",
+            "西"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 3,
+          "phase": "邀请",
+          "team": "34",
+          "actual": [
+            "P4",
+            "48",
+            "松",
+            "东"
+          ],
+          "expected": [
+            "P4",
+            "48",
+            "松",
+            "东"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 6,
+          "phase": "决赛",
+          "team": "94",
+          "actual": [
+            "P1",
+            "72",
+            "杏",
+            "西"
+          ],
+          "expected": [
+            "P1",
+            "72",
+            "杏",
+            "西"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 6,
+          "phase": "决赛",
+          "team": "99",
+          "actual": [
+            "P1",
+            "74",
+            "杉",
+            "南"
+          ],
+          "expected": [
+            "P1",
+            "74",
+            "杉",
+            "南"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        }
+      ]
+    },
+    "区05": {
+      "total": 100.0,
+      "groups": {
+        "4": 14.0,
+        "5": 10.5,
+        "7": 28.0,
+        "8": 17.5,
+        "1": 7.5,
+        "2": 7.5,
+        "3": 7.5,
+        "6": 7.5
+      },
+      "rows": [
+        {
+          "turn": 4,
+          "team": "84",
+          "phase": "预选",
+          "expected": [
+            "P1",
+            "39",
+            "柳",
+            "北"
+          ],
+          "actual": [
+            "P1",
+            "39",
+            "柳",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "62",
+          "phase": "预选",
+          "expected": [
+            "F1",
+            "66",
+            "杏",
+            "南"
+          ],
+          "actual": [
+            "F1",
+            "66",
+            "杏",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "97",
+          "phase": "预选",
+          "expected": [
+            "F1",
+            "10",
+            "杏",
+            "南"
+          ],
+          "actual": [
+            "F1",
+            "10",
+            "杏",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "69",
+          "phase": "预选",
+          "expected": [
+            "F1",
+            "95",
+            "桃",
+            "西"
+          ],
+          "actual": [
+            "F1",
+            "95",
+            "桃",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "50",
+          "phase": "预选",
+          "expected": [
+            "P1",
+            "32",
+            "杏",
+            "南"
+          ],
+          "actual": [
+            "P1",
+            "32",
+            "杏",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "79",
+          "phase": "预选",
+          "expected": [
+            "F1",
+            "74",
+            "松",
+            "东"
+          ],
+          "actual": [
+            "F1",
+            "74",
+            "松",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "98",
+          "phase": "预选",
+          "expected": [
+            "F1",
+            "10",
+            "松",
+            "北"
+          ],
+          "actual": [
+            "F1",
+            "10",
+            "松",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "97",
+          "phase": "邀请",
+          "expected": [
+            "F1",
+            "19",
+            "杏",
+            "南"
+          ],
+          "actual": [
+            "F1",
+            "19",
+            "杏",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "66",
+          "phase": "邀请",
+          "expected": [
+            "P1",
+            "43",
+            "杏",
+            "东"
+          ],
+          "actual": [
+            "P1",
+            "43",
+            "杏",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "79",
+          "phase": "邀请",
+          "expected": [
+            "F1",
+            "74",
+            "松",
+            "东"
+          ],
+          "actual": [
+            "F1",
+            "74",
+            "松",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "50",
+          "phase": "邀请",
+          "expected": [
+            "P1",
+            "32",
+            "杏",
+            "南"
+          ],
+          "actual": [
+            "P1",
+            "32",
+            "杏",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "84",
+          "phase": "邀请",
+          "expected": [
+            "F4",
+            "39",
+            "柳",
+            "北"
+          ],
+          "actual": [
+            "F4",
+            "39",
+            "柳",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "56",
+          "phase": "邀请",
+          "expected": [
+            "F1",
+            "35",
+            "杉",
+            "东"
+          ],
+          "actual": [
+            "F1",
+            "35",
+            "杉",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "62",
+          "phase": "邀请",
+          "expected": [
+            "F4",
+            "66",
+            "杏",
+            "南"
+          ],
+          "actual": [
+            "F4",
+            "66",
+            "杏",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "98",
+          "phase": "决赛",
+          "expected": [
+            "P1",
+            "10",
+            "松",
+            "北"
+          ],
+          "actual": [
+            "P1",
+            "10",
+            "松",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "69",
+          "phase": "决赛",
+          "expected": [
+            "P4",
+            "46",
+            "槐",
+            "西"
+          ],
+          "actual": [
+            "P4",
+            "46",
+            "槐",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "62",
+          "phase": "决赛",
+          "expected": [
+            "F1",
+            "84",
+            "柳",
+            "南"
+          ],
+          "actual": [
+            "F1",
+            "84",
+            "柳",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "23",
+          "phase": "决赛",
+          "expected": [
+            "F1",
+            "20",
+            "柳",
+            "北"
+          ],
+          "actual": [
+            "F1",
+            "20",
+            "柳",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "79",
+          "phase": "决赛",
+          "expected": [
+            "F1",
+            "74",
+            "松",
+            "东"
+          ],
+          "actual": [
+            "F1",
+            "74",
+            "松",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "45",
+          "phase": "决赛",
+          "expected": [
+            "P1",
+            "15",
+            "柏",
+            "南"
+          ],
+          "actual": [
+            "P1",
+            "15",
+            "柏",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "84",
+          "phase": "决赛",
+          "expected": [
+            "P1",
+            "39",
+            "柳",
+            "北"
+          ],
+          "actual": [
+            "P1",
+            "39",
+            "柳",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "84",
+          "phase": "预选",
+          "expected": [
+            "P1",
+            "39",
+            "柳",
+            "北"
+          ],
+          "actual": [
+            "P1",
+            "39",
+            "柳",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "23",
+          "phase": "邀请",
+          "expected": [
+            "F1",
+            "20",
+            "榆",
+            "北"
+          ],
+          "actual": [
+            "F1",
+            "20",
+            "榆",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "11",
+          "phase": "预选",
+          "expected": [
+            "F1",
+            "22",
+            "榆",
+            "西"
+          ],
+          "actual": [
+            "F1",
+            "22",
+            "榆",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "97",
+          "phase": "邀请",
+          "expected": [
+            "F1",
+            "19",
+            "杏",
+            "南"
+          ],
+          "actual": [
+            "F1",
+            "19",
+            "杏",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "69",
+          "phase": "预选",
+          "expected": [
+            "F1",
+            "95",
+            "桃",
+            "西"
+          ],
+          "actual": [
+            "F1",
+            "95",
+            "桃",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "62",
+          "phase": "邀请",
+          "expected": [
+            "F4",
+            "66",
+            "杏",
+            "南"
+          ],
+          "actual": [
+            "F4",
+            "66",
+            "杏",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "79",
+          "phase": "预选",
+          "expected": [
+            "F1",
+            "74",
+            "松",
+            "东"
+          ],
+          "actual": [
+            "F1",
+            "74",
+            "松",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        }
+      ],
+      "register": [
+        {
+          "stage": 1,
+          "phase": "预选",
+          "team": "69",
+          "actual": [
+            "P4",
+            "95",
+            "柳",
+            "西"
+          ],
+          "expected": [
+            "P4",
+            "95",
+            "柳",
+            "西"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 1,
+          "phase": "预选",
+          "team": "79",
+          "actual": [
+            "F1",
+            "29",
+            "松",
+            "东"
+          ],
+          "expected": [
+            "F1",
+            "29",
+            "松",
+            "东"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 2,
+          "phase": "决赛",
+          "team": "84",
+          "actual": [
+            "P1",
+            "27",
+            "柳",
+            "北"
+          ],
+          "expected": [
+            "P1",
+            "27",
+            "柳",
+            "北"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 2,
+          "phase": "决赛",
+          "team": "62",
+          "actual": [
+            "F1",
+            "66",
+            "杏",
+            "南"
+          ],
+          "expected": [
+            "F1",
+            "66",
+            "杏",
+            "南"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 3,
+          "phase": "邀请",
+          "team": "84",
+          "actual": [
+            "F4",
+            "39",
+            "柳",
+            "北"
+          ],
+          "expected": [
+            "F4",
+            "39",
+            "柳",
+            "北"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 3,
+          "phase": "邀请",
+          "team": "98",
+          "actual": [
+            "F1",
+            "38",
+            "松",
+            "北"
+          ],
+          "expected": [
+            "F1",
+            "38",
+            "松",
+            "北"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 6,
+          "phase": "决赛",
+          "team": "75",
+          "actual": [
+            "F4",
+            "89",
+            "柳",
+            "东"
+          ],
+          "expected": [
+            "F4",
+            "89",
+            "柳",
+            "东"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 6,
+          "phase": "决赛",
+          "team": "26",
+          "actual": [
+            "F4",
+            "78",
+            "柏",
+            "西"
+          ],
+          "expected": [
+            "F4",
+            "78",
+            "柏",
+            "西"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        }
+      ]
+    },
+    "区06": {
+      "total": 100.0,
+      "groups": {
+        "4": 14.0,
+        "5": 10.5,
+        "7": 28.0,
+        "8": 17.5,
+        "1": 7.5,
+        "2": 7.5,
+        "3": 7.5,
+        "6": 7.5
+      },
+      "rows": [
+        {
+          "turn": 4,
+          "team": "28",
+          "phase": "预选",
+          "expected": [
+            "P1",
+            "93",
+            "槐",
+            "南"
+          ],
+          "actual": [
+            "P1",
+            "93",
+            "槐",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "90",
+          "phase": "预选",
+          "expected": [
+            "P4",
+            "15",
+            "松",
+            "西"
+          ],
+          "actual": [
+            "P4",
+            "15",
+            "松",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "83",
+          "phase": "预选",
+          "expected": [
+            "P1",
+            "35",
+            "桃",
+            "东"
+          ],
+          "actual": [
+            "P1",
+            "35",
+            "桃",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "61",
+          "phase": "预选",
+          "expected": [
+            "F4",
+            "94",
+            "杏",
+            "北"
+          ],
+          "actual": [
+            "F4",
+            "94",
+            "杏",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "35",
+          "phase": "预选",
+          "expected": [
+            "P1",
+            "62",
+            "柏",
+            "东"
+          ],
+          "actual": [
+            "P1",
+            "62",
+            "柏",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "33",
+          "phase": "预选",
+          "expected": [
+            "P1",
+            "37",
+            "杉",
+            "西"
+          ],
+          "actual": [
+            "P1",
+            "37",
+            "杉",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "17",
+          "phase": "预选",
+          "expected": [
+            "F1",
+            "30",
+            "柳",
+            "东"
+          ],
+          "actual": [
+            "F1",
+            "30",
+            "柳",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "67",
+          "phase": "邀请",
+          "expected": [
+            "P4",
+            "39",
+            "桃",
+            "东"
+          ],
+          "actual": [
+            "P4",
+            "39",
+            "桃",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "42",
+          "phase": "邀请",
+          "expected": [
+            "P1",
+            "50",
+            "杉",
+            "北"
+          ],
+          "actual": [
+            "P1",
+            "50",
+            "杉",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "70",
+          "phase": "邀请",
+          "expected": [
+            "P1",
+            "84",
+            "榆",
+            "东"
+          ],
+          "actual": [
+            "P1",
+            "84",
+            "榆",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "83",
+          "phase": "邀请",
+          "expected": [
+            "P1",
+            "46",
+            "桃",
+            "东"
+          ],
+          "actual": [
+            "P1",
+            "46",
+            "桃",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "84",
+          "phase": "邀请",
+          "expected": [
+            "P1",
+            "92",
+            "槐",
+            "南"
+          ],
+          "actual": [
+            "P1",
+            "92",
+            "槐",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "17",
+          "phase": "邀请",
+          "expected": [
+            "F1",
+            "30",
+            "柳",
+            "西"
+          ],
+          "actual": [
+            "F1",
+            "30",
+            "柳",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "33",
+          "phase": "邀请",
+          "expected": [
+            "P1",
+            "37",
+            "杉",
+            "北"
+          ],
+          "actual": [
+            "P1",
+            "37",
+            "杉",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "33",
+          "phase": "决赛",
+          "expected": [
+            "P4",
+            "37",
+            "桃",
+            "西"
+          ],
+          "actual": [
+            "P4",
+            "37",
+            "桃",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "90",
+          "phase": "决赛",
+          "expected": [
+            "P4",
+            "15",
+            "柳",
+            "西"
+          ],
+          "actual": [
+            "P4",
+            "15",
+            "柳",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "35",
+          "phase": "决赛",
+          "expected": [
+            "F1",
+            "62",
+            "松",
+            "东"
+          ],
+          "actual": [
+            "F1",
+            "62",
+            "松",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "84",
+          "phase": "决赛",
+          "expected": [
+            "P1",
+            "92",
+            "槐",
+            "北"
+          ],
+          "actual": [
+            "P1",
+            "92",
+            "槐",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "13",
+          "phase": "决赛",
+          "expected": [
+            "F4",
+            "21",
+            "槐",
+            "西"
+          ],
+          "actual": [
+            "F4",
+            "21",
+            "槐",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "28",
+          "phase": "决赛",
+          "expected": [
+            "P1",
+            "93",
+            "槐",
+            "南"
+          ],
+          "actual": [
+            "P1",
+            "93",
+            "槐",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "94",
+          "phase": "决赛",
+          "expected": [
+            "P1",
+            "43",
+            "榆",
+            "西"
+          ],
+          "actual": [
+            "P1",
+            "43",
+            "榆",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "84",
+          "phase": "预选",
+          "expected": [
+            "P1",
+            "92",
+            "槐",
+            "北"
+          ],
+          "actual": [
+            "P1",
+            "92",
+            "槐",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "74",
+          "phase": "邀请",
+          "expected": [
+            "P4",
+            "19",
+            "杏",
+            "北"
+          ],
+          "actual": [
+            "P4",
+            "19",
+            "杏",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "17",
+          "phase": "预选",
+          "expected": [
+            "F1",
+            "30",
+            "柳",
+            "东"
+          ],
+          "actual": [
+            "F1",
+            "30",
+            "柳",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "61",
+          "phase": "邀请",
+          "expected": [
+            "F4",
+            "94",
+            "杏",
+            "北"
+          ],
+          "actual": [
+            "F4",
+            "94",
+            "杏",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "67",
+          "phase": "预选",
+          "expected": [
+            "P4",
+            "40",
+            "桃",
+            "东"
+          ],
+          "actual": [
+            "P4",
+            "40",
+            "桃",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "42",
+          "phase": "邀请",
+          "expected": [
+            "P1",
+            "50",
+            "杉",
+            "北"
+          ],
+          "actual": [
+            "P1",
+            "50",
+            "杉",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "28",
+          "phase": "预选",
+          "expected": [
+            "P1",
+            "93",
+            "槐",
+            "南"
+          ],
+          "actual": [
+            "P1",
+            "93",
+            "槐",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        }
+      ],
+      "register": [
+        {
+          "stage": 1,
+          "phase": "预选",
+          "team": "42",
+          "actual": [
+            "P1",
+            "50",
+            "杉",
+            "北"
+          ],
+          "expected": [
+            "P1",
+            "50",
+            "杉",
+            "北"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 1,
+          "phase": "预选",
+          "team": "74",
+          "actual": [
+            "F1",
+            "19",
+            "杏",
+            "北"
+          ],
+          "expected": [
+            "F1",
+            "19",
+            "杏",
+            "北"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 2,
+          "phase": "决赛",
+          "team": "33",
+          "actual": [
+            "P1",
+            "37",
+            "桃",
+            "西"
+          ],
+          "expected": [
+            "P1",
+            "37",
+            "桃",
+            "西"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 2,
+          "phase": "决赛",
+          "team": "28",
+          "actual": [
+            "P1",
+            "93",
+            "槐",
+            "南"
+          ],
+          "expected": [
+            "P1",
+            "93",
+            "槐",
+            "南"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 3,
+          "phase": "邀请",
+          "team": "61",
+          "actual": [
+            "F4",
+            "94",
+            "杏",
+            "北"
+          ],
+          "expected": [
+            "F4",
+            "94",
+            "杏",
+            "北"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 3,
+          "phase": "邀请",
+          "team": "90",
+          "actual": [
+            "P4",
+            "86",
+            "松",
+            "西"
+          ],
+          "expected": [
+            "P4",
+            "86",
+            "松",
+            "西"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 6,
+          "phase": "决赛",
+          "team": "33",
+          "actual": [
+            "P4",
+            "37",
+            "桃",
+            "西"
+          ],
+          "expected": [
+            "P4",
+            "37",
+            "桃",
+            "西"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 6,
+          "phase": "决赛",
+          "team": "70",
+          "actual": [
+            "P1",
+            "10",
+            "榆",
+            "南"
+          ],
+          "expected": [
+            "P1",
+            "10",
+            "榆",
+            "南"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        }
+      ]
+    },
+    "区07": {
+      "total": 100.0,
+      "groups": {
+        "4": 14.0,
+        "5": 10.5,
+        "7": 28.0,
+        "8": 17.5,
+        "1": 7.5,
+        "2": 7.5,
+        "3": 7.5,
+        "6": 7.5
+      },
+      "rows": [
+        {
+          "turn": 4,
+          "team": "57",
+          "phase": "预选",
+          "expected": [
+            "F4",
+            "97",
+            "柏",
+            "西"
+          ],
+          "actual": [
+            "F4",
+            "97",
+            "柏",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "82",
+          "phase": "预选",
+          "expected": [
+            "P4",
+            "30",
+            "柏",
+            "西"
+          ],
+          "actual": [
+            "P4",
+            "30",
+            "柏",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "59",
+          "phase": "预选",
+          "expected": [
+            "F4",
+            "86",
+            "杉",
+            "南"
+          ],
+          "actual": [
+            "F4",
+            "86",
+            "杉",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "69",
+          "phase": "预选",
+          "expected": [
+            "F1",
+            "47",
+            "桃",
+            "西"
+          ],
+          "actual": [
+            "F1",
+            "47",
+            "桃",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "88",
+          "phase": "预选",
+          "expected": [
+            "F4",
+            "88",
+            "柏",
+            "南"
+          ],
+          "actual": [
+            "F4",
+            "88",
+            "柏",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "45",
+          "phase": "预选",
+          "expected": [
+            "F4",
+            "83",
+            "桃",
+            "南"
+          ],
+          "actual": [
+            "F4",
+            "83",
+            "桃",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "12",
+          "phase": "预选",
+          "expected": [
+            "F1",
+            "54",
+            "杉",
+            "西"
+          ],
+          "actual": [
+            "F1",
+            "54",
+            "杉",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "10",
+          "phase": "邀请",
+          "expected": [
+            "P1",
+            "76",
+            "柏",
+            "北"
+          ],
+          "actual": [
+            "P1",
+            "76",
+            "柏",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "12",
+          "phase": "邀请",
+          "expected": [
+            "F1",
+            "54",
+            "柳",
+            "西"
+          ],
+          "actual": [
+            "F1",
+            "54",
+            "柳",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "88",
+          "phase": "邀请",
+          "expected": [
+            "F4",
+            "88",
+            "柏",
+            "南"
+          ],
+          "actual": [
+            "F4",
+            "88",
+            "柏",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "60",
+          "phase": "邀请",
+          "expected": [
+            "P4",
+            "81",
+            "槐",
+            "东"
+          ],
+          "actual": [
+            "P4",
+            "81",
+            "槐",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "99",
+          "phase": "邀请",
+          "expected": [
+            "F1",
+            "85",
+            "榆",
+            "北"
+          ],
+          "actual": [
+            "F1",
+            "85",
+            "榆",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "42",
+          "phase": "邀请",
+          "expected": [
+            "P1",
+            "28",
+            "柳",
+            "北"
+          ],
+          "actual": [
+            "P1",
+            "28",
+            "柳",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "69",
+          "phase": "邀请",
+          "expected": [
+            "F1",
+            "47",
+            "桃",
+            "西"
+          ],
+          "actual": [
+            "F1",
+            "47",
+            "桃",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "10",
+          "phase": "决赛",
+          "expected": [
+            "P1",
+            "22",
+            "桃",
+            "南"
+          ],
+          "actual": [
+            "P1",
+            "22",
+            "桃",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "88",
+          "phase": "决赛",
+          "expected": [
+            "F4",
+            "88",
+            "柏",
+            "北"
+          ],
+          "actual": [
+            "F4",
+            "88",
+            "柏",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "42",
+          "phase": "决赛",
+          "expected": [
+            "P1",
+            "28",
+            "槐",
+            "北"
+          ],
+          "actual": [
+            "P1",
+            "28",
+            "槐",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "82",
+          "phase": "决赛",
+          "expected": [
+            "P4",
+            "30",
+            "柏",
+            "北"
+          ],
+          "actual": [
+            "P4",
+            "30",
+            "柏",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "38",
+          "phase": "决赛",
+          "expected": [
+            "F4",
+            "38",
+            "杉",
+            "北"
+          ],
+          "actual": [
+            "F4",
+            "38",
+            "杉",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "45",
+          "phase": "决赛",
+          "expected": [
+            "F1",
+            "83",
+            "桃",
+            "南"
+          ],
+          "actual": [
+            "F1",
+            "83",
+            "桃",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "12",
+          "phase": "决赛",
+          "expected": [
+            "F1",
+            "54",
+            "松",
+            "西"
+          ],
+          "actual": [
+            "F1",
+            "54",
+            "松",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "69",
+          "phase": "预选",
+          "expected": [
+            "F1",
+            "47",
+            "桃",
+            "西"
+          ],
+          "actual": [
+            "F1",
+            "47",
+            "桃",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "12",
+          "phase": "邀请",
+          "expected": [
+            "F1",
+            "54",
+            "柳",
+            "西"
+          ],
+          "actual": [
+            "F1",
+            "54",
+            "柳",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "88",
+          "phase": "预选",
+          "expected": [
+            "F4",
+            "88",
+            "柏",
+            "南"
+          ],
+          "actual": [
+            "F4",
+            "88",
+            "柏",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "82",
+          "phase": "邀请",
+          "expected": [
+            "P4",
+            "30",
+            "柏",
+            "南"
+          ],
+          "actual": [
+            "P4",
+            "30",
+            "柏",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "59",
+          "phase": "预选",
+          "expected": [
+            "F4",
+            "86",
+            "杉",
+            "南"
+          ],
+          "actual": [
+            "F4",
+            "86",
+            "杉",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "58",
+          "phase": "邀请",
+          "expected": [
+            "P1",
+            "42",
+            "槐",
+            "西"
+          ],
+          "actual": [
+            "P1",
+            "42",
+            "槐",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "10",
+          "phase": "预选",
+          "expected": [
+            "P1",
+            "76",
+            "桃",
+            "北"
+          ],
+          "actual": [
+            "P1",
+            "76",
+            "桃",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        }
+      ],
+      "register": [
+        {
+          "stage": 1,
+          "phase": "预选",
+          "team": "58",
+          "actual": [
+            "F1",
+            "42",
+            "槐",
+            "北"
+          ],
+          "expected": [
+            "F1",
+            "42",
+            "槐",
+            "北"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 1,
+          "phase": "预选",
+          "team": "69",
+          "actual": [
+            "F1",
+            "47",
+            "榆",
+            "西"
+          ],
+          "expected": [
+            "F1",
+            "47",
+            "榆",
+            "西"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 2,
+          "phase": "决赛",
+          "team": "58",
+          "actual": [
+            "F1",
+            "42",
+            "槐",
+            "西"
+          ],
+          "expected": [
+            "F1",
+            "42",
+            "槐",
+            "西"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 2,
+          "phase": "决赛",
+          "team": "60",
+          "actual": [
+            "F4",
+            "81",
+            "槐",
+            "东"
+          ],
+          "expected": [
+            "F4",
+            "81",
+            "槐",
+            "东"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 3,
+          "phase": "邀请",
+          "team": "82",
+          "actual": [
+            "P4",
+            "30",
+            "柏",
+            "南"
+          ],
+          "expected": [
+            "P4",
+            "30",
+            "柏",
+            "南"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 3,
+          "phase": "邀请",
+          "team": "10",
+          "actual": [
+            "P1",
+            "76",
+            "柏",
+            "北"
+          ],
+          "expected": [
+            "P1",
+            "76",
+            "柏",
+            "北"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 6,
+          "phase": "决赛",
+          "team": "88",
+          "actual": [
+            "F4",
+            "88",
+            "柏",
+            "北"
+          ],
+          "expected": [
+            "F4",
+            "88",
+            "柏",
+            "北"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 6,
+          "phase": "决赛",
+          "team": "82",
+          "actual": [
+            "P4",
+            "30",
+            "柏",
+            "北"
+          ],
+          "expected": [
+            "P4",
+            "30",
+            "柏",
+            "北"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        }
+      ]
+    },
+    "区08": {
+      "total": 100.0,
+      "groups": {
+        "4": 14.0,
+        "5": 10.5,
+        "7": 28.0,
+        "8": 17.5,
+        "1": 7.5,
+        "2": 7.5,
+        "3": 7.5,
+        "6": 7.5
+      },
+      "rows": [
+        {
+          "turn": 4,
+          "team": "96",
+          "phase": "预选",
+          "expected": [
+            "F4",
+            "21",
+            "杉",
+            "北"
+          ],
+          "actual": [
+            "F4",
+            "21",
+            "杉",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "45",
+          "phase": "预选",
+          "expected": [
+            "P4",
+            "88",
+            "杏",
+            "北"
+          ],
+          "actual": [
+            "P4",
+            "88",
+            "杏",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "49",
+          "phase": "预选",
+          "expected": [
+            "F1",
+            "27",
+            "柳",
+            "北"
+          ],
+          "actual": [
+            "F1",
+            "27",
+            "柳",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "17",
+          "phase": "预选",
+          "expected": [
+            "P1",
+            "17",
+            "柏",
+            "北"
+          ],
+          "actual": [
+            "P1",
+            "17",
+            "柏",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "59",
+          "phase": "预选",
+          "expected": [
+            "P4",
+            "16",
+            "杉",
+            "东"
+          ],
+          "actual": [
+            "P4",
+            "16",
+            "杉",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "50",
+          "phase": "预选",
+          "expected": [
+            "P1",
+            "21",
+            "槐",
+            "北"
+          ],
+          "actual": [
+            "P1",
+            "21",
+            "槐",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "24",
+          "phase": "预选",
+          "expected": [
+            "P1",
+            "45",
+            "杏",
+            "南"
+          ],
+          "actual": [
+            "P1",
+            "45",
+            "杏",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "68",
+          "phase": "邀请",
+          "expected": [
+            "P4",
+            "69",
+            "槐",
+            "东"
+          ],
+          "actual": [
+            "P4",
+            "69",
+            "槐",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "13",
+          "phase": "邀请",
+          "expected": [
+            "F1",
+            "76",
+            "松",
+            "东"
+          ],
+          "actual": [
+            "F1",
+            "76",
+            "松",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "11",
+          "phase": "邀请",
+          "expected": [
+            "P1",
+            "28",
+            "松",
+            "北"
+          ],
+          "actual": [
+            "P1",
+            "28",
+            "松",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "50",
+          "phase": "邀请",
+          "expected": [
+            "P4",
+            "21",
+            "槐",
+            "北"
+          ],
+          "actual": [
+            "P4",
+            "21",
+            "槐",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "66",
+          "phase": "邀请",
+          "expected": [
+            "P1",
+            "67",
+            "杏",
+            "东"
+          ],
+          "actual": [
+            "P1",
+            "67",
+            "杏",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "59",
+          "phase": "邀请",
+          "expected": [
+            "P4",
+            "16",
+            "杉",
+            "南"
+          ],
+          "actual": [
+            "P4",
+            "16",
+            "杉",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "18",
+          "phase": "邀请",
+          "expected": [
+            "F4",
+            "95",
+            "杉",
+            "西"
+          ],
+          "actual": [
+            "F4",
+            "95",
+            "杉",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "59",
+          "phase": "决赛",
+          "expected": [
+            "P4",
+            "16",
+            "杉",
+            "东"
+          ],
+          "actual": [
+            "P4",
+            "16",
+            "杉",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "15",
+          "phase": "决赛",
+          "expected": [
+            "F4",
+            "12",
+            "松",
+            "北"
+          ],
+          "actual": [
+            "F4",
+            "12",
+            "松",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "45",
+          "phase": "决赛",
+          "expected": [
+            "P4",
+            "88",
+            "榆",
+            "南"
+          ],
+          "actual": [
+            "P4",
+            "88",
+            "榆",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "49",
+          "phase": "决赛",
+          "expected": [
+            "F1",
+            "27",
+            "柳",
+            "北"
+          ],
+          "actual": [
+            "F1",
+            "27",
+            "柳",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "68",
+          "phase": "决赛",
+          "expected": [
+            "P4",
+            "51",
+            "柳",
+            "东"
+          ],
+          "actual": [
+            "P4",
+            "51",
+            "柳",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "50",
+          "phase": "决赛",
+          "expected": [
+            "P1",
+            "21",
+            "柳",
+            "北"
+          ],
+          "actual": [
+            "P1",
+            "21",
+            "柳",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "66",
+          "phase": "决赛",
+          "expected": [
+            "P1",
+            "98",
+            "杏",
+            "东"
+          ],
+          "actual": [
+            "P1",
+            "98",
+            "杏",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "96",
+          "phase": "预选",
+          "expected": [
+            "F4",
+            "21",
+            "杉",
+            "北"
+          ],
+          "actual": [
+            "F4",
+            "21",
+            "杉",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "68",
+          "phase": "邀请",
+          "expected": [
+            "P4",
+            "69",
+            "槐",
+            "东"
+          ],
+          "actual": [
+            "P4",
+            "69",
+            "槐",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "50",
+          "phase": "预选",
+          "expected": [
+            "P1",
+            "21",
+            "槐",
+            "北"
+          ],
+          "actual": [
+            "P1",
+            "21",
+            "槐",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "66",
+          "phase": "邀请",
+          "expected": [
+            "P1",
+            "67",
+            "杏",
+            "东"
+          ],
+          "actual": [
+            "P1",
+            "67",
+            "杏",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "24",
+          "phase": "预选",
+          "expected": [
+            "P1",
+            "45",
+            "杏",
+            "南"
+          ],
+          "actual": [
+            "P1",
+            "45",
+            "杏",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "45",
+          "phase": "邀请",
+          "expected": [
+            "P4",
+            "88",
+            "杏",
+            "北"
+          ],
+          "actual": [
+            "P4",
+            "88",
+            "杏",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "17",
+          "phase": "预选",
+          "expected": [
+            "P1",
+            "17",
+            "柏",
+            "北"
+          ],
+          "actual": [
+            "P1",
+            "17",
+            "柏",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        }
+      ],
+      "register": [
+        {
+          "stage": 1,
+          "phase": "预选",
+          "team": "68",
+          "actual": [
+            "P4",
+            "69",
+            "桃",
+            "东"
+          ],
+          "expected": [
+            "P4",
+            "69",
+            "桃",
+            "东"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 1,
+          "phase": "预选",
+          "team": "59",
+          "actual": [
+            "P4",
+            "43",
+            "杉",
+            "东"
+          ],
+          "expected": [
+            "P4",
+            "43",
+            "杉",
+            "东"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 2,
+          "phase": "决赛",
+          "team": "66",
+          "actual": [
+            "P1",
+            "98",
+            "杏",
+            "东"
+          ],
+          "expected": [
+            "P1",
+            "98",
+            "杏",
+            "东"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 2,
+          "phase": "决赛",
+          "team": "51",
+          "actual": [
+            "F1",
+            "68",
+            "松",
+            "南"
+          ],
+          "expected": [
+            "F1",
+            "68",
+            "松",
+            "南"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 3,
+          "phase": "邀请",
+          "team": "50",
+          "actual": [
+            "P4",
+            "21",
+            "槐",
+            "北"
+          ],
+          "expected": [
+            "P4",
+            "21",
+            "槐",
+            "北"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 3,
+          "phase": "邀请",
+          "team": "24",
+          "actual": [
+            "P1",
+            "45",
+            "杏",
+            "西"
+          ],
+          "expected": [
+            "P1",
+            "45",
+            "杏",
+            "西"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 6,
+          "phase": "决赛",
+          "team": "59",
+          "actual": [
+            "P4",
+            "16",
+            "杉",
+            "东"
+          ],
+          "expected": [
+            "P4",
+            "16",
+            "杉",
+            "东"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 6,
+          "phase": "决赛",
+          "team": "15",
+          "actual": [
+            "F4",
+            "12",
+            "松",
+            "北"
+          ],
+          "expected": [
+            "F4",
+            "12",
+            "松",
+            "北"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        }
+      ]
+    },
+    "区09": {
+      "total": 100.0,
+      "groups": {
+        "4": 14.0,
+        "5": 10.5,
+        "7": 28.0,
+        "8": 17.5,
+        "1": 7.5,
+        "2": 7.5,
+        "3": 7.5,
+        "6": 7.5
+      },
+      "rows": [
+        {
+          "turn": 4,
+          "team": "81",
+          "phase": "预选",
+          "expected": [
+            "P1",
+            "25",
+            "杉",
+            "东"
+          ],
+          "actual": [
+            "P1",
+            "25",
+            "杉",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "40",
+          "phase": "预选",
+          "expected": [
+            "F4",
+            "79",
+            "柏",
+            "南"
+          ],
+          "actual": [
+            "F4",
+            "79",
+            "柏",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "59",
+          "phase": "预选",
+          "expected": [
+            "F1",
+            "74",
+            "杉",
+            "北"
+          ],
+          "actual": [
+            "F1",
+            "74",
+            "杉",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "20",
+          "phase": "预选",
+          "expected": [
+            "P1",
+            "70",
+            "杏",
+            "东"
+          ],
+          "actual": [
+            "P1",
+            "70",
+            "杏",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "59",
+          "phase": "邀请",
+          "expected": [
+            "F1",
+            "46",
+            "杉",
+            "北"
+          ],
+          "actual": [
+            "F1",
+            "46",
+            "杉",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "40",
+          "phase": "邀请",
+          "expected": [
+            "F4",
+            "79",
+            "杉",
+            "南"
+          ],
+          "actual": [
+            "F4",
+            "79",
+            "杉",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "20",
+          "phase": "邀请",
+          "expected": [
+            "P1",
+            "70",
+            "杏",
+            "东"
+          ],
+          "actual": [
+            "P1",
+            "70",
+            "杏",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "27",
+          "phase": "邀请",
+          "expected": [
+            "F1",
+            "96",
+            "榆",
+            "北"
+          ],
+          "actual": [
+            "F1",
+            "96",
+            "榆",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "59",
+          "phase": "决赛",
+          "expected": [
+            "F1",
+            "74",
+            "槐",
+            "北"
+          ],
+          "actual": [
+            "F1",
+            "74",
+            "槐",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "20",
+          "phase": "决赛",
+          "expected": [
+            "P1",
+            "70",
+            "槐",
+            "东"
+          ],
+          "actual": [
+            "P1",
+            "70",
+            "槐",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "81",
+          "phase": "决赛",
+          "expected": [
+            "P1",
+            "25",
+            "榆",
+            "东"
+          ],
+          "actual": [
+            "P1",
+            "25",
+            "榆",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "42",
+          "phase": "决赛",
+          "expected": [
+            "F1",
+            "63",
+            "杏",
+            "东"
+          ],
+          "actual": [
+            "F1",
+            "63",
+            "杏",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "20",
+          "phase": "预选",
+          "expected": [
+            "P1",
+            "70",
+            "杏",
+            "东"
+          ],
+          "actual": [
+            "P1",
+            "70",
+            "杏",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "42",
+          "phase": "邀请",
+          "expected": [
+            "F1",
+            "22",
+            "槐",
+            "东"
+          ],
+          "actual": [
+            "F1",
+            "22",
+            "槐",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "81",
+          "phase": "预选",
+          "expected": [
+            "P1",
+            "25",
+            "杉",
+            "东"
+          ],
+          "actual": [
+            "P1",
+            "25",
+            "杉",
+            "东"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "40",
+          "phase": "邀请",
+          "expected": [
+            "F4",
+            "79",
+            "杉",
+            "南"
+          ],
+          "actual": [
+            "F4",
+            "79",
+            "杉",
+            "南"
+          ],
+          "kit": true,
+          "delivery": true
+        }
+      ],
+      "register": [
+        {
+          "stage": 1,
+          "phase": "预选",
+          "team": "20",
+          "actual": [
+            "P1",
+            "70",
+            "杏",
+            "东"
+          ],
+          "expected": [
+            "P1",
+            "70",
+            "杏",
+            "东"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 1,
+          "phase": "预选",
+          "team": "40",
+          "actual": [
+            "P1",
+            "79",
+            "柏",
+            "南"
+          ],
+          "expected": [
+            "P1",
+            "79",
+            "柏",
+            "南"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 2,
+          "phase": "决赛",
+          "team": "20",
+          "actual": [
+            "P1",
+            "70",
+            "杏",
+            "东"
+          ],
+          "expected": [
+            "P1",
+            "70",
+            "杏",
+            "东"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 2,
+          "phase": "决赛",
+          "team": "81",
+          "actual": [
+            "F4",
+            "25",
+            "杉",
+            "东"
+          ],
+          "expected": [
+            "F4",
+            "25",
+            "杉",
+            "东"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 3,
+          "phase": "邀请",
+          "team": "27",
+          "actual": [
+            "F1",
+            "96",
+            "榆",
+            "北"
+          ],
+          "expected": [
+            "F1",
+            "96",
+            "榆",
+            "北"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 3,
+          "phase": "邀请",
+          "team": "42",
+          "actual": [
+            "F1",
+            "22",
+            "槐",
+            "东"
+          ],
+          "expected": [
+            "F1",
+            "22",
+            "槐",
+            "东"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 6,
+          "phase": "决赛",
+          "team": "42",
+          "actual": [
+            "F1",
+            "63",
+            "杏",
+            "东"
+          ],
+          "expected": [
+            "F1",
+            "63",
+            "杏",
+            "东"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 6,
+          "phase": "决赛",
+          "team": "81",
+          "actual": [
+            "P1",
+            "25",
+            "榆",
+            "东"
+          ],
+          "expected": [
+            "P1",
+            "25",
+            "榆",
+            "东"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        }
+      ]
+    },
+    "区10": {
+      "total": 100.0,
+      "groups": {
+        "4": 14.0,
+        "5": 10.5,
+        "7": 28.0,
+        "8": 17.5,
+        "1": 7.5,
+        "2": 7.5,
+        "3": 7.5,
+        "6": 7.5
+      },
+      "rows": [
+        {
+          "turn": 4,
+          "team": "20",
+          "phase": "预选",
+          "expected": [
+            "F4",
+            "84",
+            "槐",
+            "北"
+          ],
+          "actual": [
+            "F4",
+            "84",
+            "槐",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "24",
+          "phase": "预选",
+          "expected": [
+            "P1",
+            "97",
+            "松",
+            "西"
+          ],
+          "actual": [
+            "P1",
+            "97",
+            "松",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "12",
+          "phase": "预选",
+          "expected": [
+            "P1",
+            "15",
+            "杉",
+            "西"
+          ],
+          "actual": [
+            "P1",
+            "15",
+            "杉",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 4,
+          "team": "80",
+          "phase": "预选",
+          "expected": [
+            "F4",
+            "78",
+            "榆",
+            "北"
+          ],
+          "actual": [
+            "F4",
+            "78",
+            "榆",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "12",
+          "phase": "邀请",
+          "expected": [
+            "P1",
+            "15",
+            "杉",
+            "西"
+          ],
+          "actual": [
+            "P1",
+            "15",
+            "杉",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "97",
+          "phase": "邀请",
+          "expected": [
+            "F4",
+            "27",
+            "杏",
+            "西"
+          ],
+          "actual": [
+            "F4",
+            "27",
+            "杏",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "54",
+          "phase": "邀请",
+          "expected": [
+            "F4",
+            "81",
+            "柳",
+            "北"
+          ],
+          "actual": [
+            "F4",
+            "81",
+            "柳",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 5,
+          "team": "80",
+          "phase": "邀请",
+          "expected": [
+            "F4",
+            "78",
+            "柏",
+            "北"
+          ],
+          "actual": [
+            "F4",
+            "78",
+            "柏",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "80",
+          "phase": "决赛",
+          "expected": [
+            "F1",
+            "78",
+            "榆",
+            "北"
+          ],
+          "actual": [
+            "F1",
+            "78",
+            "榆",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "20",
+          "phase": "决赛",
+          "expected": [
+            "F4",
+            "84",
+            "槐",
+            "北"
+          ],
+          "actual": [
+            "F4",
+            "84",
+            "槐",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "97",
+          "phase": "决赛",
+          "expected": [
+            "F4",
+            "32",
+            "杏",
+            "北"
+          ],
+          "actual": [
+            "F4",
+            "32",
+            "杏",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 7,
+          "team": "24",
+          "phase": "决赛",
+          "expected": [
+            "P4",
+            "97",
+            "松",
+            "西"
+          ],
+          "actual": [
+            "P4",
+            "97",
+            "松",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "20",
+          "phase": "预选",
+          "expected": [
+            "F4",
+            "84",
+            "槐",
+            "北"
+          ],
+          "actual": [
+            "F4",
+            "84",
+            "槐",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "97",
+          "phase": "邀请",
+          "expected": [
+            "F4",
+            "27",
+            "杏",
+            "西"
+          ],
+          "actual": [
+            "F4",
+            "27",
+            "杏",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "24",
+          "phase": "预选",
+          "expected": [
+            "P1",
+            "97",
+            "松",
+            "西"
+          ],
+          "actual": [
+            "P1",
+            "97",
+            "松",
+            "西"
+          ],
+          "kit": true,
+          "delivery": true
+        },
+        {
+          "turn": 8,
+          "team": "80",
+          "phase": "邀请",
+          "expected": [
+            "F4",
+            "78",
+            "柏",
+            "北"
+          ],
+          "actual": [
+            "F4",
+            "78",
+            "柏",
+            "北"
+          ],
+          "kit": true,
+          "delivery": true
+        }
+      ],
+      "register": [
+        {
+          "stage": 1,
+          "phase": "预选",
+          "team": "97",
+          "actual": [
+            "P1",
+            "27",
+            "杉",
+            "西"
+          ],
+          "expected": [
+            "P1",
+            "27",
+            "杉",
+            "西"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 1,
+          "phase": "预选",
+          "team": "80",
+          "actual": [
+            "F4",
+            "50",
+            "榆",
+            "北"
+          ],
+          "expected": [
+            "F4",
+            "50",
+            "榆",
+            "北"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 2,
+          "phase": "决赛",
+          "team": "12",
+          "actual": [
+            "P1",
+            "15",
+            "槐",
+            "西"
+          ],
+          "expected": [
+            "P1",
+            "15",
+            "槐",
+            "西"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 2,
+          "phase": "决赛",
+          "team": "80",
+          "actual": [
+            "F4",
+            "78",
+            "榆",
+            "北"
+          ],
+          "expected": [
+            "F4",
+            "78",
+            "榆",
+            "北"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 3,
+          "phase": "邀请",
+          "team": "80",
+          "actual": [
+            "F4",
+            "78",
+            "柏",
+            "北"
+          ],
+          "expected": [
+            "F4",
+            "78",
+            "柏",
+            "北"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 3,
+          "phase": "邀请",
+          "team": "20",
+          "actual": [
+            "F4",
+            "84",
+            "槐",
+            "北"
+          ],
+          "expected": [
+            "F4",
+            "84",
+            "槐",
+            "北"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 6,
+          "phase": "决赛",
+          "team": "12",
+          "actual": [
+            "P1",
+            "97",
+            "杉",
+            "西"
+          ],
+          "expected": [
+            "P1",
+            "97",
+            "杉",
+            "西"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": 6,
+          "phase": "决赛",
+          "team": "54",
+          "actual": [
+            "F4",
+            "23",
+            "松",
+            "北"
+          ],
+          "expected": [
+            "F4",
+            "23",
+            "松",
+            "北"
+          ],
+          "correct": [
+            true,
+            true,
+            true,
+            true
+          ]
+        }
+      ]
+    }
+  },
+  "registration_points": 30.0,
+  "outcome_points": 70.0
+}

@@ -1,0 +1,1 @@
+跨台调拨已上线，核对各站发来的两联单。 本轮方案 input/jobs/cutover.json，交 out/cutover.json。入口 python3 project/settle.py INPUT_DIR PLAN_JSON OUTPUT_JSON。 保证金台本轮另送一张分组授权通知 input/guarantee-window.csv，仅本轮可阅；请保留每版及其生效、截止、渠道、额度，日后可能需处理历史来件。

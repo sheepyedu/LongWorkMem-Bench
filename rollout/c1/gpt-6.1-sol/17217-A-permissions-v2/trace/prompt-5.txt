@@ -1,0 +1,1 @@
+新班组上岗。请根据工位的源码、交付和前班笔记接手。 回到工单。迟到的补正、撤令和处理约定已到，请按已签口径完成本批。 本轮方案 input/jobs/corrections.json，交 out/corrections.json。入口 python3 project/settle.py INPUT_DIR PLAN_JSON OUTPUT_JSON。

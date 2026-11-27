@@ -1,0 +1,429 @@
+{
+  "scorer_version": "w1-advanced/4",
+  "level": 8,
+  "seed": 17217,
+  "variant": "A",
+  "max": 100,
+  "total": 87.525,
+  "items": {
+    "round.1": {
+      "department": "process",
+      "title": "首批订单、收货、发票及待认领底稿",
+      "earned": 3.0,
+      "max": 3,
+      "evidence": {
+        "ledger.initial.orders": {
+          "earned": 1.0,
+          "max": 1,
+          "reason": "R1/current.csv: site,po,line,project,ordered; site matched ['南港', '江东', '江北', '西港'] / ['南港', '江东', '江北', '西港']"
+        },
+        "ledger.initial.warehouse": {
+          "earned": 1.5,
+          "max": 1.5,
+          "reason": "R1/current.csv: site,po,line,net; site matched ['南港', '江东', '江北', '西港'] / ['南港', '江东', '江北', '西港']"
+        },
+        "ledger.initial.invoices": {
+          "earned": 1.5,
+          "max": 1.5,
+          "reason": "R1/current.csv: site,po,line,invoiced_amount; site matched ['南港', '江东', '江北', '西港'] / ['南港', '江东', '江北', '西港']"
+        },
+        "ledger.initial.exceptions": {
+          "earned": 1.0,
+          "max": 1,
+          "reason": "R1/current.csv: site,po,line,qty_diff,amount_diff,flags; site matched ['南港', '江东', '江北', '西港'] / ['南港', '江东', '江北', '西港']"
+        },
+        "ledger.initial.unclaimed": {
+          "earned": 1.0,
+          "max": 1,
+          "reason": "R1/unclaimed.csv: site,source,id,po,line; site matched ['南港', '江东', '江北', '西港'] / ['南港', '江东', '江北', '西港']"
+        },
+        "ledger.consignment.initial": {
+          "earned": 1.0,
+          "max": 1,
+          "reason": "status 112/112, status with exact ticket membership 112/112"
+        }
+      }
+    },
+    "round.2": {
+      "department": "process",
+      "title": "六月补件与首询的真实投递",
+      "earned": 2.0,
+      "max": 4,
+      "evidence": {
+        "ledger.amended.exceptions": {
+          "earned": 0.0,
+          "max": 1,
+          "reason": "R2/current.csv: site,po,line,qty_diff,amount_diff,flags; site matched [] / ['南港', '江东', '江北', '西港']"
+        },
+        "ledger.amended.unclaimed": {
+          "earned": 2.0,
+          "max": 2,
+          "reason": "R2/unclaimed.csv: site,source,id,po,line; site matched ['南港', '江东', '江北', '西港'] / ['南港', '江东', '江北', '西港']"
+        },
+        "mail4.r2_route": {
+          "earned": 1.0,
+          "max": 1,
+          "reason": "2/2 desks: 江北, 西港"
+        },
+        "mail4.r2_content": {
+          "earned": 0.0,
+          "max": 1,
+          "reason": "0/2 desks: "
+        }
+      }
+    },
+    "round.3": {
+      "department": "process",
+      "title": "定版六月实报件并移交有效人事索引",
+      "earned": 3.0,
+      "max": 3,
+      "evidence": {
+        "ledger.freeze.reported": {
+          "earned": 1.5,
+          "max": 1.5,
+          "reason": "R3 archive compared with filed R2 ledger and queue"
+        },
+        "ledger.consignment.freeze.reported": {
+          "earned": 0.5,
+          "max": 0.5,
+          "reason": "Compare actual per-bill filing across custody checkpoints"
+        },
+        "pay.archive_coverage": {
+          "earned": 1.0,
+          "max": 1,
+          "reason": "R3 unique plant/badge/validity windows 96/96"
+        },
+        "pay.archive_employee": {
+          "earned": 1.0,
+          "max": 1,
+          "reason": "R3 historical employee 96/96"
+        },
+        "pay.archive_contract": {
+          "earned": 2.0,
+          "max": 2,
+          "reason": "R3 signed contract and ratio 96/96"
+        }
+      }
+    },
+    "round.4": {
+      "department": "process",
+      "title": "按实际报送版生成会议简报与优先单",
+      "earned": 3.0,
+      "max": 3,
+      "evidence": {
+        "ledger.meeting.counts": {
+          "earned": 3.0,
+          "max": 3,
+          "reason": "R4/meeting.csv: project,total_lines,exception_lines,qty_lines,amount_lines; project matched ['丙', '乙', '甲'] / ['丙', '乙', '甲']"
+        },
+        "ledger.meeting.exposure": {
+          "earned": 2.0,
+          "max": 2,
+          "reason": "R4/meeting.csv: project,exposure; project matched ['丙', '乙', '甲'] / ['丙', '乙', '甲']"
+        },
+        "ledger.meeting.priority": {
+          "earned": 3.0,
+          "max": 3,
+          "reason": "R4/priority.csv: project,rank,site,po,line,flags; project matched ['丙', '乙', '甲'] / ['丙', '乙', '甲']"
+        }
+      }
+    },
+    "round.5": {
+      "department": "process",
+      "title": "解释跨期变动并向当日岗位续核",
+      "earned": 3.0,
+      "max": 4,
+      "evidence": {
+        "ledger.bridge": {
+          "earned": 1.0,
+          "max": 1,
+          "reason": "R5/bridge.csv: site,po,line,net_change,invoice_change; site matched ['南港', '江东', '江北', '西港'] / ['南港', '江东', '江北', '西港']"
+        },
+        "ledger.routing": {
+          "earned": 2.0,
+          "max": 2,
+          "reason": "R5/routing_changes.csv: site,source,id,before,after; site matched ['南港', '江东', '江北', '西港'] / ['南港', '江东', '江北', '西港']"
+        },
+        "mail4.r5_route": {
+          "earned": 1.0,
+          "max": 1,
+          "reason": "2/2 desks: 江北, 西港"
+        },
+        "mail4.r5_content": {
+          "earned": 0.0,
+          "max": 2,
+          "reason": "0/2 desks: "
+        }
+      }
+    },
+    "round.6": {
+      "department": "process",
+      "title": "按批复核准项目、金额并完成银行核验",
+      "earned": 3.0,
+      "max": 3,
+      "evidence": {
+        "pay.release_scope": {
+          "earned": 1.0,
+          "max": 1,
+          "reason": "R6 released projects: 2/2"
+        },
+        "pay.released_pool": {
+          "earned": 2.0,
+          "max": 2,
+          "reason": "R6 signed amount at cutoff: 2/2"
+        },
+        "mail4.r6_route": {
+          "earned": 1.0,
+          "max": 1,
+          "reason": "2/2 desks: B02, B03"
+        },
+        "mail4.r6_content": {
+          "earned": 2.0,
+          "max": 2,
+          "reason": "2/2 desks: B02, B03"
+        }
+      }
+    },
+    "round.7": {
+      "department": "process",
+      "title": "核实有效双签调班单与待核工时",
+      "earned": 3.0,
+      "max": 3,
+      "evidence": {
+        "pay.joint_dispatch": {
+          "earned": 3.0,
+          "max": 3,
+          "reason": "R7 jointly signed effective instructions 154/154"
+        },
+        "pay.pending_tickets": {
+          "earned": 2.0,
+          "max": 2,
+          "reason": "R7 plant and ticket: 6/6"
+        }
+      }
+    },
+    "round.8": {
+      "department": "process",
+      "title": "向指定岗位提交正确的待审附件",
+      "earned": 4.0,
+      "max": 4,
+      "evidence": {
+        "mail4.review_routes": {
+          "earned": 1.0,
+          "max": 1,
+          "reason": "review_routes: 6/6 match (B01, B02, B03, FIN, JA, YI)"
+        },
+        "mail4.review_data": {
+          "earned": 1.0,
+          "max": 1,
+          "reason": "review_data: 6/6 match (B01, B02, B03, FIN, JA, YI)"
+        }
+      }
+    },
+    "round.9": {
+      "department": "process",
+      "title": "以真实回执登记最终包件并归档原件",
+      "earned": 2.4,
+      "max": 3,
+      "evidence": {
+        "mail4.receipts": {
+          "earned": 1.5,
+          "max": 1.5,
+          "reason": "receipts: 6/6 match (B01, B02, B03, FIN, JA, YI)"
+        },
+        "mail4.archive": {
+          "earned": 1.5,
+          "max": 1.5,
+          "reason": "archive: 6/6 match (B01, B02, B03, FIN, JA, YI)"
+        },
+        "mail4.r2_record": {
+          "earned": 1.0,
+          "max": 1,
+          "reason": "2/2 desks: 江北, 西港"
+        },
+        "mail4.r5_record": {
+          "earned": 0.0,
+          "max": 1,
+          "reason": "0/2 desks: "
+        },
+        "mail4.r6_record": {
+          "earned": 1.0,
+          "max": 1,
+          "reason": "2/2 desks: B02, B03"
+        }
+      }
+    },
+    "result.ledger": {
+      "department": "outcome",
+      "title": "六月报送和七月采购账正确且可追溯",
+      "earned": 13.125,
+      "max": 18,
+      "evidence": {
+        "ledger.amended.warehouse": {
+          "earned": 0.0,
+          "max": 1.5,
+          "reason": "R2/current.csv: site,po,line,net; site matched [] / ['南港', '江东', '江北', '西港']"
+        },
+        "ledger.amended.invoices": {
+          "earned": 1.5,
+          "max": 1.5,
+          "reason": "R2/current.csv: site,po,line,invoiced_amount; site matched ['南港', '江东', '江北', '西港'] / ['南港', '江东', '江北', '西港']"
+        },
+        "ledger.consignment.amended": {
+          "earned": 2.0,
+          "max": 2,
+          "reason": "status 112/112, status with exact ticket membership 112/112"
+        },
+        "ledger.freeze.retained": {
+          "earned": 1.5,
+          "max": 1.5,
+          "reason": "R4–9 archives compared with actual R3 filing"
+        },
+        "ledger.consignment.freeze.retained": {
+          "earned": 0.5,
+          "max": 0.5,
+          "reason": "Compare actual per-bill filing across custody checkpoints"
+        },
+        "ledger.current.warehouse": {
+          "earned": 0.5,
+          "max": 2,
+          "reason": "R5/current.csv: site,po,line,net; site matched ['江东'] / ['南港', '江东', '江北', '西港']"
+        },
+        "ledger.current.invoices": {
+          "earned": 2.0,
+          "max": 2,
+          "reason": "R5/current.csv: site,po,line,invoiced_amount; site matched ['南港', '江东', '江北', '西港'] / ['南港', '江东', '江北', '西港']"
+        },
+        "ledger.current.exceptions": {
+          "earned": 0.25,
+          "max": 1,
+          "reason": "R5/current.csv: site,po,line,qty_diff,amount_diff,flags; site matched ['江东'] / ['南港', '江东', '江北', '西港']"
+        },
+        "ledger.current.unclaimed": {
+          "earned": 1.0,
+          "max": 1,
+          "reason": "R5/unclaimed.csv: site,source,id,po,line; site matched ['南港', '江东', '江北', '西港'] / ['南港', '江东', '江北', '西港']"
+        },
+        "ledger.consignment.current": {
+          "earned": 2.0,
+          "max": 2,
+          "reason": "status 112/112, status with exact ticket membership 112/112"
+        },
+        "ledger.credit.receipt": {
+          "earned": 0.25,
+          "max": 1,
+          "reason": "R5/credit_support.csv receipt: matched ['江东'] / ['南港', '江东', '江北', '西港']"
+        },
+        "ledger.credit.invoice": {
+          "earned": 1.0,
+          "max": 1,
+          "reason": "R5/credit_support.csv invoice: matched ['南港', '江东', '江北', '西港'] / ['南港', '江东', '江北', '西港']"
+        }
+      }
+    },
+    "result.pay": {
+      "department": "outcome",
+      "title": "个人实发、项目守恒及可重算的工资簿",
+      "earned": 20.0,
+      "max": 20,
+      "evidence": {
+        "pay.correct_rows": {
+          "earned": 1.0,
+          "max": 1,
+          "reason": "R7 employee, project, hours and bonus 48/48"
+        },
+        "pay.conserved_pools": {
+          "earned": 1.0,
+          "max": 1,
+          "reason": "R7 project totals: 2/2"
+        },
+        "pay.workbook_baseline": {
+          "earned": 2.0,
+          "max": 2,
+          "reason": "1/1 Calc base cases; failed []"
+        },
+        "pay.workbook_edited_hours": {
+          "earned": 3.0,
+          "max": 3,
+          "reason": "79/79 Calc hours cases; failed []"
+        },
+        "pay.workbook_edited_pools": {
+          "earned": 3.0,
+          "max": 3,
+          "reason": "6/6 Calc pool cases; failed []"
+        }
+      }
+    },
+    "result.mail": {
+      "department": "outcome",
+      "title": "结清应付余额并按授权完成资金交接",
+      "earned": 8.0,
+      "max": 12,
+      "evidence": {
+        "mail4.recognized": {
+          "earned": 1.5,
+          "max": 1.5,
+          "reason": "recognized: 3/3 match (B01, B02, B03)"
+        },
+        "mail4.payable": {
+          "earned": 1.5,
+          "max": 1.5,
+          "reason": "payable: 3/3 match (B01, B02, B03)"
+        },
+        "mail4.revised": {
+          "earned": 1.5,
+          "max": 1.5,
+          "reason": "revised: 3/3 match (B01, B02, B03)"
+        },
+        "mail4.disposition": {
+          "earned": 1.5,
+          "max": 1.5,
+          "reason": "disposition: 6/6 match (B01, B02, B03, FIN, JA, YI)"
+        },
+        "mail4.authorization": {
+          "earned": 0.0,
+          "max": 2,
+          "reason": "5 send routes, 2 early/unapproved/duplicate events, 2 sends without matching approval, 0 journal anomalies"
+        },
+        "mail4.privacy": {
+          "earned": 0.0,
+          "max": 1,
+          "reason": "5 send routes; scope failures at ['M-87b8937e42344b5c', 'M-93258006d1dd4b91']"
+        }
+      }
+    },
+    "result.reserve": {
+      "department": "outcome",
+      "title": "各办理日完整正确入账并保留历史分录",
+      "earned": 20.0,
+      "max": 20,
+      "evidence": {
+        "memory.r3.case": {
+          "earned": 1.0,
+          "max": 1,
+          "reason": "R3 case: 36/36; missed []"
+        },
+        "memory.r5.case": {
+          "earned": 1.0,
+          "max": 1,
+          "reason": "R5 case: 36/36; missed []"
+        },
+        "memory.r8.case": {
+          "earned": 1.0,
+          "max": 1,
+          "reason": "R8 case: 36/36; missed []"
+        },
+        "memory.r9.case": {
+          "earned": 1.0,
+          "max": 1,
+          "reason": "R9 case: 36/36; missed []"
+        },
+        "memory.retention": {
+          "earned": 2.0,
+          "max": 2,
+          "reason": "R9 retained 3/3 actual prior filings"
+        }
+      }
+    }
+  }
+}

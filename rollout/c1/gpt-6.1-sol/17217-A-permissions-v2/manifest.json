@@ -1,0 +1,144 @@
+{
+  "task_id": "c1",
+  "harness": "codex-app-server",
+  "model": "gpt-6.1-sol",
+  "effort": "low",
+  "seed": 17217,
+  "variant": "A",
+  "protocol": "public-v1",
+  "condition": "public",
+  "backend": "docker",
+  "limit": null,
+  "status": "complete",
+  "turns": [
+    {
+      "turn": 1,
+      "session": "native-1",
+      "attempts": [
+        1
+      ],
+      "omissions": [],
+      "session_usage_total": {
+        "totalTokens": 62997,
+        "inputTokens": 60032,
+        "cachedInputTokens": 50688,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 2965,
+        "reasoningOutputTokens": 38
+      }
+    },
+    {
+      "turn": 2,
+      "session": "native-1",
+      "attempts": [
+        2
+      ],
+      "omissions": [],
+      "session_usage_total": {
+        "totalTokens": 142477,
+        "inputTokens": 137617,
+        "cachedInputTokens": 112256,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 4860,
+        "reasoningOutputTokens": 54
+      }
+    },
+    {
+      "turn": 3,
+      "session": "native-1",
+      "attempts": [
+        3
+      ],
+      "omissions": [],
+      "session_usage_total": {
+        "totalTokens": 234492,
+        "inputTokens": 226436,
+        "cachedInputTokens": 183424,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 8056,
+        "reasoningOutputTokens": 94
+      }
+    },
+    {
+      "turn": 4,
+      "session": "native-1",
+      "attempts": [
+        4
+      ],
+      "omissions": [],
+      "session_usage_total": {
+        "totalTokens": 320790,
+        "inputTokens": 311604,
+        "cachedInputTokens": 267008,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 9186,
+        "reasoningOutputTokens": 110
+      }
+    },
+    {
+      "turn": 5,
+      "session": "native-2",
+      "attempts": [
+        5
+      ],
+      "omissions": [],
+      "session_usage_total": {
+        "totalTokens": 111301,
+        "inputTokens": 108147,
+        "cachedInputTokens": 77696,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 3154,
+        "reasoningOutputTokens": 40
+      }
+    },
+    {
+      "turn": 6,
+      "session": "native-2",
+      "attempts": [
+        6
+      ],
+      "omissions": [],
+      "session_usage_total": {
+        "totalTokens": 187030,
+        "inputTokens": 182615,
+        "cachedInputTokens": 146304,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 4415,
+        "reasoningOutputTokens": 40
+      }
+    },
+    {
+      "turn": 7,
+      "session": "native-3",
+      "attempts": [
+        7
+      ],
+      "omissions": [],
+      "session_usage_total": {
+        "totalTokens": 92050,
+        "inputTokens": 89185,
+        "cachedInputTokens": 74112,
+        "cacheWriteInputTokens": 0,
+        "outputTokens": 2865,
+        "reasoningOutputTokens": 19
+      }
+    }
+  ],
+  "start": "2026-11-27T15:54:11.727099+00:00",
+  "codex": "codex-cli 0.171.0-alpha.13.2",
+  "git": "591ed2530b086bcb83a6c766b08197b3b589bb29",
+  "mode": "settlement",
+  "level": 3,
+  "image": "sha256:191083cdf6c7bda8c76158983163ead5d5cf7b77cf3033e805bb0f5296f51b4b",
+  "rotation_turns": [
+    5,
+    7
+  ],
+  "withdraw_handover": true,
+  "dispatch_window": null,
+  "isolation": {
+    "status": 0,
+    "output": "workspace ready\n"
+  },
+  "end": "2026-11-27T16:01:02.227440+00:00"
+}
