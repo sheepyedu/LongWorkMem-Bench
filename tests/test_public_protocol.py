@@ -6,11 +6,11 @@ from tempfile import TemporaryDirectory
 import unittest
 from unittest.mock import patch
 
-from benchmark_protocol import PUBLIC_SEED, PUBLIC_VARIANT
-from c1 import calibrate, pilot
-from c1.settlement_grade import row_difference
-from s1.circuit import Circuit, REGISTER_PHASE
-from w1 import advanced
+from tasks.protocol import PUBLIC_SEED, PUBLIC_VARIANT
+from tasks.c1 import calibrate, pilot
+from tasks.c1.settlement_grade import row_difference
+from tasks.s1.circuit import Circuit, REGISTER_PHASE
+from tasks.w1 import advanced
 
 
 def material_hashes():
@@ -62,12 +62,12 @@ class PublicProtocolTest(unittest.TestCase):
         self.assertFalse(old.submission(1, {"register":wrapped})["register"])
 
     def test_experiment_stop_records_progress_without_a_benchmark_score(self):
-        from c1.settlement_grade import grade
-        from benchmark_protocol import PROTOCOL
+        from tasks.c1.settlement_grade import grade
+        from tasks.protocol import PROTOCOL
         with TemporaryDirectory() as tmp:
             run = Path(tmp)
             (run / "manifest.json").write_text(json.dumps(dict(status="budget_exhausted",protocol=PROTOCOL,turns=[{}]*4)))
-            with patch("c1.settlement_grade.grade_snapshot", return_value=dict(total=14,valid=True,observed_points=14)):
+            with patch("tasks.c1.settlement_grade.grade_snapshot", return_value=dict(total=14,valid=True,observed_points=14)):
                 result = grade(run)
             self.assertIsNone(result["total"])
             self.assertEqual(result["unreached_turns"], [6,7])

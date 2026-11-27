@@ -12,6 +12,36 @@ def describe(values):
     return (center, low, high, low-center, high-center)
 
 
+def write_stage_deviations(samples, seeds):
+    """Subtract each stage's four-instance mean; weighted stages already use total-score units."""
+    groups = {}
+    with (ROOT / "stages.csv").open() as source:
+        for row in csv.DictReader(source):
+            key = row["task"], row["model"], row["group"]
+            seed = int(row["seed"])
+            group = groups.setdefault(key, {})
+            if seed in group:
+                raise ValueError(f"duplicate stage: {key}, {seed}")
+            group[seed] = Decimal(row["earned"])
+
+    totals = dict.fromkeys(samples, Decimal(0))
+    with (ROOT / "stage-deviations.csv").open("w", newline="") as output:
+        writer = csv.writer(output, lineterminator="\n")
+        writer.writerow(["task", "model", "seed", "group", "earned", "group_mean", "deviation"])
+        for (task, model, group), values in sorted(groups.items()):
+            if values.keys() != set(seeds):
+                raise ValueError(f"incomplete stage: {task}, {model}, {group}")
+            center = mean(values.values())
+            for seed in seeds:
+                value = values[seed]
+                totals[task, model, seed] += value
+                writer.writerow([task, model, seed, group, value, center, value - center])
+    for key, total in totals.items():
+        # C1 rounds both panels and their composite. stages.csv retains six decimals.
+        if abs(total - samples[key][-1]) > Decimal("0.011"):
+            raise ValueError(f"stages do not reconstruct the published score for {key}")
+
+
 def main():
     with (ROOT / "runs.csv").open() as source:
         rows = list(csv.DictReader(source))
@@ -23,6 +53,7 @@ def main():
             raise ValueError(f"duplicate instance: {key}")
         samples[key] = (inputs, output, inputs+output, score)
     seeds = (17217, 17219, 17231, 17239)
+    write_stage_deviations(samples, seeds)
     with (ROOT / "dispersion.csv").open("w", newline="") as dest:
         writer = csv.writer(dest, lineterminator="\n")
         writer.writerow(["task","model_or_paired_difference","metric","mean","min","max","min_minus_mean","max_minus_mean"])

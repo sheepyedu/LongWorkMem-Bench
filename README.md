@@ -1,41 +1,26 @@
 # LongWorkMem-Bench
 
-**工作场景长程记忆评测基准（开发版）。** 同一句“继续处理”，在不同的工作历史中可能要求不同的行动：保留已关账的旧数字、遵守早先商定的版本冲突规则，或按开幕底册和后来撤回的批文重建历史配置。评测在关键阶段冻结实际产物和环境状态，检查智能体是否正确沿用仍然有效的信息，以及为此付出的请求与计算成本。
+工作场景长程记忆评测基准。每题是一条连续工作流程，按实际文件、工具回执和环境状态评分。公开协议 `public-v1` 固定 **17217/A**；各模型收到相同的初始材料和业务规则，独立会话保留各自的后续交付。
 
-公开协议 **public-v1** 固定业务种子 **17217**、版本 **A** 和分题配置。重复作答请换新会话与运行目录。默认没有模型请求次数上限。历史批次显式使用的 350、180 次等额度用于试跑成本控制。实例、成本及局限见[协议与严格评审](docs/design/public-v1-review.md)。
+| Domain | 题目 | 检查什么 |
+|---|---|---|
+| Work | [W1 · 跨月采购关账与奖金分配](tasks/w1/) | 九轮内冻结六月报送件，处理七月调整，并据先前批复办理工资、资金和预留。 |
+| Code | [C1 · 工时结算与保证金交割](tasks/c1/) | 修改同一程序，在第 5、7 轮换班，按轮末交付和新来件复跑评分。 |
+| Simulation | [S1 · 跨区器材联赛](tasks/s1/) | 十区八十轮，第 40 轮交接自写摘要；从赛事单据复核登记、器材配套和送达。 |
 
-## 已实现的进阶题
+## 运行与验证
 
-| Domain | 题目 | 核心场景与评分 | 使用入口 |
-|---|---|---|---|
-| Work | [W1 · 跨月采购关账与奖金分配](w1/) | 九轮连续办公。默认八级题按九个过程点（30 分）与四项业务结果（70 分）评分，核对关账、奖金、资金交接和跨期预留。 | [题目与成绩](w1/workflow.md) · [运行手册](w1/TEST.md) |
-| Code | [C1 · 工时结算与保证金交割](c1/) | 七轮修改同一结算程序，第五、七轮换班，按轮末冻结的代码和交付评分。 | [结算校准](c1/reports/c1-settlement-calibration.md) · [运行手册](c1/TEST.md) |
-| Simulation | [S1 · 跨区器材联赛](s1/) | 十个赛区的八班公文交错发布，共八十轮，第 40 轮后仅交接自写摘要。复核指定队伍的登记、器材配套与送达。 | [赛季校准](s1/reports/s1-circuit.md) · [运行手册](s1/TEST.md) |
-
-每题的实现、测试、手册和研究报告集中在同名目录。各题仍从仓库根目录使用 `python -m w1.…`、`python -m c1.…` 和 `python -m s1.…`。公共测试入口、环境前提与分题命令见[测试指南](TEST.md)。此前整理的历史核查见[三题审核报告](docs/build/task-audit-20261127.md)。
-
-本批三题各完成 8 场正式评测，逐场分数、扣分证据、预算终态和环境缺陷见[双模型 24 场审计](docs/results/advanced-audit-20261127/README.md)。
-
-## 本地验证
-
-使用 Python 3.12。W1 工作簿评分还需 LibreOffice Calc，并确保 `soffice` 在 PATH 中。Docker 集成测试需相应题目的镜像和可写共享目录。以下命令执行本地检查，不调用模型 API。
+从仓库根目录使用 Python 3.12。每道题的 README 包含 Docker 环境、运行命令和复评入口。模型新作答需要相应推理服务；已有轨迹复评及以下回归测试可离线运行。宿主需有 LibreOffice Calc 完成 W1 工资簿测试。
 
 ```sh
 python3.12 -m venv .venv
 . .venv/bin/activate
-python -m pip install -r w1/requirements.txt
+python -m pip install -r tasks/w1/requirements.txt
 python -m unittest discover -v
 ```
 
-从 [rollout 目录](rollout/) 可查看后续正式运行的存储约定。当前测试阶段的原始会话、API 请求、快照和工具日志不入仓。各题的 `reports/` 收录实验说明及原有成绩资料。
+默认无模型请求次数上限。额外试跑预算、W1 的 ERP 限批以及 C1 的提前取件各自单列。材料指纹、评分边界与测量局限见[公开协议](docs/protocol.md)。
 
-## 研究与建设计划
+## 实测数据
 
-首版目标约 **50 条完整工作会话**，覆盖 Work、Code、Simulation。正式长题规划为几轮到十几轮用户交互、约 1,000–2,000 次模型请求、几十 M 至几百 M token 累计输入，按试跑校准。各开发题的实测轮数、预算、种子和评分版本见题目文档。
-
-| 阅读目的 | 文档 |
-|---|---|
-| 项目目标、会话结构与候选题 | [立项简报](docs/design/proposal.md) · [三类九道候选题](docs/design/session-candidates.md) |
-| 调研依据与历史实验 | [基准构造及样本核查](docs/research/benchmark-notes.md) · [上下文管理观察](docs/research/prior-observations.md) · [采购样例复算](docs/research/workbuddy-reproduction.md) |
-| 制作和验收新题 | [编题指南](docs/build/task-authoring.md) · [试跑计划](docs/build/pilot-plan.md) |
-| 查看设计演进 | [历史草案 v0.1](docs/archive/pilot-v0.1.md) · [历史草案 v0.2](docs/archive/pilot-v0.2.md) |
+[24 场双模型结果与逐题分差归因](docs/results/advanced-audit-20261127/)给出六组原分、token、每个阶段对均分偏差的贡献及对应实例。该批使用四个配对业务种子与当时的试跑配置。完整轨迹按题归档，公开索引附校验值。[归档约定](rollout/)
