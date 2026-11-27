@@ -208,7 +208,10 @@ def audit(run):
                     and req.get("chat_template_kwargs", {}).get("enable_thinking")
                     is False
                 )
-                if (
+                if req["model"] == "gpt-6.1-sol":
+                    if req.get("reasoning_effort") != "low":
+                        raise ValueError("expected low reasoning effort")
+                elif (
                     not direct
                     or reply["choices"][0]["message"].get("reasoning_content")
                     or (usage.get("completion_tokens_details") or {}).get(
@@ -268,14 +271,14 @@ def run_one(
     run = dest / f"{prefix}D{desks}-L{level}-{seed}-{variant}-{model}"
     run.mkdir(mode=0o700, parents=True, exist_ok=False)
     (run / "trace").mkdir()
-    deep = model == "deepseek"
-    name = MODEL if deep else "qwen3.8-flash"
-    key = os.environ["ARK_API_KEY" if deep else "DEEPSEEK_API_KEY"]
-    url = (
-        URL
-        if deep
-        else os.environ["DEEPSEEK_BASE_URL"].rstrip("/") + "/chat/completions"
-    )
+    if model == "deepseek":
+        name, key, url = MODEL, os.environ["ARK_API_KEY"], URL
+    else:
+        gpt = model == "gpt-6.1-sol"
+        prefix = "OPENAI" if gpt else "DEEPSEEK"
+        name = model if gpt else "qwen3.8-flash"
+        key = os.environ[f"{prefix}_API_KEY"]
+        url = os.environ[f"{prefix}_BASE_URL"].rstrip("/") + "/chat/completions"
     session = str(uuid.uuid4())
     sessions = (
         {desk: str(uuid.uuid4()) for desk in circuit.seasons}
@@ -315,7 +318,7 @@ def run_one(
                 model=name,
                 url=url,
                 timeout=600,
-                direct_response=True,
+                direct_response=model != "gpt-6.1-sol",
             ) as gateway,
         ):
             client = Path(tmp)
@@ -380,7 +383,7 @@ def main():
     parser.add_argument(
         "--models",
         nargs="+",
-        choices=["deepseek", "qwen"],
+        choices=["deepseek", "qwen", "gpt-6.1-sol"],
         default=["deepseek", "qwen"],
     )
     parser.add_argument("--desks", type=int, required=True)

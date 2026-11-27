@@ -12,7 +12,7 @@ python -m w1.advanced runs/dev-ds/A
 python -m w1.paired runs/dev-ds/A runs/dev-qwen/A
 ```
 
-DeepSeek 使用方舟模型 `deepseek-v4-1-flash-261017` 和宿主 `ARK_API_KEY`。千问使用用户配置的 OpenAI 兼容网关 `DEEPSEEK_BASE_URL` 和该网关独立的 `DEEPSEEK_API_KEY`，也可以在被提示时无回显输入。两者共用 Claude Code、三种办公工具、材料、九轮截止与请求预算。每次使用新的运行目录。`w1.paired` 检查同题两模型的九个材料摘要、实际推理回执和 CLI 结束记录，再汇总采购、薪酬和投递三个部分的成绩。可传入多个完整配对；开发和验证组分别执行。
+DeepSeek 使用方舟模型 `deepseek-v4-1-flash-261017` 和宿主 `ARK_API_KEY`。千问使用用户配置的 OpenAI 兼容网关 `DEEPSEEK_BASE_URL` 和该网关独立的 `DEEPSEEK_API_KEY`，也可以在被提示时无回显输入。两者共用 Claude Code、三种办公工具、材料、九轮截止与请求预算。每次使用新的运行目录。`w1.paired` 检查同题两模型的九个材料摘要、实际推理回执和 CLI 结束记录，再汇总采购、薪酬和投递成绩，七、八级另列跨轮预留授权成绩。可传入多个完整配对；开发和验证组分别执行。
 
 ## 本地准备
 
@@ -125,6 +125,8 @@ python -m s1.relay_review runs/relay-dev/warehouse-L1-193-* --compare
 
 七、八级共有 84 个计分项，另有 A/B 双边对照。在同一个种子上将两个模型的 A、B 共四个目录传给 `w1.paired`，查看 `memory_counterfactual` 中两边都处理正确的应变案件和应保持案件。重复提交同一个版本会失去应变案件正确数。单轮短对照可运行 `python -m w1.memory_control runs/reserve-short --turn 8 --seed 431 --variant A`；千问另选新目录并加 `--model qwen3.8-flash`。只给当前现场与附三次历史授权原文的两组，从相同参考交接状态开始，输出逐字段和整案正确数，独立于九轮正式成绩。
 
+W1 工作簿回归覆盖带引号的拼接分隔符，允许按“项目|员工”匹配，继续检查外部公式、调用及关系。配对回执覆盖提供方正常结束但工具 JSON 格式错误的记录，与输出截断分别统计；两种情况均须有同轮同请求的成功重试。验证可运行 `python -m unittest tests.test_grade tests.test_paired`。
+
 ### S1 连续跨区长赛季
 
 在仓库根目录运行；双模型沿用器材交接版的宿主环境变量。每次选新输出目录。所有比赛材料和原始提交均按轮冻结。
@@ -138,6 +140,8 @@ python -m s1.circuit_review runs/circuit/D*
 `--history regional` 为每区独立保留一个会话，区序和订单与连续条件一致。复评逐轮核对系统提示、用户公文、Claude 会话编号、真实上游回复及配发记录，分别列示实测累计输入、首次提交输入、单次峰值与缓存命中。开发种子及独立验证结果见 `docs/research/s1-circuit.md`。
 
 正式混合赛的运行参数为 `--desks 10 --qualifiers 2 --level 2`。中途主动整理资料的短对照使用 `--history handover`，在赛季中点由模型用 note 提交最多 5,500 字符的摘要，下一轮新会话只能带入实际留存的摘要。连续主赛没有这个切换。
+
+同场复测 GPT-6.1 Sol 可执行 `python -m s1.circuit runs/gpt-sol --models gpt-6.1-sol --desks 10 --qualifiers 2 --level 2 --seeds 39107 88469 --variants A B`。宿主读取 `OPENAI_BASE_URL` 与 `OPENAI_API_KEY`。该路由最低支持 low 推理档，审计要求实际发送此档位、返回指定模型并能从终端提交重建分数。
 
 ## C1 工单事件库
 

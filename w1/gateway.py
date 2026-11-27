@@ -58,6 +58,9 @@ def translate(query, reasoning, allowed=OFFICE_TOOLS, *, model=MODEL):
             if body:
                 messages.append({"role": "user", "content": body})
     payload = {"model": model, "messages": messages, "max_tokens": min(query["max_tokens"], 16384), "stream": False}
+    if model == "gpt-6.1-sol":
+        payload["reasoning_effort"] = "low"
+        payload["max_completion_tokens"] = payload.pop("max_tokens")
     if any(t["name"] not in allowed for t in query.get("tools", [])):
         raise ValueError("Unexpected tool in isolated Claude Code process")
     if query.get("tools"):

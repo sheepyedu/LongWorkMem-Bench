@@ -86,3 +86,16 @@ class MandateTests(unittest.TestCase):
             self.assertTrue(mem.equal({"desk":value},want,["desk"]))
         for wrong in ("IC-010", "IC-01 / IC-02", "内控岗 IC-02"):
             self.assertFalse(mem.equal({"desk":wrong},want,["desk"]))
+
+    def test_numeric_desk_id_keeps_four_digit_identity_and_scope(self):
+        self.assertTrue(mem.equal({"desk":"7084"},{"desk":"岗7084"},["desk"]))
+        self.assertFalse(mem.equal({"desk":"7085"},{"desk":"岗7084"},["desk"]))
+        self.assertFalse(mem.equal({"desk":"7084 / 7085"},{"desk":"岗7084"},["desk"]))
+        self.assertFalse(mem.equal({"authority":"7084"},{"authority":"常7084"},["authority"]))
+
+    def test_signed_stop_order_matches_only_its_explicit_authority(self):
+        want = {"authority":"停2950"}
+        self.assertTrue(mem.equal({"authority":"签停2950"},want,["authority"]))
+        for wrong in ("签停2951","签停2950/停2951","签常2950"):
+            self.assertFalse(mem.equal({"authority":wrong},want,["authority"]))
+        self.assertFalse(mem.equal({"desk":"签停2950"},{"desk":"停2950"},["desk"]))

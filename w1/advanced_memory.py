@@ -136,8 +136,12 @@ def reference(run, turn, variant, level, seed):
 def normalized(field, value):
     if field in ("target", "change"):
         return number(value)
+    if field == "authority" and re.fullmatch(r"签停[0-9]{4}", value):
+        return value[1:]
     if field == "desk":
         value = unicodedata.normalize("NFKC", value).strip()
+        if re.fullmatch(r"[0-9]{4}", value):
+            return "岗" + value
         if re.fullmatch(r"内控岗\s*:?\s*(?:IC-01|\(IC-01\))", value):
             return "IC-01"
     return value
