@@ -59,9 +59,11 @@ def inspect_package(path):
                     raise InvalidArtifact("external workbook relationship")
                 if node.tag.rsplit("}", 1)[-1] in ("f", "definedName", "formula", "formula1", "formula2"):
                     formula = node.text or ""
-                    if re.search(r"(?i)(?:DDE|WEBSERVICE|FILTERXML|HYPERLINK|RTD|CALL|REGISTER(?:\.ID)?|"
+                    # A quoted pipe is an ordinary string, often used for composite employee keys.
+                    operators = re.sub(r'"(?:[^"]|"")*"', '""', formula)
+                    if "|" in operators or re.search(r"(?i)(?:DDE|WEBSERVICE|FILTERXML|HYPERLINK|RTD|CALL|REGISTER(?:\.ID)?|"
                                  r"EXEC|SHELL|IMAGE|SQL\.REQUEST|INDIRECT\.EXT)\s*\(|"
-                                 r"\||(?:https?|file|ftp):|\[[^\]]+\][^!]*!", formula):
+                                 r"(?:https?|file|ftp):|\[[^\]]+\][^!]*!", formula):
                         raise InvalidArtifact("external or active formula")
 
 

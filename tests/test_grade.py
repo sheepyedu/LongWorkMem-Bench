@@ -198,6 +198,21 @@ class GradeTest(unittest.TestCase):
                 writer.writerow([amount])
             self.assertEqual(Table(path).matches([{"pool": "10000.01"}], "pool")[0], ok, amount)
 
+    def test_workbook_accepts_literal_pipe_join_and_rejects_active_separator(self):
+        from openpyxl import Workbook
+        from w1.scoring_tables import InvalidArtifact
+        from w1.scoring_workbook import inspect_package
+
+        path = Path(self.tmp.name) / "key.xlsx"
+        book = Workbook()
+        book.active["C2"] = '=A2&"|"&B2'
+        book.save(path)
+        inspect_package(path)
+        book.active["C2"] = "=A2|B2"
+        book.save(path)
+        with self.assertRaises(InvalidArtifact):
+            inspect_package(path)
+
     def test_merged_cell_area_limited_before_openpyxl_expands_it(self):
         from w1.scoring_tables import InvalidArtifact
         from w1.scoring_workbook import inspect_package

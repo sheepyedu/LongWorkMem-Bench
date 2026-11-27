@@ -12,7 +12,7 @@ python -m w1.advanced runs/dev-ds/A
 python -m w1.paired runs/dev-ds/A runs/dev-qwen/A
 ```
 
-DeepSeek 使用方舟模型 `deepseek-v4-1-flash-261017` 和宿主 `ARK_API_KEY`。千问使用用户配置的 OpenAI 兼容网关 `DEEPSEEK_BASE_URL` 和该网关独立的 `DEEPSEEK_API_KEY`，也可以在被提示时无回显输入。两者共用 Claude Code、三种办公工具、材料、九轮截止与请求预算。每次使用新的运行目录。`w1.paired` 检查同题两模型的九个材料摘要、实际推理回执和 CLI 结束记录，再汇总采购、薪酬和投递三个部分的成绩。可传入多个完整配对；开发和验证组分别执行。
+DeepSeek 使用方舟模型 `deepseek-v4-1-flash-261017` 和宿主 `ARK_API_KEY`。千问使用用户配置的 OpenAI 兼容网关 `DEEPSEEK_BASE_URL` 和该网关独立的 `DEEPSEEK_API_KEY`，也可以在被提示时无回显输入。两者共用 Claude Code、三种办公工具、材料、九轮截止与请求预算。每次使用新的运行目录。`w1.paired` 检查同题两模型的九个材料摘要、实际推理回执和 CLI 结束记录，再汇总采购、薪酬和投递成绩，七、八级另列跨轮预留授权成绩。可传入多个完整配对；开发和验证组分别执行。
 
 ## 本地准备
 
@@ -112,3 +112,5 @@ python -m s1.review runs/s1-pair/A --turn 7
 `python -m unittest tests.test_advanced tests.test_paired tests.test_erp_window` 检查九轮的可重复发布、A/B 唯一事实差异、参考全分、配对回执和远程工作窗口。业务负例位于 `tests/test_advanced_ledger*`、`tests/test_advanced_pay*` 和 `tests/test_advanced_mail*`。四级与五级发布相同文件，五级每轮的用户请求另告知作业额度。正式运行与比分命令沿用上面的例子，只需替换级别、种子和新的运行目录。窗口条件的报告还给出每轮准许的批数、实际受理数及窗口关闭回执数。
 
 七、八级共有 84 个计分项，另有 A/B 双边对照。在同一个种子上将两个模型的 A、B 共四个目录传给 `w1.paired`，查看 `memory_counterfactual` 中两边都处理正确的应变案件和应保持案件。重复提交同一个版本会失去应变案件正确数。单轮短对照可运行 `python -m w1.memory_control runs/reserve-short --turn 8 --seed 431 --variant A`；千问另选新目录并加 `--model qwen3.8-flash`。只给当前现场与附三次历史授权原文的两组，从相同参考交接状态开始，输出逐字段和整案正确数，独立于九轮正式成绩。
+
+W1 工作簿回归覆盖带引号的拼接分隔符，允许按“项目|员工”匹配，继续检查外部公式、调用及关系。配对回执覆盖提供方正常结束但工具 JSON 格式错误的记录，与输出截断分别统计；两种情况均须有同轮同请求的成功重试。验证可运行 `python -m unittest tests.test_grade tests.test_paired`。
