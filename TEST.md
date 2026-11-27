@@ -161,3 +161,13 @@ python -m c1.review runs/dispatch-model1/41-A
 ```
 
 每回合的第 4 条命令执行完即签收，提前结束则在结束时签收。可以批处理命令。轮末仍可修复。总分为签收成绩的 2/3 加轮末成绩的 1/3，两项单列。无签收窗口的等级 1、2 使用轮末交付。等级 2 含 192 对编号、9 份分片/批、9 组历史水位，要求按原凭证单位序号保存 FIFO 归属和分币。R2 当班签发人会影响 R5 撤令与 R6 归档。在限时签收版本，R3 起须使用此前保留的交接信息。空交、部分错行、顺序变化、新工单重跑及未按时交付分别检查。
+
+等级 3 用相同工时来件再加第七轮保证金。第一、三、四轮窗口的分组、渠道、有效期和额度各自发布一轮；早期已占款在换版后继续占用。第七轮收到 720 件申请和 43 条重送，分别重演第 3、6、9 日。各冻结点中，前六轮占 75 分，第七轮按三个历史截止日的处置、占款与余额各给 7 分，另有 4 分新来件复跑。对比时核对相同委托、源文件、沙箱镜像与预算，并按 A/B 身份实际翻转的事件单列成绩。
+
+```sh
+python -m c1.calibrate runs/guarantee-model1 --level 3 --dispatch-after 3 --seeds 101 149 --model MODEL --url CHAT_COMPLETIONS_URL
+python -m c1.settlement_grade runs/guarantee-model1/101-A > runs/guarantee-model1/101-A/settlement-score-v2.json
+python -m c1.settlement_compare runs/guarantee-model1 runs/guarantee-model2 --seeds 101 149
+```
+
+比较前为双方所有实例保存评分。运行 `C1_TEST_DOCKER=1 python -m unittest tests.test_c1_settlement` 会实际在独立容器运行参考 CLI、静态交件和受损程序。参考解使用分段 FIFO 和逐日日历，评分器使用单位追踪和逐笔选择制度。UTF-8 BOM、合法行序变化可通过，空 JSON 对象、坏编码、额外重复行和错用最新授权均不会取得相应项分数。

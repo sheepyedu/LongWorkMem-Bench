@@ -49,6 +49,7 @@ def audit(run):
             sent = encoded(wire)
             for marker in ("c1.grade", "c1/grade", "c1/reference", "c1-grade/", "CP4.decision", "CP5.replay",
                            "settlement_grade", "settlement_reference", "archive.preserved", "lineage.close", "dispatch-v1",
+                           "reserve_grade", "reserve_reference", "guarantee.rerun",
                            "LongWorkMem-Bench", ".claude-manager/", str(run.resolve())):
                 if marker in sent:
                     markers.append([path.name, marker])
