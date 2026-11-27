@@ -125,6 +125,20 @@ python -m s1.relay_review runs/relay-dev/warehouse-L1-193-* --compare
 
 七、八级共有 84 个计分项，另有 A/B 双边对照。在同一个种子上将两个模型的 A、B 共四个目录传给 `w1.paired`，查看 `memory_counterfactual` 中两边都处理正确的应变案件和应保持案件。重复提交同一个版本会失去应变案件正确数。单轮短对照可运行 `python -m w1.memory_control runs/reserve-short --turn 8 --seed 431 --variant A`；千问另选新目录并加 `--model qwen3.8-flash`。只给当前现场与附三次历史授权原文的两组，从相同参考交接状态开始，输出逐字段和整案正确数，独立于九轮正式成绩。
 
+### S1 连续跨区长赛季
+
+在仓库根目录运行；双模型沿用器材交接版的宿主环境变量。每次选新输出目录。所有比赛材料和原始提交均按轮冻结。
+
+```sh
+python -m unittest tests.test_s1_circuit -v
+python -m s1.circuit runs/circuit --desks 9 --level 2 --seeds 2831 --variants A
+python -m s1.circuit_review runs/circuit/D*
+```
+
+`--history regional` 为每区独立保留一个会话，区序和订单与连续条件一致。复评逐轮核对系统提示、用户公文、Claude 会话编号、真实上游回复及配发记录，分别列示实测累计输入、首次提交输入、单次峰值与缓存命中。开发种子及独立验证结果见 `docs/research/s1-circuit.md`。
+
+正式混合赛的运行参数为 `--desks 10 --qualifiers 2 --level 2`。中途主动整理资料的短对照使用 `--history handover`，在赛季中点由模型用 note 提交最多 5,500 字符的摘要，下一轮新会话只能带入实际留存的摘要。连续主赛没有这个切换。
+
 ## C1 工单事件库
 
 C1 使用 Python 3.12 和标准库。准备本地 Docker 的 Python 镜像，运行器在每批会话开始时按镜像 ID 固定实际运行环境。macOS 开发机也可选择 Seatbelt。所有运行都使用新的目标目录。独立 Docker VM 若仅共享指定目录，请将运行路径和 `C1_TEST_ROOT` 设在可写共享目录内，并导出该 VM 的 `DOCKER_HOST`。凭证通过隐藏输入或 `ARK_API_KEY` 传给宿主。
