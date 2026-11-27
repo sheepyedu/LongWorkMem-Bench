@@ -54,6 +54,48 @@ def authority_reversals(directory, seed, level, snapshot_dir="snapshots"):
     }
 
 
+def guarantee_reversals(directory, seed):
+    from .reserve import requests
+    from .reserve_grade import expected
+    from .settlement import generate
+
+    approvers = generate(seed, 2, "A")[3]
+    batch = requests(seed, *approvers, 0)
+    oracle = [
+        {
+            (cut, eid): status
+            for cut, eid, status in expected(seed, signer, batch)["decisions"]
+        }
+        for signer in approvers
+    ]
+    changed = [key for key in oracle[0] if oracle[0][key] != oracle[1][key]]
+    outcomes = {"changed": len(changed)}
+    for snapshot in ("dispatch", "snapshots"):
+        paired = []
+        for variant in ("A", "B"):
+            data = load_output(
+                directory / f"{seed}-{variant}" / snapshot / "7", "guarantee"
+            )
+            decisions = {}
+            rows = data.get("decisions") if isinstance(data, dict) else None
+            for row in rows if isinstance(rows, list) else ():
+                if (
+                    isinstance(row, list)
+                    and len(row) == 3
+                    and type(row[0]) is int
+                    and isinstance(row[1], str)
+                    and isinstance(row[2], str)
+                ):
+                    key = row[0], row[1]
+                    decisions[key] = row[2] if key not in decisions else None
+            paired.append(decisions)
+        outcomes[snapshot] = sum(
+            all(actual.get(key) == want[key] for actual, want in zip(paired, oracle))
+            for key in changed
+        )
+    return outcomes
+
+
 def released_material(run, turn):
     source = run / "snapshots" / str(turn) / "input"
     result = {
@@ -68,7 +110,7 @@ def released_material(run, turn):
 
 
 def compare(a, b, seeds, score_name):
-    rows, memory = [], []
+    rows, memory, guarantees = [], [], []
     for seed in seeds:
         for variant in ("A", "B"):
             manifests, grades = [], []
@@ -108,6 +150,8 @@ def compare(a, b, seeds, score_name):
                     "verified_turns": count,
                 }
             )
+        if manifests[0]["level"] == 3:
+            guarantees.append([guarantee_reversals(folder, seed) for folder in (a, b)])
         memory.append(
             [
                 authority_reversals(folder, seed, manifests[0]["level"])
@@ -125,6 +169,7 @@ def compare(a, b, seeds, score_name):
         "means": means,
         "gap": means[0] - means[1] if means else None,
         "r5_reversals": memory,
+        "r7_reversals": guarantees,
     }
 
 

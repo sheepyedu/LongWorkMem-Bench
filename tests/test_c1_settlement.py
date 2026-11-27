@@ -59,7 +59,7 @@ class SettlementTests(unittest.TestCase):
         import shutil
         import subprocess
         from unittest.mock import patch
-        from c1 import settlement_reference
+        from c1 import reserve, reserve_reference, settlement_reference
         from c1.grade_evidence import Probes
         from c1.runstate import freeze
         from c1.settlement_grade import grade
@@ -82,14 +82,20 @@ class SettlementTests(unittest.TestCase):
                         status="complete",
                         seed=77,
                         variant="B",
-                        level=2,
-                        dispatch_window=4,
+                        level=3,
+                        dispatch_window=3,
                     )
                 )
             )
             shutil.copyfile(settlement_reference.__file__, work / "project/settle.py")
-            for turn, name in enumerate(world.NAMES, 1):
-                world.release(work, turn, "B", 77, 2)
+            shutil.copyfile(reserve_reference.__file__, work / "project/reserve.py")
+            for turn, name in enumerate((*world.NAMES, "guarantee"), 1):
+                world.release(work, turn, "B", 77, 3)
+                if turn in reserve.STAGES:
+                    shutil.copyfile(
+                        work / "input" / reserve.NOTICE,
+                        work / "project" / f"notice-{turn}.csv",
+                    )
                 inp = work / "input"
                 if turn == 2:
                     (work / "project/authority.txt").write_text(
@@ -97,7 +103,11 @@ class SettlementTests(unittest.TestCase):
                     )
                 if turn == 3:
                     (inp / "handover.txt").unlink()
-                if turn == 4:
+                if turn == 7:
+                    self.assertFalse((inp / reserve.NOTICE).exists())
+                    cmd = "python3 project/reserve.py input out/guarantee.json"
+                    self.assertEqual(reference_command(None, work, cmd), "")
+                elif turn == 4:
                     rows = [
                         json.loads(line)
                         for line in (inp / "incident.jsonl").read_text().splitlines()
@@ -139,7 +149,7 @@ class SettlementTests(unittest.TestCase):
                 for checkpoint in (run / "dispatch", run / "snapshots"):
                     for file in checkpoint.glob("*/out/*.json"):
                         file.write_text("{}")
-                    for cli in checkpoint.glob("*/project/settle.py"):
+                    for cli in checkpoint.glob("*/project/*.py"):
                         cli.write_text("pass")
                 self.assertEqual(grade(run)["total"], 0)
 
