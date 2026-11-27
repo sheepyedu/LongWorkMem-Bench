@@ -73,7 +73,7 @@ def generate(seed, level, variant):
             dept=tenant,
             **extra,
         )
-        if level == 2 and kind == "credit":
+        if level >= 2 and kind == "credit":
             row["cents"] = rng.randint(1, units * 14)
         batches[batch].append(row)
         return row
@@ -116,7 +116,7 @@ def generate(seed, level, variant):
                 "e",
                 ref=ref,
             )
-        if level == 2 and i % 19 == 0:
+        if level >= 2 and i % 19 == 0:
             add("cutover", t, "D" + a, 8, "leg", qty, "n", ref=ref)
         add("cutover", t, b, 9, "use", rng.randint(8, 16))
     cuts["cutover"] = dict(lanes)
@@ -132,7 +132,7 @@ def generate(seed, level, variant):
                 if r.get("ref") == ref and r["tenant"] == t and r["units"] < 0
             )
             add("corrections", t, b, 6, "leg", -orig["units"], "e", ref=ref)
-        for j in range(2 if level == 2 and i % 3 == 0 else 1):
+        for j in range(2 if level >= 2 and i % 3 == 0 else 1):
             add(
                 "corrections",
                 t,
@@ -163,7 +163,7 @@ def generate(seed, level, variant):
     return batches, cuts, aliases, approvers
 
 
-def release(work, turn, variant, seed, level):
+def release_ledger(work, turn, variant, seed, level):
     work = Path(work)
     inp = work / "input"
     jobs = inp / "jobs"
@@ -174,7 +174,7 @@ def release(work, turn, variant, seed, level):
     batches, cuts, aliases, approvers = generate(seed, level, variant)
     if turn == 1:
         (inp / "interface.txt").write_text(FORMAT)
-        if level == 2:
+        if level >= 2:
             (inp / "finance.txt").write_text(FUNDING)
     if turn == 2:
         with (inp / "aliases.csv").open("w", newline="") as f:
@@ -189,7 +189,7 @@ def release(work, turn, variant, seed, level):
         )
     if turn == 3:
         (inp / "transfer.txt").write_text(
-            TRANSFER + (TRANSFER_COST if level == 2 else "")
+            TRANSFER + (TRANSFER_COST if level >= 2 else "")
         )
     if turn == 4:
         rng = random.Random(seed + 80)
@@ -232,6 +232,15 @@ def release(work, turn, variant, seed, level):
         "回到工单。迟到的补正、撤令和处理约定已到，请按已签口径完成本批。",
         FINAL,
     ][turn - 1]
-    if level == 2 and turn == 1:
+    if level >= 2 and turn == 1:
         text += " 同时纳入财务数据字典 finance.txt 的单位成本归集。"
     return text + f" 本轮方案 input/jobs/{name}.json，交 out/{name}.json。入口 {RUN}。"
+
+
+def release(work, turn, variant, seed, level):
+    if level != 3:
+        return release_ledger(work, turn, variant, seed, level)
+    from . import reserve
+    prompt = release_ledger(work, turn, variant, seed, 2) if turn <= 6 else ""
+    approvers = generate(seed, 2, variant)[3]
+    return prompt + reserve.issue(Path(work), turn, seed, approvers)

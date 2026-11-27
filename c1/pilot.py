@@ -126,7 +126,7 @@ def run_session(run, variant, backend, key, *, mode="formal", limit=1500, start=
                 (work / "input/notice").write_text(smoke_value)
             turns = (1, 2) if mode == "smoke" else ((9,) if mode == "control" else range(1, 9 if mode == "handoff" else 13))
             if mode == "settlement":
-                turns = range(1, 7)
+                turns = range(1, 8 if level == 3 else 7)
             env = {"PYTHONPATH": str(package.parent)}
             for name in ("DOCKER_HOST", "DOCKER_CONTEXT"):
                 if os.getenv(name):

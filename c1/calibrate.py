@@ -12,7 +12,7 @@ from w1.gateway import MODEL, URL
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("dest", type=Path)
-    p.add_argument("--level", type=int, choices=(1, 2), required=True)
+    p.add_argument("--level", type=int, choices=(1, 2, 3), required=True)
     p.add_argument("--seeds", nargs="+", type=int, required=True)
     p.add_argument("--variants", nargs="+", choices=("A", "B"), default=["A", "B"])
     p.add_argument("--model", default=MODEL)
