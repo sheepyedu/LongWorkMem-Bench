@@ -148,6 +148,7 @@ class Client:
 
     def start(self, context, specs):
         self.specs = {s["name"]: s for s in specs}
+        sandbox = "workspace-write" if specs else "read-only"
         config = dict(
             model=self.model,
             allowProviderModelFallback=False,
@@ -156,7 +157,7 @@ class Client:
             runtimeWorkspaceRoots=[],
             selectedCapabilityRoots=[],
             approvalPolicy="never",
-            sandbox="read-only",
+            sandbox=sandbox,
             ephemeral=True,
             baseInstructions=context,
             config={"model_reasoning_effort": self.effort},
@@ -164,6 +165,11 @@ class Client:
                 {"type": "function", **s, "deferLoading": False} for s in specs
             ],
         )
+        if specs:
+            config["developerInstructions"] = (
+                "业务工位由题目工具连接至独立 Docker。工具描述中的目录权限在本轮和换班后均有效；"
+                "请通过该工具读取和写入工位。Codex 本地客户端目录与业务工位分别管理。"
+            )
         result = self.rpc("thread/start", config)
         if result["model"] != self.model or result["instructionSources"]:
             raise RuntimeError("Unexpected model or inherited project instructions")
@@ -177,6 +183,9 @@ class Client:
                         effort=result["reasoningEffort"],
                         tools=list(self.specs),
                         context=context,
+                        sandbox=sandbox,
+                        developer_instructions=config.get("developerInstructions"),
+                        environments=config["environments"],
                     ),
                     ensure_ascii=False,
                 ),
