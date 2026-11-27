@@ -12,7 +12,7 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install -r tasks/w1/requirements.txt
       - run: |
-          python -m unittest tests.test_public_protocol tasks.w1.tests.test_gateway tasks.c1.tests.test_c1_runner
+          python -m unittest tests.test_checkpoint_granularity tests.test_public_protocol tasks.w1.tests.test_gateway tasks.c1.tests.test_c1_runner
           python scripts/summarize_audit.py
           git diff --exit-code -- docs/results/advanced-audit-20261127/dispersion.csv docs/results/advanced-audit-20261127/stage-deviations.csv
       - run: |
