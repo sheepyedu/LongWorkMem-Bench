@@ -245,3 +245,80 @@ class SingleCircuitTest(unittest.TestCase):
         self.assertEqual(c.score(records)["total"], 70)
         with self.assertRaises(ValueError):
             c.score([records[1], records[0], *records[2:]])
+
+    def test_replay_full_run_with_format_retry_and_tampered_evidence(self):
+        from s1.circuit import read_command
+        from s1.circuit_review import review
+
+        c = Circuit(39107, "A", 10, 2, 2)
+        receipts = self.play_public(c)
+        with tempfile.TemporaryDirectory() as tmp:
+            run = Path(tmp)
+            trace = run / "trace"
+            trace.mkdir()
+
+            def write(path, value):
+                path.write_text(json.dumps(value, ensure_ascii=False))
+
+            calls = []
+            history = [{"role": "system", "content": c.rules}]
+            for t, receipt in enumerate(receipts, 1):
+                prompt = c.prompt(t)
+                (trace / f"prompt-{t}.txt").write_text(prompt)
+                command = ({"register": receipt["register"]} if "register" in receipt
+                           else {"orders": receipt["booked"]})
+                attempts = [(t, prompt, json.dumps(command, ensure_ascii=False))]
+                if t == 1:
+                    invalid = "未提交"
+                    with self.assertRaises(ValueError) as err:
+                        read_command(invalid, 3)
+                    retry = f"单据格式未接收：{err.exception}。请重交本轮单据。"
+                    attempts = [(1, prompt, invalid), (81, retry, attempts[0][2])]
+                calls.append([i for i, _, _ in attempts])
+                for i, message, answer in attempts:
+                    history.append({"role": "user", "content": message})
+                    write(trace / f"api-{i:04}.json", {
+                        "turn": i,
+                        "request": {"model": MODEL, "thinking": {"type": "disabled"}, "messages": history},
+                        "response": {"model": MODEL, "id": str(i), "usage": {"prompt_tokens": 1, "completion_tokens": 1},
+                                     "choices": [{"message": {"content": answer}}]}})
+                    history.append({"role": "assistant", "content": answer})
+                    write(trace / f"turn-{i}.jsonl", {"type": "result", "session_id": "test", "result": answer})
+                write(run / f"receipt-{t}.json", receipt)
+            meta = dict(seed=39107, variant="A", desks=10, level=2, qualifiers=2, calls=calls,
+                        model=MODEL, session="test", score_version=2, parser_version=3, status="complete")
+            write(run / "manifest.json", meta)
+            score = audit(run)
+            write(run / "grade.json", score)
+            summary = review(run)
+            self.assertEqual((summary["score"], summary["registration_points"], summary["calls"]),
+                             (100, 30, 81))
+            write(run / "grade.json", dict(score, registration_points=29))
+            with self.assertRaisesRegex(ValueError, "stored grade"):
+                review(run)
+            write(run / "receipt-1.json", dict(receipts[0], register={}))
+            with self.assertRaisesRegex(ValueError, "receipt mismatch"):
+                audit(run)
+            write(run / "receipt-1.json", receipts[0])
+            packet = trace / "api-0081.json"
+            forged = json.loads(packet.read_text())
+            forged["request"]["messages"][-1]["content"] = "额外提示"
+            write(packet, forged)
+            with self.assertRaisesRegex(ValueError, "API prompt"):
+                audit(run)
+            packet.unlink()
+            with self.assertRaisesRegex(ValueError, "missing provider"):
+                audit(run)
+            meta["calls"][0] = [1]
+            write(run / "manifest.json", meta)
+            with self.assertRaisesRegex(ValueError, "missing format retry"):
+                audit(run)
+
+    def test_omitting_each_turn_loses_exactly_its_weight(self):
+        c = Circuit(88469, "A", 10, 2, 2)
+        receipts = self.play_public(c)
+        points = {1: 7.5, 2: 7.5, 3: 7.5, 4: 14, 5: 10.5, 6: 7.5, 7: 28, 8: 17.5}
+        for t, (_, stage) in enumerate(c.schedule, 1):
+            damaged = receipts.copy()
+            damaged[t - 1] = c.receipt(t, {})
+            self.assertEqual(c.score(damaged)["total"], 100 - points[stage] / 10)
