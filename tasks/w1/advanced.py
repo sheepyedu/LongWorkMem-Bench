@@ -90,7 +90,13 @@ def grade(run, variant=None, *, details=False):
         raise ValueError("Incomplete turn manifest")
     if any(not (run / "snapshots" / str(t)).is_dir() for t in ROUNDS):
         raise ValueError("Missing host snapshot")
-    if not manifest.get("reference"):
+    if manifest.get("harness") == "codex-app-server":
+        from tasks.codex_bench import recorded_turn, verify_threads
+        threads, tools = verify_threads(run, manifest, "w1", [1])
+        for turn in ROUNDS:
+            prompt = (run / "trace" / f"prompt-{turn}.txt").read_text()
+            recorded_turn(run, turn, threads[1], prompt, tools)
+    elif not manifest.get("reference"):
         from .review import verify_office
         for turn in ROUNDS:
             verify_office(run / "trace" / f"turn-{turn}.jsonl")
