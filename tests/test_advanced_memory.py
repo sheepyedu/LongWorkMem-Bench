@@ -27,3 +27,16 @@ class MandateTests(unittest.TestCase):
             p = Path(tmp)/"posted.csv"
             _csv(p,"office,case,target",[("南港","K03","37.000"),("江东","K03",10),("江东","K03",20)])
             self.assertEqual(mem.filed_amounts(p), {("南港","K03"):37})
+
+    def test_control_preserves_same_office_and_exposes_only_prior_postings(self):
+        from w1.controls import seed_digest
+        from w1.memory_control import fixture
+        with TemporaryDirectory() as tmp:
+            offices = [Path(tmp) / n / "work" for n in ("left","right")]
+            instructions = [fixture(p, 431, "A", 8) for p in offices]
+            self.assertEqual(seed_digest(offices[0]), seed_digest(offices[1]))
+            self.assertEqual(instructions[0], instructions[1])
+            self.assertEqual(len(instructions[0]), 3)
+            self.assertTrue((offices[0]/"out"/mem.form(5)).is_file())
+            self.assertFalse((offices[0]/"out"/mem.form(8)).exists())
+            self.assertFalse((offices[0]/"input/资金运营/争议清册/2025-08-05.csv").exists())

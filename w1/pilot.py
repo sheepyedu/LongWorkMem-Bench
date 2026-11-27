@@ -160,6 +160,19 @@ def execute(run, work, variant, backend, key, smoke, limit, model=MODEL, url=URL
         save()
 
 
+def provider(model):
+    url, key_name = URL, "ARK_API_KEY"
+    if model == "qwen3.8-flash":
+        from urllib.parse import urlsplit
+        base = os.environ.get("DEEPSEEK_BASE_URL", "").rstrip("/")
+        parts = urlsplit(base)
+        if parts.scheme not in {"http", "https"} or not parts.hostname or parts.username or parts.password or parts.query or parts.fragment:
+            raise ValueError("Set DEEPSEEK_BASE_URL to the Qwen provider's API base URL")
+        url, key_name = base + "/chat/completions", "DEEPSEEK_API_KEY"
+    key=os.environ.get(key_name) or getpass.getpass(f"{key_name} (hidden): ")
+    return url, key
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument("dest",type=Path)
@@ -174,15 +187,10 @@ def main():
     if len(set(args.variants))!=len(args.variants):
         p.error("Use each variant at most once per destination")
     dest=args.dest.resolve(); dest.mkdir(parents=True,exist_ok=True)
-    url, key_name = URL, "ARK_API_KEY"
-    if args.model == "qwen3.8-flash":
-        from urllib.parse import urlsplit
-        base = os.environ.get("DEEPSEEK_BASE_URL", "").rstrip("/")
-        parts = urlsplit(base)
-        if parts.scheme not in {"http", "https"} or not parts.hostname or parts.username or parts.password or parts.query or parts.fragment:
-            p.error("Set DEEPSEEK_BASE_URL to the Qwen provider's API base URL")
-        url, key_name = base + "/chat/completions", "DEEPSEEK_API_KEY"
-    key=os.environ.get(key_name) or getpass.getpass(f"{key_name} (hidden): ")
+    try:
+        url, key = provider(args.model)
+    except ValueError as exc:
+        p.error(str(exc))
     with ThreadPoolExecutor(max_workers=len(args.variants)) as pool:
         batch=[pool.submit(play,dest/v,v,args.backend,key,args.smoke,args.limit,
                            model=args.model,url=url,level=args.level,seed=args.seed) for v in args.variants]
