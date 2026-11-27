@@ -120,19 +120,21 @@ HANDOVER = "第4、7、8班开班时换人，只有交接簿随队，其余班�
 CONTINUOUS = "八班由同一人连续值班，保留本赛季对话。"
 
 
+def unique_fields(pairs):
+    data = dict(pairs)
+    if len(data) != len(pairs):
+        raise ValueError("重复字段")
+    return data
+
+
 def decode(text):
     """Allow ordinary Markdown wrapping. Never silently pick one of two submissions."""
     chunks = re.findall(r"```(?:json)?\s*(.*?)```", text, re.S | re.I)
     candidates = chunks if chunks else [text.strip()]
-    def unique(pairs):
-        data = dict(pairs)
-        if len(data) != len(pairs):
-            raise ValueError("重复字段")
-        return data
     decoded = []
     for part in candidates:
         try:
-            obj = json.loads(part.strip(), object_pairs_hook=unique)
+            obj = json.loads(part.strip(), object_pairs_hook=unique_fields)
         except (ValueError, RecursionError):
             continue
         if isinstance(obj, dict):

@@ -96,6 +96,11 @@ class SubmissionTest(unittest.TestCase):
         self.assertEqual(
             read_command("已核对。\n" + json.dumps(orders), 2), {"orders": orders}
         )
-        for text in ["{} 和 {}", '{"ordres":{}}', '{"12":[], "12":[]}']:
+        for text in [
+            "```json\n{}\n```\n{}",
+            "{} 和 {}",
+            '{"ordres":{}}',
+            '{"12":[], "12":[]}',
+        ]:
             with self.assertRaises(ValueError):
                 read_command(text, 2)

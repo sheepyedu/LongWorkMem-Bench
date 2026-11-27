@@ -15,7 +15,7 @@ import uuid
 from w1.claude import run_claude
 from w1.gateway import Gateway, MODEL, URL
 from .pilot import write
-from .relay import Season, WEIGHTS, decode, grade, submit
+from .relay import Season, WEIGHTS, decode, grade, submit, unique_fields
 from .relay_pilot import final_result
 
 RULES = """你是跨赛区联赛器材总台领队，各区轮流送件，全程连续值班。同一队号、单号在不同赛区独立。
@@ -82,11 +82,10 @@ def read_command(text, version):
     start, end = text.find("{"), text.rfind("}")
     if start < 0 or end < start:
         raise ValueError("请提交 JSON 对象")
-    obj = (
-        decode(text[start : end + 1])
-        if "```" not in text[start : end + 1]
-        else decode(text)
-    )
+    try:
+        obj = json.loads(text[start : end + 1], object_pairs_hook=unique_fields)
+    except (json.JSONDecodeError, RecursionError) as exc:
+        raise ValueError("请只交一个完整的 JSON 对象") from exc
     if obj and all(k.isascii() and k.isdigit() for k in obj):
         return {"orders": obj}
     if obj.keys() - {"orders", "note"}:
