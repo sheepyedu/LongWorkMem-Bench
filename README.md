@@ -37,3 +37,5 @@ wait
 ```
 
 默认模型 `gpt-6.1-sol`、推理档 `low`，可通过 `--model`、`--effort` 显式选择。W1 开放三种办公动作，C1 开放工位 shell，S1 只接收回单。每场保存原生线程与逐轮 app-server 事件、工具往返、快照或单据及成绩。通过同一命令加 `--replay` 从轨迹复核；复评沿用对应 Docker 环境，W1 另需宿主 Calc。token 使用量按每个原生线程的最后一次累计回执求和。`usage_updates` 是 Codex 返回的用量事件数，网络重试和供应商计费明细需另行观测。
+
+[Codex 与 GPT-6.1-sol 三题实测](docs/results/codex-gpt61sol-20261127/)记录同一固定实例的三场并行结果，以及修正工位权限提示后单独追加的 C1。
