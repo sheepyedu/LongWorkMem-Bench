@@ -31,6 +31,11 @@ FINAL = """归档交割：input/jobs/close.json 为主结算；另对 input/jobs
 同时从最终源码对原先 intake、routing、cutover 的封存交件保持原交付文件不动。新发布的迟到件在旧水位以外。
 """
 
+FUNDING = """财务数据字典：每个credit的cents是该整笔凭证的总分币，工时单位不可拆。凭证的第i个单位（从0开始）的成本为 floor((i+1)*cents/units)-floor(i*cents/units)。
+所有处置遵循先进先出。挑选顺序取原credit的(day,order)，再取原凭证单位序号升序；调拨后保留原始序号与成本。一个账户可能收到同一凭证的多个不连续片段。
+每次交割的 JSON 另存 lots：每行[tenant,当前工单号,原credit的eid,剩余单位,剩余分币]；usage：每行[已准use的eid,原credit的eid,耗用单位,耗用分币]。相同键合为一行，零单位不出行。"""
+TRANSFER_COST = """从本轮起另交 travel，每行[已入账的负腿eid,原credit的eid,调拨单位,调拨分币]，按前期财务数据字典取用；业务撤回时重演产生新的分摊，不能留下已撤回的调拨分摊。"""
+
 def write_json(path, obj):
     path.write_text(json.dumps(obj, ensure_ascii=False), encoding="utf8")
 
@@ -52,6 +57,7 @@ def generate(seed, level, variant):
         lanes[lane] += 1
         row = dict(eid=f"E{seed:x}-{seq:05}", tenant=tenant,ticket=ticket,lane=lane,seq=lanes[lane],
                    day=day,order=seq,kind=kind,units=units,dept=tenant,**extra)
+        if level==2 and kind=="credit": row["cents"]=rng.randint(1,units*14)
         batches[batch].append(row)
         return row
     for i in range(size):
@@ -100,12 +106,13 @@ def release(work, turn, variant, seed, level):
     batches,cuts,aliases,approvers=generate(seed,level,variant)
     if turn==1:
         (inp/"interface.txt").write_text(FORMAT)
+        if level==2: (inp/"finance.txt").write_text(FUNDING)
     if turn==2:
         with (inp/"aliases.csv").open("w",newline="") as f:
             writer=csv.writer(f);writer.writerow(["tenant","raw","start","end","canon"]);writer.writerows(aliases)
         (inp/"routing.txt").write_text(ROUTE)
         (inp/"handover.txt").write_text("今期跨台调拨的撤令由 "+approvers[0 if variant=="A" else 1]+" 单独签发；后续各次交割沿用。")
-    if turn==3:(inp/"transfer.txt").write_text(TRANSFER)
+    if turn==3:(inp/"transfer.txt").write_text(TRANSFER+(TRANSFER_COST if level==2 else ""))
     if turn==4:
         rng=random.Random(seed+80)
         rows=[dict(site=f"S{i%4}",job=f"J{i%31}",attempt=(i//124)%4,stamp=i,result=rng.choice(["failed","done","retry"])) for i in range(640 if level==1 else 2048)]
@@ -124,4 +131,5 @@ def release(work, turn, variant, seed, level):
             lanes={k:cuts[NAMES[(j+i)%5]][k] for i,k in enumerate(plan["lanes"])}
             write_json(jobs/f"archive-{j}.json",dict(day=4+j%6,lanes=lanes))
     text=["请接手工单工时对账，按 interface.txt 实现可复跑入口并结算首批。","换绑表与当班交接已到，请按新登记结算。","跨台调拨已上线，核对各站发来的两联单。","", "回到工单。迟到的补正、撤令和处理约定已到，请按已签口径完成本批。",FINAL][turn-1]
+    if level==2 and turn==1: text+=" 同时纳入财务数据字典 finance.txt 的单位成本归集。"
     return text+f" 本轮方案 input/jobs/{name}.json，交 out/{name}.json。入口 {RUN}。"
