@@ -75,3 +75,36 @@ class RelayTest(unittest.TestCase):
             (run / "receipt-8.json").write_text("{}")
             with self.assertRaisesRegex(ValueError, "differs"):
                 evaluate(run)
+
+
+class CalibrationReviewTest(unittest.TestCase):
+    def test_pairs_are_seed_weighted_and_incomplete_pairs_are_invalid(self):
+        from s1.relay_review import compare
+        reports = [dict(seed=seed, model=model, variant=arm, score=score, condition="relay",
+                        level=2, flags=[])
+                   for seed, gap in [(1, 5), (2, 11)]
+                   for arm in "AB"
+                   for model, score in [("deepseek-v4-1-flash-261017", 50 + gap), ("qwen3.8-flash", 50)]]
+        paired = compare(reports)
+        self.assertEqual(paired["gap"], 8)
+        self.assertEqual(paired["seed_gaps"], [5, 11])
+        self.assertEqual(paired["seed_bootstrap_95_pct"], [5, 11])
+        for invalid in (reports[:-1], reports + reports[:1], [dict(reports[0], flags=["bad"])] + reports[1:]):
+            with self.assertRaises(ValueError):
+                compare(invalid)
+
+    def test_history_labels_identify_counterfactual_fields(self):
+        from s1.relay import Notice
+        from s1.relay_review import dependency_groups
+        season = Season(134, 1)
+        team = season.teams[0]
+        season.base[team] = ["F1", "55", "柳", "北"]
+        season.notices = [Notice("D001", team, 0, "P4", "全季", 2, True),
+                          Notice("D002", team, 1, "12", "邀请", 3, True),
+                          Notice("D003", team, 3, "南", "全季", 6, True)]
+        season.withdrawn = {"D001":6}
+        def labels(turn, phase):
+            return set(dependency_groups(season, dict(team=team, phase=phase, turn=turn,
+                                                      expected=season.expected(team, phase))))
+        self.assertEqual(labels(7, "决赛"), {("撤回后回退", 0), ("邀请专项到期", 1)})
+        self.assertEqual(labels(8, "邀请"), {("历史截止", 0), ("历史截止", 3)})

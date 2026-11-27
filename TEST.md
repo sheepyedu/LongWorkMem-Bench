@@ -92,3 +92,15 @@ python -m s1.review runs/s1-pair/A --turn 7
 八轮的宿主检查包括揭幕站和第二站（7＋8）、邀请赛两小场（7＋8）、回主赛首次真正出牌和全站累计（10＋5）、统一组正式锁定的构筑在两手公开租借牌上能否达到 15 游戏分（30）、自由组两场实际晋级和终局付款（10＋10＋5）。每轮的比赛分是公开游戏规则。宿主检查的各项权重、两版答案和评分实现不发送给模型。冷启动用全新 Claude 会话和空笔记进入同一报名台，只评统一席位，分母 30。
 
 在每条轨迹中按顺序读 `trace/prompt-N.txt`、`trace/turn-N.jsonl` 和 `trace/tools-N.jsonl`，用 `snapshots/N.json` 核实回复中的完成、得分、付费和报名陈述。`trace/api-*.json` 保存逐次请求与回执。独立复评使用冻结游戏材料和实际动作重放；新版本规则可能拒绝旧快照，复现原发布成绩应使用该次 manifest 标记的代码。输入损坏、快照缺失和成绩为零应分别检查。开发轨迹留在使用者的运行目录，不进入被测环境。
+
+### S1 器材交接和换班记忆
+
+`python -m unittest discover -p 'test_s1_relay*.py' -v` 检查每一档的 A/B、撤回和阶段有效期、部分分、受限交接簿参考解、异常回执和独立重放。在仓库根目录运行以下命令。环境变量 `ARK_API_KEY`、`DEEPSEEK_BASE_URL`、`DEEPSEEK_API_KEY` 仅供宿主桥接读取。
+
+```sh
+python -m s1.relay_pilot runs/relay-dev --seeds 134 --level 2 --condition relay
+python -m s1.relay_review runs/relay-dev/L2-134-*
+python -m s1.relay_review runs/relay-dev/L2-134-* --compare
+```
+
+每个赛季目录必须是新的。每轮交叉核对 `trace/prompt-N.txt`、Claude 原始 JSONL、上游请求及返回、`receipt-N.json`。无法独立重放的赛季不参加模型对比。对照条件用 `continuous`、`current` 或 `evidence`。分数以四个阶段的整季百分制汇总，独立样本按种子计数。

@@ -7,7 +7,7 @@ from pathlib import Path
 from statistics import mean
 
 from .relay import Season
-from .relay_pilot import evaluate
+from .relay_pilot import evaluate, final_result
 
 
 def dependency_groups(season, row):
@@ -39,17 +39,30 @@ def inspect(run):
     flags = []
     attempts = sorted((run / "trace").glob("api-*.json"))
     previous_session = None
+    prior_note = ""
+    original_prompts = {}
+    cold = meta["condition"] in ("current", "evidence")
     first_calls = set()
     scheduled = set()
     for trip in meta["turns"]:
         scheduled.update(trip["calls"])
+        turn = trip["turn"]
+        expected_reset = cold or turn == 1 or (meta["condition"] == "relay" and turn in (4, 7, 8))
+        if (trip["session"] != previous_session) != expected_reset:
+            flags.append(f"R{turn}: unexpected session boundary")
+        originals = [t for t in season.bulletins if t < turn] if meta["condition"] == "evidence" else []
+        original_prompts[turn] = season.prompt(turn, prior_note, meta["condition"], originals)
+        if (run / "trace" / f"prompt-{turn}.txt").read_text() != original_prompts[turn]:
+            flags.append(f"R{turn}: public briefing differs")
         if trip["session"] != previous_session:
             first_calls.add(trip["calls"][0])
         previous_session = trip["session"]
         rec = json.loads((run / f"receipt-{trip['turn']}.json").read_text())
+        prior_note = "" if cold else rec["note"]
         counts["clipped"] += rec["note_length"] > season.capacity
         counts["rejected_rows"] += len(rec["rejected"])
         counts["format_retries"] += len(trip["calls"])-1
+    provider_text = defaultdict(list)
     seen = set()
     ids = set()
     for f in attempts:
@@ -62,6 +75,9 @@ def inspect(run):
             flags.append(f.name + ": unexpected tool or requested model")
         if turn in first_calls and turn not in seen and any(m["role"] == "assistant" for m in payload.get("messages", [])):
             flags.append(f.name + ": previous assistant in fresh session")
+        if turn in original_prompts and turn not in seen:
+            if payload.get("messages", [{}])[-1].get("content") != original_prompts[turn]:
+                flags.append(f.name + ": unexpected user briefing")
         seen.add(turn)
         usage = reply.get("usage")
         if usage is None:
@@ -69,6 +85,9 @@ def inspect(run):
             continue
         if reply.get("model") != meta["model"]:
             flags.append(f.name + ": returned model differs")
+        choice = reply["choices"][0]
+        counts["length_stops"] += choice.get("finish_reason") == "length"
+        provider_text[turn].append(choice["message"].get("content") or "")
         identity = reply.get("id")
         if not identity or identity in ids:
             flags.append(f.name + ": missing or duplicate provider ID")
@@ -76,6 +95,10 @@ def inspect(run):
         counts["input"] += usage["prompt_tokens"]
         counts["output"] += usage["completion_tokens"]
         counts["peak_input"] = max(counts["peak_input"], usage["prompt_tokens"])
+    for turn in scheduled:
+        answer = final_result(run / "trace" / f"turn-{turn}.jsonl").strip()
+        if answer not in (text.strip() for text in provider_text[turn]):
+            flags.append(f"call {turn}: CLI output lacks matching provider reply")
     if seen != scheduled:
         flags.append("missing or unscheduled provider attempt")
     for row in result["rows"]:
@@ -120,5 +143,13 @@ if __name__ == "__main__":
     parser.add_argument("runs", nargs="+", type=Path)
     parser.add_argument("--compare", action="store_true")
     args = parser.parse_args()
-    records = [inspect(run) for run in args.runs]
+    records, invalid = [], []
+    for run in args.runs:
+        try:
+            records.append(inspect(run))
+        except (OSError, ValueError, KeyError, TypeError, IndexError) as exc:
+            invalid.append({"run": str(run), "error": str(exc)})
+    if invalid:
+        print(json.dumps({"verified_records": records, "unscorable": invalid}, ensure_ascii=False, indent=2))
+        raise SystemExit(2)
     print(json.dumps(compare(records) if args.compare else records, ensure_ascii=False, indent=2))
