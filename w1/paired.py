@@ -10,7 +10,7 @@ from statistics import mean
 
 from .advanced import grade, weights
 from .gateway import MODEL
-from .review import events, summarize
+from .review import events, summarize, verify_office
 from .runstate import ROUNDS
 
 
@@ -132,6 +132,7 @@ def completed_receipts(run, manifest):
                 run, f"R{turn} lacks complete request evidence")
         prompt_hashes.append(hashlib.sha256((trace / f"prompt-{turn}.txt").read_bytes()).hexdigest())
         log = trace / f"turn-{turn}.jsonl"
+        verify_office(log)
         terminal = [e for _, e in events(log) if e and e["type"] == "result"]
         require(len(terminal) == 1 and terminal[0].get("subtype") == "success"
                 and terminal[0].get("is_error") is False and terminal[0].get("session_id") == manifest["session"],

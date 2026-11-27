@@ -17,6 +17,17 @@ def events(path):
             yield n, event if isinstance(event, dict) and isinstance(event.get("type"), str) else None
 
 
+def verify_office(path):
+    from .gateway import OFFICE_TOOLS
+    init = [event for _,event in events(path) if event and event.get("type") == "system"
+            and event.get("subtype") == "init"]
+    if len(init) != 1:
+        raise ValueError(f"{path.name}: missing unique office initialization")
+    servers = [(s.get("name"),s.get("status")) for s in init[0].get("mcp_servers",[])]
+    if servers != [("office","connected")] or set(init[0].get("tools",[])) != OFFICE_TOOLS:
+        raise ValueError(f"{path.name}: office connection failed or wrong registered tools")
+
+
 def shell_status(content):
     # Claude can store an MCP text result as a string or as a list of text blocks.
     texts = [content] if isinstance(content, str) else (
