@@ -64,7 +64,7 @@ def run_one(dest, model, level, seed, arm, condition):
     key = os.environ["ARK_API_KEY" if model == "deepseek" else "DEEPSEEK_API_KEY"]
     url = URL if model == "deepseek" else os.environ["DEEPSEEK_BASE_URL"].rstrip("/") + "/chat/completions"
     meta = {"status": "running", "model": remote_name, "variant": arm, "seed": seed,
-            "level": level, "condition": condition, "turns": [], "request_limit": 32,
+            "level": level, "condition": condition, "turns": [], "request_limit": 32, "transport_timeout_seconds": 600,
             "git": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=Path(__file__).parent, text=True).strip(),
             "cli": subprocess.check_output(["claude", "--version"], text=True).strip()}
     write(run / "manifest.json", meta)
@@ -72,7 +72,7 @@ def run_one(dest, model, level, seed, arm, condition):
     note = ""
     try:
         with tempfile.TemporaryDirectory(prefix="league-desk-") as tmp, Gateway(
-                key, run, 32, allowed=(), model=remote_name, url=url,
+                key, run, 32, allowed=(), model=remote_name, url=url, timeout=600,
                 private_markers=(str(run.resolve()), ".claude-manager/", "s1/relay.py")) as gateway:
             desk = Path(tmp)
             (desk / "desk").mkdir()
