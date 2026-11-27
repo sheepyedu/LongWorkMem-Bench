@@ -6,7 +6,6 @@ from tempfile import TemporaryDirectory
 from pathlib import Path
 
 from .scoring_tables import number, read_csv
-from .world import release
 
 LEDGER = "po line project ordered net invoiced_qty invoiced_amount qty_diff amount_diff flags"
 PAY = "project employee hours bonus"
@@ -71,34 +70,3 @@ def payments(hours, pools):
             for e, bonus in allocate(team, pool).items():
                 result.append(dict(project=p, employee=e, hours=team[e], bonus=bonus))
     return result
-
-
-def expected(variant):
-    with TemporaryDirectory() as tmp:
-        workspace = Path(tmp)
-        for turn in range(1, 8):
-            release(workspace, turn, variant)
-            if turn == 1:
-                first, first_orphans, _ = ledger(workspace / "input", date(2025, 6, 30))
-            if turn == 2:
-                june, orphans, duplicate_keys = ledger(workspace / "input", date(2025, 6, 30))
-            if turn == 5:
-                july, july_orphans, _ = ledger(workspace / "input", date(2025, 7, 8))
-        directory = workspace / "input"
-        releases = read_csv(directory / "releases.csv")[1]
-        pools = {r["project"]: number(r["pool"]) for r in releases
-                 if r["status"] == "已放行"}
-        hours = defaultdict(Decimal)
-        for row in read_csv(directory / "hours.csv")[1]:
-            p = row["project"]
-            if row["employee"] == "E07" and p == "共享":
-                p = "乙" if variant == "A" else "甲"
-            if p in pools:
-                hours[p, row["employee"]] += number(row["hours"])
-    pay = payments(hours, pools)
-    summaries = {p: [dict(project=p, period="2025-07", bonus=pool,
-                          hours=sum(row["hours"] for row in pay if row["project"] == p))]
-                 for p, pool in pools.items()}
-    return dict(first=first, first_orphans=first_orphans, june=june, july=july, orphans=orphans, july_orphans=july_orphans,
-                duplicate_keys=duplicate_keys, projects={r["project"] for r in releases}, pools=pools,
-                hours=dict(hours), pay=pay, summaries=summaries)

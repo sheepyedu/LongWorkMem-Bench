@@ -1,14 +1,10 @@
 """Run persistent service maintenance sessions with Claude Code and Ark."""
-import argparse
-from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from datetime import datetime, timezone
-import getpass
 import hashlib
 import json
 import os
 from pathlib import Path
-import secrets
 import shutil
 import subprocess
 import sys
@@ -80,9 +76,8 @@ PY""".replace("PRIVATE", repr(private))
         (work / "scratch/probe.db").unlink(missing_ok=True)
 
 
-def run_session(run, variant, backend, key, *, mode="formal", limit=1500, start=None, hint=False, handoff=None, model=MODEL, url=URL, level=1, seed=0, window=None, rotate=False):
-    if mode != "smoke":
-        from . import world
+def run_session(run, variant, backend, key, *, limit=180, model=MODEL, url=URL, level=3, seed=0, window=2, rotate=True):
+    from . import settlement
     run = Path(run).resolve()
     run.mkdir(parents=True, mode=0o700, exist_ok=False)
     for name in ("trace", "snapshots"):
@@ -91,14 +86,12 @@ def run_session(run, variant, backend, key, *, mode="formal", limit=1500, start=
     package = Path(__file__).resolve().parent
     files = [p for p in package.rglob("*.py") if p.relative_to(package).parts[0] != "tests" and "__pycache__" not in p.parts]
     files.extend(package.parent / "w1" / name for name in ("claude.py", "gateway.py", "office.py"))
-    manifest = {"mode": mode, "variant": variant, "backend": backend, "model": model, "session": session,
+    manifest = {"mode": "settlement", "variant": variant, "backend": backend, "model": model, "session": session,
                 "start": timestamp(), "limit": limit, "turns": [], "status": "running",
                 "claude": subprocess.check_output(["claude", "--version"], text=True).strip(),
                 "git": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=package, text=True).strip(),
                 "source_hashes": {str(p.relative_to(package.parent)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}}
-    if mode == "settlement":
-        from . import settlement
-        manifest.update(level=level, seed=seed, endpoint=url, dispatch_window=window, rotation_turns=[5, 7] if rotate else [])
+    manifest.update(level=level, seed=seed, endpoint=url, dispatch_window=window, rotation_turns=[5, 7] if rotate else [])
     if backend == "docker":
         manifest["image"] = sandbox.image_id()
     def save():
@@ -106,27 +99,10 @@ def run_session(run, variant, backend, key, *, mode="formal", limit=1500, start=
     save()
     try:
         with checkout(run, backend) as work:
-            if mode == "control":
-                if start is None:
-                    raise ValueError("Supply the common pre-supplement checkout")
-                work.rmdir()
-                if freeze(start, work):
-                    raise ValueError("Control checkout contains unsupported files")
-                manifest.update(hint=hint, common_handoff=handoff)
-                (work / "input/decision.txt").write_text(world.decision_text(world.POLICIES[variant]))
-                (work / "input/event-format.txt").write_text(world.EVENT_CONTRACT)
-            else:
-                for name in ("input", *sandbox.WRITABLE):
-                    (work / name).mkdir(exist_ok=True)
-                if mode in ("formal", "handoff"):
-                    world.initialize(work)
+            for name in ("input", *sandbox.WRITABLE):
+                (work / name).mkdir(exist_ok=True)
             manifest["isolation"] = check_boundary(work, backend)
-            smoke_value = secrets.token_hex(8)
-            if mode == "smoke":
-                (work / "input/notice").write_text(smoke_value)
-            turns = (1, 2) if mode == "smoke" else ((9,) if mode == "control" else range(1, 9 if mode == "handoff" else 13))
-            if mode == "settlement":
-                turns = range(1, 8 if level == 3 else 7)
+            turns = range(1, 8)
             env = {"PYTHONPATH": str(package.parent)}
             for name in ("DOCKER_HOST", "DOCKER_CONTEXT"):
                 if os.getenv(name):
@@ -144,43 +120,18 @@ def run_session(run, variant, backend, key, *, mode="formal", limit=1500, start=
                         client = Path(tmp) / f"shift-{turn}"
                         (client / "desk").mkdir(parents=True)
                         gateway.reasoning.clear()
-                    if mode == "smoke":
-                        prompt = ("请用工作区 shell 将 input/notice 的交接编号写入 data/desk.sqlite 的 handoff(code TEXT) 表一行，核实后告知。"
-                                  if turn == 1 else "请重新从刚才那张数据库表读取交接编号，写入 out/receipt.txt，文件中只放编号。")
-                    elif mode == "settlement":
-                        prompt = settlement.release(work, turn, variant, seed, level)
-                        if rotate and turn == 1:
-                            prompt += " 本周第5、7轮由新班组接手。班组仅交接工作文件和笔记；请保存后续结账所需的原始约定。"
-                        if new_shift:
-                            prompt = "新班组上岗。请根据工位的源码、交付和前班笔记接手。 " + prompt
-                        if window:
-                            prompt += (f" 客户在本轮第 {window} 次工作区 shell 调用结束时取件（若提前结束则当时取件）。"
-                                       "请安排好查阅和执行，可在一条命令内批处理。取件后仍可检查和补交轮末修复版。")
-                            if turn == 2:
-                                prompt += " 交接通知 handover.txt 仅本轮可阅；请自行保留后续所需的授权信息。"
-                            if turn == 3:
-                                (work / "input/handover.txt").unlink()
-                    else:
-                        prompt = world.release(work, turn, variant)
-                        if mode == "handoff" and turn == 3:
-                            # The maintenance team has no authorization scope or ruling yet.
-                            # Give both future control groups the same unfinished integration.
-                            (work / "input/decision.txt").write_text(
-                                "接口上线安排：普通同版本异值保留原状并登记冲突。审批接口尚未开通；"
-                                "任何携带非空 approval 的批次应整体停止，返回非零且不改变业务库。"
-                                "新班组会取得正式决议并接手这个接口。")
-                            contract = world.EVENT_CONTRACT.split("符合会议决议的覆盖")[0]
-                            contract += "\n稽核接口使用 events 表的 event_id、decision 两列，"
-                            contract += "每个唯一 JSONL 入站事件一行，旧库行不计入。审批投产安排见 decision.txt。\n"
-                            (work / "input/event-format.txt").write_text(contract)
-                        if mode == "control" and hint:
-                            prompt += "\n交接摘录：" + world.decision_text(world.POLICIES[variant])
-                        if turn == 6:
-                            command = world.batch_command(True)
-                            fault = sandbox.shell(work, command, backend)
-                            write_json(run / "fault.json", {"command": command, **fault})
-                            manifest["fault_omissions"] = freeze(work, run / "fault")
-                            prompt += "\n自动作业返回码 " + str(fault["status"]) + "，日志如下。\n" + fault["output"][-1400:]
+                    prompt = settlement.release(work, turn, variant, seed, level)
+                    if rotate and turn == 1:
+                        prompt += " 本周第5、7轮由新班组接手。班组仅交接工作文件和笔记；请保存后续结账所需的原始约定。"
+                    if new_shift:
+                        prompt = "新班组上岗。请根据工位的源码、交付和前班笔记接手。 " + prompt
+                    if window:
+                        prompt += (f" 客户在本轮第 {window} 次工作区 shell 调用结束时取件（若提前结束则当时取件）。"
+                                   "请安排好查阅和执行，可在一条命令内批处理。取件后仍可检查和补交轮末修复版。")
+                        if turn == 2:
+                            prompt += " 交接通知 handover.txt 仅本轮可阅；请自行保留后续所需的授权信息。"
+                        if turn == 3:
+                            (work / "input/handover.txt").unlink()
                     (run / "trace" / f"prompt-{turn}.txt").write_text(prompt)
                     config = {"mcpServers": {"workshop": {"command": sys.executable, "args": [
                         "-m", "c1.sandbox", str(work), backend, str(run / "trace" / f"tools-{turn}.jsonl")], "env": env}}}
@@ -203,8 +154,6 @@ def run_session(run, variant, backend, key, *, mode="formal", limit=1500, start=
                     manifest["turns"].append({"turn": turn, "session": session, "upstream_calls": n, "end": timestamp(), "omissions": omissions})
                     save()
                     print(f"{run.name} turn {turn} completed ({n} upstream calls)", flush=True)
-                if mode == "smoke" and (work / "out/receipt.txt").read_text().strip() != smoke_value:
-                    raise RuntimeError("Round-trip receipt differs from the random notice")
         manifest["status"] = "complete"
     except Exception as exc:
         manifest["status"] = "budget_exhausted" if manifest.get("budget_exhausted") else "error"
@@ -214,41 +163,3 @@ def run_session(run, variant, backend, key, *, mode="formal", limit=1500, start=
         manifest["end"] = timestamp()
         save()
     return manifest
-
-
-def main():
-    p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument("dest", type=Path)
-    mode = p.add_mutually_exclusive_group()
-    mode.add_argument("--smoke", action="store_true")
-    mode.add_argument("--handoff", action="store_true", help="prepare a common R8 checkout with the decision still pending")
-    mode.add_argument("--controls-from", type=Path, metavar="COMMON_WORK")
-    p.add_argument("--backend", choices=("docker", "seatbelt"), default="docker")
-    p.add_argument("--variants", nargs="+", choices=("A", "B"), default=["A", "B"])
-    p.add_argument("--limit", type=int)
-    args = p.parse_args()
-    if len(set(args.variants)) != len(args.variants) or (args.limit is not None and args.limit < 1):
-        p.error("Use distinct variants and a positive request budget")
-    if args.backend == "docker":
-        os.environ["C1_IMAGE"] = sandbox.image_id()
-    handoff = None
-    if args.controls_from:
-        from .controls import check_handoff
-        args.dest.parent.mkdir(parents=True, exist_ok=True)
-        handoff = check_handoff(args.controls_from.resolve(), args.backend, args.dest.parent)
-    key = os.getenv("ARK_API_KEY") or getpass.getpass("Ark credential (hidden): ")
-    jobs = []
-    for v in args.variants:
-        for hint in ((False, True) if args.controls_from else (False,)):
-            name = v + ("-hint" if hint else "-current") if args.controls_from else v
-            jobs.append((name, v, hint))
-    with ThreadPoolExecutor(max_workers=len(jobs)) as pool:
-        pending = [pool.submit(run_session, args.dest / n, v, args.backend, key, hint=h,
-                               mode="smoke" if args.smoke else ("control" if args.controls_from else ("handoff" if args.handoff else "formal")),
-                               start=args.controls_from, handoff=handoff, limit=args.limit or (60 if args.controls_from else 1500)) for n, v, h in jobs]
-        for job in pending:
-            job.result()
-
-
-if __name__ == "__main__":
-    main()

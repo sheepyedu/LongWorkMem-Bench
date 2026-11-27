@@ -12,19 +12,17 @@ from w1.gateway import MODEL, URL
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("dest", type=Path)
-    p.add_argument("--level", type=int, choices=(1, 2, 3), required=True)
+    p.add_argument("--level", type=int, choices=(3,), default=3)
     p.add_argument("--seeds", nargs="+", type=int, required=True)
     p.add_argument("--variants", nargs="+", choices=("A", "B"), default=["A", "B"])
     p.add_argument("--model", default=MODEL)
     p.add_argument("--url", default=URL)
     p.add_argument("--limit", type=int, default=180)
     p.add_argument(
-        "--dispatch-after", type=int, choices=range(1, 51), metavar="COMMANDS"
+        "--dispatch-after", type=int, choices=range(1, 51), metavar="COMMANDS", default=2
     )
-    p.add_argument("--rotate",action="store_true",help="Hand work files to fresh sessions in rounds 5 and 7")
+    p.add_argument("--rotate", action="store_true", help=argparse.SUPPRESS)
     args = p.parse_args()
-    if args.rotate and (args.level != 3 or not args.dispatch_after):
-        p.error("Shift change requires the seven-round task and a dispatch window")
     if args.limit < 1 or len(set(args.seeds)) != len(args.seeds) or len(set(args.variants)) != len(args.variants):
         p.error("Use distinct seeds and variants and a positive request budget")
     key = os.getenv("C1_UPSTREAM_KEY") or getpass.getpass(
@@ -38,11 +36,10 @@ def main():
                 v,
                 "docker",
                 key,
-                mode="settlement",
                 seed=seed,
                 level=args.level,
                 window=args.dispatch_after,
-                rotate=args.rotate,
+                rotate=True,
                 limit=args.limit,
                 model=args.model,
                 url=args.url,

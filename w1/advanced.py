@@ -124,7 +124,7 @@ if __name__ == "__main__":
     parser.add_argument("--reference", action="store_true")
     parser.add_argument("--legacy", action="store_true", help="Reproduce the archived calibration score")
     parser.add_argument("--details", action="store_true", help="Include underlying evidence for each checkpoint")
-    parser.add_argument("--level", type=int, choices=[1, 2, 3, 4, 5, 6, 7, 8], default=8)
+    parser.add_argument("--level", type=int, choices=[8], default=8)
     parser.add_argument("--seed", type=int, default=0)
     args = parser.parse_args()
     if args.reference:

@@ -17,7 +17,6 @@ from .claude import run_claude
 from .gateway import Gateway, MODEL, OFFICE_TOOLS, URL
 from .office import IMAGE, shell
 from .runstate import ROUNDS, freeze, prepare
-from .world import release
 
 CONTEXT = ("你是企业财务运营助理。通过 office 的 shell 操作本次业务共享盘，通过 draft 和 deliver 处理内部邮件。"
            "使用 python3 和 openpyxl 读写文件；共享盘中的 input、inbox 可读，out、notes、scratch 可写。"
@@ -121,12 +120,12 @@ def source_hashes():
             for f in sorted(Path(__file__).parent.glob("*.py"))}
 
 
-def play(run, variant, backend, key, smoke=False, limit=1500, *, model=MODEL, url=URL, level=0, seed=0):
+def play(run, variant, backend, key, smoke=False, limit=1500, *, model=MODEL, url=URL, level=8, seed=0):
     with blinded_office(run, backend) as work:
         return execute(run, work, variant, backend, key, smoke, limit, model, url, level, seed)
 
 
-def execute(run, work, variant, backend, key, smoke, limit, model=MODEL, url=URL, level=0, seed=0):
+def execute(run, work, variant, backend, key, smoke, limit, model=MODEL, url=URL, level=8, seed=0):
     session = str(uuid.uuid4())
     manifest = {"variant":variant,"backend":backend,"model":model,"session":session,
                 "claude":subprocess.check_output(["claude","--version"],text=True).strip(),
@@ -151,10 +150,8 @@ def execute(run, work, variant, backend, key, smoke, limit, model=MODEL, url=URL
             for turn in ([1] if smoke else ROUNDS):
                 if smoke:
                     prompt = "请用共享盘 shell 读 input/notice 的采购代号，在 out/reply.txt 写入完整原文并告诉我结果。"
-                elif level:
-                    prompt = advanced.release(work, turn, variant, level, seed)
                 else:
-                    prompt = release(work,turn,variant)
+                    prompt = advanced.release(work, turn, variant, level, seed)
                 (run/"trace"/f"prompt-{turn}.txt").write_text(prompt)
                 n = claude_turn(run,turn,backend,gw,session,prompt,client,image_id=manifest.get("docker_image"))
                 freeze(run,turn)
@@ -195,7 +192,7 @@ def main():
     p.add_argument("--smoke",action="store_true")
     p.add_argument("--limit",type=int,default=350)
     p.add_argument("--model", choices=[MODEL, "qwen3.8-flash"], default=MODEL)
-    p.add_argument("--level", type=int, choices=[0, 1, 2, 3, 4, 5, 6, 7, 8], default=8)
+    p.add_argument("--level", type=int, choices=[8], default=8)
     p.add_argument("--seed", type=int, default=0)
     args=p.parse_args()
     try:

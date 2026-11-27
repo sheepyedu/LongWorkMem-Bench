@@ -14,9 +14,21 @@ import uuid
 
 from w1.claude import run_claude
 from w1.gateway import Gateway, MODEL, URL
-from .pilot import write
 from .relay import Season, WEIGHTS, decode, grade, submit, unique_fields
-from .relay_pilot import final_result
+
+def write(path, value):
+    tmp = path.with_suffix(path.suffix + ".new")
+    tmp.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    tmp.replace(path)
+
+
+def final_result(path):
+    terminal = [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+    results = [e for e in terminal if e.get("type") == "result" and not e.get("is_error")]
+    if len(results) != 1:
+        raise ValueError("missing successful Claude result")
+    return results[0]["result"]
+
 
 RULES = """你是跨赛区联赛器材总台领队，各区轮流送件，全程连续值班。同一队号、单号在不同赛区独立。
 各区有八班。开幕册是底册，只采用本区的批准单，草案无效。全季批准适用于各赛段，专项仅适用于所列赛段。同队同字段取当时可用的最大单号。撤回从发布时起排除原单，回退到其余适用单或底册；不改写已结束的赛段。
@@ -454,9 +466,9 @@ def main():
         choices=["deepseek", "qwen", "gpt-6.1-sol"],
         default=["deepseek"],
     )
-    parser.add_argument("--desks", type=int, required=True)
+    parser.add_argument("--desks", type=int, default=10)
     parser.add_argument(
-        "--qualifiers", type=int, default=0, help="number of small six-team districts"
+        "--qualifiers", type=int, default=2, help="number of small six-team districts"
     )
     parser.add_argument("--level", type=int, choices=range(1, 5), default=2)
     parser.add_argument("--workers", type=int, default=4)
