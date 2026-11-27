@@ -183,3 +183,5 @@ python -m c1.settlement_compare runs/guarantee-model1 runs/guarantee-model2 --se
 ```
 
 比较前为双方所有实例保存评分。运行 `C1_TEST_DOCKER=1 python -m unittest tests.test_c1_settlement` 会实际在独立容器运行参考 CLI、静态交件和受损程序。参考解使用分段 FIFO 和逐日日历，评分器使用单位追踪和逐笔选择制度。UTF-8 BOM、合法行序变化可通过，空 JSON 对象、坏编码、额外重复行和错用最新授权均不会取得相应项分数。
+
+三级运行加 `--rotate --dispatch-after 2` 可开两次通知过的换班：第 5、7 轮启用新的 Claude 身份和客户端目录。第一个 API 请求可验证没有上一班的 assistant/tool 消息；冻结工位仍保留。另可用 `python -m c1.settlement_diagnostics RUN` 对最终程序补送同一调拨的第二张有效撤令，单列稽核决定与总账，原评分保持可复算。
