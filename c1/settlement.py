@@ -9,7 +9,7 @@ RUN = "python3 project/settle.py INPUT_DIR PLAN_JSON OUTPUT_JSON"
 FORMAT = """服务台对账交换契约
 调用 python3 project/settle.py INPUT_DIR PLAN_JSON OUTPUT_JSON。读取该目录下所有 packets/*.jsonl 与已发布的制度文件。
 PLAN_JSON 为 {"day":业务截止日整数,"lanes":{"e":入站水位,"w":水位,"n":水位}}，均含端点。
-先按所属 lane 的 seq 和业务日 day 双重筛选，再按 eid 去重。完全相同的补送只计一次。事件均在同一 tenant 内结算；工单号是字符串。
+先按所属 lane 的 seq 和业务日 day 双重筛选，再按 eid 去重。完全相同的补送只计一次。事件均在同一 tenant 内结算；工单号逐字符保留，包括前导零。没有生效的显式换绑登记时，003 和 0003 是两张独立工单。
 每行包含 eid,tenant,ticket,lane,seq,day,order,kind,units,dept。order 是全局稳定入站编号。依(day,order)从小到大记账。
 credit 增加工时，use 扣减正整数工时。余额不足整笔拒绝；不允许先欠后补。成功与否都要入稽核。
 业务输出为 JSON 对象：accounts 数组每行 [tenant,规范工单号,余额]（成功过的账户，即使余额为零也保留）；
