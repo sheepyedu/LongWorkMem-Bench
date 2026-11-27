@@ -38,22 +38,34 @@ class Circuit:
             Random(f"circuit/v1/{seed}/{stage}").shuffle(names)
             self.schedule.extend((name, stage) for name in names)
 
-    def prompt(self, turn):
+    def prompt(self, turn, history="continuous", memo=""):
         desk, stage = self.schedule[turn - 1]
         season = self.seasons[desk]
         # Exclude the short edition's handover-specific note and capacity notice.
         _, material = season.prompt(stage, "", "continuous").split("（空）\n", 1)
-        return f"总台第{turn}轮｜{desk}第{stage}班\n" + material
+        prompt = f"总台第{turn}轮｜{desk}第{stage}班\n" + material
+        halfway = len(self.schedule) // 2
+        if history == "handover":
+            if turn in (1, halfway):
+                prompt += f"\n换班安排：第{halfway}轮末在该轮 JSON 的 note 内提交全区摘要，最多保留前 5500 个字符。下一轮新开会话，仅这份摘要随队。"
+            elif turn == halfway + 1:
+                prompt += "\n上一班实际留存的摘要：\n" + (memo or "（空）")
+        return prompt
 
-    def receipt(self, turn, command):
+    def receipt(self, turn, command, history="continuous"):
         desk, stage = self.schedule[turn - 1]
         receipt = submit(self.seasons[desk], stage, command, "")
-        return {
+        result = {
             "desk": desk,
             "stage": stage,
             "booked": receipt["booked"],
             "rejected": receipt["rejected"],
         }
+
+        if history == "handover" and turn == len(self.schedule) // 2:
+            note = command.get("note", "")
+            result.update(memo=note[:5500], memo_length=len(note))
+        return result
 
     def score(self, receipts):
         if len(receipts) != len(self.schedule):
@@ -114,17 +126,22 @@ def audit(run):
     )
     public_history = defaultdict(list)
     ids = set()
+    history = meta.get("history", "continuous")
+    memo = ""
     for t, calls in enumerate(meta["calls"], 1):
-        prompt = circuit.prompt(t)
+        prompt = circuit.prompt(t, history, memo)
         desk, _ = circuit.schedule[t - 1]
         session = meta.get("regional_sessions", {}).get(desk, meta["session"])
+        if history == "handover" and t > turns // 2:
+            session = meta["next_session"]
+        fresh = session not in public_history
         public_history[session].append(prompt)
         if (
             calls not in ([t], [t, t + turns])
             or (trace / f"prompt-{t}.txt").read_text() != prompt
         ):
             raise ValueError(f"R{t}: wrong calls or material")
-        receipt = circuit.receipt(t, {})
+        receipt = circuit.receipt(t, {}, history)
         for idx in calls:
             answer = final_result(trace / f"turn-{idx}.jsonl")
             events = [
@@ -145,7 +162,12 @@ def audit(run):
                 req = packet["request"]
                 msgs = req["messages"]
                 if (
-                    req["model"] != meta["model"]
+                    (
+                        fresh
+                        and idx == t
+                        and [m["role"] for m in msgs] != ["system", "user"]
+                    )
+                    or req["model"] != meta["model"]
                     or req.get("tools")
                     or [m["content"] for m in msgs if m["role"] == "system"]
                     not in ([public_systems[0]], [public_systems[1]])
@@ -183,7 +205,7 @@ def audit(run):
                 raise ValueError(f"R{t}: no matching upstream result")
             try:
                 receipt = circuit.receipt(
-                    t, read_command(answer, meta.get("parser_version", 1))
+                    t, read_command(answer, meta.get("parser_version", 1)), history
                 )
             except ValueError:
                 continue
@@ -191,6 +213,7 @@ def audit(run):
                 raise ValueError("valid submission was retried")
         if receipt != json.loads((run / f"receipt-{t}.json").read_text()):
             raise ValueError(f"R{t}: receipt mismatch")
+        memo = receipt.get("memo", memo)
         receipts.append(receipt)
     result = circuit.score(receipts)
     result["usage"] = dict(counts)
@@ -200,7 +223,7 @@ def audit(run):
 def run_one(dest, model, seed, variant, desks, level, history="continuous"):
     circuit = Circuit(seed, variant, desks, level)
     total = len(circuit.schedule)
-    prefix = "regional-" if history == "regional" else ""
+    prefix = history + "-" if history != "continuous" else ""
     run = dest / f"{prefix}D{desks}-L{level}-{seed}-{variant}-{model}"
     run.mkdir(mode=0o700, parents=True, exist_ok=False)
     (run / "trace").mkdir()
@@ -233,6 +256,9 @@ def run_one(dest, model, seed, variant, desks, level, history="continuous"):
         git=subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
         cli=subprocess.check_output(["claude", "--version"], text=True).strip(),
     )
+    if history == "handover":
+        meta["next_session"] = str(uuid.uuid4())
+    memo = ""
     write(run / "manifest.json", meta)
     try:
         with (
@@ -251,11 +277,14 @@ def run_one(dest, model, seed, variant, desks, level, history="continuous"):
             client = Path(tmp)
             (client / "desk").mkdir()
             for t in range(1, total + 1):
-                prompt = circuit.prompt(t)
+                prompt = circuit.prompt(t, history, memo)
                 (run / "trace" / f"prompt-{t}.txt").write_text(prompt)
                 desk, stage = circuit.schedule[t - 1]
                 session_id = sessions.get(desk, session)
                 fresh = stage == 1 if sessions else t == 1
+                if history == "handover" and t > total // 2:
+                    session_id = meta["next_session"]
+                    fresh = t == total // 2 + 1
                 calls = []
                 for idx in (t, t + total):
                     calls.append(idx)
@@ -277,12 +306,14 @@ def run_one(dest, model, seed, variant, desks, level, history="continuous"):
                             read_command(
                                 final_result(run / "trace" / f"turn-{idx}.jsonl"), 2
                             ),
+                            history,
                         )
                         break
                     except ValueError as exc:
                         prompt = f"单据格式未接收：{exc}。请重交本轮单据。"
                 else:
-                    receipt = circuit.receipt(t, {})
+                    receipt = circuit.receipt(t, {}, history)
+                memo = receipt.get("memo", memo)
                 write(run / f"receipt-{t}.json", receipt)
                 meta["calls"].append(calls)
                 write(run / "manifest.json", meta)
@@ -312,7 +343,9 @@ def main():
     parser.add_argument("--level", type=int, choices=range(1, 5), default=2)
     parser.add_argument("--workers", type=int, default=4)
     parser.add_argument(
-        "--history", choices=["continuous", "regional"], default="continuous"
+        "--history",
+        choices=["continuous", "regional", "handover"],
+        default="continuous",
     )
     args = parser.parse_args()
     with ThreadPoolExecutor(args.workers) as pool:

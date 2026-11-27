@@ -8,6 +8,21 @@ from s1.relay import WEIGHTS
 
 
 class CircuitTest(unittest.TestCase):
+    def test_handover_carries_only_the_actual_bounded_note(self):
+        c = Circuit(4, "A", 3, 2)
+        mid = len(c.schedule) // 2
+        note = "杉" * 5510
+        rec = c.receipt(mid, {"note": note}, "handover")
+        self.assertEqual(rec["memo_length"], 5510)
+        self.assertEqual(rec["memo"], note[:5500])
+        self.assertEqual(
+            c.prompt(mid + 1, "handover", rec["memo"]).split("摘要：\n")[-1],
+            note[:5500],
+        )
+        self.assertNotIn(note[:100], c.prompt(mid + 2, "handover", rec["memo"]))
+        self.assertNotIn("memo", c.receipt(mid, {"note": note}))
+        self.assertEqual(c.receipt(mid, {}, "handover")["memo"], "")
+
     def test_delayed_pair_and_score(self):
         a, b = [Circuit(4, arm, 9, 2) for arm in "AB"]
         self.assertEqual(a.schedule, b.schedule)
