@@ -1,4 +1,5 @@
 import json
+import re
 from pathlib import Path
 import tempfile
 import unittest
@@ -33,6 +34,36 @@ class CircuitTest(unittest.TestCase):
             self.assertEqual(a.prompt(i) == b.prompt(i), stage != 1)
         with self.assertRaises(ValueError):
             Circuit(13, "A", 10, 2, 10)
+
+    def test_public_paperwork_alone_solves_both_openings(self):
+        from tests.test_s1_relay_reference import read_notices, rosters
+
+        for arm in "AB":
+            c = Circuit(411, arm, 10, 2, 2)
+            archives, receipts = {}, []
+            for t in range(1, 81):
+                lines = c.prompt(t).splitlines()
+                desk, stage = re.fullmatch(
+                    r"总台第\d+轮｜(区\d+)第(\d+)班", lines[0]
+                ).groups()
+                stage = int(stage)
+                orders = {}
+                if stage == 1:
+                    roster = {}
+                    for line in lines[2:-1]:
+                        team, *fields = line.split()
+                        roster[team] = fields
+                    archives[desk] = roster, [], {}
+                elif stage in (2, 3, 6):
+                    _, notices, withdrawn = archives[desk]
+                    read_notices("\n".join(lines[1:-1]), notices, withdrawn, stage)
+                else:
+                    sheets = rosters(*archives[desk])
+                    for item in lines[2].split("、"):
+                        team, phase = item.split("/")
+                        orders[team] = sheets[phase][team]
+                receipts.append(c.receipt(t, {"orders": orders}))
+            self.assertEqual(c.score(receipts)["total"], 100)
 
     def test_delayed_pair_and_score(self):
         a, b = [Circuit(4, arm, 9, 2) for arm in "AB"]

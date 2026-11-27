@@ -13,7 +13,7 @@ def review(run):
         raise ValueError(f"{run.name}: incomplete run")
     result = audit(run)
     saved = json.loads((run / "grade.json").read_text())
-    if result["desks"] != saved["desks"] or result["total"] != saved["total"]:
+    if any(result[k] != saved[k] for k in ("desks", "groups", "total")):
         raise ValueError(f"{run.name}: stored grade does not match")
     circuit = Circuit(
         meta["seed"],
