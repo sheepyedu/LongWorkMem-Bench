@@ -48,8 +48,21 @@ def docker_image():
     return subprocess.check_output(["docker","image","inspect",IMAGE,"--format","{{.Id}}"],text=True).strip()
 
 
+def office_runtime(run):
+    """Pin the host-side MCP executable across reopens of this office."""
+    target = run / "office-service"
+    if not target.is_dir():
+        with tempfile.TemporaryDirectory(dir=run, prefix=".service-") as tmp:
+            package = Path(tmp) / "source" / "w1"
+            package.mkdir(parents=True)
+            for name in ("__init__.py","office.py","mail.py","erp_window.py","office_protocol.py","runstate.py"):
+                shutil.copyfile(Path(__file__).parent/name, package/name)
+            package.parent.rename(target)
+    return target
+
+
 def claude_turn(run, turn, backend, gw, session, prompt, client, *, first_session=None, image_id=None):
-    office_env = {"PYTHONPATH": str(Path(__file__).resolve().parents[1])}
+    office_env = {"PYTHONPATH": str(office_runtime(run).resolve())}
     if backend == "docker":
         if os.environ.get("DOCKER_HOST"):
             office_env["DOCKER_HOST"] = os.environ["DOCKER_HOST"]
@@ -61,8 +74,11 @@ def claude_turn(run, turn, backend, gw, session, prompt, client, *, first_sessio
         "args": ["-m", server, str(run.resolve()), str(turn), backend],
         "env": office_env}}}
     context = CONTEXT + ("本办公室支持使用 soffice --headless 在副本上实际重算 Excel。" if backend == "docker" else "")
-    return run_claude(run, turn, gw, session, prompt, client, config=config, context=context,
+    calls = run_claude(run, turn, gw, session, prompt, client, config=config, context=context,
                       allowed=OFFICE_TOOLS, first_session=turn == 1 if first_session is None else first_session)
+    from .review import verify_office
+    verify_office(run/"trace"/f"turn-{turn}.jsonl")
+    return calls
 
 
 def isolation_check(work, backend):
