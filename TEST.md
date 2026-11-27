@@ -98,7 +98,7 @@ python -m s1.review runs/s1-pair/A --turn 7
 `python -m unittest discover -p 'test_s1_relay*.py' -v` 检查每一档的 A/B、撤回和阶段有效期、部分分、受限交接簿参考解、异常回执和独立重放。在仓库根目录运行以下命令。环境变量 `ARK_API_KEY`、`DEEPSEEK_BASE_URL`、`DEEPSEEK_API_KEY` 仅供宿主桥接读取。
 
 ```sh
-python -m s1.relay_pilot runs/relay-dev --seeds 134 --level 2 --condition relay
+python -m s1.relay_pilot runs/relay-dev --seeds 134 --level 2 --condition relay --direct-response
 python -m s1.relay_review runs/relay-dev/L2-134-*
 python -m s1.relay_review runs/relay-dev/L2-134-* --compare
 ```

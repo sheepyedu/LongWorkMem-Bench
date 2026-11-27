@@ -55,7 +55,7 @@ def evaluate(run):
     return grade(season, received)
 
 
-def run_one(dest, model, level, seed, arm, condition):
+def run_one(dest, model, level, seed, arm, condition, direct_response=False):
     season = Season(seed, level, arm)
     run = dest / f"L{level}-{seed}-{arm}-{model}-{condition}"
     run.mkdir(parents=True, exist_ok=False, mode=0o700)
@@ -65,6 +65,7 @@ def run_one(dest, model, level, seed, arm, condition):
     url = URL if model == "deepseek" else os.environ["DEEPSEEK_BASE_URL"].rstrip("/") + "/chat/completions"
     meta = {"status": "running", "model": remote_name, "variant": arm, "seed": seed,
             "level": level, "condition": condition, "turns": [], "request_limit": 32, "transport_timeout_seconds": 600,
+            "direct_response": direct_response,
             "git": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=Path(__file__).parent, text=True).strip(),
             "cli": subprocess.check_output(["claude", "--version"], text=True).strip()}
     write(run / "manifest.json", meta)
@@ -72,7 +73,7 @@ def run_one(dest, model, level, seed, arm, condition):
     note = ""
     try:
         with tempfile.TemporaryDirectory(prefix="league-desk-") as tmp, Gateway(
-                key, run, 32, allowed=(), model=remote_name, url=url, timeout=600,
+                key, run, 32, allowed=(), model=remote_name, url=url, timeout=600, direct_response=direct_response,
                 private_markers=(str(run.resolve()), ".claude-manager/", "s1/relay.py")) as gateway:
             desk = Path(tmp)
             (desk / "desk").mkdir()
@@ -123,9 +124,10 @@ def main():
     p.add_argument("--level", choices=range(1, 5), type=int, required=True)
     p.add_argument("--condition", choices=["relay","continuous","current","evidence"], default="relay")
     p.add_argument("--workers", type=int, default=4)
+    p.add_argument("--direct-response", action="store_true", help="disable provider thinking for both models")
     args = p.parse_args()
     with ThreadPoolExecutor(max_workers=args.workers) as pool:
-        jobs = [pool.submit(run_one, args.dest.resolve(), model, args.level, seed, arm, args.condition)
+        jobs = [pool.submit(run_one, args.dest.resolve(), model, args.level, seed, arm, args.condition, args.direct_response)
                 for seed in args.seeds for arm in args.variants for model in args.models]
         for job in jobs:
             job.result()

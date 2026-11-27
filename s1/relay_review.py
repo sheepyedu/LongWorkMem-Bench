@@ -86,6 +86,12 @@ def inspect(run):
         if reply.get("model") != meta["model"]:
             flags.append(f.name + ": returned model differs")
         choice = reply["choices"][0]
+        if meta.get("direct_response"):
+            mode_set = (payload.get("thinking") == {"type": "disabled"} if meta["model"].startswith("deepseek")
+                        else payload.get("chat_template_kwargs", {}).get("enable_thinking") is False and
+                        payload.get("enable_thinking") is False)
+            if not mode_set or choice["message"].get("reasoning_content") or usage.get("completion_tokens_details", {}).get("reasoning_tokens"):
+                flags.append(f.name + ": direct-response mode not verified")
         counts["length_stops"] += choice.get("finish_reason") == "length"
         provider_text[turn].append(choice["message"].get("content") or "")
         identity = reply.get("id")
@@ -109,12 +115,12 @@ def inspect(run):
             labels[name][1] += 1
     return {"score": result["total"], "groups": result["groups"], "counts": counts, "fields": labels,
             "flags": flags, "seed": meta["seed"], "variant": meta["variant"], "model": meta["model"],
-            "level": meta["level"], "condition": meta["condition"]}
+            "direct_response": meta.get("direct_response", False), "level": meta["level"], "condition": meta["condition"]}
 
 
 def compare(reports):
     by_seed = defaultdict(dict)
-    configs = {(r["condition"], r["level"]) for r in reports}
+    configs = {(r["condition"], r["level"], r.get("direct_response", False)) for r in reports}
     if len(configs) != 1:
         raise ValueError("pair a single condition and level")
     for report in reports:
