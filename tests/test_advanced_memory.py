@@ -54,3 +54,28 @@ class MandateTests(unittest.TestCase):
             self.assertGreater(result["must_change"]["cases"],0)
             self.assertEqual(result["must_change"]["matched_both"],0)
             self.assertEqual(result["must_stay"]["matched_both"],result["must_stay"]["cases"])
+
+    def test_one_bad_desk_and_filed_amount_still_allow_correct_next_adjustment(self):
+        from w1 import advanced
+        from w1.runstate import ROUNDS, prepare, freeze
+        from w1.scoring_tables import Table
+        from w1.world import _csv
+        with TemporaryDirectory() as tmp:
+            run = Path(tmp)/"run"
+            work = prepare(run)
+            for turn in ROUNDS:
+                advanced.release(work,turn,"A",7,431)
+                mem.reference(run,turn,"A",7,431)
+                if turn == 8:
+                    path = work/"out"/mem.form(turn)
+                    rows = Table(path).rows
+                    rows[0]["desk"] = "错岗"
+                    rows[0]["target"] = str(int(rows[0]["target"])+10)
+                    _csv(path, mem.FIELDS, [[r[k] for k in mem.FIELDS.split(",")] for r in rows])
+                freeze(run,turn)
+            score = mem.checks(run,"A",7,431)
+            self.assertAlmostEqual(score["memory.r8.desk"][0],35/36)
+            self.assertAlmostEqual(score["memory.r8.amount"][0],35/36)
+            self.assertEqual(score["memory.r8.authority"][0],1)
+            self.assertEqual(score["memory.r9.adjustment"][0],3)
+            self.assertEqual(score["memory.retention"][0],2)
