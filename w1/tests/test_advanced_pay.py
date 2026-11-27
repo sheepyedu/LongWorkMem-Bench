@@ -70,6 +70,30 @@ class AdvancedPayTests(unittest.TestCase):
             self.assertEqual(hours, {("甲","E07"): Decimal("2.5"), ("乙","E07"): Decimal("2")})
             self.assertEqual(pending, {("东厂","W"),("西厂","W")})
 
+    def test_calc_process_failure_cannot_become_a_payroll_score(self):
+        import subprocess
+        from unittest.mock import patch
+        from w1.advanced_pay_checks import pristine, recalc, workbook
+        from w1.scoring_tables import Table
+
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            oracle = pristine("A", 2, 13)
+            workbook(root / "bonus.xlsx", oracle["pools"], oracle["hours"], oracle["caps"])
+            for returncode in (0, 1):
+                # Even exit 0 without any converted cases leaves no grading evidence.
+                completed = subprocess.CompletedProcess([], returncode)
+                with self.subTest(returncode=returncode), patch(
+                    "w1.advanced_pay_checks.subprocess.run", return_value=completed
+                ), self.assertRaises(RuntimeError):
+                    recalc(root / "bonus.xlsx", Table(root / "pay.csv"), oracle)
+
+            with patch(
+                "w1.advanced_pay_checks.subprocess.run",
+                side_effect=subprocess.TimeoutExpired("soffice", 100),
+            ), self.assertRaises(RuntimeError):
+                recalc(root / "bonus.xlsx", Table(root / "pay.csv"), oracle)
+
     def test_static_correct_workbook_has_no_dynamic_credit(self):
         from openpyxl import load_workbook
         from w1.advanced_pay_checks import pristine, recalc, solve

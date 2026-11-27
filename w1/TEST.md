@@ -12,3 +12,5 @@ W1_TEST_DOCKER=1 python -m unittest w1.tests.test_docker -v
 ```
 
 千问运行时另加 `--model qwen3.8-flash`。独立 VM 的集成测试使用共享路径环境变量 W1_TEST_ROOT。逐轮冻结实际文件和邮件副本。九个过程点合计 30 分，采购、工资、资金交接及预留四项结果合计 70 分。每个检查点以其原子证据的完成比例计分。[九轮交付说明](workflow.md)
+
+工资簿复评要求 LibreOffice 成功完成所有已生成的变更用例。进程退出异常、超时或缺少转换文件时会提示复评；可在恢复 Calc 后重放同一份冻结交付。

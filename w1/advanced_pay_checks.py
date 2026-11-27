@@ -261,11 +261,16 @@ def recalc(path, submitted, oracle):
         command = [engine, f"-env:UserInstallation={(root / 'profile').as_uri()}", "--headless", "--nologo",
                    "--norestore", "--convert-to", "xlsx:Calc MS Excel 2007 XML", "--outdir", str(calculated), *arguments]
         try:
-            subprocess.run(command, cwd=root, capture_output=True, timeout=100, check=False)
+            conversion = subprocess.run(command, cwd=root, capture_output=True, timeout=100, check=False)
         except OSError as exc:
             raise RuntimeError("Failed to launch LibreOffice for payroll verification") from exc
-        except subprocess.TimeoutExpired:
-            return [(0, "workbook timed out in Calc") for _ in range(3)]
+        except subprocess.TimeoutExpired as exc:
+            raise RuntimeError("Calc timed out; payroll regrade required") from exc
+        if conversion.returncode != 0:
+            raise RuntimeError(f"Calc exited {conversion.returncode}; payroll regrade required")
+        missing = [name for _, _, name, _ in wants if not (calculated / name).is_file()]
+        if missing:
+            raise RuntimeError(f"Calc omitted {len(missing)} converted cases; payroll regrade required")
         outcomes = defaultdict(list)
         for kind, key, name, expected in wants:
             try:
