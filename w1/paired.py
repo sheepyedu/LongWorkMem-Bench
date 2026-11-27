@@ -101,17 +101,18 @@ def harness_identity(manifest):
     return tuple((name, files.get(name)) for name in names)
 
 
-def truncated_tool(row):
+def failed_tool_reason(row):
     if row.get("upstream_status") != 200 or row.get("status") != 502 or not row.get("error"):
-        return False
+        return None
     for choice in row.get("response", {}).get("choices", []):
-        if choice.get("finish_reason") == "length":
+        reason = choice.get("finish_reason")
+        if reason in ("length", "tool_calls"):
             for call in choice["message"].get("tool_calls", []):
                 try:
                     json.loads(call["function"]["arguments"])
                 except json.JSONDecodeError:
-                    return True
-    return False
+                    return reason
+    return None
 
 
 def completed_receipts(run, manifest):
@@ -123,7 +124,7 @@ def completed_receipts(run, manifest):
     require(review["models"] == [model], run, "provider model differs from declared model")
     missing_usage = set(review["attempts_without_usage"])
     retries, waiting = [], defaultdict(list)
-    truncated = []
+    truncated, malformed = [], []
     trace = run / "trace"
     prompt_hashes = []
     for turn in ROUNDS:
@@ -151,8 +152,10 @@ def completed_receipts(run, manifest):
                     f"{path.name} missing usage without documented transient failure")
         else:
             reply = row.get("response", {})
-            if truncated_tool(row):
-                truncated.append(row["n"])
+            reason = failed_tool_reason(row)
+            if reason:
+                attempts = truncated if reason == "length" else malformed
+                attempts.append(row["n"])
                 needs_retry = True
             require((needs_retry or (200 <= status < 300 and not row.get("error"))) and reply.get("model") == model
                     and (reply.get("id") or row.get("request_id")) and reply.get("choices"),
@@ -169,7 +172,7 @@ def completed_receipts(run, manifest):
     require(not waiting, run, "transient failure had no later matching successful retry in the same round")
     usage = dict(review["observed_usage"])
     usage["attempts"] = sum(t["attempts"] for t in review["turns"].values())
-    return {"usage": usage, "retries": retries, "truncated_tool_attempts": truncated,
+    return {"usage": usage, "retries": retries, "truncated_tool_attempts": truncated, "malformed_tool_attempts": malformed,
             "private_markers_in_requests": review["private_markers_in_requests"]}, prompt_hashes
 
 

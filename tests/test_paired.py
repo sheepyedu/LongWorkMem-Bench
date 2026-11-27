@@ -173,6 +173,12 @@ class PairedTests(unittest.TestCase):
             self.assertEqual(result["truncated_tool_attempts"], [3])
             self.assertEqual(result["usage"]["successful"], 10)
             self.assertEqual(result["retries"][0]["successful_attempt"], 4)
+            row = json.loads(path.read_bytes())
+            row["response"]["choices"][0]["finish_reason"] = "tool_calls"
+            save(path, row)
+            result = paired.compare([ds,qw])["pairs"][0]["models"][MODEL]
+            self.assertEqual(result["truncated_tool_attempts"], [])
+            self.assertEqual(result["malformed_tool_attempts"], [3])
             target = ds/"trace/api-0004.json"
             row = json.loads(target.read_bytes())
             row["request"]["messages"][0]["content"] += "different"
