@@ -96,7 +96,7 @@ def matches(got,expected,field=None):
     return canonical(got)==canonical(expected)
 
 
-def grade(run, backend='docker'):
+def grade_snapshot(run, backend, snapshot_dir):
     run=Path(run).resolve()
     m=json.loads((run/'manifest.json').read_text())
     advanced=m["level"]==2
@@ -107,7 +107,7 @@ def grade(run, backend='docker'):
         base=Path(tmp)/'oracle'; (base/'input').mkdir(parents=True)
         for turn,name,weights in [(1,'intake',(3,3,2)),(2,'routing',(4,4,2)),(3,'cutover',(6,7,3)),(4,'incident',()),(5,'corrections',(8,12,4)),(6,'close',(3,3,2))]:
             settlement.release(base,turn,m['variant'],m['seed'],m['level'])
-            snap=run/'snapshots'/str(turn)
+            snap=run/snapshot_dir/str(turn)
             if not snap.exists():missing.append(turn)
             got=load_output(snap,name)
             inp=base/'input'
@@ -131,7 +131,7 @@ def grade(run, backend='docker'):
             if advanced: details[p.stem]=all(matches(got,expected,f) for f in ('lots','usage','travel'))
         checks['archive.cuts']=[8*sum(outcomes)/len(outcomes),8]
         # Each deadline's signed file must survive the later backfill unchanged in meaning.
-        closed=all(load_output(snap,n) is not None and load_output(snap,n)==load_output(run/'snapshots'/str(t),n)
+        closed=all(load_output(snap,n) is not None and load_output(snap,n)==load_output(run/snapshot_dir/str(t),n)
                    for t,n in enumerate(settlement.NAMES[:3],1))
         record('archive.preserved',4,closed)
         # A fresh caller supplies an arbitrary input directory and output path. New
@@ -150,20 +150,39 @@ def grade(run, backend='docker'):
                         if 'signer' in row: row['signer']=orig if row['signer']==issued else 'visitor'
                     packet.write_text(''.join(json.dumps(row)+'\n' for row in rows))
                 import shutil
-                remote=work/'scratch'/'desk-input'; shutil.copytree(hidden/'input',remote)
-                plan=json.loads((remote/'jobs'/('close.json' if trial%2==0 else 'archive-2.json')).read_text())
-                (remote/'plan.json').write_text(json.dumps(plan))
-                expected=ledger(remote,plan)
-                dest=work/'out'/f'rerun-{trial}.json'; dest.unlink(missing_ok=True)
-                err=probes.command(work,f'python3 project/settle.py scratch/desk-input scratch/desk-input/plan.json out/{dest.name}')
-                got=load_output(work,dest.stem)
-                record(f'rerun.{trial}',4,not err and all(matches(got,expected,f) for f in expected))
+                with tempfile.TemporaryDirectory(dir=work/'scratch') as unique:
+                    remote=Path(unique)/'desk-input'
+                    shutil.copytree(hidden/'input',remote)
+                    relative=remote.relative_to(work)
+                    if m.get('dispatch_window'):
+                        (remote/'handover.txt').unlink()
+                    # Compute expectations from the host's signed copy.
+                    expected_input=hidden/'input'
+                    plan=json.loads((remote/'jobs'/('close.json' if trial%2==0 else 'archive-2.json')).read_text())
+                    (remote/'plan.json').write_text(json.dumps(plan))
+                    expected=ledger(expected_input,plan)
+                    dest=probes.output_path(work)
+                    err=probes.command(work,f'python3 project/settle.py {relative} {relative}/plan.json {dest}')
+                    try: got=json.loads(content(work,dest))
+                    except (ValueError,OSError,RecursionError): got=None
+                    record(f'rerun.{trial}',4,not err and all(matches(got,expected,f) for f in expected))
     if advanced:
         checks={name:[v*.6,w*.6] for name,(v,w) in checks.items()}
         checks.update({'lineage.'+name:[40*int(ok)/len(details),40/len(details)] for name,ok in details.items()})
     total=sum(x[0] for x in checks.values())
-    valid=not probes.infrastructure and (m.get('status')=='complete' and not missing)
+    valid=not probes.infrastructure and ((m.get('status')=='complete' and not missing) or m.get('status')=='budget_exhausted')
     return dict(total=round(total,2) if valid else None,observed_points=round(total,2),max=round(sum(x[1] for x in checks.values())),checks=checks,valid=valid,missing=missing,infrastructure=probes.infrastructure)
+
+
+def grade(run, backend='docker'):
+    latest = grade_snapshot(run, backend, 'snapshots')
+    manifest = json.loads((Path(run)/'manifest.json').read_text())
+    if not manifest.get('dispatch_window'):
+        return latest
+    dispatch = grade_snapshot(run, backend, 'dispatch')
+    valid = latest['valid'] and dispatch['valid']
+    return dict(total=round((2 * dispatch['total'] + latest['total']) / 3, 2) if valid else None,
+                max=100, valid=valid, dispatch=dispatch, repaired=latest, version='dispatch-v1')
 
 
 if __name__=='__main__':

@@ -26,7 +26,9 @@ def shell(work, command, backend="seatbelt", timeout=60, *, image=None):
                           image=image or os.getenv("C1_IMAGE", IMAGE), mount="/workspace", check_runtime=True, runtime_roots=libraries)
 
 
-def serve(work, backend, journal=None):
+def serve(work, backend, journal=None, dispatch=None, window=None):
+    from .runstate import freeze
+    calls = len(journal.read_bytes().splitlines()) if dispatch and journal.exists() else 0
     for line in sys.stdin:
         request = json.loads(line)
         if "id" not in request:
@@ -47,6 +49,10 @@ def serve(work, backend, journal=None):
                 if journal is not None:
                     with journal.open("a") as log:
                         print(json.dumps({"tool": "shell", "args": params["arguments"], "result": value}, ensure_ascii=False), file=log)
+                if dispatch:
+                    calls += 1
+                    if calls == window:
+                        freeze(work, dispatch)
                 reply["result"] = {"content": [{"type": "text", "text": json.dumps(value, ensure_ascii=False)}]}
             elif method == "ping":
                 reply["result"] = {}
@@ -60,4 +66,5 @@ def serve(work, backend, journal=None):
 
 
 if __name__ == "__main__":
-    serve(Path(sys.argv[1]), sys.argv[2], Path(sys.argv[3]) if len(sys.argv) > 3 else None)
+    serve(Path(sys.argv[1]), sys.argv[2], Path(sys.argv[3]) if len(sys.argv) > 3 else None,
+          Path(sys.argv[4]) if len(sys.argv) > 4 else None, int(sys.argv[5]) if len(sys.argv) > 5 else None)
