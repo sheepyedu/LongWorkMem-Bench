@@ -24,3 +24,16 @@ python -m unittest discover -v
 ## 实测数据
 
 [24 场双模型结果与逐题分差归因](docs/results/advanced-audit-20261127/)给出六组原分、token、每个阶段对均分偏差的贡献及对应实例。该批使用四个配对业务种子与当时的试跑配置。完整轨迹按题归档，公开索引附校验值。[归档约定](rollout/)
+
+### Codex 原生运行
+
+三题均支持 Codex app-server。安装支持动态工具和空环境列表的 Codex CLI（已测版本见实测记录），先执行 `codex login`，再按各题 README 准备 Docker 镜像。运行目录应为新路径，W1/C1 使用 Docker 可读写的共享目录。
+
+```sh
+python -m tasks.codex_bench w1 rollout/w1/codex/17217-A &
+python -m tasks.codex_bench c1 rollout/c1/codex/17217-A &
+python -m tasks.codex_bench s1 rollout/s1/codex/17217-A &
+wait
+```
+
+默认模型 `gpt-6.1-sol`、推理档 `low`，可通过 `--model`、`--effort` 显式选择。W1 开放三种办公动作，C1 开放工位 shell，S1 只接收回单。每场保存原生线程与逐轮 app-server 事件、工具往返、快照或单据及成绩。通过同一命令加 `--replay` 从轨迹复核；复评沿用对应 Docker 环境，W1 另需宿主 Calc。token 使用量按每个原生线程的最后一次累计回执求和。`usage_updates` 是 Codex 返回的用量事件数，网络重试和供应商计费明细需另行观测。

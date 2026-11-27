@@ -211,6 +211,9 @@ def read_command(text, version):
 
 def audit(run):
     meta = json.loads((run / "manifest.json").read_text())
+    if meta.get("harness") == "codex-app-server":
+        from tasks.codex_bench import replay
+        return replay(run)
     circuit = Circuit(
         meta["seed"],
         meta["variant"],

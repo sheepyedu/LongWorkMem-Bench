@@ -15,3 +15,5 @@ C1_TEST_DOCKER=1 python -m unittest discover -s tasks/c1/tests -t . -v
 ```
 
 千问使用 `--model qwen3.8-flash --url "$QWEN_CHAT_COMPLETIONS_URL"`，URL 指向完整的 chat/completions 端点。公开实例固定三级、17217/A，第 5 和第 7 轮更换班组。每轮结束时评分。可另用 `--dispatch-after 2` 研究提前签收，并用 `--limit N` 控制该次实验成本。独立评分器核验签收水位、逐笔分摊、归档及保证金交割，并用新来件复跑代码。结果含 checks、valid、missing、infrastructure，以及错误字段的缺行、多行与重数。显式实验预算耗尽的新版 run 保留 observed_points 与未到达轮次，正式 total 留空。
+
+Codex 入口为 `python -m tasks.codex_bench c1 RUN`；原生轨迹与复评方式见[仓库运行说明](../../README.md#codex-原生运行)。

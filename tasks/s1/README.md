@@ -17,3 +17,5 @@ python -m unittest discover -s tasks/s1/tests -t . -v
 每个模型输出独立目录。复评按 manifest 的解析器及评分版本核对每轮请求、回答和已登记单据。十个赛区等权。每区在第 1、2、3、6 班分别登记两队的四个字段，另在第 4、5、7、8 班按每队器材配套和送达各计一次。公开主条件在第 40 轮交接自写 note，41 轮开新会话。可显式用 `--history continuous` 做同材料全历史对照。使用不同模型调用路由时请披露推理配置。
 
 用 `python -m tasks.s1.circuit_registration_audit RUN` 可复核历史评分版本 2 的登记格式敏感性。它只展开唯一且名称等于本轮指定赛段的包装层，在原回答上计算替代分，并核对订单分不变。正式成绩沿用原规则。
+
+Codex 入口为 `python -m tasks.codex_bench s1 RUN`；原生轨迹与复评方式见[仓库运行说明](../../README.md#codex-原生运行)。

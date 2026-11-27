@@ -45,3 +45,5 @@ W1_TEST_DOCKER=1 python -m unittest tasks.w1.tests.test_docker -v
 工资簿复评要求 LibreOffice 成功完成所有已生成的变更用例。进程退出异常、超时或缺少转换文件时会提示复评；可在恢复 Calc 后重放同一份冻结交付。
 
 公开实例为 17217/A，每轮可以继续查阅和执行。历史 ERP 批数窗口可用 `--erp-window` 显式复现，`--limit N` 仅供成本控制；两者均记录为实验条件。
+
+Codex 入口为 `python -m tasks.codex_bench w1 RUN`；原生轨迹与复评方式见[仓库运行说明](../../README.md#codex-原生运行)。
