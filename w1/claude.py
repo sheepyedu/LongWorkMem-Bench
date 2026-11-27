@@ -4,22 +4,19 @@ import os
 import shutil
 import subprocess
 
-from .gateway import MODEL
-
 
 def run_claude(run, turn, gw, session, prompt, client, *, config, context, allowed, first_session):
-    model = getattr(gw, "model", MODEL)
     exe = shutil.which("claude")
     if not exe:
         raise RuntimeError("Claude Code executable missing")
     env = {"PATH": os.environ["PATH"], "HOME": str(client), "CLAUDE_CONFIG_DIR": str(client/"config"),
            "ANTHROPIC_BASE_URL": gw.base, "ANTHROPIC_API_KEY": gw.token,
-           "ANTHROPIC_MODEL": model, "ANTHROPIC_SMALL_FAST_MODEL": model,
+           "ANTHROPIC_MODEL": gw.model, "ANTHROPIC_SMALL_FAST_MODEL": gw.model,
            "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1", "DISABLE_TELEMETRY": "1",
            "DISABLE_ERROR_REPORTING":"1", "CLAUDE_CODE_DISABLE_AUTO_MEMORY":"1",
            "CLAUDE_CODE_ATTRIBUTION_HEADER":"0", "ENABLE_TOOL_SEARCH":"false",
            "NO_PROXY":"127.0.0.1,localhost", "LANG": "en_US.UTF-8"}
-    argv = [exe, "-p", "--bare", "--model", model, "--strict-mcp-config", "--mcp-config", json.dumps(config),
+    argv = [exe, "-p", "--bare", "--model", gw.model, "--strict-mcp-config", "--mcp-config", json.dumps(config),
             "--settings", "{}", "--setting-sources", "", "--tools", "", "--permission-mode", "dontAsk",
             "--allowedTools", ",".join(sorted(allowed)),
             "--disable-slash-commands", "--system-prompt", context, "--output-format", "stream-json", "--verbose",
