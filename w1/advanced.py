@@ -11,7 +11,10 @@ from .runstate import ROUNDS, freeze, prepare
 DEPARTMENT_WEIGHTS = {"ledger": 40, "pay": 35, "mail": 25}
 
 
-def weights(level):
+def weights(level, *, legacy=False):
+    if level == 8 and not legacy:
+        from .scorecard import OUTCOMES, PROCESS
+        return {"process": sum(row[1] for row in PROCESS), "outcome": sum(row[2] for row in OUTCOMES)}
     if level in (7, 8):
         return {"ledger": 30, "pay": 25, "mail": 20, "memory": 25}
     return DEPARTMENT_WEIGHTS
@@ -76,7 +79,7 @@ def run_reference(run, variant, level, seed):
     (run / "manifest.json").write_text(json.dumps(manifest, indent=2))
 
 
-def grade(run, variant=None):
+def grade(run, variant=None, *, legacy=False, details=False):
     manifest = json.loads((run / "manifest.json").read_bytes())
     if manifest.get("task") != "W1-advanced" or manifest.get("status") != "complete" or manifest.get("smoke"):
         raise ValueError("A completed advanced W1 session is required")
@@ -90,10 +93,19 @@ def grade(run, variant=None):
         from .review import verify_office
         for turn in ROUNDS:
             verify_office(run / "trace" / f"turn-{turn}.jsonl")
+    if manifest["level"] == 8 and not legacy:
+        from .scorecard import summarize
+        evidence = {}
+        for label, department in departments(8).items():
+            options = {"memory": {"whole_cases": True}, "pay": {"whole_rows": True}}.get(label, {})
+            evidence.update(department.checks(run, manifest["variant"], 8, manifest["seed"], **options))
+        items = summarize(evidence, details=details)
+        return dict(scorer_version="w1-advanced/4", level=8, seed=manifest["seed"], variant=manifest["variant"],
+                    max=100, total=round(sum(v["earned"] for v in items.values()), 4), items=items)
     items = {}
     for label, department in departments(manifest["level"]).items():
         weight = {**DEPARTMENT_WEIGHTS, "memory": 25}[label]
-        factor = weights(manifest["level"])[label] / weight
+        factor = weights(manifest["level"], legacy=legacy)[label] / weight
         checks = department.checks(run, manifest["variant"], manifest["level"], manifest["seed"])
         if items.keys() & checks.keys() or sum(maximum for _, maximum, _ in checks.values()) != weight:
             raise ValueError("Invalid checkpoint weights or duplicate labels")
@@ -110,10 +122,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("run", type=Path)
     parser.add_argument("--reference", action="store_true")
-    parser.add_argument("--variant", choices=["A", "B"], default="A")
-    parser.add_argument("--level", type=int, choices=[1, 2, 3, 4, 5, 6, 7, 8], default=1)
+    parser.add_argument("--legacy", action="store_true", help="Reproduce the archived calibration score")
+    parser.add_argument("--details", action="store_true", help="Include underlying evidence for each checkpoint")
+    parser.add_argument("--level", type=int, choices=[1, 2, 3, 4, 5, 6, 7, 8], default=8)
     parser.add_argument("--seed", type=int, default=0)
     args = parser.parse_args()
     if args.reference:
-        run_reference(args.run, args.variant, args.level, args.seed)
-    print(json.dumps(grade(args.run), ensure_ascii=False, indent=2))
+        run_reference(args.run, "A", args.level, args.seed)
+    print(json.dumps(grade(args.run, legacy=args.legacy, details=args.details), ensure_ascii=False, indent=2))

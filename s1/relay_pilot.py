@@ -125,9 +125,8 @@ def run_one(dest, model, level, seed, arm, condition, direct_response=False, edi
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("dest", type=Path)
-    p.add_argument("--models", nargs="+", choices=["deepseek", "qwen"], default=["deepseek", "qwen"])
+    p.add_argument("--models", nargs="+", choices=["deepseek", "qwen"], default=["deepseek"])
     p.add_argument("--seeds", nargs="+", type=int, required=True)
-    p.add_argument("--variants", nargs="+", choices=["A", "B"], default=["A", "B"])
     p.add_argument("--level", choices=range(1, 5), type=int, required=True)
     p.add_argument("--condition", choices=["relay","continuous","current","evidence"], default="relay")
     p.add_argument("--workers", type=int, default=4)
@@ -135,8 +134,8 @@ def main():
     p.add_argument("--edition", choices=["original", "warehouse"], default="original")
     args = p.parse_args()
     with ThreadPoolExecutor(max_workers=args.workers) as pool:
-        jobs = [pool.submit(run_one, args.dest.resolve(), model, args.level, seed, arm, args.condition, args.direct_response, args.edition)
-                for seed in args.seeds for arm in args.variants for model in args.models]
+        jobs = [pool.submit(run_one, args.dest.resolve(), model, args.level, seed, "A", args.condition, args.direct_response, args.edition)
+                for seed in args.seeds for model in args.models]
         for job in jobs:
             job.result()
 

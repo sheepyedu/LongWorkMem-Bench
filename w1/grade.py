@@ -116,12 +116,13 @@ def payroll_checks(table, oracle):
     return splits, residual
 
 
-def grade(run: Path, variant: str) -> dict:
+def grade(run: Path, variant: str | None = None) -> dict:
     run = Path(run)
     manifest = run / "manifest.json"
     if manifest.is_file() and json.loads(manifest.read_bytes()).get("task") == "W1-advanced":
         from . import advanced
         return advanced.grade(run, variant)
+    variant = variant or "A"
     oracle = expected(variant)
     snapshots = run / "snapshots"
     def at(turn, filename):
@@ -231,6 +232,6 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("run", type=Path)
-    parser.add_argument("variant", choices=["A", "B"])
+    parser.add_argument("variant", nargs="?", choices=["A", "B"])
     args = parser.parse_args()
     print(json.dumps(grade(args.run, args.variant), ensure_ascii=False, indent=2))

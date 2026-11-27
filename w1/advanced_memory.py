@@ -154,7 +154,7 @@ def equal(row, wanted, fields):
         return False
 
 
-def checks(run, variant, level, seed):
+def checks(run, variant, level, seed, *, whole_cases=False):
     snap = run/"snapshots"
     r = mandate(seed)
     effective = {"A":"2025-07-16","B":"2025-08-16"}[variant]
@@ -170,6 +170,8 @@ def checks(run, variant, level, seed):
                  "disposition":(("decision",),1), "amount":(("target","change") if turn != 9 else ("target",),1)}
         if turn == 9:
             terms["adjustment"] = (("change",),3)
+        if whole_cases:
+            terms = {"case": (("project", "desk", "authority", "decision", "target", "change"), 1)}
         for name,(fields,maximum) in terms.items():
             passed = [k for k in expected.keys() & actual.keys() if len(actual[k]) == 1 and equal(actual[k][0],expected[k],fields)]
             scores[f"memory.r{turn}.{name}"] = (maximum*len(passed)/denominator, maximum,
