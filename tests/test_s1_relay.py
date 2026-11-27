@@ -111,6 +111,7 @@ class CalibrationReviewTest(unittest.TestCase):
                    for seed, gap in [(1, 5), (2, 11)]
                    for arm in "AB"
                    for model, score in [("deepseek-v4-1-flash-261017", 50 + gap), ("qwen3.8-flash", 50)]]
+        self.assertEqual(compare([r for r in reports if r["variant"] == "A"])["gap"], 8)
         paired = compare(reports)
         self.assertEqual(paired["gap"], 8)
         self.assertEqual(paired["seed_gaps"], [5, 11])

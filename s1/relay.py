@@ -63,7 +63,7 @@ class Season:
                                            rng.choice(VALUES[field]), scope, turn, rng.random() >= .2))
         for t in (3, 6):
             prior = [d for d in self.notices if d.turn < t and d.official and d.number not in self.withdrawn]
-            for d in rng.sample(prior, max(1, n // 4)):
+            for d in rng.sample(prior, min(len(prior), max(1, n // 4))):
                 self.withdrawn[d.number] = t
         self.jobs = {}
         for turn in WEIGHTS:
@@ -96,8 +96,10 @@ class Season:
                     " ".join([team, *self.stock[team]]) for team, _ in self.jobs[turn])
         return instruction
 
-    def expected(self, team, phase):
+    def expected(self, team, phase, *, as_of=None):
         cutoff = {"预选": 4, "邀请": 5, "决赛": 7}[phase]
+        if as_of is not None:
+            cutoff = min(cutoff, as_of)
         values = list(self.base[team])
         for d in self.notices:
             if (d.team == team and d.official and d.turn <= cutoff and

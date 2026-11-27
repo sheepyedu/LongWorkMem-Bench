@@ -13,7 +13,7 @@ def review(run):
         raise ValueError(f"{run.name}: incomplete run")
     result = audit(run)
     saved = json.loads((run / "grade.json").read_text())
-    if any(result[k] != saved[k] for k in ("desks", "groups", "total")):
+    if any(saved.get(k) != v for k, v in result.items() if k != "usage"):
         raise ValueError(f"{run.name}: stored grade does not match")
     circuit = Circuit(
         meta["seed"],
@@ -21,6 +21,7 @@ def review(run):
         meta["desks"],
         meta["level"],
         meta.get("qualifiers", 0),
+        version=meta.get("score_version", 1),
     )
     stock_receipts = []
     changed = hits = historical = recovered = 0
@@ -53,8 +54,10 @@ def review(run):
         run=run.name,
         history=meta.get("history", "continuous"),
         turns=len(circuit.schedule),
+        score_version=circuit.version,
         score=result["total"],
         groups=result["groups"],
+        **{k: result[k] for k in ("registration_points", "outcome_points") if k in result},
         stock_only=circuit.score(stock_receipts)["total"],
         updated_pairs=[hits, changed],
         historical_fields=[recovered, historical],

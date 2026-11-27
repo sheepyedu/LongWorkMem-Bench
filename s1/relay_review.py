@@ -137,12 +137,16 @@ def compare(reports):
         values[key] = report["score"]
     ds, qw = [], []
     seeds = sorted(by_seed)
+    arms = sorted({r["variant"] for r in reports})
+    if arms not in (["A"], ["A", "B"]):
+        raise ValueError("unknown or incomplete opening histories")
+    models = ("deepseek-v4-1-flash-261017", "qwen3.8-flash")
     for seed in seeds:
         values = by_seed[seed]
-        if len(values) != 4:
-            raise ValueError("both models and both opening histories are required for each seed")
-        ds.append(mean(values[v, "deepseek-v4-1-flash-261017"] for v in "AB"))
-        qw.append(mean(values[v, "qwen3.8-flash"] for v in "AB"))
+        if set(values) != {(arm, model) for arm in arms for model in models}:
+            raise ValueError("both models must cover the same openings for every seed")
+        ds.append(mean(values[v, "deepseek-v4-1-flash-261017"] for v in arms))
+        qw.append(mean(values[v, "qwen3.8-flash"] for v in arms))
     gaps = [a-b for a,b in zip(ds,qw)]
     outcome = {"seeds": seeds, "deepseek": mean(ds), "qwen": mean(qw), "gap": mean(gaps),
                "seed_gaps": gaps}

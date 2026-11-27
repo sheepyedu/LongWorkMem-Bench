@@ -4,14 +4,14 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from s1.circuit import Circuit, RULES, audit
+from s1.circuit import Circuit, audit
 from s1.relay import WEIGHTS
 from w1.gateway import MODEL
 
 
 class CircuitTest(unittest.TestCase):
     def test_handover_carries_only_the_actual_bounded_note(self):
-        c = Circuit(4, "A", 3, 2)
+        c = Circuit(4, "A", 3, 2, version=1)
         mid = len(c.schedule) // 2
         note = "杉" * 5510
         rec = c.receipt(mid, {"note": note}, "handover")
@@ -26,20 +26,20 @@ class CircuitTest(unittest.TestCase):
         self.assertEqual(c.receipt(mid, {}, "handover")["memo"], "")
 
     def test_mixed_districts_preserve_same_schedule_and_assignment(self):
-        a, b = [Circuit(13, v, 10, 2, 2) for v in "AB"]
+        a, b = [Circuit(13, v, 10, 2, 2, version=1) for v in "AB"]
         self.assertEqual(a.schedule, b.schedule)
-        self.assertEqual(a.schedule, Circuit(13, "A", 10, 2).schedule)
+        self.assertEqual(a.schedule, Circuit(13, "A", 10, 2, version=1).schedule)
         self.assertEqual([len(s.teams) for s in a.seasons.values()], [14] * 8 + [6] * 2)
         for i, (_, stage) in enumerate(a.schedule, 1):
             self.assertEqual(a.prompt(i) == b.prompt(i), stage != 1)
         with self.assertRaises(ValueError):
-            Circuit(13, "A", 10, 2, 10)
+            Circuit(13, "A", 10, 2, 10, version=1)
 
     def test_public_paperwork_alone_solves_both_openings(self):
         from tests.test_s1_relay_reference import read_notices, rosters
 
         for arm in "AB":
-            c = Circuit(411, arm, 10, 2, 2)
+            c = Circuit(411, arm, 10, 2, 2, version=1)
             archives, receipts = {}, []
             for t in range(1, 81):
                 lines = c.prompt(t).splitlines()
@@ -66,7 +66,7 @@ class CircuitTest(unittest.TestCase):
             self.assertEqual(c.score(receipts)["total"], 100)
 
     def test_delayed_pair_and_score(self):
-        a, b = [Circuit(4, arm, 9, 2) for arm in "AB"]
+        a, b = [Circuit(4, arm, 9, 2, version=1) for arm in "AB"]
         self.assertEqual(a.schedule, b.schedule)
         self.assertEqual(len(a.schedule), 72)
         receipts = []
@@ -97,7 +97,7 @@ class CircuitTest(unittest.TestCase):
                 p.write_text(json.dumps(d))
 
             calls = []
-            history = [{"role": "system", "content": RULES}]
+            history = [{"role": "system", "content": c.rules}]
             for i in range(1, len(c.schedule) + 1):
                 calls.append([i])
                 prompt = c.prompt(i)
@@ -132,6 +132,8 @@ class CircuitTest(unittest.TestCase):
                     model=MODEL,
                     session="test",
                     seed=6,
+                    score_version=2,
+                    parser_version=3,
                     variant="A",
                     level=1,
                     desks=2,
@@ -180,3 +182,66 @@ class SubmissionTest(unittest.TestCase):
         ]:
             with self.assertRaises(ValueError):
                 read_command(text, 2)
+
+
+class SingleCircuitTest(unittest.TestCase):
+    def play_public(self, circuit):
+        from tests.test_s1_relay_reference import read_notices, rosters
+
+        archives, receipts = {}, []
+        for turn, (desk, stage) in enumerate(circuit.schedule, 1):
+            lines = circuit.prompt(turn).splitlines()
+            command = {}
+            if stage == 1:
+                base = dict((team, fields) for team, *fields in
+                            (line.split() for line in lines[2:-2]))
+                archives[desk] = base, [], {}
+            if stage in (2, 3, 6):
+                _, notices, revoked = archives[desk]
+                read_notices("\n".join(lines[1:-2]), notices, revoked, stage)
+            sheets = rosters(*archives[desk])
+            if lines[-1].startswith("登记任务"):
+                phase, teams = re.fullmatch(r"登记任务：(\S+)，队号 ([\d、]+)。.*", lines[-1]).groups()
+                command["register"] = {k: sheets[phase][k] for k in teams.split("、")}
+            else:
+                command["orders"] = {k: sheets[phase][k] for k, phase in
+                                     (item.split("/") for item in lines[2].split("、"))}
+            receipts.append(circuit.receipt(turn, command))
+        return receipts
+
+    def test_public_oracle_and_empty_outcomes_every_tier(self):
+        for level in range(1, 5):
+            for seed in (39107, 88469, 0):
+                c = Circuit(seed, "A", 10, level, 2)
+                receipts = self.play_public(c)
+                result = c.score(receipts)
+                self.assertEqual((result["total"], result["outcome_points"],
+                                  result["registration_points"]), (100, 70, 30))
+                self.assertEqual(len(result["groups"]), 8)
+                self.assertEqual(result, c.score(receipts))
+                for rec in receipts:
+                    rec["booked"].clear()
+                self.assertEqual(c.score(receipts)["total"], 30)
+                self.assertEqual(c.score([c.receipt(t, {"note": "均已办理"})
+                                          for t in range(1, 81)])["total"], 0)
+
+    def test_one_field_costs_one_check_and_cannot_be_repaired_later(self):
+        c = Circuit(13, "A", 10, 2, 2)
+        records = self.play_public(c)
+        team, fields = next(iter(records[0]["register"].items()))
+        fields[0] = "错误"
+        result = c.score(records)
+        self.assertEqual(result["total"], round(100 - 7.5 / 80, 3))
+        self.assertEqual(result["outcome_points"], 70)
+        self.assertEqual(c.receipt(1, {"register": {team: fields[:2]}})["register"][team],
+                         fields[:2] + [None, None])
+        self.assertEqual(c.receipt(1, {"register": {"00": fields}})["register"], {})
+        self.assertEqual(c.receipt(1, {"orders": {team: fields}})["booked"], {})
+        with self.assertRaises(ValueError):
+            c.receipt(1, {"register": []})
+        for rec in records:
+            if "register" in rec:
+                rec["register"].clear()
+        self.assertEqual(c.score(records)["total"], 70)
+        with self.assertRaises(ValueError):
+            c.score([records[1], records[0], *records[2:]])

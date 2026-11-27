@@ -1,6 +1,5 @@
 """Run the eight-turn card league or a fresh, paired registration control."""
 import argparse
-from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 import getpass
 import hashlib
@@ -229,7 +228,6 @@ def verify_smoke(run, value):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("dest", type=Path)
-    parser.add_argument("--variants", nargs="+", choices=["A","B"], default=["A","B"])
     parser.add_argument("--seed", type=int, default=31)
     parser.add_argument("--limit", type=int, default=1500)
     parser.add_argument("--backend", choices=["native","docker"], default="native")
@@ -238,21 +236,17 @@ def main():
     modes.add_argument("--control", choices=["current","reminder"])
     modes.add_argument("--smoke", action="store_true")
     args = parser.parse_args()
-    if args.limit < 1 or len(set(args.variants)) != len(args.variants):
-        parser.error("Use a positive budget and distinct variants")
+    if args.limit < 1:
+        parser.error("Use a positive budget")
     args.dest.mkdir(parents=True, exist_ok=True)
-    if any((args.dest / v).exists() for v in args.variants):
+    if (args.dest / "A").exists():
         parser.error("Each variant requires a fresh run directory")
     image = None
     if args.backend == "docker":
         image = docker_image(args.image)
     credential = os.environ.get("ARK_API_KEY") or getpass.getpass("Ark credential (hidden): ")
     mode = args.control or ("smoke" if args.smoke else "natural")
-    with ThreadPoolExecutor(max_workers=len(args.variants)) as pool:
-        runs = [pool.submit(play, args.dest / v, v, args.seed, credential, mode, args.limit, image)
-                for v in args.variants]
-        for run in runs:
-            run.result()
+    play(args.dest / "A", "A", args.seed, credential, mode, args.limit, image)
 
 
 if __name__ == "__main__":
