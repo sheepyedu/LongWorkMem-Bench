@@ -47,7 +47,7 @@
 
 混合赛种子 39107/A 的第 76 轮要求补办区01的 26 队邀请赛凭证。第 41 轮邀请赛时的领牌员是松，第 59 轮新批复 D060 才改为榆。两模型都填了榆。该错误能定位到授权生效日期，即使原件仍然在上下文中也会发生。
 
-逐局证据见 `docs/research/evidence/s1-circuit-rollouts.csv`，其中 dev/control 为旧接单器诊断，dev2/control2 为修正后开发与按区对照，handover 为中点摘要，holdout/mixed 为两批独立验证。原始赛区公文、上游请求、Claude 终端回复与实际接受的单据均可用 `s1.circuit_review` 在宿主运行区复评。
+逐局证据见 `s1/reports/evidence/s1-circuit-rollouts.csv`，其中 dev/control 为旧接单器诊断，dev2/control2 为修正后开发与按区对照，handover 为中点摘要，holdout/mixed 为两批独立验证。原始赛区公文、上游请求、Claude 终端回复与实际接受的单据均可用 `s1.circuit_review` 在宿主运行区复评。
 
 ## GPT-6.1 Sol 同场复测
 

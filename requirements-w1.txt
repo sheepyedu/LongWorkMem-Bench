@@ -1,1 +1,1 @@
-openpyxl==3.1.5
+-r w1/requirements.txt

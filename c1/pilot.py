@@ -89,7 +89,7 @@ def run_session(run, variant, backend, key, *, mode="formal", limit=1500, start=
         (run / name).mkdir()
     session = str(uuid.uuid4())
     package = Path(__file__).resolve().parent
-    files = [p for p in package.rglob("*.py") if "__pycache__" not in p.parts]
+    files = [p for p in package.rglob("*.py") if p.relative_to(package).parts[0] != "tests" and "__pycache__" not in p.parts]
     files.extend(package.parent / "w1" / name for name in ("claude.py", "gateway.py", "office.py"))
     manifest = {"mode": mode, "variant": variant, "backend": backend, "model": model, "session": session,
                 "start": timestamp(), "limit": limit, "turns": [], "status": "running",

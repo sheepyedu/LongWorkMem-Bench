@@ -36,7 +36,7 @@ class CircuitTest(unittest.TestCase):
             Circuit(13, "A", 10, 2, 10, version=1)
 
     def test_public_paperwork_alone_solves_both_openings(self):
-        from tests.test_s1_relay_reference import read_notices, rosters
+        from s1.tests.test_s1_relay_reference import read_notices, rosters
 
         for arm in "AB":
             c = Circuit(411, arm, 10, 2, 2, version=1)
@@ -186,7 +186,7 @@ class SubmissionTest(unittest.TestCase):
 
 class SingleCircuitTest(unittest.TestCase):
     def play_public(self, circuit):
-        from tests.test_s1_relay_reference import read_notices, rosters
+        from s1.tests.test_s1_relay_reference import read_notices, rosters
 
         archives, receipts = {}, []
         for turn, (desk, stage) in enumerate(circuit.schedule, 1):
