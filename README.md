@@ -12,6 +12,8 @@
 
 每题的实现、测试、手册和研究报告集中在同名目录。各题仍从仓库根目录使用 `python -m w1.…`、`python -m c1.…` 和 `python -m s1.…`。公共测试入口、环境前提与分题命令见[测试指南](TEST.md)。此前整理的历史核查见[三题审核报告](docs/build/task-audit-20261127.md)。
 
+本批三题各完成 8 场正式评测，逐场分数、扣分证据、预算终态和环境缺陷见[双模型 24 场审计](docs/results/advanced-audit-20261127/README.md)。
+
 ## 本地验证
 
 使用 Python 3.12。W1 工作簿评分还需 LibreOffice Calc，并确保 `soffice` 在 PATH 中。Docker 集成测试需相应题目的镜像和可写共享目录。以下命令执行本地检查，不调用模型 API。
