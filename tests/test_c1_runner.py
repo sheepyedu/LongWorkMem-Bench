@@ -118,3 +118,27 @@ class CheckoutTests(unittest.TestCase):
             second['request']={**wire,'max_tokens':20}
             (trace/'api-0002.json').write_text(json.dumps(second))
             self.assertTrue(any('matching retry' in issue for issue in audit(run)['flags']))
+
+    def test_each_fresh_shift_verifies_its_own_session_and_empty_history(self):
+        from c1.pilot import ALLOWED
+        with tempfile.TemporaryDirectory() as temp:
+            run=Path(temp)
+            trace=run/'trace'
+            trace.mkdir()
+            turns=[]
+            for i,t in enumerate((1,5,7),1):
+                session=f'shift-{t}'
+                turns.append(dict(turn=t,session=session,upstream_calls=1))
+                prompt=f'委托 {t}'
+                (trace/f'prompt-{t}.txt').write_text(prompt)
+                (trace/f'turn-{t}.jsonl').write_text(json.dumps(dict(type='result',is_error=False,session_id=session))+'\n')
+                wire=dict(model='m',messages=[dict(role='system',content='desk'),dict(role='user',content=prompt)],
+                          tools=[dict(function=dict(name=k)) for k in ALLOWED])
+                packet=dict(n=i,turn=t,status=200,request=wire,response=dict(id=f'reply-{i}',model='m',
+                            usage=dict(prompt_tokens=5,completion_tokens=2),choices=[dict(message={})]))
+                (trace/f'api-{i:04}.json').write_text(json.dumps(packet))
+            (run/'manifest.json').write_text(json.dumps(dict(turns=turns,rotation_turns=[5,7],session='shift-1',status='complete',model='m')))
+            self.assertEqual(audit(run)['flags'],[])
+            packet['request']['messages'].insert(1,dict(role='assistant',content='old conversation'))
+            (trace/'api-0003.json').write_text(json.dumps(packet))
+            self.assertTrue(any('fresh shift' in flag for flag in audit(run)['flags']))
