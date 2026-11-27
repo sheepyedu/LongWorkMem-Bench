@@ -206,3 +206,19 @@ class SettlementTests(unittest.TestCase):
             self.assertEqual(dict(after["audit"])[eid], "duplicate")
             self.assertTrue(matches(after, before, "lots"))
             self.assertTrue(matches(after, before, "accounts"))
+
+    def test_budget_stop_preserves_delivered_work_and_not_future_credit(self):
+        from c1.settlement_grade import checkpoint_path
+
+        with tempfile.TemporaryDirectory() as tmp:
+            run = Path(tmp)
+            (run / "partial/5").mkdir(parents=True)
+            (run / "trace").mkdir()
+            m = {"status": "budget_exhausted", "turns": [{}] * 4, "dispatch_window": 2}
+            self.assertEqual(checkpoint_path(run, m, "snapshots", 5), run / "partial/5")
+            self.assertEqual(checkpoint_path(run, m, "dispatch", 5), run / "partial/5")
+            (run / "trace/tools-5.jsonl").write_text("{}\n{}\n")
+            self.assertEqual(checkpoint_path(run, m, "dispatch", 5), run / "dispatch/5")
+            self.assertEqual(
+                checkpoint_path(run, m, "snapshots", 6), run / "snapshots/6"
+            )

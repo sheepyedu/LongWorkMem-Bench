@@ -160,6 +160,24 @@ def matches(got, expected, field=None):
     return canonical(got) == canonical(expected)
 
 
+def checkpoint_path(run, manifest, directory, turn):
+    normal = run / directory / str(turn)
+    if (
+        normal.exists()
+        or manifest.get("status") != "budget_exhausted"
+        or turn != 1 + len(manifest.get("turns", []))
+    ):
+        return normal
+    if directory == "dispatch":
+        journal = run / "trace" / f"tools-{turn}.jsonl"
+        if (
+            journal.exists()
+            and len(journal.read_bytes().splitlines()) >= manifest["dispatch_window"]
+        ):
+            return normal
+    return run / "partial" / str(turn)
+
+
 def grade_snapshot(run, backend, snapshot_dir):
     run = Path(run).resolve()
     m = json.loads((run / "manifest.json").read_text())
@@ -184,7 +202,7 @@ def grade_snapshot(run, backend, snapshot_dir):
             (6, "close", (3, 3, 2)),
         ]:
             settlement.release(base, turn, m["variant"], m["seed"], m["level"])
-            snap = run / snapshot_dir / str(turn)
+            snap = checkpoint_path(run, m, snapshot_dir, turn)
             if not snap.exists():
                 missing.append(turn)
             got = load_output(snap, name)
@@ -223,7 +241,7 @@ def grade_snapshot(run, backend, snapshot_dir):
 
         # Each deadline's signed file must survive the later backfill unchanged in meaning.
         def preserved(turn, name):
-            original = load_output(run / snapshot_dir / str(turn), name)
+            original = load_output(checkpoint_path(run, m, snapshot_dir, turn), name)
             final = load_output(snap, name)
             if (
                 not isinstance(original, dict)
@@ -320,7 +338,7 @@ def grade_snapshot(run, backend, snapshot_dir):
         from .reserve_grade import grade_phase
 
         checks = {name: [v * 0.75, w * 0.75] for name, (v, w) in checks.items()}
-        snap = run / snapshot_dir / "7"
+        snap = checkpoint_path(run, m, snapshot_dir, 7)
         if not snap.exists():
             missing.append(7)
         approvers = settlement.generate(m["seed"], 2, m["variant"])[3]
@@ -328,7 +346,10 @@ def grade_snapshot(run, backend, snapshot_dir):
     total = sum(x[0] for x in checks.values())
     valid = not probes.infrastructure and (
         (m.get("status") == "complete" and not missing)
-        or m.get("status") == "budget_exhausted"
+        or (
+            m.get("status") == "budget_exhausted"
+            and all(t > len(m["turns"]) + 1 for t in missing)
+        )
     )
     return dict(
         total=round(total, 2) if valid else None,

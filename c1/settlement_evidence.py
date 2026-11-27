@@ -8,6 +8,7 @@ import sys
 
 from .review import audit
 from .settlement import NAMES
+from .settlement_grade import checkpoint_path
 
 
 def milestones(checks, name):
@@ -67,7 +68,9 @@ def round_rows(run, score):
                 else (None, None, None)
             )
             result[where + "_file"] = (
-                (run / directory / str(turn) / "out" / (name + ".json")).is_file()
+                (
+                    checkpoint_path(run, m, directory, turn) / "out" / (name + ".json")
+                ).is_file()
                 if applicable
                 else None
             )

@@ -32,7 +32,19 @@ def audit(run):
     pending, retries = defaultdict(list), []
     paths = sorted(trace.glob("api-*.json"))
     expected = []
-    for turn in manifest["turns"]:
+    audited_turns = list(manifest["turns"])
+    if manifest["status"] == "budget_exhausted":
+        partial_turn = len(audited_turns)+1
+        previous_attempts = sum(t["upstream_calls"] for t in audited_turns)
+        if len(paths) != manifest["limit"]:
+            flags.append("Exhausted budget does not match the captured attempt count")
+        transcript = trace/f"turn-{partial_turn}.jsonl"
+        if transcript.exists():
+            partial_session = next((e["session_id"] for _,e in events(transcript)
+                                    if isinstance(e,dict) and e.get("session_id")),manifest["session"])
+            audited_turns.append(dict(turn=partial_turn,session=partial_session,partial=True,
+                                      upstream_calls=len(paths)-previous_attempts))
+    for turn in audited_turns:
         expected.extend([turn["turn"]] * turn["upstream_calls"])
     if len(paths) != len(expected):
         flags.append(f"manifest has {len(expected)} attempts, trace has {len(paths)}")
@@ -107,7 +119,7 @@ def audit(run):
             flags.append(f"{path.name}: {type(exc).__name__}: {str(exc)[:120]}")
     for attempts in pending.values():
         flags.append(f"{attempts[-1]['receipt']}: no matching retry succeeded")
-    for turn in manifest["turns"]:
+    for turn in audited_turns:
         n = turn["turn"]
         cli, results, terminals = {}, {}, []
         path = trace / f"turn-{n}.jsonl"
@@ -140,7 +152,7 @@ def audit(run):
                             failures.append({"turn": n, "line": line, "status": value.get("status")})
             except (ValueError, TypeError, KeyError, AttributeError) as exc:
                 flags.append(f"{path.name}:{line}: {type(exc).__name__}")
-        if terminals != [False]:
+        if terminals != [bool(turn.get("partial"))]:
             flags.append(f"turn {n}: terminal results {terminals}")
         if cli.keys() != provider[n].keys() or cli.keys() != results.keys():
             flags.append(f"turn {n}: tool call or result IDs differ")
@@ -165,7 +177,7 @@ def audit(run):
         if journal != observed:
             flags.append(f"turn {n}: host tool journal differs from the CLI")
         counts[n]["tools"] = sum(journal.values())
-    expected_sessions = {turn.get("session",manifest["session"]) for turn in manifest["turns"]}
+    expected_sessions = {turn.get("session",manifest["session"]) for turn in audited_turns}
     if sessions != expected_sessions or (manifest.get("status")=="complete" and
             len(expected_sessions) != len(manifest.get("rotation_turns", []))+1):
         flags.append("session identity mismatch")
