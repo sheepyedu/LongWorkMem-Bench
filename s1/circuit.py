@@ -76,6 +76,24 @@ class Circuit:
         }
 
 
+def read_command(text, version):
+    if version == 1:
+        return decode(text)
+    start, end = text.find("{"), text.rfind("}")
+    if start < 0 or end < start:
+        raise ValueError("请提交 JSON 对象")
+    obj = (
+        decode(text[start : end + 1])
+        if "```" not in text[start : end + 1]
+        else decode(text)
+    )
+    if obj and all(k.isascii() and k.isdigit() for k in obj):
+        return {"orders": obj}
+    if obj.keys() - {"orders", "note"}:
+        raise ValueError("单据须有 orders 或 note 字段，或直接以队号作键")
+    return obj
+
+
 def audit(run):
     meta = json.loads((run / "manifest.json").read_text())
     circuit = Circuit(meta["seed"], meta["variant"], meta["desks"], meta["level"])
@@ -165,7 +183,9 @@ def audit(run):
             if not matched:
                 raise ValueError(f"R{t}: no matching upstream result")
             try:
-                receipt = circuit.receipt(t, decode(answer))
+                receipt = circuit.receipt(
+                    t, read_command(answer, meta.get("parser_version", 1))
+                )
             except ValueError:
                 continue
             if idx != calls[-1]:
@@ -200,6 +220,7 @@ def run_one(dest, model, seed, variant, desks, level, history="continuous"):
         else {}
     )
     meta = dict(
+        parser_version=2,
         history=history,
         regional_sessions=sessions,
         seed=seed,
@@ -253,7 +274,10 @@ def run_one(dest, model, seed, variant, desks, level, history="continuous"):
                     )
                     try:
                         receipt = circuit.receipt(
-                            t, decode(final_result(run / "trace" / f"turn-{idx}.jsonl"))
+                            t,
+                            read_command(
+                                final_result(run / "trace" / f"turn-{idx}.jsonl"), 2
+                            ),
                         )
                         break
                     except ValueError as exc:

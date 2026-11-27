@@ -86,3 +86,16 @@ class CircuitTest(unittest.TestCase):
             write(run / "receipt-9.json", {})
             with self.assertRaisesRegex(ValueError, "mismatch"):
                 audit(run)
+
+
+class SubmissionTest(unittest.TestCase):
+    def test_unambiguous_bare_orders_and_prose(self):
+        from s1.circuit import read_command
+
+        orders = {"12": ["P1", "31", "杏", "西"]}
+        self.assertEqual(
+            read_command("已核对。\n" + json.dumps(orders), 2), {"orders": orders}
+        )
+        for text in ["{} 和 {}", '{"ordres":{}}', '{"12":[], "12":[]}']:
+            with self.assertRaises(ValueError):
+                read_command(text, 2)
