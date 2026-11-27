@@ -8,7 +8,7 @@ from pathlib import Path
 
 from . import settlement
 from .grade_evidence import Probes, content
-from .settlement_grade import ledger, matches
+from .settlement_grade import checkpoint_path, ledger, matches
 
 
 def add_second_recall(inp, plan):
@@ -40,11 +40,12 @@ def diagnose(run, backend="docker"):
     run = Path(run).resolve()
     m = json.loads((run / "manifest.json").read_text())
     probes = Probes(backend, run)
-    if not (run / "snapshots/6").is_dir():
+    close = checkpoint_path(run, m, "snapshots", 6)
+    if not close.is_dir():
         return {"available": False, "reason": "missing close"}
     with (
         tempfile.TemporaryDirectory(dir=run.parent) as tmp,
-        probes.workspace(run / "snapshots/6") as work,
+        probes.workspace(close) as work,
     ):
         host = Path(tmp)
         for t in range(1, 7):
