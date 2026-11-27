@@ -4,8 +4,10 @@ import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
+from unittest.mock import Mock
 
-from tasks.codex_bench import native_usage, recorded_turn, verify_threads
+from tasks.codex_bench import native_usage, recorded_turn, specs_for, verify_threads
+from tasks.codex_client import Client
 
 
 class CodexReplayTest(unittest.TestCase):
@@ -107,3 +109,29 @@ class CodexReplayTest(unittest.TestCase):
         result = native_usage(self.run, meta)
         self.assertEqual(result["missing_usage_attempts"], [3])
         self.assertNotIn("inputTokens", result)
+
+
+class CodexThreadConfigTest(unittest.TestCase):
+    def test_docker_write_permissions_survive_shift_changes(self):
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "trace").mkdir()
+            client = Client(root)
+            client.desk = tmp
+            client.rpc = Mock(
+                return_value=dict(
+                    model=client.model,
+                    instructionSources=[],
+                    reasoningEffort="low",
+                    thread=dict(id="session"),
+                )
+            )
+            for task in ("c1", "c1", "w1", "s1"):
+                client.start("contract", specs_for(task))
+                cfg = client.rpc.call_args.args[1]
+                self.assertEqual(cfg["environments"], [])
+                self.assertFalse(cfg["allowProviderModelFallback"])
+                self.assertEqual(
+                    cfg["sandbox"], "read-only" if task == "s1" else "workspace-write"
+                )
+                self.assertEqual("developerInstructions" in cfg, task != "s1")
