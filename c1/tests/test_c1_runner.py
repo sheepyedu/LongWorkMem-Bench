@@ -121,3 +121,34 @@ class CheckoutTests(unittest.TestCase):
             packet['request']['messages'].insert(1,dict(role='assistant',content='old conversation'))
             (trace/'api-0003.json').write_text(json.dumps(packet))
             self.assertTrue(any('fresh shift' in flag for flag in audit(run)['flags']))
+
+    def test_budget_terminal_tool_still_requires_matching_host_evidence(self):
+        from c1.pilot import ALLOWED
+
+        with tempfile.TemporaryDirectory() as tmp:
+            run = Path(tmp)
+            trace = run / "trace"
+            trace.mkdir()
+            tool = next(iter(ALLOWED))
+            args, value = {"command": "pwd"}, {"status": 0, "output": "/workspace"}
+            manifest = dict(turns=[], model="m", session="s", status="budget_exhausted",
+                            budget_exhausted=True, limit=1)
+            wire = dict(model="m", messages=[], tools=[{"function": {"name": tool}}])
+            call = dict(id="last", function=dict(name=tool, arguments=json.dumps(args)))
+            response = dict(id="reply", model="m", usage=dict(prompt_tokens=1, completion_tokens=1),
+                            choices=[dict(message=dict(tool_calls=[call]))])
+            events = [
+                dict(type="assistant", message=dict(content=[dict(type="tool_use", name=tool, id="last", input=args)])),
+                dict(type="user", message=dict(content=[dict(type="tool_result", tool_use_id="last", content=json.dumps(value))])),
+                dict(type="result", session_id="s", is_error=True),
+            ]
+            (run / "manifest.json").write_text(json.dumps(manifest))
+            (trace / "api-0001.json").write_text(json.dumps(dict(n=1, turn=1, status=200, request=wire, response=response)))
+            (trace / "turn-1.jsonl").write_text("\n".join(map(json.dumps, events)))
+            journal = trace / "tools-1.jsonl"
+            journal.write_text(json.dumps(dict(args=args, result=value)))
+            report = audit(run)
+            self.assertEqual(report["flags"], [])
+            self.assertEqual(report["unforwarded_at_budget"][0]["receipt"], "api-0001.json")
+            journal.write_text(json.dumps(dict(args=args, result={"status": 1})))
+            self.assertTrue(any("journal differs" in item for item in audit(run)["flags"]))

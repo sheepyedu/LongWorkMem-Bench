@@ -32,6 +32,7 @@ def audit(run):
     pending, retries = defaultdict(list), []
     paths = sorted(trace.glob("api-*.json"))
     expected = []
+    unforwarded_at_budget = []
     audited_turns = list(manifest["turns"])
     if manifest["status"] == "budget_exhausted":
         partial_turn = len(audited_turns)+1
@@ -162,7 +163,14 @@ def audit(run):
                 args_changed.append(item)
                 flags.append(f"turn {n}: provider and executed tool arguments differ at {locations[n, cid]} ({cid})")
         for cid in results:
-            if forwarded[n].get(cid) != results[cid]:
+            if cid in forwarded[n] and forwarded[n][cid] == results[cid]:
+                continue
+            last_receipt = locations.get((n, cid))
+            if (turn.get("partial") and terminals == [True] and manifest.get("budget_exhausted")
+                    and len(paths) == manifest["limit"] and paths and last_receipt == paths[-1].name
+                    and cid not in forwarded[n]):
+                unforwarded_at_budget.append({"turn": n, "call_id": cid, "receipt": last_receipt})
+            else:
                 flags.append(f"turn {n}: result differs or absent from next upstream input: {cid}")
         observed = Counter(encoded([args, results[cid]]) for cid, (name, args) in cli.items() if cid in results and "client_error" not in results[cid])
         journal = Counter()
@@ -189,7 +197,7 @@ def audit(run):
             else:
                 totals[k] += value
     return {"status": manifest["status"], "turns": dict(sorted(counts.items())), "totals": totals,
-            "shell_failures": failures, "retry_attempts": retries, "argument_differences": args_changed, "private_markers": markers, "flags": flags}
+            "unforwarded_at_budget": unforwarded_at_budget, "shell_failures": failures, "retry_attempts": retries, "argument_differences": args_changed, "private_markers": markers, "flags": flags}
 
 
 if __name__ == "__main__":
