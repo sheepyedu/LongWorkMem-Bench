@@ -15,6 +15,8 @@ def encoded(value):
 def result_value(value):
     if isinstance(value, list):
         value = "\n".join(p["text"] for p in value if p.get("type") == "text")
+    if isinstance(value, str) and value.startswith("<tool_use_error>") and value.endswith("</tool_use_error>"):
+        return {"client_error": value}
     return json.loads(value)
 
 
@@ -44,10 +46,11 @@ def audit(run):
                 flags.append(f"{path.name}: tool list differs")
             if wire["model"] != manifest["model"]:
                 flags.append(f"{path.name}: request model differs")
+            sent = encoded(wire)
             for marker in ("c1.grade", "c1/grade", "c1/reference", "c1-grade/", "CP4.decision", "CP5.replay",
                            "settlement_grade", "settlement_reference", "archive.preserved", "lineage.close", "dispatch-v1",
                            "LongWorkMem-Bench", ".claude-manager/", str(run.resolve())):
-                if marker in encoded(wire):
+                if marker in sent:
                     markers.append([path.name, marker])
             for message in wire["messages"]:
                 if message["role"] == "tool":
@@ -101,7 +104,11 @@ def audit(run):
                     elif block["type"] == "tool_result":
                         value = result_value(block["content"])
                         results[block["tool_use_id"]] = value
-                        if value.get("status") != 0:
+                        if "client_error" in value:
+                            failures.append({"turn": n, "line": line, "client_error": value["client_error"][:200]})
+                            if not block.get("is_error"):
+                                flags.append(f"{path.name}:{line}: unmarked client rejection")
+                        elif value.get("status") != 0:
                             failures.append({"turn": n, "line": line, "status": value.get("status")})
             except (ValueError, TypeError, KeyError, AttributeError) as exc:
                 flags.append(f"{path.name}:{line}: {type(exc).__name__}")
@@ -117,7 +124,7 @@ def audit(run):
         for cid in results:
             if forwarded[n].get(cid) != results[cid]:
                 flags.append(f"turn {n}: result differs or absent from next upstream input: {cid}")
-        observed = Counter(encoded([args, results[cid]]) for cid, (name, args) in cli.items() if cid in results)
+        observed = Counter(encoded([args, results[cid]]) for cid, (name, args) in cli.items() if cid in results and "client_error" not in results[cid])
         journal = Counter()
         ledger = trace / f"tools-{n}.jsonl"
         if ledger.exists():

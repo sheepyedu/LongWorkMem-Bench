@@ -63,3 +63,10 @@ class CheckoutTests(unittest.TestCase):
             earned = {key: item["earned"] for key, item in result["checks"].items() if item["earned"]}
             self.assertTrue(result["valid"], result["infrastructure_errors"])
             self.assertEqual(earned, {"CP1.legacy": 5, "CP1.migration": 2, "CP5.legacy": 5})
+
+    def test_cli_unavailable_tool_is_a_verifiable_client_receipt(self):
+        from c1.review import result_value
+        rejection = '<tool_use_error>Error: No such tool available: workshop__shell</tool_use_error>'
+        self.assertEqual(result_value(rejection), {'client_error': rejection})
+        with self.assertRaises(ValueError):
+            result_value('unexpected unstructured output')
