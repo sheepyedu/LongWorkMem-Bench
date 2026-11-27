@@ -190,3 +190,19 @@ class SettlementTests(unittest.TestCase):
             changed = reserve_reference.settle(project, work / "input")
             self.assertNotEqual(changed["decisions"], actual["decisions"])
             self.assertLess(len(changed["posted"]), len(actual["posted"]))
+
+    def test_second_authorized_recall_is_duplicate_without_another_debit(self):
+        from c1.settlement_diagnostics import add_second_recall
+
+        with tempfile.TemporaryDirectory() as tmp:
+            work = Path(tmp)
+            for turn in range(1, 7):
+                world.release(work, turn, "A", 31, 2)
+            inp = work / "input"
+            plan = json.loads((inp / "jobs/close.json").read_text())
+            before = ledger(inp, plan)
+            eid = add_second_recall(inp, plan)
+            after = solve(inp, plan)
+            self.assertEqual(dict(after["audit"])[eid], "duplicate")
+            self.assertTrue(matches(after, before, "lots"))
+            self.assertTrue(matches(after, before, "accounts"))
