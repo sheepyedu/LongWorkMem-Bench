@@ -101,6 +101,19 @@ def harness_identity(manifest):
     return tuple((name, files.get(name)) for name in names)
 
 
+def truncated_tool(row):
+    if row.get("upstream_status") != 200 or row.get("status") != 502 or not row.get("error"):
+        return False
+    for choice in row.get("response", {}).get("choices", []):
+        if choice.get("finish_reason") == "length":
+            for call in choice["message"].get("tool_calls", []):
+                try:
+                    json.loads(call["function"]["arguments"])
+                except json.JSONDecodeError:
+                    return True
+    return False
+
+
 def completed_receipts(run, manifest):
     model = manifest["model"]
     review = summarize(run)
@@ -110,6 +123,7 @@ def completed_receipts(run, manifest):
     require(review["models"] == [model], run, "provider model differs from declared model")
     missing_usage = set(review["attempts_without_usage"])
     retries, waiting = [], defaultdict(list)
+    truncated = []
     trace = run / "trace"
     prompt_hashes = []
     for turn in ROUNDS:
@@ -129,20 +143,24 @@ def completed_receipts(run, manifest):
                 run, f"{path.name} upstream request/model missing")
         status, turn = row.get("status"), row["turn"]
         require(type(status) is int and isinstance(row.get("end"), (float, int)), run, f"{path.name} incomplete attempt")
-        if path.name in missing_usage:
+        needs_retry = path.name in missing_usage
+        if needs_retry:
             retryable = status in (408, 409, 425, 429) or 500 <= status < 600
             require(retryable and row.get("error") and not row.get("response"), run,
                     f"{path.name} missing usage without documented transient failure")
         else:
             reply = row.get("response", {})
-            require(200 <= status < 300 and not row.get("error") and reply.get("model") == model
+            if truncated_tool(row):
+                truncated.append(row["n"])
+                needs_retry = True
+            require((needs_retry or (200 <= status < 300 and not row.get("error"))) and reply.get("model") == model
                     and (reply.get("id") or row.get("request_id")) and reply.get("choices"),
                     run, f"{path.name} incomplete successful upstream receipt")
-        if waiting or path.name in missing_usage:
+        if waiting or needs_retry:
             # A later success in the same round is not sufficient unless it replays the failed work.
             wire = json.dumps(payload, ensure_ascii=False, separators=(",", ":"), sort_keys=True).encode()
             key = turn, hashlib.sha256(wire).digest()
-            if path.name in missing_usage:
+            if needs_retry:
                 waiting[key].append((row["n"], status))
             else:
                 for failed, code in waiting.pop(key, []):
@@ -150,7 +168,7 @@ def completed_receipts(run, manifest):
     require(not waiting, run, "transient failure had no later matching successful retry in the same round")
     usage = dict(review["observed_usage"])
     usage["attempts"] = sum(t["attempts"] for t in review["turns"].values())
-    return {"usage": usage, "retries": retries,
+    return {"usage": usage, "retries": retries, "truncated_tool_attempts": truncated,
             "private_markers_in_requests": review["private_markers_in_requests"]}, prompt_hashes
 
 

@@ -155,3 +155,23 @@ class PairedTests(unittest.TestCase):
             self.change(b/"trace/turn-9.jsonl",is_error=True,subtype="error")
             with self.assertRaises(ValueError):
                 paired.compare([a,b])
+
+    def test_truncated_paid_tool_call_requires_a_matching_delivered_retry(self):
+        ds = self.make("a", MODEL, retry=True)
+        qw = self.make("b", "qwen3.8-flash")
+        path = ds/"trace/api-0003.json"
+        self.change(path, status=502, upstream_status=200, error="Unterminated string",
+                    response={"model":MODEL,"id":"truncated", "usage":{"prompt_tokens":100,"completion_tokens":10},
+                              "choices":[{"finish_reason":"length","message":{
+                                  "tool_calls":[{"function":{"arguments":'{"command": "'}}]}}]})
+        with patch("w1.paired.grade", side_effect=self.grade):
+            result = paired.compare([ds,qw])["pairs"][0]["models"][MODEL]
+            self.assertEqual(result["truncated_tool_attempts"], [3])
+            self.assertEqual(result["usage"]["successful"], 10)
+            self.assertEqual(result["retries"][0]["successful_attempt"], 4)
+            target = ds/"trace/api-0004.json"
+            row = json.loads(target.read_bytes())
+            row["request"]["messages"][0]["content"] += "different"
+            save(target,row)
+            with self.assertRaisesRegex(ValueError,"matching"):
+                paired.compare([ds,qw])
