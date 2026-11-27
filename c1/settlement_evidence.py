@@ -7,6 +7,7 @@ from pathlib import Path
 import sys
 
 from .review import audit
+from w1.review import events
 from .settlement import NAMES
 from .settlement_grade import checkpoint_path
 
@@ -59,6 +60,24 @@ def round_rows(run, score):
             compactions=metrics.get("compactions", 0),
             peak_input=metrics.get("peak_input", 0),
         )
+        transcript = run / "trace" / f"turn-{turn}.jsonl"
+        result["agent_deadline_excerpt"] = ""
+        if transcript.exists():
+            for _, event in events(transcript):
+                if (
+                    event
+                    and event.get("type") == "result"
+                    and isinstance(event.get("result"), str)
+                ):
+                    for line in event["result"].splitlines():
+                        if ("取件" in line or "签收" in line) and len(
+                            line.strip()
+                        ) > 10:
+                            excerpt = line.strip()
+                            result["agent_deadline_excerpt"] = excerpt[:200] + (
+                                "…" if len(excerpt) > 200 else ""
+                            )
+                            break
         for where, directory in (("dispatch", "dispatch"), ("repaired", "snapshots")):
             applicable = where == "repaired" or "dispatch" in score
             section = score.get(where, score)
