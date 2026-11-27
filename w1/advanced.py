@@ -86,6 +86,10 @@ def grade(run, variant=None):
         raise ValueError("Incomplete turn manifest")
     if any(not (run / "snapshots" / str(t)).is_dir() for t in ROUNDS):
         raise ValueError("Missing host snapshot")
+    if not manifest.get("reference"):
+        from .review import verify_office
+        for turn in ROUNDS:
+            verify_office(run / "trace" / f"turn-{turn}.jsonl")
     items = {}
     for label, department in departments(manifest["level"]).items():
         weight = {**DEPARTMENT_WEIGHTS, "memory": 25}[label]

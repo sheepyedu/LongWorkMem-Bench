@@ -28,7 +28,9 @@ class PairedTests(unittest.TestCase):
             prompt = f"turn {turn} in accounting"
             (trace / f"prompt-{turn}.txt").write_text(prompt)
             terminal = {"type":"result","subtype":"success","is_error":False,"session_id":name}
-            save(trace / f"turn-{turn}.jsonl", terminal)
+            init = dict(type="system",subtype="init",tools=["mcp__office__"+x for x in ("deliver","draft","shell")],
+                        mcp_servers=[{"name":"office","status":"connected"}])
+            (trace / f"turn-{turn}.jsonl").write_text(json.dumps(init)+"\n"+json.dumps(terminal))
             payload = {"model":model, "messages":[{"role":"user","content":prompt}]}
             failure = turn == 3 and retry
             if failure:
@@ -152,7 +154,9 @@ class PairedTests(unittest.TestCase):
         a = self.make("a", MODEL)
         b = self.make("b", "qwen3.8-flash")
         with patch("w1.paired.grade", side_effect=self.grade):
-            self.change(b/"trace/turn-9.jsonl",is_error=True,subtype="error")
+            f = b/"trace/turn-9.jsonl"
+            first, last = f.read_text().splitlines()
+            f.write_text(first+"\n"+json.dumps(dict(json.loads(last),is_error=True,subtype="error")))
             with self.assertRaises(ValueError):
                 paired.compare([a,b])
 
@@ -175,3 +179,12 @@ class PairedTests(unittest.TestCase):
             save(target,row)
             with self.assertRaisesRegex(ValueError,"matching"):
                 paired.compare([ds,qw])
+
+    def test_no_grade_when_a_successful_terminal_had_no_office_tools(self):
+        ds, qw = self.make("a", MODEL), self.make("b", "qwen3.8-flash")
+        f = ds / "trace/turn-7.jsonl"
+        first, last = f.read_text().splitlines()
+        init = dict(json.loads(first),tools=[],mcp_servers=[{"name":"office","status":"failed"}])
+        f.write_text(json.dumps(init)+"\n"+last)
+        with patch("w1.paired.grade", side_effect=self.grade), self.assertRaisesRegex(ValueError,"office"):
+            paired.compare([ds,qw])
