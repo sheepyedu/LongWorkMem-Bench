@@ -14,6 +14,13 @@ from .pilot import write
 from .relay import CONTINUOUS, HANDOVER, RULES, WAREHOUSE_RULES, WEIGHTS, Season, decode, grade, submit
 
 
+def public_context(edition, condition):
+    rules = WAREHOUSE_RULES if edition == "warehouse" else RULES
+    if condition in ("current", "evidence"):
+        return rules + "本班为独立受理，只依现有记录办理。"
+    return rules + (HANDOVER if condition == "relay" else CONTINUOUS)
+
+
 def final_result(path):
     terminal = [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
     results = [e for e in terminal if e.get("type") == "result" and not e.get("is_error")]
@@ -84,9 +91,7 @@ def run_one(dest, model, level, seed, arm, condition, direct_response=False, edi
                     session = str(uuid.uuid4())
                 originals = [t for t in season.bulletins if t < turn] if condition == "evidence" else []
                 prompt = season.prompt(turn, note, condition, originals)
-                public_rules = WAREHOUSE_RULES if edition == "warehouse" else RULES
-                context = public_rules + ("本班为独立受理，只依现有记录办理。" if cold else
-                                   HANDOVER if condition == "relay" else CONTINUOUS)
+                context = public_context(edition, condition)
                 (run / "trace" / f"prompt-{turn}.txt").write_text(prompt)
                 calls = []
                 for index in (turn, turn + 8):

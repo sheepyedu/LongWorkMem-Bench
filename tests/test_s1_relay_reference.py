@@ -1,6 +1,6 @@
 """An observation-only reference captain, including actual serialization at handover."""
 import base64
-from itertools import groupby
+from itertools import groupby, product
 import re
 import struct
 import unittest
@@ -103,8 +103,8 @@ class PublicReferenceTest(unittest.TestCase):
     def test_solve_with_only_previously_public_bulletins_inside_actual_capacity(self):
         for level in LEVELS:
             for seed in range(12):
-                for arm in "AB":
-                    season = Season(seed, level, arm)
+                for arm, edition in product("AB", ("original", "warehouse")):
+                    season = Season(seed, level, arm, edition)
                     rows = [line.split() for line in season.bulletins[1].splitlines()[1:]]
                     base = {team: fields for team, *fields in rows}
                     teams = list(base)

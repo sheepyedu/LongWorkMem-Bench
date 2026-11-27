@@ -4,10 +4,11 @@ from collections import Counter, defaultdict
 from itertools import product
 import json
 from pathlib import Path
+from random import Random
 from statistics import mean
 
 from .relay import Season
-from .relay_pilot import evaluate, final_result
+from .relay_pilot import evaluate, final_result, public_context
 
 
 def dependency_groups(season, row):
@@ -65,12 +66,17 @@ def inspect(run):
     provider_text = defaultdict(list)
     seen = set()
     ids = set()
+    public = public_context(meta.get("edition", "original"), meta["condition"])
+    systems = [public, "You are a Claude agent, built on Anthropic's Claude Agent SDK.\n" + public]
     for f in attempts:
         d = json.loads(f.read_text())
         payload = d.get("request", {})
         reply = d.get("response", {})
         turn = d["turn"]
         counts["attempts"] += 1
+        system_messages = [m.get("content") for m in payload.get("messages", []) if m.get("role") == "system"]
+        if len(system_messages) != 1 or system_messages[0] not in systems:
+            flags.append(f.name + ": system instructions differ from public rules")
         if payload.get("tools") or payload.get("model") != meta["model"]:
             flags.append(f.name + ": unexpected tool or requested model")
         if turn in first_calls and turn not in seen and any(m["role"] == "assistant" for m in payload.get("messages", [])):
@@ -130,15 +136,21 @@ def compare(reports):
             raise ValueError("duplicate or unverified run")
         values[key] = report["score"]
     ds, qw = [], []
-    for values in by_seed.values():
+    seeds = sorted(by_seed)
+    for seed in seeds:
+        values = by_seed[seed]
         if len(values) != 4:
             raise ValueError("both models and both opening histories are required for each seed")
         ds.append(mean(values[v, "deepseek-v4-1-flash-261017"] for v in "AB"))
         qw.append(mean(values[v, "qwen3.8-flash"] for v in "AB"))
     gaps = [a-b for a,b in zip(ds,qw)]
-    outcome = {"seeds": list(by_seed), "deepseek": mean(ds), "qwen": mean(qw), "gap": mean(gaps),
+    outcome = {"seeds": seeds, "deepseek": mean(ds), "qwen": mean(qw), "gap": mean(gaps),
                "seed_gaps": gaps}
-    if 2 <= len(gaps) <= 5:
+    if len(gaps) > 5:
+        rng = Random(20261127)
+        boot = sorted(mean(rng.choices(gaps, k=len(gaps))) for _ in range(20000))
+        outcome["seed_bootstrap_95_pct"] = [boot[500], boot[19500]]
+    elif 2 <= len(gaps) <= 5:
         boot = sorted(mean(x) for x in product(gaps, repeat=len(gaps)))
         outcome["seed_bootstrap_95_pct"] = [boot[int(.025*len(boot))], boot[int(.975*len(boot))]]
     return outcome
@@ -156,6 +168,6 @@ if __name__ == "__main__":
         except (OSError, ValueError, KeyError, TypeError, IndexError) as exc:
             invalid.append({"run": str(run), "error": str(exc)})
     if invalid:
-        print(json.dumps({"verified_records": records, "unscorable": invalid}, ensure_ascii=False, indent=2))
+        print(json.dumps({"reviewed_records": records, "unscorable": invalid}, ensure_ascii=False, indent=2))
         raise SystemExit(2)
     print(json.dumps(compare(records) if args.compare else records, ensure_ascii=False, indent=2))

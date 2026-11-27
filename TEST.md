@@ -112,9 +112,9 @@ python -m s1.review runs/s1-pair/A --turn 7
 `python -m unittest discover -p 'test_s1_relay*.py' -v` 检查每一档的 A/B、撤回和阶段有效期、部分分、受限交接簿参考解、异常回执和独立重放。在仓库根目录运行以下命令。环境变量 `ARK_API_KEY`、`DEEPSEEK_BASE_URL`、`DEEPSEEK_API_KEY` 仅供宿主桥接读取。
 
 ```sh
-python -m s1.relay_pilot runs/relay-dev --seeds 134 --level 2 --condition relay --direct-response
-python -m s1.relay_review runs/relay-dev/L2-134-*
-python -m s1.relay_review runs/relay-dev/L2-134-* --compare
+python -m s1.relay_pilot runs/relay-dev --seeds 193 --level 1 --condition relay --direct-response --edition warehouse
+python -m s1.relay_review runs/relay-dev/warehouse-L1-193-*
+python -m s1.relay_review runs/relay-dev/warehouse-L1-193-* --compare
 ```
 
 每个赛季目录必须是新的。每轮交叉核对 `trace/prompt-N.txt`、Claude 原始 JSONL、上游请求及返回、`receipt-N.json`。无法独立重放的赛季不参加模型对比。对照条件用 `continuous`、`current` 或 `evidence`。分数以四个阶段的整季百分制汇总，独立样本按种子计数。

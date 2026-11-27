@@ -72,6 +72,32 @@ class RelayTest(unittest.TestCase):
             (run / "manifest.json").write_text(json.dumps({"status":"complete","turns":turns,
                 "condition":"current","seed":134,"level":1,"variant":"A"}))
             self.assertEqual(evaluate(run)["total"], 100)
+            from s1.relay_pilot import public_context
+            from s1.relay_review import inspect
+            model = "qwen3.8-flash"
+            manifest = json.loads((run / "manifest.json").read_text())
+            manifest.update(model=model, direct_response=True)
+            for trip in turns:
+                t = trip["turn"]
+                trip["session"] = str(t)
+                prompt = season.prompt(t, "", "current")
+                (run / "trace" / f"prompt-{t}.txt").write_text(prompt)
+                answer = json.loads((run / "trace" / f"turn-{t}.jsonl").read_text())["result"]
+                record = {"turn":t, "request":{"model":model, "enable_thinking":False,
+                          "chat_template_kwargs":{"enable_thinking":False},
+                          "messages":[{"role":"system", "content":public_context("original","current")},
+                                      {"role":"user", "content":prompt}]},
+                          "response":{"model":model, "id":str(t), "choices":[{"finish_reason":"stop",
+                          "message":{"content":answer}}], "usage":{"prompt_tokens":10,"completion_tokens":5}}}
+                trace = run / "trace" / f"api-{t:04}.json"
+                trace.write_text(json.dumps(record))
+            manifest["turns"] = turns
+            (run / "manifest.json").write_text(json.dumps(manifest))
+            self.assertEqual(inspect(run)["flags"], [])
+            record["request"]["messages"][0]["content"] += " private"
+            record["response"]["choices"][0]["message"]["content"] = "other output"
+            trace.write_text(json.dumps(record))
+            self.assertEqual(len(inspect(run)["flags"]), 2)
             (run / "receipt-8.json").write_text("{}")
             with self.assertRaisesRegex(ValueError, "differs"):
                 evaluate(run)
