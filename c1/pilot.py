@@ -80,7 +80,7 @@ PY""".replace("PRIVATE", repr(private))
         (work / "scratch/probe.db").unlink(missing_ok=True)
 
 
-def run_session(run, variant, backend, key, *, mode="formal", limit=1500, start=None, hint=False, handoff=None, model=MODEL, url=URL, level=1, seed=0, window=None):
+def run_session(run, variant, backend, key, *, mode="formal", limit=1500, start=None, hint=False, handoff=None, model=MODEL, url=URL, level=1, seed=0, window=None, rotate=False):
     if mode != "smoke":
         from . import world
     run = Path(run).resolve()
@@ -98,7 +98,7 @@ def run_session(run, variant, backend, key, *, mode="formal", limit=1500, start=
                 "source_hashes": {str(p.relative_to(package.parent)): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}}
     if mode == "settlement":
         from . import settlement
-        manifest.update(level=level, seed=seed, endpoint=url, dispatch_window=window)
+        manifest.update(level=level, seed=seed, endpoint=url, dispatch_window=window, rotation_turns=[5, 7] if rotate else [])
     if backend == "docker":
         manifest["image"] = sandbox.image_id()
     def save():
@@ -138,11 +138,21 @@ def run_session(run, variant, backend, key, *, mode="formal", limit=1500, start=
                 client = Path(tmp)
                 (client / "desk").mkdir()
                 for index, turn in enumerate(turns):
+                    new_shift = rotate and turn in manifest["rotation_turns"]
+                    if new_shift:
+                        session = str(uuid.uuid4())
+                        client = Path(tmp) / f"shift-{turn}"
+                        (client / "desk").mkdir(parents=True)
+                        gateway.reasoning.clear()
                     if mode == "smoke":
                         prompt = ("请用工作区 shell 将 input/notice 的交接编号写入 data/desk.sqlite 的 handoff(code TEXT) 表一行，核实后告知。"
                                   if turn == 1 else "请重新从刚才那张数据库表读取交接编号，写入 out/receipt.txt，文件中只放编号。")
                     elif mode == "settlement":
                         prompt = settlement.release(work, turn, variant, seed, level)
+                        if rotate and turn == 1:
+                            prompt += " 本周第5、7轮由新班组接手。班组仅交接工作文件和笔记；请保存后续结账所需的原始约定。"
+                        if new_shift:
+                            prompt = "新班组上岗。请根据工位的源码、交付和前班笔记接手。 " + prompt
                         if window:
                             prompt += (f" 客户在本轮第 {window} 次工作区 shell 调用结束时取件（若提前结束则当时取件）。"
                                        "请安排好查阅和执行，可在一条命令内批处理。取件后仍可检查和补交轮末修复版。")
@@ -179,7 +189,7 @@ def run_session(run, variant, backend, key, *, mode="formal", limit=1500, start=
                         config["mcpServers"]["workshop"]["args"].extend([str(dispatch), str(window)])
                     try:
                         n = run_claude(run, turn, gateway, session, prompt, client, config=config,
-                                       context=CONTEXT, allowed=ALLOWED, first_session=index == 0)
+                                       context=CONTEXT, allowed=ALLOWED, first_session=index == 0 or new_shift)
                     except Exception:
                         freeze(work, run / "partial" / str(turn))
                         manifest["budget_exhausted"] = gateway.budget_exhausted
@@ -190,7 +200,7 @@ def run_session(run, variant, backend, key, *, mode="formal", limit=1500, start=
                             raise RuntimeError("Missing customer dispatch at the scheduled command")
                         freeze(work, dispatch)
                     omissions = freeze(work, run / "snapshots" / str(turn))
-                    manifest["turns"].append({"turn": turn, "upstream_calls": n, "end": timestamp(), "omissions": omissions})
+                    manifest["turns"].append({"turn": turn, "session": session, "upstream_calls": n, "end": timestamp(), "omissions": omissions})
                     save()
                     print(f"{run.name} turn {turn} completed ({n} upstream calls)", flush=True)
                 if mode == "smoke" and (work / "out/receipt.txt").read_text().strip() != smoke_value:

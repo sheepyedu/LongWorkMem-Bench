@@ -126,6 +126,7 @@ def compare(a, b, seeds, score_name):
                 "level",
                 "limit",
                 "dispatch_window",
+                "rotation_turns",
                 "image",
                 "claude",
                 "source_hashes",

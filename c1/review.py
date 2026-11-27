@@ -48,6 +48,12 @@ def audit(run):
                 flags.append(f"{path.name}: tool list differs")
             if wire["model"] != manifest["model"]:
                 flags.append(f"{path.name}: request model differs")
+            if turn in manifest.get("rotation_turns", []) and counts[turn]["attempts"] == 1:
+                current_prompt = (trace/f"prompt-{turn}.txt").read_text()
+                history = wire["messages"]
+                if (any(msg["role"] in ("assistant","tool") for msg in history)
+                        or current_prompt not in str(history[-1].get("content", ""))):
+                    flags.append(f"{path.name}: fresh shift has unexpected prior messages or prompt")
             sent = encoded(wire)
             for marker in ("c1.grade", "c1/grade", "c1/reference", "c1-grade/", "CP4.decision", "CP5.replay",
                            "settlement_grade", "settlement_reference", "archive.preserved", "lineage.close", "dispatch-v1",
@@ -114,6 +120,8 @@ def audit(run):
                     raise ValueError("unreadable event")
                 if event.get("session_id"):
                     sessions.add(event["session_id"])
+                    if event["session_id"] != turn.get("session",manifest["session"]):
+                        flags.append(f"{path.name}:{line}: unexpected shift session")
                 if event.get("subtype") == "compact_boundary":
                     counts[n]["compactions"] += 1
                 if event["type"] == "result":
@@ -157,7 +165,9 @@ def audit(run):
         if journal != observed:
             flags.append(f"turn {n}: host tool journal differs from the CLI")
         counts[n]["tools"] = sum(journal.values())
-    if sessions != {manifest["session"]}:
+    expected_sessions = {turn.get("session",manifest["session"]) for turn in manifest["turns"]}
+    if sessions != expected_sessions or (manifest.get("status")=="complete" and
+            len(expected_sessions) != len(manifest.get("rotation_turns", []))+1):
         flags.append("session identity mismatch")
     totals = Counter()
     for row in counts.values():
