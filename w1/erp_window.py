@@ -17,7 +17,7 @@ SHORT_SHIFT = dict(zip(ROUNDS, (4, 5, 3, 3, 5, 3, 6, 5, 5), strict=True))
 
 
 def limits_for(level):
-    return {5: LIMITS, 6: SHORT_SHIFT}[level]
+    return {5: LIMITS, 6: SHORT_SHIFT, 7: LIMITS, 8: SHORT_SHIFT}[level]
 
 
 def notice(turn, level=5):

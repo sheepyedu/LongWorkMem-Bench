@@ -11,12 +11,21 @@ from .runstate import ROUNDS, freeze, prepare
 DEPARTMENT_WEIGHTS = {"ledger": 40, "pay": 35, "mail": 25}
 
 
+def weights(level):
+    if level in (7, 8):
+        return {"ledger": 30, "pay": 25, "mail": 20, "memory": 25}
+    return DEPARTMENT_WEIGHTS
+
+
 def departments(level):
     if level in (1, 2):
         return {"ledger": advanced_ledger, "pay": advanced_pay, "mail": advanced_mail}
     if level == 3:
         from . import advanced_ledger_l3, advanced_pay_l3, advanced_mail_l3
         return {"ledger": advanced_ledger_l3, "pay": advanced_pay_l3, "mail": advanced_mail_l3}
+    if level in (7, 8):
+        from . import advanced_memory
+        return {**departments(4), "memory": advanced_memory}
     if level in (4, 5, 6):
         from . import advanced_ledger_l4, advanced_pay_l4, advanced_mail_l4
         return {"ledger": advanced_ledger_l4, "pay": advanced_pay_l4, "mail": advanced_mail_l4}
@@ -24,17 +33,20 @@ def departments(level):
 
 
 def release(work, turn, variant, level, seed):
-    if turn not in ROUNDS or variant not in {"A", "B"} or level not in {1, 2, 3, 4, 5, 6}:
+    if turn not in ROUNDS or variant not in {"A", "B"} or level not in {1, 2, 3, 4, 5, 6, 7, 8}:
         raise ValueError("Invalid W1 instance or turn")
     for folder in ("input", "inbox", "out"):
         (work / folder).mkdir(parents=True, exist_ok=True)
-    prompts = [department.release(work, turn, variant, level, seed) for department in departments(level).values()]
+    prompts = [department.release(work, turn, variant, level, seed) for name, department in departments(level).items() if name != "memory"]
     prompt, = [prompt for prompt in prompts if prompt]
     if level >= 3 and turn == 3:
         prompt += " 请同时办理技术移交通知上随关账到期的薪酬档案。"
     if level >= 4 and turn in (2, 5, 6):
         prompt += " 请一并执行今日签发的核验函，并保留邮箱实际回执。"
-    if level in (5, 6):
+    if level in (7, 8):
+        from .advanced_memory import release as issue_mandate
+        prompt += issue_mandate(work, turn, seed)
+    if level in (5, 6, 7, 8):
         from .erp_window import notice
         prompt += notice(turn, level)
     return prompt
@@ -76,15 +88,16 @@ def grade(run, variant=None):
         raise ValueError("Missing host snapshot")
     items = {}
     for label, department in departments(manifest["level"]).items():
-        weight = DEPARTMENT_WEIGHTS[label]
+        weight = {**DEPARTMENT_WEIGHTS, "memory": 25}[label]
+        factor = weights(manifest["level"])[label] / weight
         checks = department.checks(run, manifest["variant"], manifest["level"], manifest["seed"])
         if items.keys() & checks.keys() or sum(maximum for _, maximum, _ in checks.values()) != weight:
             raise ValueError("Invalid checkpoint weights or duplicate labels")
         for code, (earned, maximum, reason) in checks.items():
             if not 0 <= earned <= maximum:
                 raise ValueError(f"Invalid score for {code}")
-            items[code] = dict(department=label, earned=float(earned), max=maximum, reason=reason)
-    return dict(scorer_version="w1-advanced/2", variant=manifest["variant"],
+            items[code] = dict(department=label, earned=float(earned)*factor, max=maximum*factor, reason=reason)
+    return dict(scorer_version="w1-advanced/3" if manifest["level"] >= 7 else "w1-advanced/2", variant=manifest["variant"],
                 level=manifest["level"], seed=manifest["seed"],
                 total=round(sum(item["earned"] for item in items.values()), 4), max=100, items=items)
 
@@ -94,7 +107,7 @@ if __name__ == "__main__":
     parser.add_argument("run", type=Path)
     parser.add_argument("--reference", action="store_true")
     parser.add_argument("--variant", choices=["A", "B"], default="A")
-    parser.add_argument("--level", type=int, choices=[1, 2, 3, 4, 5, 6], default=1)
+    parser.add_argument("--level", type=int, choices=[1, 2, 3, 4, 5, 6, 7, 8], default=1)
     parser.add_argument("--seed", type=int, default=0)
     args = parser.parse_args()
     if args.reference:

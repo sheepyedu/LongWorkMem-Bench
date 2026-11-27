@@ -55,7 +55,7 @@ def claude_turn(run, turn, backend, gw, session, prompt, client, *, first_sessio
             office_env["DOCKER_HOST"] = os.environ["DOCKER_HOST"]
         office_env["W1_OFFICE_IMAGE_ID"] = image_id or docker_image()
     manifest = run / "manifest.json"
-    windowed = manifest.is_file() and json.loads(manifest.read_bytes()).get("level") in (5, 6)
+    windowed = manifest.is_file() and json.loads(manifest.read_bytes()).get("level") in (5, 6, 7, 8)
     server = "w1.erp_window" if windowed else "w1.office"
     config = {"mcpServers": {"office": {"command": sys.executable,
         "args": ["-m", server, str(run.resolve()), str(turn), backend],
@@ -168,7 +168,7 @@ def main():
     p.add_argument("--smoke",action="store_true")
     p.add_argument("--limit",type=int,default=1500)
     p.add_argument("--model", choices=[MODEL, "qwen3.8-flash"], default=MODEL)
-    p.add_argument("--level", type=int, choices=[0, 1, 2, 3, 4, 5, 6], default=0)
+    p.add_argument("--level", type=int, choices=[0, 1, 2, 3, 4, 5, 6, 7, 8], default=0)
     p.add_argument("--seed", type=int, default=0)
     args=p.parse_args()
     if len(set(args.variants))!=len(args.variants):

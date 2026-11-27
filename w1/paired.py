@@ -8,7 +8,7 @@ import re
 import sqlite3
 from statistics import mean
 
-from .advanced import DEPARTMENT_WEIGHTS as STAGES, grade
+from .advanced import grade, weights
 from .gateway import MODEL
 from .review import events, summarize
 from .runstate import ROUNDS
@@ -96,7 +96,7 @@ def harness_identity(manifest):
     names = list(HARNESS)
     if "claude.py" in files:
         names.append("claude.py")
-    if manifest["level"] in (5, 6):
+    if manifest["level"] in (5, 6, 7, 8):
         names.extend(("erp_window.py", "office_protocol.py"))
     return tuple((name, files.get(name)) for name in names)
 
@@ -168,6 +168,7 @@ def compare(paths):
     splits = {"holdout" if seed in HOLDOUT_SEEDS else "development" for _, seed, _ in groups}
     if len(splits) != 1:
         raise ValueError("Compare development and holdout instances separately")
+    stage_maxima = weights(next(iter(groups))[0])
     cohort = None
     result = []
     for (level, seed, variant), group in sorted(groups.items()):
@@ -182,14 +183,14 @@ def compare(paths):
                 cohort = environment
             require(environment == cohort, run, "image, Claude version, request budget or office harness differs across runs")
             review, prompts = completed_receipts(run, m)
-            if level in (5, 6):
+            if level in (5, 6, 7, 8):
                 review["erp_windows"] = window_receipts(run, level)
             inputs = ([r["public_digest"] for r in m["turns"]], prompts)
             require(expected_inputs is None or inputs == expected_inputs, run, "round materials or prompts differ within pair")
             expected_inputs = inputs
             assessment = grade(run)
             stages = {s: round(sum(row["earned"] for row in assessment["items"].values()
-                                   if row["department"] == s), 4) for s in STAGES}
+                                   if row["department"] == s), 4) for s in stage_maxima}
             model_stats[model] = {"run": str(run), "stages": stages, "total": assessment["total"],
                                   "scorer_version": assessment["scorer_version"], **review}
         gap = model_stats[MODEL]["total"] - model_stats[QWEN]["total"]
@@ -200,7 +201,7 @@ def compare(paths):
         totals = [r["total"] for r in runs]
         means[model] = {"total":round(mean(totals), 4), "range":[min(totals), max(totals)],
                         "perfect_runs":totals.count(100),
-                        "stages":{s:round(mean(r["stages"][s] for r in runs), 4) for s in STAGES},
+                        "stages":{s:round(mean(r["stages"][s] for r in runs), 4) for s in stage_maxima},
                         "attempts":sum(r["usage"]["attempts"] for r in runs),
                         "requests_with_usage":sum(r["usage"]["successful"] for r in runs)}
     gaps = [pair["paired_gap"] for pair in result]
@@ -210,7 +211,7 @@ def compare(paths):
     return {"gap_by_seed":{s:round(mean(values), 4) for s, values in by_seed.items()},
             "paired_outcomes":{"deepseek_higher":sum(g > 0 for g in gaps), "ties":gaps.count(0),
                                "qwen_higher":sum(g < 0 for g in gaps)},
-            "level": level, "split": splits.pop(), "pair_count": len(result), "stage_maxima": STAGES,
+            "level": level, "split": splits.pop(), "pair_count": len(result), "stage_maxima": stage_maxima,
             "docker_image": cohort[0], "claude": cohort[1], "request_limit": cohort[2], "pairs": result,
             "model_means": means, "mean_paired_gap": round(mean(gaps), 4)}
 
