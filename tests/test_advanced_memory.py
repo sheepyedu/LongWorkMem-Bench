@@ -40,3 +40,17 @@ class MandateTests(unittest.TestCase):
             self.assertTrue((offices[0]/"out"/mem.form(5)).is_file())
             self.assertFalse((offices[0]/"out"/mem.form(8)).exists())
             self.assertFalse((offices[0]/"input/资金运营/争议清册/2025-08-05.csv").exists())
+
+    def test_copied_answer_cannot_pass_date_sensitive_pair(self):
+        from w1.world import _csv
+        with TemporaryDirectory() as tmp:
+            runs = {v:Path(tmp)/v for v in "AB"}
+            for turn in (8,9):
+                rows = mem.posting(mem.cases(turn,431),turn,mem.mandate(431),"2025-07-16",{})
+                for run in runs.values():
+                    _csv(run/"snapshots"/str(turn)/mem.form(turn),mem.FIELDS,
+                         [[r[k] for k in mem.FIELDS.split(",")] for r in rows])
+            result = mem.contrast(runs,431)
+            self.assertGreater(result["must_change"]["cases"],0)
+            self.assertEqual(result["must_change"]["matched_both"],0)
+            self.assertEqual(result["must_stay"]["matched_both"],result["must_stay"]["cases"])

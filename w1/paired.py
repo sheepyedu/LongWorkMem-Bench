@@ -208,7 +208,15 @@ def compare(paths):
     by_seed = defaultdict(list)
     for pair in result:
         by_seed[pair["seed"]].append(pair["paired_gap"])
-    return {"gap_by_seed":{s:round(mean(values), 4) for s, values in by_seed.items()},
+    counterfactuals = {}
+    if level in (7, 8):
+        from .advanced_memory import contrast
+        for seed in by_seed:
+            if all((level,seed,v) in groups for v in ("A","B")):
+                counterfactuals[seed] = {
+                    model:contrast({v:groups[level,seed,v][model][0] for v in ("A","B")},seed)
+                    for model in MODELS}
+    return {"memory_counterfactual":counterfactuals, "gap_by_seed":{s:round(mean(values), 4) for s, values in by_seed.items()},
             "paired_outcomes":{"deepseek_higher":sum(g > 0 for g in gaps), "ties":gaps.count(0),
                                "qwen_higher":sum(g < 0 for g in gaps)},
             "level": level, "split": splits.pop(), "pair_count": len(result), "stage_maxima": stage_maxima,

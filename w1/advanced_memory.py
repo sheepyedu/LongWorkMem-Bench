@@ -173,3 +173,21 @@ def checks(run, variant, level, seed):
                      equal(final[k][0],initial[k][0],FIELDS.split(",")) for k in valid_keys))
     scores["memory.retention"] = (2*retained/3,2,f"R9 retained {retained}/3 actual prior filings")
     return scores
+
+
+def contrast(runs, seed):
+    """Measurable A/B consequences of the same HR instruction, reported outside the score."""
+    rules = mandate(seed)
+    fields = ("project","desk","authority","decision","target")
+    counts = {group:{"matched_both":0, "cases":0} for group in ("must_change","must_stay")}
+    for turn in (8,9):
+        submissions = {v:index(Table(path/"snapshots"/str(turn)/form(turn)).rows) for v,path in runs.items()}
+        for case in cases(turn,seed):
+            key = case["office"], case["case"]
+            wants = {v:decision(case,DATES[turn],rules,day) for v,day in
+                     (("A","2025-07-16"),("B","2025-08-16"))}
+            name = "must_stay" if equal(wants["A"],wants["B"],fields) else "must_change"
+            counts[name]["cases"] += 1
+            counts[name]["matched_both"] += all(len(submissions[v].get(key,[])) == 1 and
+                equal(submissions[v][key][0],wants[v],fields) for v in ("A","B"))
+    return counts
