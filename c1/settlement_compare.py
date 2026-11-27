@@ -7,7 +7,7 @@ from pathlib import Path
 import tempfile
 
 from .settlement import release
-from .settlement_grade import ledger, load_output
+from .settlement_grade import checkpoint_path, ledger, load_output
 
 
 def audit_map(value):
@@ -26,6 +26,11 @@ def audit_map(value):
     return decisions
 
 
+def evidence(run, directory, turn):
+    manifest = json.loads((run / "manifest.json").read_text())
+    return checkpoint_path(run, manifest, directory, turn)
+
+
 def authority_reversals(directory, seed, level, snapshot_dir="snapshots"):
     expected, actual = {}, {}
     with tempfile.TemporaryDirectory() as tmp:
@@ -38,7 +43,8 @@ def authority_reversals(directory, seed, level, snapshot_dir="snapshots"):
             expected[variant] = dict(ledger(inp, plan)["audit"])
             actual[variant] = audit_map(
                 load_output(
-                    directory / f"{seed}-{variant}" / snapshot_dir / "5", "corrections"
+                    evidence(directory / f"{seed}-{variant}", snapshot_dir, 5),
+                    "corrections",
                 )
             )
     changed = [k for k in expected["A"] if expected["A"][k] != expected["B"][k]]
@@ -74,7 +80,7 @@ def guarantee_reversals(directory, seed):
         paired = []
         for variant in ("A", "B"):
             data = load_output(
-                directory / f"{seed}-{variant}" / snapshot / "7", "guarantee"
+                evidence(directory / f"{seed}-{variant}", snapshot, 7), "guarantee"
             )
             decisions = {}
             rows = data.get("decisions") if isinstance(data, dict) else None
@@ -97,7 +103,7 @@ def guarantee_reversals(directory, seed):
 
 
 def released_material(run, turn):
-    source = run / "snapshots" / str(turn) / "input"
+    source = evidence(run, "snapshots", turn) / "input"
     result = {
         p.relative_to(source).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
         for p in source.rglob("*")
@@ -137,7 +143,9 @@ def compare(a, b, seeds, score_name):
                     )
             if manifests[0]["session"] == manifests[1]["session"]:
                 raise ValueError("Compared runs share a session")
-            count = min(len(m["turns"]) for m in manifests)
+            count = min(
+                len(m["turns"]) + (m["status"] == "budget_exhausted") for m in manifests
+            )
             for turn in range(1, count + 1):
                 if released_material(
                     a / f"{seed}-{variant}", turn
