@@ -5,6 +5,7 @@ import unittest
 
 from s1.circuit import Circuit, RULES, audit
 from s1.relay import WEIGHTS
+from w1.gateway import MODEL
 
 
 class CircuitTest(unittest.TestCase):
@@ -69,9 +70,13 @@ class CircuitTest(unittest.TestCase):
                     trace / f"api-{i:04d}.json",
                     {
                         "turn": i,
-                        "request": {"model": "test", "messages": history},
+                        "request": {
+                            "model": MODEL,
+                            "thinking": {"type": "disabled"},
+                            "messages": history,
+                        },
                         "response": {
-                            "model": "test",
+                            "model": MODEL,
                             "id": str(i),
                             "choices": [{"message": {"content": "{}"}}],
                             "usage": {"prompt_tokens": i * 17, "completion_tokens": 2},
@@ -83,7 +88,7 @@ class CircuitTest(unittest.TestCase):
             write(
                 run / "manifest.json",
                 dict(
-                    model="test",
+                    model=MODEL,
                     session="test",
                     seed=6,
                     variant="A",

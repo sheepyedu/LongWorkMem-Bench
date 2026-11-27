@@ -61,4 +61,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("runs", nargs="+", type=Path)
     args = parser.parse_args()
-    print(json.dumps([review(p) for p in args.runs], ensure_ascii=False, indent=2))
+    records = []
+    failures = 0
+    for run in args.runs:
+        try:
+            records.append(review(run))
+        except (OSError, ValueError, KeyError, IndexError, TypeError) as exc:
+            failures += 1
+            records.append({"run": run.name, "unscorable": str(exc)})
+    print(json.dumps(records, ensure_ascii=False, indent=2))
+    raise SystemExit(bool(failures))

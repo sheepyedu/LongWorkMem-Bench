@@ -127,6 +127,14 @@ def audit(run):
     public_history = defaultdict(list)
     ids = set()
     history = meta.get("history", "continuous")
+    if history == "regional":
+        sessions = meta["regional_sessions"]
+        if set(sessions) != set(circuit.seasons) or len(set(sessions.values())) != len(
+            sessions
+        ):
+            raise ValueError("invalid regional sessions")
+    if history == "handover" and meta["next_session"] == meta["session"]:
+        raise ValueError("handover reused original session")
     memo = ""
     for t, calls in enumerate(meta["calls"], 1):
         prompt = circuit.prompt(t, history, memo)
@@ -179,6 +187,22 @@ def audit(run):
                 if not usage:
                     counts["missing_usage"] += 1
                     continue
+                direct = (
+                    req.get("thinking") == {"type": "disabled"}
+                    if req["model"] == MODEL
+                    else req["model"] == "qwen3.8-flash"
+                    and req.get("enable_thinking") is False
+                    and req.get("chat_template_kwargs", {}).get("enable_thinking")
+                    is False
+                )
+                if (
+                    not direct
+                    or reply["choices"][0]["message"].get("reasoning_content")
+                    or (usage.get("completion_tokens_details") or {}).get(
+                        "reasoning_tokens"
+                    )
+                ):
+                    raise ValueError("provider reasoning configuration differs")
                 if reply["model"] != meta["model"]:
                     raise ValueError("wrong provider model")
                 if not reply.get("id") or reply["id"] in ids:
@@ -253,7 +277,9 @@ def run_one(dest, model, seed, variant, desks, level, history="continuous"):
         session=session,
         status="running",
         calls=[],
-        git=subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+        git=subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=Path(__file__).parent, text=True
+        ).strip(),
         cli=subprocess.check_output(["claude", "--version"], text=True).strip(),
     )
     if history == "handover":
