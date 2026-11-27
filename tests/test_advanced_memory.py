@@ -79,3 +79,10 @@ class MandateTests(unittest.TestCase):
             self.assertEqual(score["memory.r8.authority"][0],1)
             self.assertEqual(score["memory.r9.adjustment"][0],3)
             self.assertEqual(score["memory.retention"][0],2)
+
+    def test_control_desk_official_full_name_and_identifier_are_equivalent(self):
+        want = {"desk":"IC-01"}
+        for value in ("内控岗 IC-01", "内控岗（IC-01）", "IC-01"):
+            self.assertTrue(mem.equal({"desk":value},want,["desk"]))
+        for wrong in ("IC-010", "IC-01 / IC-02", "内控岗 IC-02"):
+            self.assertFalse(mem.equal({"desk":wrong},want,["desk"]))

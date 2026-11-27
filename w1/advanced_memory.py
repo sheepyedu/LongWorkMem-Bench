@@ -3,6 +3,7 @@ from collections import defaultdict
 from decimal import Decimal
 import random
 import re
+import unicodedata
 
 from .scoring_tables import InvalidArtifact, Table, number
 from .world import _csv, _text
@@ -132,10 +133,19 @@ def reference(run, turn, variant, level, seed):
     _csv(work/"out"/form(turn),FIELDS,[[r[k] for k in FIELDS.split(",")] for r in rows])
 
 
+def normalized(field, value):
+    if field in ("target", "change"):
+        return number(value)
+    if field == "desk":
+        value = unicodedata.normalize("NFKC", value).strip()
+        if re.fullmatch(r"内控岗\s*:?\s*(?:IC-01|\(IC-01\))", value):
+            return "IC-01"
+    return value
+
+
 def equal(row, wanted, fields):
     try:
-        return all(number(row[k]) == number(wanted[k]) if k in ("target","change") else row[k] == wanted[k]
-                   for k in fields)
+        return all(normalized(k,row[k]) == normalized(k,wanted[k]) for k in fields)
     except (InvalidArtifact, KeyError):
         return False
 

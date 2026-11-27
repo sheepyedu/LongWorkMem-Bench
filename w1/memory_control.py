@@ -26,6 +26,20 @@ def fixture(work, seed, variant, turn):
     return reminders
 
 
+def assess(run, seed, variant, turn, prior):
+    actual = memory.index(Table(run/"snapshots"/str(turn)/memory.form(turn)).rows)
+    want = memory.posting(memory.cases(turn,seed),turn,memory.mandate(seed),
+                          {"A":"2025-07-16","B":"2025-08-16"}[variant],prior)
+    keys = {(r["office"],r["case"]) for r in want}
+    denominator = len(keys | actual.keys())
+    fields = ("project","desk","authority","decision","target","change")
+    matches = {f:sum(len(actual.get((r["office"],r["case"]),[])) == 1 and
+                     memory.equal(actual[r["office"],r["case"]][0],r,[f]) for r in want) for f in fields}
+    complete = sum(len(actual.get((r["office"],r["case"]),[])) == 1 and
+                   memory.equal(actual[r["office"],r["case"]][0],r,fields) for r in want)
+    return dict(cases=denominator, correct_by_field=matches, all_fields=complete, scorer_version="reserve/1.1")
+
+
 def play(run, seed, variant, turn, reminder, model, url, key):
     with blinded_office(run, "docker") as work:
         instructions = fixture(work, seed, variant, turn)
@@ -52,17 +66,7 @@ def play(run, seed, variant, turn, reminder, model, url, key):
                 (client/"desk").mkdir()
                 calls = claude_turn(run,turn,"docker",gw,session,prompt,client,first_session=True,image_id=manifest["docker_image"])
             freeze(run,turn)
-            actual = memory.index(Table(run/"snapshots"/str(turn)/memory.form(turn)).rows)
-            want = memory.posting(memory.cases(turn,seed),turn,memory.mandate(seed),
-                                  {"A":"2025-07-16","B":"2025-08-16"}[variant],prior)
-            keys = {(r["office"],r["case"]) for r in want}
-            denominator = len(keys | actual.keys())
-            fields = ("project","desk","authority","decision","target","change")
-            matches = {f:sum(len(actual.get((r["office"],r["case"]),[])) == 1 and
-                             memory.equal(actual[r["office"],r["case"]][0],r,[f]) for r in want) for f in fields}
-            complete = sum(len(actual.get((r["office"],r["case"]),[])) == 1 and
-                           memory.equal(actual[r["office"],r["case"]][0],r,fields) for r in want)
-            write_json(run/"reserve-result.json",dict(cases=denominator, correct_by_field=matches, all_fields=complete))
+            write_json(run/"reserve-result.json", assess(run, seed, variant, turn, prior))
             manifest.update(status="complete", turns=[dict(turn=turn,upstream_calls=calls)])
         except Exception as exc:
             manifest.update(status="error",error=str(exc))
