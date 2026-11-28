@@ -1,0 +1,2483 @@
+{
+  "version": "release-v2",
+  "total": 95.4118,
+  "rounds": [
+    5.0,
+    6.0,
+    13.0,
+    10.0,
+    3.0,
+    11.0,
+    4.0,
+    2.0,
+    9.0,
+    14.0,
+    12.411765,
+    6.0
+  ],
+  "delayed_retention": {
+    "correct": 4,
+    "eligible": 4
+  },
+  "format_issues": {},
+  "details": [
+    {
+      "turn": 1,
+      "group": "期初",
+      "weight": 3.0,
+      "earned": 3.0,
+      "checks": {
+        "HZ-A/当前版": {
+          "expected": "05-01-1",
+          "observed": "05-01-1",
+          "ok": true
+        },
+        "HZ-B/当前版": {
+          "expected": "05-01-2",
+          "observed": "05-01-2",
+          "ok": true
+        },
+        "JL-A/当前版": {
+          "expected": "05-02-1",
+          "observed": "05-02-1",
+          "ok": true
+        },
+        "JL-B/当前版": {
+          "expected": "05-02-2",
+          "observed": "05-02-2",
+          "ok": true
+        },
+        "NP-A/当前版": {
+          "expected": "05-03-1",
+          "observed": "05-03-1",
+          "ok": true
+        },
+        "NP-B/当前版": {
+          "expected": "05-03-2",
+          "observed": "05-03-2",
+          "ok": true
+        },
+        "YC-A/当前版": {
+          "expected": "05-04-1",
+          "observed": "05-04-1",
+          "ok": true
+        },
+        "YC-B/当前版": {
+          "expected": "05-04-2",
+          "observed": "05-04-2",
+          "ok": true
+        },
+        "QH-A/当前版": {
+          "expected": "05-05-1",
+          "observed": "05-05-1",
+          "ok": true
+        },
+        "QH-B/当前版": {
+          "expected": "05-05-2",
+          "observed": "05-05-2",
+          "ok": true
+        },
+        "BA-A/当前版": {
+          "expected": "05-06-1",
+          "observed": "05-06-1",
+          "ok": true
+        },
+        "BA-B/当前版": {
+          "expected": "05-06-2",
+          "observed": "05-06-2",
+          "ok": true
+        }
+      }
+    },
+    {
+      "turn": 1,
+      "group": "待办",
+      "weight": 2.0,
+      "earned": 2.0,
+      "checks": {
+        "L01/状态": {
+          "expected": "已确认",
+          "observed": "已确认",
+          "ok": true
+        },
+        "L01/下一步": {
+          "expected": "勘误",
+          "observed": "勘误",
+          "ok": true
+        },
+        "L02/状态": {
+          "expected": "退信",
+          "observed": "退信",
+          "ok": true
+        },
+        "L02/下一步": {
+          "expected": "重投",
+          "observed": "重投",
+          "ok": true
+        },
+        "L03/状态": {
+          "expected": "待确认",
+          "observed": "待确认",
+          "ok": true
+        },
+        "L03/下一步": {
+          "expected": "跟进",
+          "observed": "跟进",
+          "ok": true
+        },
+        "L04/状态": {
+          "expected": "已确认",
+          "observed": "已确认",
+          "ok": true
+        },
+        "L04/下一步": {
+          "expected": "关闭",
+          "observed": "关闭",
+          "ok": true
+        }
+      }
+    },
+    {
+      "turn": 2,
+      "group": "变更",
+      "weight": 1.0,
+      "earned": 1.0,
+      "checks": {
+        "HZ-A/处置": {
+          "expected": "采用",
+          "observed": "采用",
+          "ok": true
+        },
+        "JL-B/处置": {
+          "expected": "采用",
+          "observed": "采用",
+          "ok": true
+        },
+        "QH-A/处置": {
+          "expected": "待签",
+          "observed": "待签",
+          "ok": true
+        }
+      }
+    },
+    {
+      "turn": 2,
+      "group": "草稿对象与次数",
+      "weight": 1.0,
+      "earned": 1.0,
+      "checks": {
+        "P01": {
+          "expected": [
+            "hz.service@office.test"
+          ],
+          "observed": [
+            "hz.service@office.test"
+          ],
+          "ok": true
+        },
+        "P02": {
+          "expected": [
+            "hz.service@office.test"
+          ],
+          "observed": [
+            "hz.service@office.test"
+          ],
+          "ok": true
+        },
+        "P04": {
+          "expected": [
+            "jl.service@office.test"
+          ],
+          "observed": [
+            "jl.service@office.test"
+          ],
+          "ok": true
+        },
+        "P09": {
+          "expected": [
+            "qh.service@office.test"
+          ],
+          "observed": [
+            "qh.service@office.test"
+          ],
+          "ok": true
+        }
+      }
+    },
+    {
+      "turn": 2,
+      "group": "冻结附件",
+      "weight": 1.0,
+      "earned": 1.0,
+      "checks": {
+        "P01": {
+          "expected": [
+            [
+              "HZ-A",
+              "7个工作日"
+            ]
+          ],
+          "observed": [
+            [
+              "HZ-A",
+              "7个工作日"
+            ]
+          ],
+          "ok": true
+        },
+        "P02": {
+          "expected": [
+            [
+              "HZ-B",
+              "10个工作日"
+            ]
+          ],
+          "observed": [
+            [
+              "HZ-B",
+              "10个工作日"
+            ]
+          ],
+          "ok": true
+        },
+        "P04": {
+          "expected": [
+            [
+              "JL-B",
+              "5个工作日"
+            ]
+          ],
+          "observed": [
+            [
+              "JL-B",
+              "5个工作日"
+            ]
+          ],
+          "ok": true
+        },
+        "P09": {
+          "expected": [
+            [
+              "QH-A",
+              "10个工作日"
+            ]
+          ],
+          "observed": [
+            [
+              "QH-A",
+              "10个工作日"
+            ]
+          ],
+          "ok": true
+        }
+      }
+    },
+    {
+      "turn": 2,
+      "group": "现场附页",
+      "weight": 3,
+      "earned": 3.0,
+      "checks": {
+        "P04/服务主站": {
+          "expected": [
+            "东港"
+          ],
+          "observed": [
+            "东港"
+          ],
+          "ok": true
+        },
+        "P04/服务凭证": {
+          "expected": [
+            "S11"
+          ],
+          "observed": [
+            "S11"
+          ],
+          "ok": true
+        },
+        "P04/预留席位": {
+          "expected": [
+            "6"
+          ],
+          "observed": [
+            "6"
+          ],
+          "ok": true
+        },
+        "P09/服务主站": {
+          "expected": [
+            "西湾"
+          ],
+          "observed": [
+            "西湾"
+          ],
+          "ok": true
+        },
+        "P09/服务凭证": {
+          "expected": [
+            "S22"
+          ],
+          "observed": [
+            "S22"
+          ],
+          "ok": true
+        },
+        "P09/预留席位": {
+          "expected": [
+            "4"
+          ],
+          "observed": [
+            "4"
+          ],
+          "ok": true
+        },
+        "P01/服务主站": {
+          "expected": [
+            "西湾"
+          ],
+          "observed": [
+            "西湾"
+          ],
+          "ok": true
+        },
+        "P01/服务凭证": {
+          "expected": [
+            "S22"
+          ],
+          "observed": [
+            "S22"
+          ],
+          "ok": true
+        },
+        "P01/预留席位": {
+          "expected": [
+            "4"
+          ],
+          "observed": [
+            "4"
+          ],
+          "ok": true
+        },
+        "P02/服务主站": {
+          "expected": [
+            "南站"
+          ],
+          "observed": [
+            "南站"
+          ],
+          "ok": true
+        },
+        "P02/服务凭证": {
+          "expected": [
+            "S31"
+          ],
+          "observed": [
+            "S31"
+          ],
+          "ok": true
+        },
+        "P02/预留席位": {
+          "expected": [
+            "4"
+          ],
+          "observed": [
+            "4"
+          ],
+          "ok": true
+        }
+      }
+    },
+    {
+      "turn": 3,
+      "group": "发送对象与次数",
+      "weight": 2.307692307692308,
+      "earned": 2.307692307692308,
+      "checks": {
+        "P01": {
+          "expected": [
+            "hz.service@office.test"
+          ],
+          "observed": [
+            "hz.service@office.test"
+          ],
+          "ok": true
+        },
+        "P02": {
+          "expected": [
+            "hz.service@office.test"
+          ],
+          "observed": [
+            "hz.service@office.test"
+          ],
+          "ok": true
+        },
+        "P03": {
+          "expected": [
+            "jl.service@office.test"
+          ],
+          "observed": [
+            "jl.service@office.test"
+          ],
+          "ok": true
+        },
+        "P04": {
+          "expected": [
+            "jl.service@office.test"
+          ],
+          "observed": [
+            "jl.service@office.test"
+          ],
+          "ok": true
+        },
+        "P05": {
+          "expected": [
+            "np.service@office.test"
+          ],
+          "observed": [
+            "np.service@office.test"
+          ],
+          "ok": true
+        },
+        "P06": {
+          "expected": [
+            "np.service@office.test"
+          ],
+          "observed": [
+            "np.service@office.test"
+          ],
+          "ok": true
+        },
+        "P07": {
+          "expected": [
+            "yc.service@office.test"
+          ],
+          "observed": [
+            "yc.service@office.test"
+          ],
+          "ok": true
+        },
+        "P09": {
+          "expected": [
+            "qh.service@office.test"
+          ],
+          "observed": [
+            "qh.service@office.test"
+          ],
+          "ok": true
+        },
+        "P10": {
+          "expected": [
+            "qh.service@office.test"
+          ],
+          "observed": [
+            "qh.service@office.test"
+          ],
+          "ok": true
+        },
+        "P11": {
+          "expected": [
+            "ba.service@office.test"
+          ],
+          "observed": [
+            "ba.service@office.test"
+          ],
+          "ok": true
+        }
+      }
+    },
+    {
+      "turn": 3,
+      "group": "冻结附件",
+      "weight": 2.6923076923076925,
+      "earned": 2.6923076923076925,
+      "checks": {
+        "P01": {
+          "expected": [
+            [
+              "HZ-A",
+              "7个工作日"
+            ]
+          ],
+          "observed": [
+            [
+              "HZ-A",
+              "7个工作日"
+            ]
+          ],
+          "ok": true
+        },
+        "P02": {
+          "expected": [
+            [
+              "HZ-B",
+              "10个工作日"
+            ]
+          ],
+          "observed": [
+            [
+              "HZ-B",
+              "10个工作日"
+            ]
+          ],
+          "ok": true
+        },
+        "P03": {
+          "expected": [
+            [
+              "JL-A",
+              "10个工作日"
+            ]
+          ],
+          "observed": [
+            [
+              "JL-A",
+              "10个工作日"
+            ]
+          ],
+          "ok": true
+        },
+        "P04": {
+          "expected": [
+            [
+              "JL-B",
+              "5个工作日"
+            ]
+          ],
+          "observed": [
+            [
+              "JL-B",
+              "5个工作日"
+            ]
+          ],
+          "ok": true
+        },
+        "P05": {
+          "expected": [
+            [
+              "NP-A",
+              "10个工作日"
+            ]
+          ],
+          "observed": [
+            [
+              "NP-A",
+              "10个工作日"
+            ]
+          ],
+          "ok": true
+        },
+        "P06": {
+          "expected": [
+            [
+              "NP-B",
+              "10个工作日"
+            ]
+          ],
+          "observed": [
+            [
+              "NP-B",
+              "10个工作日"
+            ]
+          ],
+          "ok": true
+        },
+        "P07": {
+          "expected": [
+            [
+              "YC-A",
+              "10个工作日"
+            ]
+          ],
+          "observed": [
+            [
+              "YC-A",
+              "10个工作日"
+            ]
+          ],
+          "ok": true
+        },
+        "P09": {
+          "expected": [
+            [
+              "QH-A",
+              "10个工作日"
+            ]
+          ],
+          "observed": [
+            [
+              "QH-A",
+              "10个工作日"
+            ]
+          ],
+          "ok": true
+        },
+        "P10": {
+          "expected": [
+            [
+              "QH-B",
+              "10个工作日"
+            ]
+          ],
+          "observed": [
+            [
+              "QH-B",
+              "10个工作日"
+            ]
+          ],
+          "ok": true
+        },
+        "P11": {
+          "expected": [
+            [
+              "BA-A",
+              "10个工作日"
+            ]
+          ],
+          "observed": [
+            [
+              "BA-A",
+              "10个工作日"
+            ]
+          ],
+          "ok": true
+        }
+      }
+    },
+    {
+      "turn": 3,
+      "group": "现场附页",
+      "weight": 8,
+      "earned": 8.0,
+      "checks": {
+        "P05/服务主站": {
+          "expected": [
+            "西湾"
+          ],
+          "observed": [
+            "西湾"
+          ],
+          "ok": true
+        },
+        "P05/服务凭证": {
+          "expected": [
+            "S22"
+          ],
+          "observed": [
+            "S22"
+          ],
+          "ok": true
+        },
+        "P05/预留席位": {
+          "expected": [
+            "3"
+          ],
+          "observed": [
+            "3"
+          ],
+          "ok": true
+        },
+        "P10/服务主站": {
+          "expected": [
+            "北仓"
+          ],
+          "observed": [
+            "北仓"
+          ],
+          "ok": true
+        },
+        "P10/服务凭证": {
+          "expected": [
+            "S41"
+          ],
+          "observed": [
+            "S41"
+          ],
+          "ok": true
+        },
+        "P10/预留席位": {
+          "expected": [
+            "3"
+          ],
+          "observed": [
+            "3"
+          ],
+          "ok": true
+        },
+        "P04/服务主站": {
+          "expected": [
+            "西湾"
+          ],
+          "observed": [
+            "西湾"
+          ],
+          "ok": true
+        },
+        "P04/服务凭证": {
+          "expected": [
+            "S22"
+          ],
+          "observed": [
+            "S22"
+          ],
+          "ok": true
+        },
+        "P04/预留席位": {
+          "expected": [
+            "4"
+          ],
+          "observed": [
+            "4"
+          ],
+          "ok": true
+        },
+        "P01/服务主站": {
+          "expected": [
+            "南站"
+          ],
+          "observed": [
+            "南站"
+          ],
+          "ok": true
+        },
+        "P01/服务凭证": {
+          "expected": [
+            "S31"
+          ],
+          "observed": [
+            "S31"
+          ],
+          "ok": true
+        },
+        "P01/预留席位": {
+          "expected": [
+            "6"
+          ],
+          "observed": [
+            "6"
+          ],
+          "ok": true
+        },
+        "P11/服务主站": {
+          "expected": [
+            "北仓"
+          ],
+          "observed": [
+            "北仓"
+          ],
+          "ok": true
+        },
+        "P11/服务凭证": {
+          "expected": [
+            "S41"
+          ],
+          "observed": [
+            "S41"
+          ],
+          "ok": true
+        },
+        "P11/预留席位": {
+          "expected": [
+            "0"
+          ],
+          "observed": [
+            "0"
+          ],
+          "ok": true
+        },
+        "P09/服务主站": {
+          "expected": [
+            "南站"
+          ],
+          "observed": [
+            "南站"
+          ],
+          "ok": true
+        },
+        "P09/服务凭证": {
+          "expected": [
+            "S31"
+          ],
+          "observed": [
+            "S31"
+          ],
+          "ok": true
+        },
+        "P09/预留席位": {
+          "expected": [
+            "0"
+          ],
+          "observed": [
+            "0"
+          ],
+          "ok": true
+        },
+        "P07/服务主站": {
+          "expected": [
+            "东港"
+          ],
+          "observed": [
+            "东港"
+          ],
+          "ok": true
+        },
+        "P07/服务凭证": {
+          "expected": [
+            "S11"
+          ],
+          "observed": [
+            "S11"
+          ],
+          "ok": true
+        },
+        "P07/预留席位": {
+          "expected": [
+            "6"
+          ],
+          "observed": [
+            "6"
+          ],
+          "ok": true
+        },
+        "P03/服务主站": {
+          "expected": [
+            "东港"
+          ],
+          "observed": [
+            "东港"
+          ],
+          "ok": true
+        },
+        "P03/服务凭证": {
+          "expected": [
+            "S11"
+          ],
+          "observed": [
+            "S11"
+          ],
+          "ok": true
+        },
+        "P03/预留席位": {
+          "expected": [
+            "0"
+          ],
+          "observed": [
+            "0"
+          ],
+          "ok": true
+        },
+        "P02/服务主站": {
+          "expected": [
+            "南站"
+          ],
+          "observed": [
+            "南站"
+          ],
+          "ok": true
+        },
+        "P02/服务凭证": {
+          "expected": [
+            "S31"
+          ],
+          "observed": [
+            "S31"
+          ],
+          "ok": true
+        },
+        "P02/预留席位": {
+          "expected": [
+            "0"
+          ],
+          "observed": [
+            "0"
+          ],
+          "ok": true
+        },
+        "P06/服务主站": {
+          "expected": [
+            "北仓"
+          ],
+          "observed": [
+            "北仓"
+          ],
+          "ok": true
+        },
+        "P06/服务凭证": {
+          "expected": [
+            "S42"
+          ],
+          "observed": [
+            "S42"
+          ],
+          "ok": true
+        },
+        "P06/预留席位": {
+          "expected": [
+            "3"
+          ],
+          "observed": [
+            "3"
+          ],
+          "ok": true
+        }
+      }
+    },
+    {
+      "turn": 4,
+      "group": "回执",
+      "weight": 2.0,
+      "earned": 2.0,
+      "checks": {
+        "P01/截点状态": {
+          "expected": "待确认",
+          "observed": "待确认",
+          "ok": true
+        },
+        "P02/截点状态": {
+          "expected": "已确认",
+          "observed": "已确认",
+          "ok": true
+        },
+        "P03/截点状态": {
+          "expected": "退信",
+          "observed": "退信",
+          "ok": true
+        },
+        "P04/截点状态": {
+          "expected": "已确认",
+          "observed": "已确认",
+          "ok": true
+        },
+        "P05/截点状态": {
+          "expected": "已确认",
+          "observed": "已确认",
+          "ok": true
+        },
+        "P06/截点状态": {
+          "expected": "已确认",
+          "observed": "已确认",
+          "ok": true
+        },
+        "P07/截点状态": {
+          "expected": "已确认",
+          "observed": "已确认",
+          "ok": true
+        },
+        "P08/截点状态": {
+          "expected": "未发",
+          "observed": "未发",
+          "ok": true
+        },
+        "P09/截点状态": {
+          "expected": "退信",
+          "observed": "退信",
+          "ok": true
+        },
+        "P10/截点状态": {
+          "expected": "已确认",
+          "observed": "已确认",
+          "ok": true
+        },
+        "P11/截点状态": {
+          "expected": "已确认",
+          "observed": "已确认",
+          "ok": true
+        },
+        "P12/截点状态": {
+          "expected": "未发",
+          "observed": "未发",
+          "ok": true
+        }
+      }
+    },
+    {
+      "turn": 4,
+      "group": "发送对象与次数",
+      "weight": 1.5,
+      "earned": 1.5,
+      "checks": {
+        "P03-R": {
+          "expected": [
+            "jl.backup@office.test"
+          ],
+          "observed": [
+            "jl.backup@office.test"
+          ],
+          "ok": true
+        },
+        "P09-R": {
+          "expected": [
+            "qh.backup@office.test"
+          ],
+          "observed": [
+            "qh.backup@office.test"
+          ],
+          "ok": true
+        },
+        "L01-R": {
+          "expected": [
+            "hz.backup@office.test"
+          ],
+          "observed": [
+            "hz.backup@office.test"
+          ],
+          "ok": true
+        },
+        "L02-R": {
+          "expected": [
+            "jl.backup@office.test"
+          ],
+          "observed": [
+            "jl.backup@office.test"
+          ],
+          "ok": true
+        }
+      }
+    },
+    {
+      "turn": 4,
+      "group": "冻结附件",
+      "weight": 1.5,
+      "earned": 1.5,
+      "checks": {
+        "P03-R": {
+          "expected": [
+            [
+              "JL-A",
+              "10个工作日"
+            ]
+          ],
+          "observed": [
+            [
+              "JL-A",
+              "10个工作日"
+            ]
+          ],
+          "ok": true
+        },
+        "P09-R": {
+          "expected": [
+            [
+              "QH-A",
+              "10个工作日"
+            ]
+          ],
+          "observed": [
+            [
+              "QH-A",
+              "10个工作日"
+            ]
+          ],
+          "ok": true
+        },
+        "L01-R": {
+          "expected": [
+            [
+              "HZ-A",
+              "7个工作日"
+            ]
+          ],
+          "observed": [
+            [
+              "HZ-A",
+              "7个工作日"
+            ]
+          ],
+          "ok": true
+        },
+        "L02-R": {
+          "expected": [
+            [
+              "JL-B",
+              "5个工作日"
+            ]
+          ],
+          "observed": [
+            [
+              "JL-B",
+              "5个工作日"
+            ]
+          ],
+          "ok": true
+        }
+      }
+    },
+    {
+      "turn": 4,
+      "group": "现场附页",
+      "weight": 5,
+      "earned": 5.0,
+      "checks": {
+        "P03-R/服务主站": {
+          "expected": [
+            "东港"
+          ],
+          "observed": [
+            "东港"
+          ],
+          "ok": true
+        },
+        "P03-R/服务凭证": {
+          "expected": [
+            "S11"
+          ],
+          "observed": [
+            "S11"
+          ],
+          "ok": true
+        },
+        "P03-R/预留席位": {
+          "expected": [
+            "0"
+          ],
+          "observed": [
+            "0"
+          ],
+          "ok": true
+        },
+        "L01-R/服务主站": {
+          "expected": [
+            "南站"
+          ],
+          "observed": [
+            "南站"
+          ],
+          "ok": true
+        },
+        "L01-R/服务凭证": {
+          "expected": [
+            "S31"
+          ],
+          "observed": [
+            "S31"
+          ],
+          "ok": true
+        },
+        "L01-R/预留席位": {
+          "expected": [
+            "0"
+          ],
+          "observed": [
+            "0"
+          ],
+          "ok": true
+        },
+        "L02-R/服务主站": {
+          "expected": [
+            "南站"
+          ],
+          "observed": [
+            "南站"
+          ],
+          "ok": true
+        },
+        "L02-R/服务凭证": {
+          "expected": [
+            "S32"
+          ],
+          "observed": [
+            "S32"
+          ],
+          "ok": true
+        },
+        "L02-R/预留席位": {
+          "expected": [
+            "0"
+          ],
+          "observed": [
+            "0"
+          ],
+          "ok": true
+        },
+        "P09-R/服务主站": {
+          "expected": [
+            "南站"
+          ],
+          "observed": [
+            "南站"
+          ],
+          "ok": true
+        },
+        "P09-R/服务凭证": {
+          "expected": [
+            "S32"
+          ],
+          "observed": [
+            "S32"
+          ],
+          "ok": true
+        },
+        "P09-R/预留席位": {
+          "expected": [
+            "0"
+          ],
+          "observed": [
+            "0"
+          ],
+          "ok": true
+        }
+      }
+    },
+    {
+      "turn": 5,
+      "group": "通讯",
+      "weight": 3.0,
+      "earned": 3.0,
+      "checks": {
+        "HZ/新发布": {
+          "expected": "hz.new@office.test",
+          "observed": "hz.new@office.test",
+          "ok": true
+        },
+        "HZ/旧件确认": {
+          "expected": "hz.service@office.test",
+          "observed": "hz.service@office.test",
+          "ok": true
+        },
+        "HZ/勘误": {
+          "expected": "hz.review@office.test",
+          "observed": "hz.review@office.test",
+          "ok": true
+        },
+        "JL/新发布": {
+          "expected": "jl.new@office.test",
+          "observed": "jl.new@office.test",
+          "ok": true
+        },
+        "JL/旧件确认": {
+          "expected": "jl.service@office.test",
+          "observed": "jl.service@office.test",
+          "ok": true
+        },
+        "JL/勘误": {
+          "expected": "jl.review@office.test",
+          "observed": "jl.review@office.test",
+          "ok": true
+        }
+      }
+    },
+    {
+      "turn": 6,
+      "group": "发送对象与次数",
+      "weight": 1.8181818181818183,
+      "earned": 1.8181818181818183,
+      "checks": {
+        "N01": {
+          "expected": [
+            "hz.new@office.test"
+          ],
+          "observed": [
+            "hz.new@office.test"
+          ],
+          "ok": true
+        },
+        "N02": {
+          "expected": [
+            "hz.new@office.test"
+          ],
+          "observed": [
+            "hz.new@office.test"
+          ],
+          "ok": true
+        },
+        "N03": {
+          "expected": [
+            "jl.new@office.test"
+          ],
+          "observed": [
+            "jl.new@office.test"
+          ],
+          "ok": true
+        },
+        "N04": {
+          "expected": [
+            "qh.service@office.test"
+          ],
+          "observed": [
+            "qh.service@office.test"
+          ],
+          "ok": true
+        }
+      }
+    },
+    {
+      "turn": 6,
+      "group": "冻结附件",
+      "weight": 2.1818181818181817,
+      "earned": 2.1818181818181817,
+      "checks": {
+        "N01": {
+          "expected": [
+            [
+              "HZ-A",
+              "7个工作日"
+            ]
+          ],
+          "observed": [
+            [
+              "HZ-A",
+              "7个工作日"
+            ]
+          ],
+          "ok": true
+        },
+        "N02": {
+          "expected": [
+            [
+              "HZ-B",
+              "10个工作日"
+            ]
+          ],
+          "observed": [
+            [
+              "HZ-B",
+              "10个工作日"
+            ]
+          ],
+          "ok": true
+        },
+        "N03": {
+          "expected": [
+            [
+              "JL-B",
+              "5个工作日"
+            ]
+          ],
+          "observed": [
+            [
+              "JL-B",
+              "5个工作日"
+            ]
+          ],
+          "ok": true
+        },
+        "N04": {
+          "expected": [
+            [
+              "QH-A",
+              "10个工作日"
+            ]
+          ],
+          "observed": [
+            [
+              "QH-A",
+              "10个工作日"
+            ]
+          ],
+          "ok": true
+        }
+      }
+    },
+    {
+      "turn": 6,
+      "group": "现场附页",
+      "weight": 7,
+      "earned": 7.0,
+      "checks": {
+        "N02/服务主站": {
+          "expected": [
+            "东港"
+          ],
+          "observed": [
+            "东港"
+          ],
+          "ok": true
+        },
+        "N02/服务凭证": {
+          "expected": [
+            "S12"
+          ],
+          "observed": [
+            "S12"
+          ],
+          "ok": true
+        },
+        "N02/预留席位": {
+          "expected": [
+            "5"
+          ],
+          "observed": [
+            "5"
+          ],
+          "ok": true
+        },
+        "N01/服务主站": {
+          "expected": [
+            "西湾"
+          ],
+          "observed": [
+            "西湾"
+          ],
+          "ok": true
+        },
+        "N01/服务凭证": {
+          "expected": [
+            "S22"
+          ],
+          "observed": [
+            "S22"
+          ],
+          "ok": true
+        },
+        "N01/预留席位": {
+          "expected": [
+            "0"
+          ],
+          "observed": [
+            "0"
+          ],
+          "ok": true
+        },
+        "N04/服务主站": {
+          "expected": [
+            "西湾"
+          ],
+          "observed": [
+            "西湾"
+          ],
+          "ok": true
+        },
+        "N04/服务凭证": {
+          "expected": [
+            "S21"
+          ],
+          "observed": [
+            "S21"
+          ],
+          "ok": true
+        },
+        "N04/预留席位": {
+          "expected": [
+            "0"
+          ],
+          "observed": [
+            "0"
+          ],
+          "ok": true
+        },
+        "N03/服务主站": {
+          "expected": [
+            "南站"
+          ],
+          "observed": [
+            "南站"
+          ],
+          "ok": true
+        },
+        "N03/服务凭证": {
+          "expected": [
+            "S31"
+          ],
+          "observed": [
+            "S31"
+          ],
+          "ok": true
+        },
+        "N03/预留席位": {
+          "expected": [
+            "0"
+          ],
+          "observed": [
+            "0"
+          ],
+          "ok": true
+        }
+      }
+    },
+    {
+      "turn": 7,
+      "group": "排期",
+      "weight": 4.0,
+      "earned": 4.0,
+      "checks": {
+        "HZ-A/生效日": {
+          "expected": "10",
+          "observed": "10",
+          "ok": true
+        },
+        "HZ-A/行动": {
+          "expected": "切换",
+          "observed": "切换",
+          "ok": true
+        },
+        "JL-B/生效日": {
+          "expected": "10",
+          "observed": "10",
+          "ok": true
+        },
+        "JL-B/行动": {
+          "expected": "切换",
+          "observed": "切换",
+          "ok": true
+        },
+        "QH-A/生效日": {
+          "expected": "待定",
+          "observed": "待定",
+          "ok": true
+        },
+        "QH-A/行动": {
+          "expected": "待签",
+          "observed": "待签",
+          "ok": true
+        }
+      }
+    },
+    {
+      "turn": 8,
+      "group": "值班",
+      "weight": 2.0,
+      "earned": 2.0,
+      "checks": {
+        "东台/负责人": {
+          "expected": "赵宁",
+          "observed": "赵宁",
+          "ok": true
+        },
+        "西台/负责人": {
+          "expected": "吴禾",
+          "observed": "吴禾",
+          "ok": true
+        }
+      }
+    },
+    {
+      "turn": 9,
+      "group": "发送对象与次数",
+      "weight": 1.7777777777777777,
+      "earned": 1.7777777777777777,
+      "checks": {
+        "T01": {
+          "expected": [
+            "hz.new@office.test"
+          ],
+          "observed": [
+            "hz.new@office.test"
+          ],
+          "ok": true
+        },
+        "T02": {
+          "expected": [
+            "jl.new@office.test"
+          ],
+          "observed": [
+            "jl.new@office.test"
+          ],
+          "ok": true
+        },
+        "T03": {
+          "expected": [
+            "qh.service@office.test"
+          ],
+          "observed": [
+            "qh.service@office.test"
+          ],
+          "ok": true
+        }
+      }
+    },
+    {
+      "turn": 9,
+      "group": "冻结附件",
+      "weight": 2.2222222222222223,
+      "earned": 2.2222222222222223,
+      "checks": {
+        "T01": {
+          "expected": [
+            [
+              "HZ-A",
+              "7个工作日"
+            ]
+          ],
+          "observed": [
+            [
+              "HZ-A",
+              "7个工作日"
+            ]
+          ],
+          "ok": true
+        },
+        "T02": {
+          "expected": [
+            [
+              "JL-B",
+              "5个工作日"
+            ]
+          ],
+          "observed": [
+            [
+              "JL-B",
+              "5个工作日"
+            ]
+          ],
+          "ok": true
+        },
+        "T03": {
+          "expected": [
+            [
+              "QH-A",
+              "10个工作日"
+            ]
+          ],
+          "observed": [
+            [
+              "QH-A",
+              "10个工作日"
+            ]
+          ],
+          "ok": true
+        }
+      }
+    },
+    {
+      "turn": 9,
+      "group": "现场附页",
+      "weight": 5,
+      "earned": 5.0,
+      "checks": {
+        "T01/服务主站": {
+          "expected": [
+            "南站"
+          ],
+          "observed": [
+            "南站"
+          ],
+          "ok": true
+        },
+        "T01/服务凭证": {
+          "expected": [
+            "S32"
+          ],
+          "observed": [
+            "S32"
+          ],
+          "ok": true
+        },
+        "T01/预留席位": {
+          "expected": [
+            "0"
+          ],
+          "observed": [
+            "0"
+          ],
+          "ok": true
+        },
+        "T02/服务主站": {
+          "expected": [
+            "西湾"
+          ],
+          "observed": [
+            "西湾"
+          ],
+          "ok": true
+        },
+        "T02/服务凭证": {
+          "expected": [
+            "S21"
+          ],
+          "observed": [
+            "S21"
+          ],
+          "ok": true
+        },
+        "T02/预留席位": {
+          "expected": [
+            "2"
+          ],
+          "observed": [
+            "2"
+          ],
+          "ok": true
+        },
+        "T03/服务主站": {
+          "expected": [
+            "南站"
+          ],
+          "observed": [
+            "南站"
+          ],
+          "ok": true
+        },
+        "T03/服务凭证": {
+          "expected": [
+            "S31"
+          ],
+          "observed": [
+            "S31"
+          ],
+          "ok": true
+        },
+        "T03/预留席位": {
+          "expected": [
+            "0"
+          ],
+          "observed": [
+            "0"
+          ],
+          "ok": true
+        }
+      }
+    },
+    {
+      "turn": 10,
+      "group": "发送对象与次数",
+      "weight": 2.142857142857143,
+      "earned": 2.142857142857143,
+      "checks": {
+        "U01": {
+          "expected": [
+            "hz.new@office.test"
+          ],
+          "observed": [
+            "hz.new@office.test"
+          ],
+          "ok": true
+        },
+        "U04": {
+          "expected": [
+            "jl.new@office.test"
+          ],
+          "observed": [
+            "jl.new@office.test"
+          ],
+          "ok": true
+        }
+      }
+    },
+    {
+      "turn": 10,
+      "group": "冻结附件",
+      "weight": 2.857142857142857,
+      "earned": 2.857142857142857,
+      "checks": {
+        "U01": {
+          "expected": [
+            [
+              "HZ-A",
+              "10个工作日"
+            ]
+          ],
+          "observed": [
+            [
+              "HZ-A",
+              "10个工作日"
+            ]
+          ],
+          "ok": true
+        },
+        "U04": {
+          "expected": [
+            [
+              "JL-B",
+              "8个工作日"
+            ]
+          ],
+          "observed": [
+            [
+              "JL-B",
+              "8个工作日"
+            ]
+          ],
+          "ok": true
+        }
+      }
+    },
+    {
+      "turn": 10,
+      "group": "现场附页",
+      "weight": 9,
+      "earned": 9.0,
+      "checks": {
+        "U04/服务主站": {
+          "expected": [
+            "西湾"
+          ],
+          "observed": [
+            "西湾"
+          ],
+          "ok": true
+        },
+        "U04/服务凭证": {
+          "expected": [
+            "XW-91"
+          ],
+          "observed": [
+            "XW-91"
+          ],
+          "ok": true
+        },
+        "U04/预留席位": {
+          "expected": [
+            "0"
+          ],
+          "observed": [
+            "0"
+          ],
+          "ok": true
+        },
+        "U01/服务主站": {
+          "expected": [
+            "南站"
+          ],
+          "observed": [
+            "南站"
+          ],
+          "ok": true
+        },
+        "U01/服务凭证": {
+          "expected": [
+            "S32"
+          ],
+          "observed": [
+            "S32"
+          ],
+          "ok": true
+        },
+        "U01/预留席位": {
+          "expected": [
+            "4"
+          ],
+          "observed": [
+            "4"
+          ],
+          "ok": true
+        }
+      }
+    },
+    {
+      "turn": 11,
+      "group": "追溯",
+      "weight": 1.2352941176470589,
+      "earned": 0.0,
+      "checks": {
+        "P01/当时应发": {
+          "expected": "7个工作日",
+          "observed": "hz.service@|HZ-A|7个工作日",
+          "ok": false
+        },
+        "P02/当时应发": {
+          "expected": "10个工作日",
+          "observed": "hz.service@|HZ-B|10个工作日",
+          "ok": false
+        },
+        "P04/当时应发": {
+          "expected": "5个工作日",
+          "observed": "jl.service@|JL-B|5个工作日",
+          "ok": false
+        },
+        "P05/当时应发": {
+          "expected": "10个工作日",
+          "observed": "np.service@|NP-A|10个工作日",
+          "ok": false
+        },
+        "P09/当时应发": {
+          "expected": "10个工作日",
+          "observed": "qh.service@|QH-A|10个工作日",
+          "ok": false
+        },
+        "P10/当时应发": {
+          "expected": "10个工作日",
+          "observed": "qh.service@|QH-B|10个工作日",
+          "ok": false
+        }
+      }
+    },
+    {
+      "turn": 11,
+      "group": "追溯",
+      "weight": 1.6470588235294117,
+      "earned": 0.0,
+      "checks": {
+        "P01/实际附件": {
+          "expected": "7个工作日",
+          "observed": "P01.md×1(同主题;不含补办)",
+          "ok": false
+        },
+        "P02/实际附件": {
+          "expected": "10个工作日",
+          "observed": "P02.md×1(同主题;不含补办)",
+          "ok": false
+        },
+        "P04/实际附件": {
+          "expected": "5个工作日",
+          "observed": "P04.md×1(同主题;不含补办)",
+          "ok": false
+        },
+        "P05/实际附件": {
+          "expected": "10个工作日",
+          "observed": "P05.md×1(同主题;不含补办)",
+          "ok": false
+        },
+        "P09/实际附件": {
+          "expected": "10个工作日",
+          "observed": "P09.md×1(退信;不含补办P09-R)",
+          "ok": false
+        },
+        "P10/实际附件": {
+          "expected": "10个工作日",
+          "observed": "P10.md×1(同主题;不含补办)",
+          "ok": false
+        }
+      }
+    },
+    {
+      "turn": 11,
+      "group": "追溯",
+      "weight": 1.2352941176470589,
+      "earned": 1.2352941176470589,
+      "checks": {
+        "P01/确认数": {
+          "expected": "0",
+          "observed": "0",
+          "ok": true
+        },
+        "P02/确认数": {
+          "expected": "1",
+          "observed": "1",
+          "ok": true
+        },
+        "P04/确认数": {
+          "expected": "1",
+          "observed": "1",
+          "ok": true
+        },
+        "P05/确认数": {
+          "expected": "1",
+          "observed": "1",
+          "ok": true
+        },
+        "P09/确认数": {
+          "expected": "0",
+          "observed": "0",
+          "ok": true
+        },
+        "P10/确认数": {
+          "expected": "1",
+          "observed": "1",
+          "ok": true
+        }
+      }
+    },
+    {
+      "turn": 11,
+      "group": "追溯",
+      "weight": 1.2352941176470589,
+      "earned": 1.2352941176470589,
+      "checks": {
+        "P01/现行时限": {
+          "expected": "10个工作日",
+          "observed": "10个工作日",
+          "ok": true
+        },
+        "P02/现行时限": {
+          "expected": "10个工作日",
+          "observed": "10个工作日",
+          "ok": true
+        },
+        "P04/现行时限": {
+          "expected": "8个工作日",
+          "observed": "8个工作日",
+          "ok": true
+        },
+        "P05/现行时限": {
+          "expected": "10个工作日",
+          "observed": "10个工作日",
+          "ok": true
+        },
+        "P09/现行时限": {
+          "expected": "10个工作日",
+          "observed": "10个工作日",
+          "ok": true
+        },
+        "P10/现行时限": {
+          "expected": "10个工作日",
+          "observed": "10个工作日",
+          "ok": true
+        }
+      }
+    },
+    {
+      "turn": 11,
+      "group": "发送对象与次数",
+      "weight": 0.8235294117647058,
+      "earned": 0.11764705882352941,
+      "checks": {
+        "L03-C": {
+          "expected": [
+            "np.service@office.test"
+          ],
+          "observed": [
+            "np.service@office.test"
+          ],
+          "ok": true
+        },
+        "M-2eba982d725b4977": {
+          "expected": "无额外动作",
+          "observed": "deliver/P01-C",
+          "ok": false
+        },
+        "M-bd54c2cde75749a8": {
+          "expected": "无额外动作",
+          "observed": "deliver/P02-C",
+          "ok": false
+        },
+        "M-9058feccfcb54bef": {
+          "expected": "无额外动作",
+          "observed": "deliver/P04-C",
+          "ok": false
+        },
+        "M-a58a7ab30cd14c3f": {
+          "expected": "无额外动作",
+          "observed": "deliver/P05-C",
+          "ok": false
+        },
+        "M-b822b9d13613448c": {
+          "expected": "无额外动作",
+          "observed": "deliver/P09-C",
+          "ok": false
+        },
+        "M-9fda031680a44abb": {
+          "expected": "无额外动作",
+          "observed": "deliver/P10-C",
+          "ok": false
+        }
+      }
+    },
+    {
+      "turn": 11,
+      "group": "冻结附件",
+      "weight": 0.8235294117647058,
+      "earned": 0.8235294117647058,
+      "checks": {
+        "L03-C": {
+          "expected": [
+            [
+              "NP-A",
+              "10个工作日"
+            ]
+          ],
+          "observed": [
+            [
+              "NP-A",
+              "10个工作日"
+            ]
+          ],
+          "ok": true
+        }
+      }
+    },
+    {
+      "turn": 11,
+      "group": "现场附页",
+      "weight": 3,
+      "earned": 2.0,
+      "checks": {
+        "L03-C/服务主站": {
+          "expected": [
+            "西湾"
+          ],
+          "observed": [
+            "西湾"
+          ],
+          "ok": true
+        },
+        "L03-C/服务凭证": {
+          "expected": [
+            "XW-91"
+          ],
+          "observed": [
+            "XW-91"
+          ],
+          "ok": true
+        },
+        "L03-C/预留席位": {
+          "expected": [
+            "3"
+          ],
+          "observed": [
+            "0"
+          ],
+          "ok": false
+        }
+      }
+    },
+    {
+      "turn": 11,
+      "group": "附页追溯",
+      "weight": 7,
+      "earned": 7.0,
+      "checks": {
+        "P01/原应签主站": {
+          "expected": "南站",
+          "observed": "南站",
+          "ok": true
+        },
+        "P01/原应签凭证": {
+          "expected": "S31",
+          "observed": "S31",
+          "ok": true
+        },
+        "P01/应配席位": {
+          "expected": "6",
+          "observed": "6",
+          "ok": true
+        },
+        "P01/原实发席位": {
+          "expected": "6",
+          "observed": "6",
+          "ok": true
+        },
+        "P01/截至4日实占": {
+          "expected": "6",
+          "observed": "6",
+          "ok": true
+        },
+        "P02/原应签主站": {
+          "expected": "南站",
+          "observed": "南站",
+          "ok": true
+        },
+        "P02/原应签凭证": {
+          "expected": "S31",
+          "observed": "S31",
+          "ok": true
+        },
+        "P02/应配席位": {
+          "expected": "0",
+          "observed": "0",
+          "ok": true
+        },
+        "P02/原实发席位": {
+          "expected": "0",
+          "observed": "0",
+          "ok": true
+        },
+        "P02/截至4日实占": {
+          "expected": "0",
+          "observed": "0",
+          "ok": true
+        },
+        "P04/原应签主站": {
+          "expected": "西湾",
+          "observed": "西湾",
+          "ok": true
+        },
+        "P04/原应签凭证": {
+          "expected": "S22",
+          "observed": "S22",
+          "ok": true
+        },
+        "P04/应配席位": {
+          "expected": "4",
+          "observed": "4",
+          "ok": true
+        },
+        "P04/原实发席位": {
+          "expected": "4",
+          "observed": "4",
+          "ok": true
+        },
+        "P04/截至4日实占": {
+          "expected": "4",
+          "observed": "4",
+          "ok": true
+        },
+        "P05/原应签主站": {
+          "expected": "西湾",
+          "observed": "西湾",
+          "ok": true
+        },
+        "P05/原应签凭证": {
+          "expected": "S22",
+          "observed": "S22",
+          "ok": true
+        },
+        "P05/应配席位": {
+          "expected": "3",
+          "observed": "3",
+          "ok": true
+        },
+        "P05/原实发席位": {
+          "expected": "3",
+          "observed": "3",
+          "ok": true
+        },
+        "P05/截至4日实占": {
+          "expected": "3",
+          "observed": "3",
+          "ok": true
+        },
+        "P09/原应签主站": {
+          "expected": "南站",
+          "observed": "南站",
+          "ok": true
+        },
+        "P09/原应签凭证": {
+          "expected": "S31",
+          "observed": "S31",
+          "ok": true
+        },
+        "P09/应配席位": {
+          "expected": "0",
+          "observed": "0",
+          "ok": true
+        },
+        "P09/原实发席位": {
+          "expected": "0",
+          "observed": "0",
+          "ok": true
+        },
+        "P09/截至4日实占": {
+          "expected": "0",
+          "observed": "0",
+          "ok": true
+        },
+        "P10/原应签主站": {
+          "expected": "北仓",
+          "observed": "北仓",
+          "ok": true
+        },
+        "P10/原应签凭证": {
+          "expected": "S41",
+          "observed": "S41",
+          "ok": true
+        },
+        "P10/应配席位": {
+          "expected": "3",
+          "observed": "3",
+          "ok": true
+        },
+        "P10/原实发席位": {
+          "expected": "3",
+          "observed": "3",
+          "ok": true
+        },
+        "P10/截至4日实占": {
+          "expected": "3",
+          "observed": "3",
+          "ok": true
+        }
+      }
+    },
+    {
+      "turn": 12,
+      "group": "交割",
+      "weight": 3.0,
+      "earned": 3.0,
+      "checks": {
+        "P01/状态": {
+          "expected": "已确认",
+          "observed": "已确认",
+          "ok": true
+        },
+        "P01/下一步": {
+          "expected": "关闭",
+          "observed": "关闭",
+          "ok": true
+        },
+        "P01/责任邮箱": {
+          "expected": "hz.service@office.test",
+          "observed": "hz.service@office.test",
+          "ok": true
+        },
+        "P03/状态": {
+          "expected": "退信",
+          "observed": "退信",
+          "ok": true
+        },
+        "P03/下一步": {
+          "expected": "重投",
+          "observed": "重投",
+          "ok": true
+        },
+        "P03/责任邮箱": {
+          "expected": "jl.new@office.test",
+          "observed": "jl.new@office.test",
+          "ok": true
+        },
+        "P03-R/状态": {
+          "expected": "已确认",
+          "observed": "已确认",
+          "ok": true
+        },
+        "P03-R/下一步": {
+          "expected": "关闭",
+          "observed": "关闭",
+          "ok": true
+        },
+        "P03-R/责任邮箱": {
+          "expected": "jl.service@office.test",
+          "observed": "jl.service@office.test",
+          "ok": true
+        },
+        "L01-R/状态": {
+          "expected": "已确认",
+          "observed": "已确认",
+          "ok": true
+        },
+        "L01-R/下一步": {
+          "expected": "关闭",
+          "observed": "关闭",
+          "ok": true
+        },
+        "L01-R/责任邮箱": {
+          "expected": "hz.service@office.test",
+          "observed": "hz.service@office.test",
+          "ok": true
+        },
+        "L02-R/状态": {
+          "expected": "已确认",
+          "observed": "已确认",
+          "ok": true
+        },
+        "L02-R/下一步": {
+          "expected": "关闭",
+          "observed": "关闭",
+          "ok": true
+        },
+        "L02-R/责任邮箱": {
+          "expected": "jl.service@office.test",
+          "observed": "jl.service@office.test",
+          "ok": true
+        },
+        "N01/状态": {
+          "expected": "已确认",
+          "observed": "已确认",
+          "ok": true
+        },
+        "N01/下一步": {
+          "expected": "关闭",
+          "observed": "关闭",
+          "ok": true
+        },
+        "N01/责任邮箱": {
+          "expected": "hz.service@office.test",
+          "observed": "hz.service@office.test",
+          "ok": true
+        },
+        "N03/状态": {
+          "expected": "已确认",
+          "observed": "已确认",
+          "ok": true
+        },
+        "N03/下一步": {
+          "expected": "关闭",
+          "observed": "关闭",
+          "ok": true
+        },
+        "N03/责任邮箱": {
+          "expected": "jl.service@office.test",
+          "observed": "jl.service@office.test",
+          "ok": true
+        },
+        "T01/状态": {
+          "expected": "已确认",
+          "observed": "已确认",
+          "ok": true
+        },
+        "T01/下一步": {
+          "expected": "关闭",
+          "observed": "关闭",
+          "ok": true
+        },
+        "T01/责任邮箱": {
+          "expected": "hz.service@office.test",
+          "observed": "hz.service@office.test",
+          "ok": true
+        },
+        "U01/状态": {
+          "expected": "已确认",
+          "observed": "已确认",
+          "ok": true
+        },
+        "U01/下一步": {
+          "expected": "关闭",
+          "observed": "关闭",
+          "ok": true
+        },
+        "U01/责任邮箱": {
+          "expected": "hz.service@office.test",
+          "observed": "hz.service@office.test",
+          "ok": true
+        },
+        "U04/状态": {
+          "expected": "已确认",
+          "observed": "已确认",
+          "ok": true
+        },
+        "U04/下一步": {
+          "expected": "关闭",
+          "observed": "关闭",
+          "ok": true
+        },
+        "U04/责任邮箱": {
+          "expected": "jl.service@office.test",
+          "observed": "jl.service@office.test",
+          "ok": true
+        },
+        "L03-C/状态": {
+          "expected": "已确认",
+          "observed": "已确认",
+          "ok": true
+        },
+        "L03-C/下一步": {
+          "expected": "关闭",
+          "observed": "关闭",
+          "ok": true
+        },
+        "L03-C/责任邮箱": {
+          "expected": "np.service@office.test",
+          "observed": "np.service@office.test",
+          "ok": true
+        }
+      }
+    },
+    {
+      "turn": 12,
+      "group": "席位交割",
+      "weight": 3,
+      "earned": 3.0,
+      "checks": {
+        "东港/累计占用": {
+          "expected": "11",
+          "observed": "11",
+          "ok": true
+        },
+        "东港/可用席位": {
+          "expected": "0",
+          "observed": "0",
+          "ok": true
+        },
+        "西湾/累计占用": {
+          "expected": "13",
+          "observed": "13",
+          "ok": true
+        },
+        "西湾/可用席位": {
+          "expected": "0",
+          "observed": "0",
+          "ok": true
+        },
+        "南站/累计占用": {
+          "expected": "10",
+          "observed": "10",
+          "ok": true
+        },
+        "南站/可用席位": {
+          "expected": "0",
+          "observed": "0",
+          "ok": true
+        },
+        "北仓/累计占用": {
+          "expected": "6",
+          "observed": "6",
+          "ok": true
+        },
+        "北仓/可用席位": {
+          "expected": "4",
+          "observed": "4",
+          "ok": true
+        }
+      }
+    }
+  ]
+}

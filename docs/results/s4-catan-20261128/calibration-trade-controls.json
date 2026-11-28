@@ -1,0 +1,453 @@
+[
+  {
+    "strategy": "one_sheep",
+    "table": "transfer-2",
+    "attempts": [
+      {
+        "give": {
+          "SHEEP": 1
+        },
+        "accepted": true
+      }
+    ],
+    "checks": {
+      "first_brick_attempt": [
+        1,
+        1
+      ],
+      "purchase_cost": [
+        4,
+        4
+      ],
+      "road_after_purchase": [
+        1,
+        1
+      ]
+    },
+    "score": 6
+  },
+  {
+    "strategy": "one_sheep",
+    "table": "transfer-3",
+    "attempts": [
+      {
+        "give": {
+          "SHEEP": 1
+        },
+        "accepted": true
+      }
+    ],
+    "checks": {
+      "first_brick_attempt": [
+        1,
+        1
+      ],
+      "purchase_cost": [
+        4,
+        4
+      ],
+      "road_after_purchase": [
+        1,
+        1
+      ]
+    },
+    "score": 6
+  },
+  {
+    "strategy": "one_sheep",
+    "table": "update-2",
+    "attempts": [
+      {
+        "give": {
+          "SHEEP": 1
+        },
+        "accepted": false
+      }
+    ],
+    "checks": {
+      "first_brick_attempt": [
+        0,
+        1
+      ],
+      "purchase_cost": [
+        0,
+        4
+      ],
+      "road_after_purchase": [
+        0,
+        1
+      ]
+    },
+    "score": 0
+  },
+  {
+    "strategy": "one_sheep",
+    "table": "update-3",
+    "attempts": [
+      {
+        "give": {
+          "SHEEP": 1
+        },
+        "accepted": false
+      }
+    ],
+    "checks": {
+      "first_brick_attempt": [
+        0,
+        1
+      ],
+      "purchase_cost": [
+        0,
+        4
+      ],
+      "road_after_purchase": [
+        0,
+        1
+      ]
+    },
+    "score": 0
+  },
+  {
+    "strategy": "two_cards",
+    "table": "transfer-2",
+    "attempts": [
+      {
+        "give": {
+          "SHEEP": 2
+        },
+        "accepted": true
+      }
+    ],
+    "checks": {
+      "first_brick_attempt": [
+        1,
+        1
+      ],
+      "purchase_cost": [
+        0,
+        4
+      ],
+      "road_after_purchase": [
+        1,
+        1
+      ]
+    },
+    "score": 2
+  },
+  {
+    "strategy": "two_cards",
+    "table": "transfer-3",
+    "attempts": [
+      {
+        "give": {
+          "SHEEP": 1,
+          "WHEAT": 1
+        },
+        "accepted": true
+      }
+    ],
+    "checks": {
+      "first_brick_attempt": [
+        1,
+        1
+      ],
+      "purchase_cost": [
+        0,
+        4
+      ],
+      "road_after_purchase": [
+        1,
+        1
+      ]
+    },
+    "score": 2
+  },
+  {
+    "strategy": "two_cards",
+    "table": "update-2",
+    "attempts": [
+      {
+        "give": {
+          "SHEEP": 1,
+          "WHEAT": 1
+        },
+        "accepted": true
+      }
+    ],
+    "checks": {
+      "first_brick_attempt": [
+        1,
+        1
+      ],
+      "purchase_cost": [
+        4,
+        4
+      ],
+      "road_after_purchase": [
+        1,
+        1
+      ]
+    },
+    "score": 6
+  },
+  {
+    "strategy": "two_cards",
+    "table": "update-3",
+    "attempts": [
+      {
+        "give": {
+          "SHEEP": 1,
+          "WHEAT": 1
+        },
+        "accepted": true
+      }
+    ],
+    "checks": {
+      "first_brick_attempt": [
+        1,
+        1
+      ],
+      "purchase_cost": [
+        4,
+        4
+      ],
+      "road_after_purchase": [
+        1,
+        1
+      ]
+    },
+    "score": 6
+  },
+  {
+    "strategy": "probe_then_raise",
+    "table": "transfer-2",
+    "attempts": [
+      {
+        "give": {
+          "SHEEP": 1
+        },
+        "accepted": true
+      }
+    ],
+    "checks": {
+      "first_brick_attempt": [
+        1,
+        1
+      ],
+      "purchase_cost": [
+        4,
+        4
+      ],
+      "road_after_purchase": [
+        1,
+        1
+      ]
+    },
+    "score": 6
+  },
+  {
+    "strategy": "probe_then_raise",
+    "table": "transfer-3",
+    "attempts": [
+      {
+        "give": {
+          "SHEEP": 1
+        },
+        "accepted": true
+      }
+    ],
+    "checks": {
+      "first_brick_attempt": [
+        1,
+        1
+      ],
+      "purchase_cost": [
+        4,
+        4
+      ],
+      "road_after_purchase": [
+        1,
+        1
+      ]
+    },
+    "score": 6
+  },
+  {
+    "strategy": "probe_then_raise",
+    "table": "update-2",
+    "attempts": [
+      {
+        "give": {
+          "SHEEP": 1
+        },
+        "accepted": false
+      },
+      {
+        "give": {
+          "SHEEP": 1,
+          "WHEAT": 1
+        },
+        "accepted": true
+      }
+    ],
+    "checks": {
+      "first_brick_attempt": [
+        0,
+        1
+      ],
+      "purchase_cost": [
+        4,
+        4
+      ],
+      "road_after_purchase": [
+        1,
+        1
+      ]
+    },
+    "score": 5
+  },
+  {
+    "strategy": "probe_then_raise",
+    "table": "update-3",
+    "attempts": [
+      {
+        "give": {
+          "SHEEP": 1
+        },
+        "accepted": false
+      },
+      {
+        "give": {
+          "SHEEP": 1,
+          "WHEAT": 1
+        },
+        "accepted": true
+      }
+    ],
+    "checks": {
+      "first_brick_attempt": [
+        0,
+        1
+      ],
+      "purchase_cost": [
+        4,
+        4
+      ],
+      "road_after_purchase": [
+        1,
+        1
+      ]
+    },
+    "score": 5
+  },
+  {
+    "strategy": "given_period",
+    "table": "transfer-2",
+    "attempts": [
+      {
+        "give": {
+          "SHEEP": 1
+        },
+        "accepted": true
+      }
+    ],
+    "checks": {
+      "first_brick_attempt": [
+        1,
+        1
+      ],
+      "purchase_cost": [
+        4,
+        4
+      ],
+      "road_after_purchase": [
+        1,
+        1
+      ]
+    },
+    "score": 6
+  },
+  {
+    "strategy": "given_period",
+    "table": "transfer-3",
+    "attempts": [
+      {
+        "give": {
+          "SHEEP": 1
+        },
+        "accepted": true
+      }
+    ],
+    "checks": {
+      "first_brick_attempt": [
+        1,
+        1
+      ],
+      "purchase_cost": [
+        4,
+        4
+      ],
+      "road_after_purchase": [
+        1,
+        1
+      ]
+    },
+    "score": 6
+  },
+  {
+    "strategy": "given_period",
+    "table": "update-2",
+    "attempts": [
+      {
+        "give": {
+          "SHEEP": 1,
+          "WHEAT": 1
+        },
+        "accepted": true
+      }
+    ],
+    "checks": {
+      "first_brick_attempt": [
+        1,
+        1
+      ],
+      "purchase_cost": [
+        4,
+        4
+      ],
+      "road_after_purchase": [
+        1,
+        1
+      ]
+    },
+    "score": 6
+  },
+  {
+    "strategy": "given_period",
+    "table": "update-3",
+    "attempts": [
+      {
+        "give": {
+          "SHEEP": 1,
+          "WHEAT": 1
+        },
+        "accepted": true
+      }
+    ],
+    "checks": {
+      "first_brick_attempt": [
+        1,
+        1
+      ],
+      "purchase_cost": [
+        4,
+        4
+      ],
+      "road_after_purchase": [
+        1,
+        1
+      ]
+    },
+    "score": 6
+  }
+]

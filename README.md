@@ -5,9 +5,11 @@
 | Domain | 题目 | 检查什么 |
 |---|---|---|
 | Work | [W1 · 跨月采购关账与奖金分配](tasks/w1/) | 九轮内冻结六月报送件，处理七月调整，并据先前批复办理工资、资金和预留。 |
+| Work | [W4 · 售后手册发布与历史勘误](tasks/w4/) | 十二轮使用真实附件和按日回执，核对条款沿用、局部更新、历史追溯和补救。 |
 | Code | [C1 · 工时结算与保证金交割](tasks/c1/) | 修改同一程序，在第 5、7 轮换班，按轮末交付和新来件复跑评分。 |
 | Code | [C2 · 排期门户的双版本发布与历史追溯](tasks/c2/evolution/) | 十轮维护同一套代码与数据，处理四端发布、分范围撤回、故障恢复和历史签收追溯。[八轮前版](tasks/c2/) |
 | Simulation | [S1 · 跨区器材联赛](tasks/s1/) | 十区八十轮，第 40 轮交接自写摘要；从赛事单据复核登记、器材配套和送达。 |
+| Simulation | [S4 · Catan 跨局联赛](tasks/s4/) | 三场真实 Catan 对局及六个练习，测试跨局交易经验、更新旧经验和局内计划接续。 |
 
 ## 运行与验证
 
@@ -24,7 +26,7 @@ python -m unittest discover -v
 
 ### Codex 原生运行
 
-W1、C1、S1 支持 Codex app-server；C2 目前使用 Claude Code。安装支持动态工具和空环境列表的 Codex CLI（已测版本见实测记录），先执行 `codex login`，再按各题 README 准备 Docker 镜像。运行目录应为新路径，W1/C1 使用 Docker 可读写的共享目录。
+W1、C1、S1 支持 Codex app-server；C2 和 W4 目前使用 Claude Code。安装支持动态工具和空环境列表的 Codex CLI（已测版本见实测记录），先执行 `codex login`，再按各题 README 准备 Docker 镜像。运行目录应为新路径，W1/C1 使用 Docker 可读写的共享目录。
 
 ```sh
 python -m tasks.codex_bench w1 rollout/w1/codex/17217-A &
@@ -43,7 +45,11 @@ wait
 
 [C2 十轮进阶版首场审计](docs/results/c2-evolution-20261128/)记录 DeepSeek 的 97.6471 分、三次原生压缩、两处交付偏差与题面勘误。当前实测仍有明显高分风险。
 
+[W4 两版开发及 DeepSeek 盲测](docs/results/w4-release-20261128/)记录基础场、现场附页加难场、两版冻结成绩和可重放轨迹。
+
 [C2 首次开发与盲测](docs/results/c2-calendar-20261128/)记录八轮日历发布任务的环境验收、真实轨迹、正反例和评分审计。
+
+[S4 Catan 首次盲测与逐条审计](docs/results/s4-catan-20261128/)覆盖 19 段、548 次请求、三次原生压缩及六个短对照。正式成绩 71.5/100，代码与题面复核边界见审计。
 
 ## 当前观察与局限
 

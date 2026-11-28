@@ -4,24 +4,9 @@ from collections import Counter
 import json
 from pathlib import Path
 import sys
+from tasks.transcript import enc, lines, result_text
 from .pilot import ALLOWED
 from .scenario import PROMPTS
-
-
-def enc(x):
-    return json.dumps(x, sort_keys=True, ensure_ascii=False)
-
-
-def lines(p):
-    if not p.exists():
-        return []
-    return [json.loads(s) for s in p.read_text().splitlines() if s.strip()]
-
-
-def result_text(blocks):
-    if isinstance(blocks, str):
-        return blocks
-    return "\n".join(b.get("text", "") for b in blocks if b.get("type") == "text")
 
 
 def audit(run, *, prompts=PROMPTS, channels="AB", injected=None):

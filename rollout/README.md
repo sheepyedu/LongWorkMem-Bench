@@ -33,3 +33,11 @@ W1、C1 替换相应题号和目录即可。W1 需宿主 LibreOffice Calc；C1 �
 ## DeepSeek 与千问历史批次
 
 `advanced-audit-20261127-203015` 按题归档，每题八场。该批的完整记录保存在实验机 `rollout/<题号>/<批次>/<运行>/`，GitHub 提供[逐场分数、用量和原始档案校验值](../docs/results/advanced-audit-20261127/runs.csv)。
+
+## W4 手册发布与历史勘误
+
+[两版 DeepSeek 4.1 Flash 轨迹](w4/)分别保存每轮委托、工具、响应、冻结附件和可独立复评的交付包。
+
+## S4 · Claude Code + DeepSeek 4.1 Flash
+
+[原场轨迹、审计索引与离线复评](s4/)覆盖三场 Catan 及六桌固定练习。
