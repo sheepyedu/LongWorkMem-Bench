@@ -1,0 +1,511 @@
+{
+  "separate_development_probe": true,
+  "ungated_metadata": [
+    [
+      1,
+      0,
+      [
+        636,
+        false,
+        false,
+        false,
+        false
+      ],
+      [
+        false,
+        false
+      ]
+    ],
+    [
+      2,
+      0,
+      [
+        678,
+        true,
+        false,
+        false,
+        false
+      ],
+      [
+        true,
+        false
+      ]
+    ],
+    [
+      3,
+      0,
+      [
+        678,
+        true,
+        false,
+        false,
+        false
+      ],
+      [
+        false,
+        false
+      ]
+    ],
+    [
+      4,
+      0,
+      [
+        681,
+        true,
+        false,
+        false,
+        false
+      ],
+      [
+        false,
+        false
+      ]
+    ],
+    [
+      5,
+      0,
+      [
+        683,
+        true,
+        false,
+        false,
+        false
+      ],
+      [
+        false,
+        false
+      ]
+    ],
+    [
+      6,
+      0,
+      [
+        688,
+        true,
+        false,
+        false,
+        false
+      ],
+      [
+        false,
+        false
+      ]
+    ],
+    [
+      7,
+      0,
+      [
+        718,
+        true,
+        true,
+        false,
+        false
+      ],
+      [
+        false,
+        true
+      ]
+    ],
+    [
+      8,
+      0,
+      [
+        717,
+        true,
+        true,
+        false,
+        false
+      ],
+      [
+        false,
+        false
+      ]
+    ],
+    [
+      9,
+      0,
+      [
+        722,
+        false,
+        true,
+        false,
+        false
+      ],
+      [
+        false,
+        false
+      ]
+    ],
+    [
+      10,
+      0,
+      [
+        727,
+        false,
+        true,
+        false,
+        false
+      ],
+      [
+        false,
+        false
+      ]
+    ],
+    [
+      11,
+      0,
+      [
+        729,
+        false,
+        true,
+        false,
+        false
+      ],
+      [
+        false,
+        false
+      ]
+    ],
+    [
+      12,
+      0,
+      [
+        731,
+        false,
+        true,
+        false,
+        false
+      ],
+      [
+        false,
+        false
+      ]
+    ]
+  ],
+  "retired_direct_read": [
+    [
+      1,
+      0,
+      [
+        [
+          false,
+          null
+        ],
+        [
+          false,
+          null
+        ]
+      ]
+    ],
+    [
+      2,
+      0,
+      [
+        [
+          true,
+          204
+        ],
+        [
+          true,
+          83
+        ]
+      ]
+    ],
+    [
+      3,
+      0.12,
+      [
+        [
+          true,
+          null
+        ],
+        [
+          true,
+          null
+        ]
+      ]
+    ],
+    [
+      3,
+      0.76,
+      [
+        [
+          true,
+          null
+        ],
+        [
+          true,
+          null
+        ]
+      ]
+    ],
+    [
+      3,
+      1.4,
+      [
+        [
+          false,
+          null
+        ],
+        [
+          false,
+          null
+        ]
+      ]
+    ]
+  ],
+  "fixed_inbox_checks": [
+    [
+      {
+        "turn": 1,
+        "files": 0,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "probes": 1
+      },
+      1,
+      0,
+      [
+        636,
+        false,
+        false,
+        false,
+        false
+      ],
+      [
+        false,
+        false
+      ]
+    ],
+    [
+      {
+        "turn": 2,
+        "files": 42,
+        "sha256": "9be3a5cbce5455e98eaa9c81e2d757edef7b4203e8cf0813297d199ee459d293",
+        "probes": 1
+      },
+      2,
+      0,
+      [
+        678,
+        true,
+        false,
+        false,
+        false
+      ],
+      [
+        true,
+        false
+      ]
+    ],
+    [
+      {
+        "turn": 3,
+        "files": 42,
+        "sha256": "c038390fdcc47c262dc4d57c7fbb877e356422c4dbdc2f7ac2836e9187c18a52",
+        "probes": 3
+      },
+      3,
+      0,
+      [
+        678,
+        false,
+        false,
+        false,
+        false
+      ],
+      [
+        false,
+        false
+      ]
+    ],
+    [
+      {
+        "turn": 4,
+        "files": 45,
+        "sha256": "f2e5af4ef01b6b4bb9eb4bd10d8b7cc7d10858cc0da0e6071d45072da6dbdfaf",
+        "probes": 1
+      },
+      4,
+      0,
+      [
+        681,
+        false,
+        false,
+        false,
+        false
+      ],
+      [
+        false,
+        false
+      ]
+    ],
+    [
+      {
+        "turn": 5,
+        "files": 47,
+        "sha256": "610db769b1f73e7f57230d0daded189bee54b8123bfd3385b0e26989fcc96e26",
+        "probes": 1
+      },
+      5,
+      0,
+      [
+        683,
+        false,
+        false,
+        false,
+        false
+      ],
+      [
+        false,
+        false
+      ]
+    ],
+    [
+      {
+        "turn": 6,
+        "files": 52,
+        "sha256": "5f0647703a339090b6999a78c80fff437cdc034e3b4b9682308d67afb9e4ebfd",
+        "probes": 1
+      },
+      6,
+      0,
+      [
+        688,
+        false,
+        false,
+        false,
+        false
+      ],
+      [
+        false,
+        false
+      ]
+    ],
+    [
+      {
+        "turn": 7,
+        "files": 82,
+        "sha256": "7d09ecc7e6406d5763ff490970f80b37e1d456c8aee7dc0db80ab2f48e4ab71c",
+        "probes": 1
+      },
+      7,
+      0,
+      [
+        718,
+        false,
+        true,
+        false,
+        false
+      ],
+      [
+        false,
+        true
+      ]
+    ],
+    [
+      {
+        "turn": 8,
+        "files": 81,
+        "sha256": "1ba30bde5f7648f5e72df46aecdf71bf7c793c723f439f3494f5e5325abcf4df",
+        "probes": 3
+      },
+      8,
+      0,
+      [
+        717,
+        false,
+        false,
+        false,
+        false
+      ],
+      [
+        false,
+        false
+      ]
+    ],
+    [
+      {
+        "turn": 9,
+        "files": 86,
+        "sha256": "b7763b72ad789eebd8bf734214ded30d001f5eff0d159b8f3b26bf0d8d28c1f1",
+        "probes": 1
+      },
+      9,
+      0,
+      [
+        722,
+        false,
+        false,
+        false,
+        false
+      ],
+      [
+        false,
+        false
+      ]
+    ],
+    [
+      {
+        "turn": 10,
+        "files": 91,
+        "sha256": "788dd435aa5ae5713abcbc31386032341180a7e265c2908d04be95bddce7627d",
+        "probes": 1
+      },
+      10,
+      0,
+      [
+        727,
+        false,
+        false,
+        false,
+        false
+      ],
+      [
+        false,
+        false
+      ]
+    ],
+    [
+      {
+        "turn": 11,
+        "files": 93,
+        "sha256": "0b53dc01540c970ed53f0618edce69029b52ba1002c04db5c67fe479c54c4480",
+        "probes": 1
+      },
+      11,
+      0,
+      [
+        729,
+        false,
+        false,
+        false,
+        false
+      ],
+      [
+        false,
+        false
+      ]
+    ],
+    [
+      {
+        "turn": 12,
+        "files": 95,
+        "sha256": "f17e7cd5cf627b4c0ad68fdd3b450e9cea226afa8914897747e18c29fdb23251",
+        "probes": 1
+      },
+      12,
+      0,
+      [
+        731,
+        false,
+        false,
+        false,
+        false
+      ],
+      [
+        false,
+        false
+      ]
+    ]
+  ]
+}

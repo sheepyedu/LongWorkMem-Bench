@@ -154,7 +154,7 @@ def recalculate(files, image):
     return json.loads(result.stdout)
 
 
-def booking(path, cap, demands, image):
+def booking(path, cap, demands, image, *, revised=False):
     try:
         inspect_package(path)
         book = load_workbook(path)
@@ -176,20 +176,30 @@ def booking(path, cap, demands, image):
             gotd = {k: q.cell(i, 3).value for i, k in enumerate(night.QUEUE, 2)}
             # Keep the submitted baseline untouched. Two independent edit copies
             # cover both capacity and per-case changes, including unaffected stations.
+            edited_cap, edited_demand = (gotcap, gotd) if revised else (cap, demands)
+            valid_inputs = all(
+                type(v) in (int, float) and v >= 0 and v == int(v)
+                for v in (*edited_cap.values(), *edited_demand.values())
+            )
             scenarios = {
                 "baseline": (cap, demands),
-                "transfer": (dict(cap), dict(demands)),
-                "cancel": (dict(cap), dict(demands)),
+                "transfer": (dict(edited_cap), dict(edited_demand)),
+                "cancel": (dict(edited_cap), dict(edited_demand)),
             }
-            scenarios["transfer"][0]["东港"] = 0
-            scenarios["transfer"][0]["南站"] += 7
-            if allocation(*scenarios["transfer"]) == allocation(cap, demands):
-                # No backlog can react to a pure capacity change. Include an incoming request.
-                scenarios["transfer"][1]["H04"] += 3
-            scenarios["cancel"][1]["H08"] = 0
-            scenarios["cancel"][1]["H07"] += 5
+            if valid_inputs:
+                scenarios["transfer"][0]["东港"] = 0
+                scenarios["transfer"][0]["南站"] += 7
+                if allocation(*scenarios["transfer"]) == allocation(
+                    edited_cap, edited_demand
+                ):
+                    # No backlog can react to a pure capacity change. Include an incoming request.
+                    scenarios["transfer"][1]["H04"] += 3
+                scenarios["cancel"][1]["H08"] = 0
+                scenarios["cancel"][1]["H07"] += 5
+            else:
+                scenarios = {"baseline": (cap, demands)}
             files = {"baseline": path.read_bytes()}
-            for name in ("transfer", "cancel"):
+            for name in scenarios.keys() - {"baseline"}:
                 c, d = scenarios[name]
                 for i, p in enumerate(POOLS, 2):
                     cs.cell(i, 2).value = c[p]
@@ -217,7 +227,7 @@ def booking(path, cap, demands, image):
             raise
         return 0, 0, {"format": str(exc)}
     raw = recalculate(files, image)
-    baseline = allocation(cap, demands)
+    baseline = allocation(edited_cap, edited_demand) if valid_inputs else None
 
     def same_num(v, n):
         return type(v) in (float, int) and v == n
@@ -258,7 +268,7 @@ def booking(path, cap, demands, image):
                 * sum(ok[k] for k in unchanged)
                 / len(unchanged)
             )
-    return actual, sum(ratios) / len(ratios), evidence
+    return actual, sum(ratios) / len(ratios) if ratios else 0, evidence
 
 
 def score(run):
@@ -267,6 +277,7 @@ def score(run):
     run = Path(run)
     meta = json.loads((run / "manifest.json").read_text())
     image = os.getenv("W4_CALC_IMAGE") or meta.get("image") or "longworkmem-release:1"
+    revised = meta.get("release_revision") == "3.1"
     base = daytime(run)
     log = events(run, 12, None)
     groups = [
@@ -293,7 +304,11 @@ def score(run):
     for t in (8, 9, 12):
         cap, demands = inputs(run, log, t)
         a, b, ev = booking(
-            run / "snapshots" / str(t) / "夜班预约.xlsx", cap, demands, image
+            run / "snapshots" / str(t) / "夜班预约.xlsx",
+            cap,
+            demands,
+            image,
+            revised=revised,
         )
         add(t, "夜班当日安排", 5, a, ev)
         add(t, "交班后变更重算", 5, b, {"source": "同日夜班当日安排.scenarios"})
@@ -374,7 +389,7 @@ def score(run):
         {"required": required, "extra": sorted(extra)},
     )
     return dict(
-        version="release-v3",
+        version="release-v3.1" if revised else "release-v3",
         total=round(sum(g["earned"] for g in groups), 4),
         rounds=[
             round(sum(g["earned"] for g in groups if g["turn"] == t), 6)

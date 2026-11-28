@@ -62,7 +62,11 @@ PYCODE"""
     return result
 
 
-def run(dest, edition=3):
+def run(dest, edition="3.1"):
+    revised = str(edition) == "3.1"
+    edition = 3 if revised else int(edition)
+    if edition not in (1, 2, 3):
+        raise ValueError("未知 W4 题面")
     key = os.environ["ARK_API_KEY"]
     image = subprocess.check_output(
         ["docker", "image", "inspect", "longworkmem-release:1", "-f", "{{.Id}}"],
@@ -78,6 +82,9 @@ def run(dest, edition=3):
         from . import night
 
         night.initialize(work)
+        if revised:
+            with (work / "input/办公室/发布规程.txt").open("a") as f:
+                f.write(night.FIELD_GUIDE)
     sid = str(uuid.uuid4())
     meta = dict(
         protocol=f"w4-release-v{edition}",
@@ -97,6 +104,8 @@ def run(dest, edition=3):
         status="running",
         turns=[],
     )
+    if revised:
+        meta["release_revision"] = "3.1"
     save(dest / "manifest.json", meta)
     try:
         meta["isolation"] = boundary(dest, image)
@@ -181,7 +190,7 @@ def run(dest, edition=3):
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("dest", type=Path)
-    p.add_argument("--edition", type=int, choices=(1, 2, 3), default=3)
+    p.add_argument("--edition", choices=("1", "2", "3", "3.1"), default="3.1")
     p.add_argument("--replay", action="store_true")
     a = p.parse_args()
     dest = a.dest.resolve()

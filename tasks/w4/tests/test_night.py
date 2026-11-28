@@ -1,5 +1,6 @@
 """Gold answers from the public queue, correspondence and follow-up orders."""
 
+import json
 import os
 import re
 import unittest
@@ -137,6 +138,46 @@ def gold(root):
 
 
 class NightCases(unittest.TestCase):
+    def test_signed_fields_and_explanation(self):
+        from tasks.w4.grade import manual, structured_manual
+
+        prefix = "对象：HZ-A\n换机时限：7个工作日\n"
+        note = "- 换机时限：六月通用10个工作日，本对象获批7个工作日。"
+        self.assertEqual(manual((prefix + "## 说明\n" + note).encode())[1], "条款无效")
+        for text, expected in [
+            (prefix + "## 说明\n" + note, "7个工作日"),
+            (prefix + note, "条款无效"),
+            (prefix + "## 说明\n- 换机时限：7个自然日", "条款无效"),
+            ("对象：HZ-A\n## 说明\n换机时限：7个工作日", "条款无效"),
+        ]:
+            self.assertEqual(structured_manual(text.encode())[1], expected)
+
+    @unittest.skipUnless(os.environ.get("W4_TEST_ROOT"), "requires W4 Calc Docker")
+    def test_revision_replays_without_editing_frozen_work(self):
+        import shutil
+        import tarfile
+
+        public = (
+            Path(__file__).resolve().parents[3] / "rollout/w4/deepseek-v4.1-flash/v3"
+        )
+        with TemporaryDirectory() as tmp:
+            run = Path(tmp)
+            with tarfile.open(public / "artifacts.tar.gz") as f:
+                f.extractall(run, filter="data")
+            shutil.copy(public / "manifest.json", run)
+            # CI may rebuild the same Dockerfile under a different image ID.
+            from unittest.mock import patch
+
+            with patch.dict(os.environ, W4_CALC_IMAGE="longworkmem-release:1"):
+                frozen = grade(run)
+                self.assertEqual(
+                    frozen, json.loads((public / "grade.json").read_text())
+                )
+                meta = json.loads((run / "manifest.json").read_text())
+                meta["release_revision"] = "3.1"
+                (run / "manifest.json").write_text(json.dumps(meta))
+                self.assertEqual(grade(run)["total"], 96.975)
+
     def test_public_clock(self):
         with TemporaryDirectory() as tmp:
             from tasks.w1.runstate import prepare

@@ -7,7 +7,7 @@ from pathlib import Path
 
 from .annex_grade import FIELDS, fields
 from .format_review import review
-from .grade import daytime_grade, manual
+from .grade import daytime_grade, manual_reader
 from .office import attachment, events
 
 # Each customer-facing action belongs to one release window, including quiet days.
@@ -26,6 +26,7 @@ def score(run):
     if frozen["version"] not in ("release-v2", "release-v3"):
         raise ValueError("现场履约评分仅适用于 w4-release-v2")
     recovered = set(review(run, frozen)["eligible_expanded_claims"])
+    read_manual = manual_reader(run)
     log = events(run, 12, None)
     if frozen["version"] == "release-v3":
         from .night import IDS
@@ -106,7 +107,7 @@ def score(run):
             if k in first:
                 e = first[k]
                 payload = attachment(run, e)
-                got = [e["recipient"], *manual(payload), *fields(payload)]
+                got = [e["recipient"], *read_manual(payload), *fields(payload)]
             routed = got[:2] == want[:2]
             correct_site = got[3] == station
             # A zero allocation takes no seats at either station.

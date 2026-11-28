@@ -85,6 +85,36 @@ def manual(data):
     return field("对象"), field("换机时限")
 
 
+def manual_reader(run):
+    path = Path(run) / "manifest.json"
+    meta = json.loads(path.read_text()) if path.is_file() else {}
+    if meta.get("release_revision") is None:
+        return manual
+    if (meta.get("protocol"), meta["release_revision"]) != ("w4-release-v3", "3.1"):
+        raise ValueError("未知 W4 凭据版本")
+    return structured_manual
+
+
+def structured_manual(data):
+    # A public Markdown section boundary separates the signed fields from notes.
+    # A second standalone commitment with a different quantity is still a conflict.
+    body, *notes = re.split(
+        rb"(?m)^[ \t]*##[ \t]+" + "说明".encode() + rb"[ \t]*\r?$", data, maxsplit=1
+    )
+    obj, term = manual(body)
+    if notes:
+        text = unicodedata.normalize(
+            "NFKC", notes[0].decode("utf-8-sig", errors="replace")
+        )
+        values = re.findall(
+            r"(?m)^[ \t]*(?:[-*][ \t]+)?换机时限[ \t]*:[ \t]*([^\n]+)$", text
+        )
+        for value in map(norm, values):
+            if re.fullmatch(r"\d+个(?:工作日|自然日)", value) and value != term:
+                return obj, "条款无效"
+    return obj, term
+
+
 def sheets(path, tabs=TABS):
     if path.is_dir():
         return {}, ["交接表为目录"]
@@ -174,6 +204,7 @@ def daytime_grade(run):
     v2 = protocol != "w4-release-v1"
     if not (run / "mail").is_dir():
         raise ValueError("缺少宿主邮箱证据，无法评分")
+    read_manual = manual_reader(run)
     all_events = events(run, 12, None)
     if protocol == "w4-release-v3":
         from .night import IDS
@@ -266,7 +297,7 @@ def daytime_grade(run):
                     e for e in actions if e["subject"] == k and e["action"] == action
                 ]
                 routing[k] = check([target[0]], [e["recipient"] for e in selected])
-                actual = [list(manual(attachment(run, e))) for e in selected]
+                actual = [list(read_manual(attachment(run, e))) for e in selected]
                 terms[k] = check([list(target[1:])], actual)
                 states[t, k] = routing[k]["ok"] and terms[k]["ok"]
             for e in actions:
@@ -392,7 +423,7 @@ def daytime_grade(run):
             for k in AUDITS:
                 i, s = OBJECTS[k]
                 original = sent(k, 3)
-                actual = sorted(manual(attachment(run, e))[1] for e in original)
+                actual = sorted(read_manual(attachment(run, e))[1] for e in original)
                 target = first[k]
                 expected[k] = dict(
                     zip(
@@ -407,7 +438,10 @@ def daytime_grade(run):
                 )
                 if (
                     len(original) != 1
-                    or (original[0]["recipient"], *manual(attachment(run, original[0])))
+                    or (
+                        original[0]["recipient"],
+                        *read_manual(attachment(run, original[0])),
+                    )
                     != target
                     or (v2 and field.fields(attachment(run, original[0])) != r3_plan[k])
                 ):
