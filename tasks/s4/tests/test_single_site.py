@@ -3,6 +3,7 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+from tasks.s4.continuation import run
 from tasks.s4.single_site import EXTENDED, FORMAL, score
 
 from .test_long_league import witness
@@ -17,6 +18,22 @@ def action(phase, seq, name, value, **fields):
 
 
 class ReserveTests(unittest.TestCase):
+    def test_other_site_cannot_start_a_formal_run(self):
+        with TemporaryDirectory() as tmp:
+            dest = Path(tmp) / "archive-only-node"
+            with self.assertRaisesRegex(ValueError, "Unsupported run condition"):
+                run(
+                    dest,
+                    "single",
+                    "east-capital",
+                    "strategic",
+                    None,
+                    None,
+                    None,
+                    episode=FORMAL,
+                )
+            self.assertFalse(dest.exists())
+
     def test_noop_saving_forced_loss_and_repeated_breaches(self):
         states = {
             phase: {"hand": {}, "position": 10, "completed_own_turns": 10}

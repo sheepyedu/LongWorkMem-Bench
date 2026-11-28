@@ -257,9 +257,16 @@ def main():
     parser.add_argument("dest", type=Path)
     parser.add_argument("--replay", action="store_true")
     parser.add_argument("--length", type=int, choices=(16, 24), default=16)
+    parser.add_argument(
+        "--compact-percent",
+        type=int,
+        help="Optional Claude Code compaction diagnostic (1–100)",
+    )
     parser.add_argument("--image")
     parser.add_argument("--upstream", default=URL)
     args = parser.parse_args()
+    if args.compact_percent is not None and not 1 <= args.compact_percent <= 100:
+        parser.error("Choose a compaction percentage between 1 and 100")
     chosen = FORMAL if args.length == 16 else EXTENDED
     if args.replay:
         protocol = json.loads((args.dest / "manifest.json").read_text())["protocol"]
@@ -280,6 +287,7 @@ def main():
             args.upstream,
             args.image or legacy.IMAGE,
             episode=chosen,
+            compact_percent=args.compact_percent,
         )
     result = replay(args.dest, args.image, episode=chosen)
     write(args.dest / "grade.json", result)

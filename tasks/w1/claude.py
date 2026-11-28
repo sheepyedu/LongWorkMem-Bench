@@ -5,7 +5,7 @@ import shutil
 import subprocess
 
 
-def run_claude(run, turn, gw, session, prompt, client, *, config, context, allowed, first_session):
+def run_claude(run, turn, gw, session, prompt, client, *, config, context, allowed, first_session, compact_percent=None):
     exe = shutil.which("claude")
     if not exe:
         raise RuntimeError("Claude Code executable missing")
@@ -16,6 +16,10 @@ def run_claude(run, turn, gw, session, prompt, client, *, config, context, allow
            "DISABLE_ERROR_REPORTING":"1", "CLAUDE_CODE_DISABLE_AUTO_MEMORY":"1",
            "CLAUDE_CODE_ATTRIBUTION_HEADER":"0", "ENABLE_TOOL_SEARCH":"false",
            "NO_PROXY":"127.0.0.1,localhost", "LANG": "en_US.UTF-8"}
+    if compact_percent is not None:
+        if type(compact_percent) is not int or not 1 <= compact_percent <= 100:
+            raise ValueError("Expected a compaction percentage from 1 to 100")
+        env["CLAUDE_AUTOCOMPACT_PCT_OVERRIDE"] = str(compact_percent)
     argv = [exe, "-p", "--bare", "--model", gw.model, "--strict-mcp-config", "--mcp-config", json.dumps(config),
             "--settings", "{}", "--setting-sources", "", "--tools", "", "--permission-mode", "dontAsk",
             "--allowedTools", ",".join(sorted(allowed)),

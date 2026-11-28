@@ -300,7 +300,24 @@ CONTINUATION = Episode(
 )
 
 
-def run(dest, arm, case, opponent, key, upstream, image, *, episode=CONTINUATION):
+def run(
+    dest,
+    arm,
+    case,
+    opponent,
+    key,
+    upstream,
+    image,
+    *,
+    episode=CONTINUATION,
+    compact_percent=None,
+):
+    if (
+        case not in episode.cases
+        or arm not in episode.arms
+        or opponent not in episode.opponents
+    ):
+        raise ValueError("Unsupported run condition for the selected protocol")
     dest.mkdir(mode=0o700, parents=True)
     trace = dest / "trace"
     trace.mkdir()
@@ -323,6 +340,8 @@ def run(dest, arm, case, opponent, key, upstream, image, *, episode=CONTINUATION
             ["docker", "image", "inspect", "-f", "{{.Id}}", image], text=True
         ).strip(),
     }
+    if compact_percent is not None:
+        meta["auto_compact_percent"] = compact_percent
     write(dest / "manifest.json", meta)
     try:
         with (
@@ -390,6 +409,7 @@ def run(dest, arm, case, opponent, key, upstream, image, *, episode=CONTINUATION
                     context=episode.context,
                     allowed=ALLOWED,
                     first_session=index == 1,
+                    compact_percent=compact_percent,
                 )
                 after = state_receipt(desk)
                 row.update(
