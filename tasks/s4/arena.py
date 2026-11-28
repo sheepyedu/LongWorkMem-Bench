@@ -4,6 +4,7 @@ from enum import Enum
 
 from catanatron import Game
 from catanatron.game import is_valid_action
+from catanatron.models.board import STATIC_GRAPH
 from catanatron.models.enums import (
     DEVELOPMENT_CARDS,
     RESOURCES,
@@ -49,6 +50,8 @@ def offer_deck(value):
 
 
 class Arena:
+    show_graph = False
+
     def __init__(self, seed, rotation=0, policy_version=1):
         colors = list(Color)
         seats = [
@@ -182,6 +185,18 @@ class Arena:
             view["ports"] = {
                 k or "ANY": sorted(v) for k, v in s.board.map.port_nodes.items()
             }
+            if self.show_graph:
+                nodes = {
+                    n
+                    for tile in s.board.map.land_tiles.values()
+                    for n in tile.nodes.values()
+                }
+                view["adjacency"] = {
+                    n: sorted(
+                        neighbor for neighbor in STATIC_GRAPH[n] if neighbor in nodes
+                    )
+                    for n in sorted(nodes)
+                }
         if after is not None:
             view["events"] = self.events[after : after + 20]
             view["more_events"] = len(self.events) > after + 20
