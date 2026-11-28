@@ -65,12 +65,23 @@ def serve(run, t, image):
             args = p["arguments"]
             name = p["name"]
             try:
+                contract = next(
+                    (s["inputSchema"] for s in TOOLS if s["name"] == name), None
+                )
+                if (
+                    not contract
+                    or set(args) != set(contract["required"])
+                    or not all(isinstance(v, str) for v in args.values())
+                ):
+                    raise ValueError(
+                        "invalid arguments; use the advertised tool signature"
+                    )
                 if name == "shell":
                     value = execute(run / "work", args["command"], image)
                 elif name == "publish":
                     value = publish(run, t, **args)
                 elif name == "receipts":
-                    value = receipts(run, **args)
+                    value = receipts(run, args["channel"])
                 else:
                     raise ValueError("unknown tool")
                 result = dict(
