@@ -34,12 +34,12 @@ def safe_file(root: Path, path: Path) -> None:
         raise ValueError("Expected a regular office file of at most 32 MiB")
 
 
-def freeze(run: Path, turn: int) -> None:
+def freeze(run: Path, turn: int, *, rounds=ROUNDS) -> None:
     """Copy delivered files atomically, without following symlinks or special files."""
     source = run / "work/out"
     root = run / "snapshots"
     final = root / str(turn)
-    if turn not in ROUNDS or final.exists() or source.is_symlink():
+    if turn not in rounds or final.exists() or source.is_symlink():
         raise ValueError("Invalid or already frozen business turn")
     stage = Path(tempfile.mkdtemp(dir=root, prefix=".stage-"))
     omissions = []

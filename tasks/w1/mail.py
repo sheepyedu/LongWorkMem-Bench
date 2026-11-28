@@ -7,8 +7,8 @@ from pathlib import Path
 from .runstate import ROUNDS, safe_file
 
 
-def act(run: Path, turn: int, action: str, recipient: str, attachment: str, subject: str) -> str:
-    if turn not in ROUNDS or action not in {"draft", "deliver"}:
+def act(run: Path, turn: int, action: str, recipient: str, attachment: str, subject: str, *, rounds=ROUNDS) -> str:
+    if turn not in rounds or action not in {"draft", "deliver"}:
         raise ValueError("Unknown mail operation")
     if not all(isinstance(s, str) and 0 < len(s) <= 512 for s in (recipient, attachment, subject)):
         raise ValueError("One recipient, one attachment and a subject are required")
