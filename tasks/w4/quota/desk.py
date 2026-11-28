@@ -157,8 +157,9 @@ def query(run, t, args):
         raise ValueError("只能查询已发生的业务日")
     days, receipts = replay(run, cut)
     opening, closing, cap, _ = days[cut]
-    short = (
-        json.loads((run / "manifest.json").read_text()).get("release_revision") == "4.1"
+    short = json.loads((run / "manifest.json").read_text()).get("release_revision") in (
+        "4.1",
+        "4.2",
     )
     if args["receipt"]:
         rows = receipts.get(args["receipt"], [])

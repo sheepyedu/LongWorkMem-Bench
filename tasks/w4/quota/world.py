@@ -4,6 +4,7 @@ from openpyxl import Workbook
 
 from ..annex import POOLS, csvfile
 from ..scenario import init, put
+from . import settlement
 
 # case, object, station, opening reservation, protected, charter ceiling, priority
 CASES = [
@@ -154,12 +155,14 @@ RULES = """六月四站服务承诺与排班规程。input/档案为旧材料；
 交班表 out/预约.xlsx 使用所附固定接口。容量页 A/B 为四个站及可再分容量（总容量减锁定合计），队列页 A/B/C/D/E 为案号、站、净需求、加配、候补，按当期有效优先顺序排列（全表按优先号、案号升序）。净需求=max(0,额度−锁定)。B2:B5容量及C2:C13需求是可直接改的整数；D/E 在 Calc 中自动按站从上往下分，允许部分满足；改变容量、单案需求后未影响客户也要正确。两日分别交付。"""
 
 
-def initialize(work, *, clarified=False):
+def initialize(work, *, clarified=False, promise=False):
     init(work)  # reuse the customer archive and read-only/writable split
     put(
         work / "input",
         "办公室/发布规程.txt",
-        RULES + (CLARIFICATION if clarified else ""),
+        RULES
+        + (CLARIFICATION if clarified else "")
+        + (settlement.GUIDE if promise else ""),
     )
     d = work / "input/站务"
     csvfile(d / "章程.csv", "案号,对象,站,期初实占,期初锁定,章程额度,章程优先号", CASES)
@@ -174,10 +177,34 @@ def initialize(work, *, clarified=False):
         w.append([p])
     wb.create_sheet("队列").append(["案号", "站", "净需求", "加配", "候补"])
     wb.save(work / "out/预约.xlsx")
+    if promise:
+        # The previous shift used an all-or-nothing policy for three service lines.
+        # This gives correct extremes while failing a genuine partial allocation.
+        queue = wb["队列"]
+        for row, site in enumerate(POOLS, 2):
+            w.cell(row, 2).value = CAP[site] - sum(x[4] for x in CASES if x[2] == site)
+        for row, (case, _, site, _, locked, limit, _) in enumerate(
+            sorted(CASES, key=lambda x: (x[6], x[0])), 2
+        ):
+            remaining = f"MAX(0,VLOOKUP(B{row},容量!A$2:B$5,2,0)"
+            if row > 2:
+                remaining += f"-SUMIF(B$2:B{row - 1},B{row},D$2:D{row - 1})"
+            remaining += ")"
+            formula = (
+                f"=IF(C{row}<={remaining},C{row},0)"
+                if site == "西湾"
+                else f"=MIN(C{row},{remaining})"
+            )
+            queue.append(
+                [case, site, max(0, limit - locked), formula, f"=C{row}-D{row}"]
+            )
+        wb.save(d / "上班预约.xlsx")
     wb.close()
 
 
-def release(work, t):
+def release(work, t, *, promise=False):
+    if promise:
+        settlement.release(work, t)
     d = work / "inbox" / f"06-{t:02}"
     if t in (3, 8):
         (work / "inbox" / f"06-{t - 1:02}" / "签发原件.csv").unlink()

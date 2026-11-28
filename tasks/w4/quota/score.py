@@ -14,8 +14,10 @@ from tasks.w1.scoring_workbook import InvalidArtifact, inspect_package
 
 from ..night_score import recalculate
 from ..office import attachment, events
+from . import settlement
 from . import world as w
 from .desk import BATCH, DAYS, DESK, parse, replay
+from .promise_score import integer_matches, scorecard
 
 
 def charter(k, day, known):
@@ -41,21 +43,23 @@ def charter(k, day, known):
     return max(options)[2:]
 
 
-def voucher(k, day, known, history):
+def voucher(k, day, known, history, promise=False):
     source, base, cap, start, end = w.VOUCHERS[k]
     if not start <= day <= end or any(
         k in ks for t, ks in w.VOID.items() if t <= min(day, known)
     ):
-        return 0
-    return min(cap, max(0, base - history[source]["实占"]))
+        legacy = 0
+    else:
+        legacy = min(cap, max(0, base - history[source]["实占"]))
+    return settlement.entitlement(k, day, known, history, legacy) if promise else legacy
 
 
-def layout(state, caps, day, known, history):
+def layout(state, caps, day, known, history, promise=False):
     refs = {k: charter(k, day, known) for k in w.IDS}
     refs = {
         k: (doc, base, extra, base + extra, rank - int(extra > 0))
         for k, (doc, base, rank) in refs.items()
-        for extra in [voucher(k, day, known, history)]
+        for extra in [voucher(k, day, known, history, promise)]
     }
     queue = sorted(w.IDS, key=lambda k: (refs[k][-1], k))
     free = {
@@ -116,8 +120,8 @@ def rows_at(path, cols):
     return rows, issues
 
 
-def calc_evidence(path, image, state, caps, day, known, history):
-    refs, queue, free, dem, target = layout(state, caps, day, known, history)
+def calc_evidence(path, image, state, caps, day, known, history, promise=False):
+    refs, queue, free, dem, target = layout(state, caps, day, known, history, promise)
     expected = {}
     got = {}
     files = {}
@@ -125,8 +129,23 @@ def calc_evidence(path, image, state, caps, day, known, history):
     error = None
     for p in w.POOLS:
         expected[p, "可再分容量"] = free[p]
+    # One seat past the first customer guarantees a partial allocation for the second.
+    middle_capacity = (
+        {
+            site: 3 + w.IDS.index(next(k for k in queue if w.INFO[k][1] == site)) % 4
+            for site in w.POOLS
+        }
+        if promise
+        else {}
+    )
+    middle_remaining = middle_capacity.copy()
     for i, k in enumerate(queue):
         p = w.INFO[k][1]
+        if promise:
+            n = 2 + w.IDS.index(k) % 4
+            issued = min(n, middle_remaining[p])
+            middle_remaining[p] -= issued
+            expected[k, "部分容量兑现"] = [issued, n - issued]
         a = target[k] - state[k]["锁定"]
         expected.update(
             {
@@ -163,10 +182,16 @@ def calc_evidence(path, image, state, caps, day, known, history):
             # Edit a copy for each pair of stations; other stations remain untouched.
             # Two opposite edits force each row to demonstrate a real response.
             for poolset in (0, 1) if cs is not None else ():
-                for mode in ("high", "low"):
+                for mode in ("high", "low", "middle") if promise else ("high", "low"):
                     for i, p in enumerate(csids, 2):
                         cs.cell(i, 2).value = (
-                            (120 if mode == "high" else 0)
+                            (
+                                middle_capacity[p]
+                                if mode == "middle"
+                                else 120
+                                if mode == "high"
+                                else 0
+                            )
                             if p in w.POOLS[poolset * 2 : poolset * 2 + 2]
                             else got.get((p, "可再分容量"))
                         )
@@ -206,6 +231,11 @@ def calc_evidence(path, image, state, caps, day, known, history):
             "row_keys": qids,
             "edits": "每站对独立置容量120或0；该站对逐案需求为2+案号零基序号%4，其余输入沿用原件。",
         }
+        if promise:
+            probes["middle_capacity"] = middle_capacity
+            probes["edits"] += (
+                " 另将该站对的容量设为第一顺位探针需求加一，按有效顺位核对部分满足。"
+            )
         for i, k in enumerate(qids):
             if k not in w.IDS or qids.count(k) != 1:
                 continue
@@ -219,6 +249,12 @@ def calc_evidence(path, image, state, caps, day, known, history):
             n = 2 + w.IDS.index(k) % 4
             got[k, "增容响应"] = stable and hi == [n, 0] and hi != lo
             got[k, "停办响应"] = stable and lo == [0, n] and hi != lo
+            if promise:
+                got[k, "部分容量兑现"] = (
+                    raw["middle" + str(pair)][i]
+                    if raw["middle" + str(1 - pair)][i] == raw["baseline"][i]
+                    else None
+                )
     if files and not csids and error is None:
         error = "缺页:容量"
     return expected, got, error, probes
@@ -230,7 +266,8 @@ def score(run):
         raise ValueError("宿主邮箱证据缺失")
     meta = json.loads((run / "manifest.json").read_text())
     image = os.getenv("W4_CALC_IMAGE") or meta.get("image") or "longworkmem-release:1"
-    clarified = meta.get("release_revision") == "4.1"
+    promise = meta.get("release_revision") == "4.2"
+    clarified = promise or meta.get("release_revision") == "4.1"
     days, receipts = replay(run, 12)
     mail = events(run, 12)
     atoms = []
@@ -248,6 +285,8 @@ def score(run):
             and not isinstance(seen, bool)
         ):
             ok = want == seen
+        if promise and isinstance(want, int) and not isinstance(want, bool):
+            ok = integer_matches(want, seen)
         atoms.append(
             dict(
                 id=f"R{t:02}/{k}/{f}",
@@ -267,7 +306,9 @@ def score(run):
         if not snap.is_dir():
             raise ValueError(f"缺轮末快照 R{t}")
         opening, end, caps, operations = days[t]
-        refs, q, free, demand, targets = layout(opening, caps, t, t, days[3][1])
+        refs, q, free, demand, targets = layout(
+            opening, caps, t, t, days[3][1], promise
+        )
         if t in w.FILES:
             name, cols = w.FILES[t]
             path = name + ".csv"
@@ -297,7 +338,7 @@ def score(run):
                         charter(k, 9, 7)[0],
                         charter(k, 10, 7)[0],
                         days[3][1][w.VOUCHERS[k][0]]["实占"],
-                        voucher(k, 9, 7, days[3][1]),
+                        voucher(k, 9, 7, days[3][1], promise),
                     ]
                 if t == 11:
                     values = [
@@ -347,6 +388,15 @@ def score(run):
                         f"snapshots/{t}/调度.csv",
                     )
                 witnessed = bool(ops) or bool(rec) and rec.get("目标") == str(goal)
+                if promise:
+                    witnessed = (
+                        any(
+                            o.get("状态") in ("受理", "部分受理") or "新实占" in o
+                            for o in ops
+                        )
+                        or bool(rec)
+                        and integer_matches(goal, rec.get("目标"))
+                    )
                 atom(
                     t,
                     k,
@@ -516,6 +566,7 @@ def score(run):
                 9 if t == 8 else 12,
                 t,
                 days[3][1],
+                promise,
             )
             calc_probes[str(t)] = probes
             if error:
@@ -533,8 +584,16 @@ def score(run):
                 )
     assert abs(sum(a["maximum"] for a in atoms) - 100) < 1e-8
     assert len({a["id"] for a in atoms}) == len(atoms)
+    extra = {}
+    if promise:
+        atoms, extra["fulfilment"] = scorecard(atoms)
     return dict(
-        version="release-v4.1" if clarified else "release-v4",
+        **extra,
+        version="release-v4.2"
+        if promise
+        else "release-v4.1"
+        if clarified
+        else "release-v4",
         total=round(sum(a["earned"] for a in atoms), 4),
         rounds=[
             round(sum(a["earned"] for a in atoms if a["turn"] == t), 6)

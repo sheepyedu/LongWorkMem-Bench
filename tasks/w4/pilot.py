@@ -65,9 +65,10 @@ PYCODE"""
 QUOTA_CONTEXT = "你是四站服务运营专员。用 office 工具读 input/办公室/发布规程.txt，按业务日处理 inbox。共享盘可用 Python/openpyxl/Calc，out/notes/scratch 跨轮保留。简报只写本轮结果与未结事项。"
 
 
-def run(dest, edition="4.1"):
+def run(dest, edition="4.2"):
     revised = str(edition) == "3.1"
-    clarified = str(edition) == "4.1"
+    promise = str(edition) == "4.2"
+    clarified = promise or str(edition) == "4.1"
     edition = 4 if clarified else 3 if revised else int(edition)
     if edition not in (1, 2, 3, 4):
         raise ValueError("未知 W4 题面")
@@ -80,7 +81,7 @@ def run(dest, edition="4.1"):
     if edition == 4:
         from .quota import world
 
-        world.initialize(work, clarified=clarified)
+        world.initialize(work, clarified=clarified, promise=promise)
     else:
         init(work)
     if edition in (2, 3):
@@ -114,7 +115,7 @@ def run(dest, edition="4.1"):
         turns=[],
     )
     if clarified:
-        meta["release_revision"] = "4.1"
+        meta["release_revision"] = "4.2" if promise else "4.1"
     if revised:
         meta["release_revision"] = "3.1"
     save(dest / "manifest.json", meta)
@@ -141,7 +142,11 @@ def run(dest, edition="4.1"):
             client = Path(tmp)
             (client / "desk").mkdir()
             for t in ROUNDS:
-                prompt = world.release(work, t) if edition == 4 else release(work, t)
+                prompt = (
+                    world.release(work, t, promise=promise)
+                    if edition == 4
+                    else release(work, t)
+                )
                 if edition in (2, 3):
                     prompt += annex.release(work, t)
                 if edition == 3:
@@ -203,7 +208,7 @@ if __name__ == "__main__":
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("dest", type=Path)
     p.add_argument(
-        "--edition", choices=("1", "2", "3", "3.1", "4", "4.1"), default="4.1"
+        "--edition", choices=("1", "2", "3", "3.1", "4", "4.1", "4.2"), default="4.2"
     )
     p.add_argument("--replay", action="store_true")
     a = p.parse_args()

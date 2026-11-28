@@ -21,13 +21,19 @@ def write(root, name, cols, rows):
     w.csvfile(root / (name + ".csv"), ",".join(cols), rows)
 
 
-def play(run, mode="gold", *, clarified=False):
+def play(run, mode="gold", *, clarified=False, promise=False):
+    clarified = clarified or promise
     work = prepare(run)
-    w.initialize(work, clarified=clarified)
+    w.initialize(work, clarified=clarified, promise=promise)
     (run / "manifest.json").write_text('{"protocol":"w4-release-v4"}')
     if clarified:
         (run / "manifest.json").write_text(
-            json.dumps({"protocol": "w4-release-v4", "release_revision": "4.1"})
+            json.dumps(
+                {
+                    "protocol": "w4-release-v4",
+                    "release_revision": "4.2" if promise else "4.1",
+                }
+            )
         )
     d = work / "input/站务"
     out = work / "out"
@@ -39,6 +45,7 @@ def play(run, mode="gold", *, clarified=False):
     coupons = {}
     void = set()
     third = {}
+    signed, active, stopped = {}, {}, {}
 
     def query(t, case="", cut="", receipt=""):
         data = invoke(
@@ -98,7 +105,7 @@ def play(run, mode="gold", *, clarified=False):
             )
         return max(opts)[2:]
 
-    def claim(k, t):
+    def old_claim(k, t):
         if not coupons or mode == "opening":
             return 0
         r = coupons[k]
@@ -107,6 +114,27 @@ def play(run, mode="gold", *, clarified=False):
         return min(
             int(r["转入上限"]), max(0, int(r["保证基数"]) - third[r["来源案"]]["实占"])
         )
+
+    def claim(k, t):
+        legacy = old_claim(k, t)
+        if mode in ("opening", "ignore_transfer"):
+            return legacy
+        for ref, line in active.items():
+            contract = signed[ref]
+            if (
+                contract["受益案"] != k
+                or not int(line["生效日"]) <= t <= int(line["末日"])
+                or t >= stopped.get(ref, 99)
+            ):
+                continue
+            amount = max(0, int(contract["保证数"]) - third[contract["来源案"]]["实占"])
+            amount = min(amount, int(contract["上限"]))
+            return (
+                legacy + amount
+                if contract["性质"] == "独立" or mode == "always_add"
+                else max(legacy, amount)
+            )
+        return legacy
 
     def allocate(kday, opening):
         facts = {k: pick(k, kday) for k in ids}
@@ -142,7 +170,7 @@ def play(run, mode="gold", *, clarified=False):
         return facts, q, free, net, allocated
 
     for day in range(1, 13):
-        w.release(work, day)
+        w.release(work, day, promise=promise)
         inc = work / "inbox" / f"06-{day:02}"
         if (inc / "签发原件.csv").exists():
             papers += records(inc / "签发原件.csv")
@@ -156,6 +184,14 @@ def play(run, mode="gold", *, clarified=False):
             third = query(day, cut=3)
         if (inc / "注销券.csv").exists():
             void.update(r["兑现案"] for r in records(inc / "注销券.csv"))
+        if promise and day == 2:
+            signed = {r["单号"]: r for r in records(inc / "历史保障签章表.csv")}
+        if promise and day == 7:
+            active = {r["单号"]: r for r in records(inc / "划转单.csv")}
+        if promise and (inc / "停兑单.csv").exists():
+            stopped.update(
+                {r["单号"]: int(r["生效日"]) for r in records(inc / "停兑单.csv")}
+            )
         if day == 6:
             delegates = {r["站"]: r for r in records(inc / "委托.csv")}
         opening = query(day, "开班")
@@ -166,13 +202,16 @@ def play(run, mode="gold", *, clarified=False):
         if day in (3, 9, 10, 11, 8, 12):
             facts, q, free, net, target = allocate(9 if day == 8 else day, opening)
         if day in (3, 9, 10, 11):
-            for attempt in range(4):
+            for attempt in range(8 if promise else 4):
                 changed = [k for k in ids if current[k]["实占"] != target[k]]
                 if not changed:
                     break
                 order = sorted(
                     changed, key=lambda k: (target[k] > current[k]["实占"], k)
                 )
+                if promise and mode != "ignore_feedback":
+                    releasing = [k for k in order if current[k]["实占"] > target[k]]
+                    order = releasing or order
                 write(
                     out,
                     "申请",
@@ -280,6 +319,10 @@ def play(run, mode="gold", *, clarified=False):
                 s.cell(
                     i, 4
                 ).value = f"=MIN(C{i},MAX(0,VLOOKUP(B{i},容量!A$2:B$5,2,0)-{past}))"
+                if mode == "all_or_wait" and charter[k]["站"] == "西湾":
+                    s.cell(
+                        i, 4
+                    ).value = f"=IF(C{i}<=MAX(0,VLOOKUP(B{i},容量!A$2:B$5,2,0)-{past}),C{i},0)"
                 s.cell(i, 5).value = f"=C{i}-D{i}"
             book.save(out / "预约.xlsx")
             book.close()
