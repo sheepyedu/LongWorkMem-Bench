@@ -139,6 +139,11 @@ def inspect(run):
                         if value == expected:
                             accepted[m["tool_call_id"]] = True
             if req and n == block["first_request"]:
+                if block["first_session"] and [m["role"] for m in req_msgs] != [
+                    "system",
+                    "user",
+                ]:
+                    faults.append(f"Segment {idx}: fresh match has prior transcript")
                 users = [m["content"] for m in req_msgs if m["role"] == "user"]
                 if not any(original_prompt.strip() in u for u in users):
                     faults.append(
@@ -169,6 +174,12 @@ def inspect(run):
                 if cached is not None:
                     usage_totals["cached"] += cached
                     usage_totals["cache_records"] += 1
+                reasoning = (use.get("completion_tokens_details") or {}).get(
+                    "reasoning_tokens"
+                )
+                if reasoning is not None:
+                    usage_totals["reasoning"] += reasoning
+                    usage_totals["reasoning_records"] += 1
                 usage_totals["usage_records"] += 1
             request_rows.append(
                 {

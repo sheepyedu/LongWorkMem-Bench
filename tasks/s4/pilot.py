@@ -58,13 +58,14 @@ def scouting(table, game):
     return detail
 
 
-def run(dest, key, *, upstream=URL, image=IMAGE):
+def run(dest, key, *, upstream=URL, image=IMAGE, prompt_version="original"):
     dest = dest.resolve()
     dest.mkdir(mode=0o700, parents=True)
     trace = dest / "trace"
     trace.mkdir()
     meta = {
         "protocol": PROTOCOL,
+        "prompt_version": prompt_version,
         "model": MODEL,
         "thinking": "disabled",
         "status": "running",
@@ -123,6 +124,13 @@ def run(dest, key, *, upstream=URL, image=IMAGE):
                         session = str(uuid.uuid4())
                         gateway.reasoning.clear()
                     league_note = scouting(table, name) if name in SCOUT else ""
+                    if league_note and prompt_version == "clarified":
+                        period = (
+                            "earlier league period"
+                            if name == "game-1"
+                            else "current league period"
+                        )
+                        league_note = f"Record period: {period}. " + league_note
                     initial = table.open(name)
                     meta["tables"][name] = {
                         "initial_position": initial["position"],
@@ -135,6 +143,15 @@ def run(dest, key, *, upstream=URL, image=IMAGE):
                     else:
                         label, assignment = PRACTICE[name]
                         first = f"Practice table {label}. {assignment} The table is now open. Play the currently pending turn."
+                        if prompt_version == "clarified" and name.startswith(
+                            ("transfer-", "update-")
+                        ):
+                            period = (
+                                "earlier league period"
+                                if name.startswith("transfer-")
+                                else "current league period"
+                            )
+                            first += f" This saved board comes from the {period}."
                     no_progress = 0
                     while not table.state["finished"]:
                         index = len(meta["blocks"]) + 1
@@ -150,6 +167,12 @@ def run(dest, key, *, upstream=URL, image=IMAGE):
                                 " Play up to "
                                 + str(n)
                                 + " further turns of your own seat, or until the match ends."
+                            )
+                        if full_game and prompt_version == "clarified":
+                            prompt += (
+                                f" You have completed {target - n} own turns; the new segment target is "
+                                f"{target} cumulative. Follow segment_done. It pauses play; "
+                                "only a finished board ends the match."
                             )
                         (trace / f"prompt-{index}.txt").write_text(prompt)
                         row = {
@@ -231,13 +254,25 @@ def main():
         default=URL,
         help="Chat Completions endpoint operated by the evaluator",
     )
+    p.add_argument(
+        "--prompt-version",
+        choices=("original", "clarified"),
+        default="original",
+        help="Use explicit league periods and starting turn counts in the clarified variant",
+    )
     args = p.parse_args()
     key = os.environ.get("ARK_API_KEY", "")
     if not key:
         p.error(
             "Set ARK_API_KEY in the host or use the team's approved relay credential"
         )
-    run(args.dest, key, upstream=args.upstream, image=args.image)
+    run(
+        args.dest,
+        key,
+        upstream=args.upstream,
+        image=args.image,
+        prompt_version=args.prompt_version,
+    )
 
 
 if __name__ == "__main__":
