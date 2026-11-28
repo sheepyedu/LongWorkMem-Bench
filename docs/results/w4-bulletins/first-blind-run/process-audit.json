@@ -1,0 +1,323 @@
+{
+  "usage": {
+    "input": 16161770,
+    "output": 262113,
+    "peak_input": 167964,
+    "cached_input": 15804032,
+    "native_compactions": 2
+  },
+  "compression": [
+    {
+      "turn": 8,
+      "attempt": 63,
+      "summary_characters": 9038,
+      "summary_sha256": "1c68cb47e21862f94ce598da3b088d0bc3c3b4a815de6cfdeff78b12974ac4b4",
+      "native_and_next_input_match": true
+    },
+    {
+      "turn": 12,
+      "attempt": 169,
+      "summary_characters": 12849,
+      "summary_sha256": "9336a3142d455beddafbe6b07e94f3f4a1a6f68ad6e2724217a1b5f48225a58c",
+      "native_and_next_input_match": true
+    }
+  ],
+  "desk_query_checks": [
+    {
+      "turn": 1,
+      "operation": 7,
+      "matched": true
+    },
+    {
+      "turn": 3,
+      "operation": 2,
+      "matched": true
+    },
+    {
+      "turn": 3,
+      "operation": 5,
+      "matched": true
+    },
+    {
+      "turn": 3,
+      "operation": 6,
+      "matched": true
+    },
+    {
+      "turn": 3,
+      "operation": 9,
+      "matched": true
+    },
+    {
+      "turn": 3,
+      "operation": 12,
+      "matched": true
+    },
+    {
+      "turn": 3,
+      "operation": 13,
+      "matched": true
+    },
+    {
+      "turn": 4,
+      "operation": 2,
+      "matched": true
+    },
+    {
+      "turn": 4,
+      "operation": 3,
+      "matched": true
+    },
+    {
+      "turn": 8,
+      "operation": 2,
+      "matched": true
+    },
+    {
+      "turn": 9,
+      "operation": 10,
+      "matched": true
+    },
+    {
+      "turn": 9,
+      "operation": 14,
+      "matched": true
+    },
+    {
+      "turn": 9,
+      "operation": 17,
+      "matched": true
+    },
+    {
+      "turn": 9,
+      "operation": 20,
+      "matched": true
+    },
+    {
+      "turn": 9,
+      "operation": 23,
+      "matched": true
+    },
+    {
+      "turn": 9,
+      "operation": 24,
+      "matched": true
+    },
+    {
+      "turn": 10,
+      "operation": 3,
+      "matched": true
+    },
+    {
+      "turn": 10,
+      "operation": 6,
+      "matched": true
+    },
+    {
+      "turn": 10,
+      "operation": 9,
+      "matched": true
+    },
+    {
+      "turn": 10,
+      "operation": 12,
+      "matched": true
+    },
+    {
+      "turn": 10,
+      "operation": 15,
+      "matched": true
+    },
+    {
+      "turn": 10,
+      "operation": 16,
+      "matched": true
+    },
+    {
+      "turn": 11,
+      "operation": 4,
+      "matched": true
+    },
+    {
+      "turn": 11,
+      "operation": 7,
+      "matched": true
+    },
+    {
+      "turn": 11,
+      "operation": 10,
+      "matched": true
+    },
+    {
+      "turn": 11,
+      "operation": 13,
+      "matched": true
+    },
+    {
+      "turn": 11,
+      "operation": 16,
+      "matched": true
+    },
+    {
+      "turn": 11,
+      "operation": 17,
+      "matched": true
+    },
+    {
+      "turn": 11,
+      "operation": 20,
+      "matched": true
+    },
+    {
+      "turn": 11,
+      "operation": 23,
+      "matched": true
+    },
+    {
+      "turn": 11,
+      "operation": 26,
+      "matched": true
+    },
+    {
+      "turn": 11,
+      "operation": 29,
+      "matched": true
+    },
+    {
+      "turn": 11,
+      "operation": 30,
+      "matched": true
+    },
+    {
+      "turn": 11,
+      "operation": 33,
+      "matched": true
+    },
+    {
+      "turn": 11,
+      "operation": 34,
+      "matched": true
+    },
+    {
+      "turn": 12,
+      "operation": 2,
+      "matched": true
+    },
+    {
+      "turn": 12,
+      "operation": 10,
+      "matched": true
+    }
+  ],
+  "flags": [],
+  "rounds": [
+    {
+      "turn": 1,
+      "requests": 12,
+      "actions": 11,
+      "action_errors": 0,
+      "rejected_tools": 0,
+      "ungrounded_receipts": [],
+      "compactions": 0
+    },
+    {
+      "turn": 2,
+      "requests": 7,
+      "actions": 6,
+      "action_errors": 0,
+      "rejected_tools": 0,
+      "ungrounded_receipts": [],
+      "compactions": 0
+    },
+    {
+      "turn": 3,
+      "requests": 16,
+      "actions": 15,
+      "action_errors": 0,
+      "rejected_tools": 0,
+      "ungrounded_receipts": [],
+      "compactions": 0
+    },
+    {
+      "turn": 4,
+      "requests": 7,
+      "actions": 6,
+      "action_errors": 0,
+      "rejected_tools": 0,
+      "ungrounded_receipts": [],
+      "compactions": 0
+    },
+    {
+      "turn": 5,
+      "requests": 5,
+      "actions": 4,
+      "action_errors": 0,
+      "rejected_tools": 0,
+      "ungrounded_receipts": [],
+      "compactions": 0
+    },
+    {
+      "turn": 6,
+      "requests": 6,
+      "actions": 5,
+      "action_errors": 0,
+      "rejected_tools": 0,
+      "ungrounded_receipts": [],
+      "compactions": 0
+    },
+    {
+      "turn": 7,
+      "requests": 5,
+      "actions": 4,
+      "action_errors": 0,
+      "rejected_tools": 0,
+      "ungrounded_receipts": [],
+      "compactions": 0
+    },
+    {
+      "turn": 8,
+      "requests": 14,
+      "actions": 12,
+      "action_errors": 1,
+      "rejected_tools": 0,
+      "ungrounded_receipts": [],
+      "compactions": 1
+    },
+    {
+      "turn": 9,
+      "requests": 28,
+      "actions": 27,
+      "action_errors": 0,
+      "rejected_tools": 0,
+      "ungrounded_receipts": [],
+      "compactions": 0
+    },
+    {
+      "turn": 10,
+      "requests": 20,
+      "actions": 19,
+      "action_errors": 0,
+      "rejected_tools": 0,
+      "ungrounded_receipts": [],
+      "compactions": 0
+    },
+    {
+      "turn": 11,
+      "requests": 41,
+      "actions": 46,
+      "action_errors": 1,
+      "rejected_tools": 0,
+      "ungrounded_receipts": [],
+      "compactions": 0
+    },
+    {
+      "turn": 12,
+      "requests": 14,
+      "actions": 13,
+      "action_errors": 0,
+      "rejected_tools": 0,
+      "ungrounded_receipts": [],
+      "compactions": 1
+    }
+  ]
+}

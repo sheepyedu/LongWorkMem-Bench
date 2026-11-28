@@ -53,6 +53,8 @@ wait
 
 [C2 十轮进阶版首场审计](docs/results/c2-evolution-20261128/)记录 DeepSeek 的 97.6471 分、三次原生压缩、两处交付偏差与题面勘误。当前实测仍有明显高分风险。
 
+[W4 v4.3 联席纪要首场盲测](docs/results/w4-bulletins/first-blind-run/)记录跨期续签、换册和两次原生压缩的实际履约结果。
+
 [W4 v4.2 履约效度与新版对照](docs/results/w4-promise-20261128/)将实际客户日结果作为主分，并加入历史合同接续、独立权益和部分容量工作簿验收。[新版首次 DeepSeek 正式盲测及逐项复评](docs/results/w4-promise-20261128/first-blind-run/)
 
 [W4 四站调度逐项评分及正式场](docs/results/w4-quota-20261128/)覆盖分案额度、实际办后回单、跨站续办及客户函，公开每条分值和失分证据。

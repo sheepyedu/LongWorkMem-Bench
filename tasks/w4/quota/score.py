@@ -272,7 +272,7 @@ def score(run):
         raise ValueError("宿主邮箱证据缺失")
     meta = json.loads((run / "manifest.json").read_text())
     image = os.getenv("W4_CALC_IMAGE") or meta.get("image") or "longworkmem-release:1"
-    mixed = meta.get("release_revision") == "4.3"
+    mixed = meta.get("release_revision") in ("4.3", "4.3.1")
     papers = bulletins.documents() if mixed else w.documents()
     promise = mixed or meta.get("release_revision") == "4.2"
     clarified = promise or meta.get("release_revision") == "4.1"

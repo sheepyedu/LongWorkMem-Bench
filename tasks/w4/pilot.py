@@ -68,7 +68,7 @@ QUOTA_CONTEXT = "你是四站服务运营专员。用 office 工具读 input/办
 def run(dest, edition="4.2"):
     revised = str(edition) == "3.1"
     revision = str(edition)
-    mixed = revision == "4.3"
+    mixed = revision in ("4.3", "4.3.1")
     promise = mixed or revision == "4.2"
     clarified = promise or str(edition) == "4.1"
     edition = 4 if clarified else 3 if revised else int(edition)
@@ -83,7 +83,13 @@ def run(dest, edition="4.2"):
     if edition == 4:
         from .quota import world
 
-        world.initialize(work, clarified=clarified, promise=promise, mixed=mixed)
+        world.initialize(
+            work,
+            clarified=clarified,
+            promise=promise,
+            mixed=mixed,
+            renewal_note=revision == "4.3.1",
+        )
     else:
         init(work)
     if edition in (2, 3):
@@ -210,7 +216,9 @@ if __name__ == "__main__":
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("dest", type=Path)
     p.add_argument(
-        "--edition", choices=("1", "2", "3", "3.1", "4", "4.1", "4.2", "4.3"), default="4.2"
+        "--edition",
+        choices=("1", "2", "3", "3.1", "4", "4.1", "4.2", "4.3", "4.3.1"),
+        default="4.2",
     )
     p.add_argument("--replay", action="store_true")
     a = p.parse_args()

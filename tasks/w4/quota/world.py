@@ -155,7 +155,9 @@ RULES = """六月四站服务承诺与排班规程。input/档案为旧材料；
 交班表 out/预约.xlsx 使用所附固定接口。容量页 A/B 为四个站及可再分容量（总容量减锁定合计），队列页 A/B/C/D/E 为案号、站、净需求、加配、候补，按当期有效优先顺序排列（全表按优先号、案号升序）。净需求=max(0,额度−锁定)。B2:B5容量及C2:C13需求是可直接改的整数；D/E 在 Calc 中自动按站从上往下分，允许部分满足；改变容量、单案需求后未影响客户也要正确。两日分别交付。"""
 
 
-def initialize(work, *, clarified=False, promise=False, mixed=False):
+def initialize(
+    work, *, clarified=False, promise=False, mixed=False, renewal_note=False
+):
     from . import bulletins
 
     init(work)  # reuse the customer archive and read-only/writable split
@@ -165,7 +167,8 @@ def initialize(work, *, clarified=False, promise=False, mixed=False):
         RULES
         + (CLARIFICATION if clarified else "")
         + (settlement.GUIDE if promise else "")
-        + (bulletins.GUIDE if mixed else ""),
+        + (bulletins.GUIDE if mixed else "")
+        + (bulletins.RENEWAL_NOTE if renewal_note else ""),
     )
     d = work / "input/站务"
     csvfile(d / "章程.csv", "案号,对象,站,期初实占,期初锁定,章程额度,章程优先号", CASES)

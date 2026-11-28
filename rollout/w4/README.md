@@ -1,6 +1,6 @@
 # W4 轨迹
 
-Claude Code 与 DeepSeek V4.1 Flash 1017 的五场连续业务会话按版本保存。每场公开目录包含逐轮用户委托、助手回答、原生工具提案和实际工具输出；动作与上游用量分别按行列入 CSV。[基础版](deepseek-v4.1-flash/v1/) · [现场附页版](deepseek-v4.1-flash/v2/) · [夜班预约版](deepseek-v4.1-flash/v3/) · [四站调度版](deepseek-v4.1-flash/v4/) · [跨期保障版 v4.2](deepseek-v4.1-flash/v4.2/) · [基础版与现场附页版审计](../../docs/results/w4-release-20261128/)
+Claude Code 与 DeepSeek V4.1 Flash 1017 的六场连续业务会话按版本保存。每场公开目录包含逐轮用户委托、助手回答、原生工具提案和实际工具输出；动作与上游用量分别按行列入 CSV。[基础版](deepseek-v4.1-flash/v1/) · [现场附页版](deepseek-v4.1-flash/v2/) · [夜班预约版](deepseek-v4.1-flash/v3/) · [四站调度版](deepseek-v4.1-flash/v4/) · [跨期保障版 v4.2](deepseek-v4.1-flash/v4.2/) · [联席纪要版 v4.3](deepseek-v4.1-flash/v4.3/) · [基础版与现场附页版审计](../../docs/results/w4-release-20261128/)
 
 在仓库根目录复制一场公开材料，核对指纹后解包，即可离线从邮件原件和快照复算。
 
@@ -16,3 +16,5 @@ python -m tasks.w4.pilot "$dest" --replay
 四站版另有[逐项评分与扣分明细](../../docs/results/w4-quota-20261128/)。将上述命令的 `v2` 换成 `v4` 即可重放正式场；v4 复评同样需要 Docker Calc。
 
 [跨期保障版首场盲测与逐项审计](../../docs/results/w4-promise-20261128/first-blind-run/)对应公开目录 `v4.2`。复算使用冻结版本 `91526fa` 及同版 Docker Calc。原始请求与响应另存于实验机 `rollout/w4/promise-20261128/17217-A/`。
+
+[联席纪要版首场逐项审计](../../docs/results/w4-bulletins/first-blind-run/)对应公开包 `v4.3`，原始请求和响应在实验机 `rollout/w4/bulletins-20261128/17217-A/`。

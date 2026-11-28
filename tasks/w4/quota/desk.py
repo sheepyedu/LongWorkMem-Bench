@@ -161,6 +161,7 @@ def query(run, t, args):
         "4.1",
         "4.2",
         "4.3",
+        "4.3.1",
     )
     if args["receipt"]:
         rows = receipts.get(args["receipt"], [])
