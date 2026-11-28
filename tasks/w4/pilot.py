@@ -67,7 +67,9 @@ QUOTA_CONTEXT = "你是四站服务运营专员。用 office 工具读 input/办
 
 def run(dest, edition="4.2"):
     revised = str(edition) == "3.1"
-    promise = str(edition) == "4.2"
+    revision = str(edition)
+    mixed = revision == "4.3"
+    promise = mixed or revision == "4.2"
     clarified = promise or str(edition) == "4.1"
     edition = 4 if clarified else 3 if revised else int(edition)
     if edition not in (1, 2, 3, 4):
@@ -81,7 +83,7 @@ def run(dest, edition="4.2"):
     if edition == 4:
         from .quota import world
 
-        world.initialize(work, clarified=clarified, promise=promise)
+        world.initialize(work, clarified=clarified, promise=promise, mixed=mixed)
     else:
         init(work)
     if edition in (2, 3):
@@ -115,7 +117,7 @@ def run(dest, edition="4.2"):
         turns=[],
     )
     if clarified:
-        meta["release_revision"] = "4.2" if promise else "4.1"
+        meta["release_revision"] = revision
     if revised:
         meta["release_revision"] = "3.1"
     save(dest / "manifest.json", meta)
@@ -143,7 +145,7 @@ def run(dest, edition="4.2"):
             (client / "desk").mkdir()
             for t in ROUNDS:
                 prompt = (
-                    world.release(work, t, promise=promise)
+                    world.release(work, t, promise=promise, mixed=mixed)
                     if edition == 4
                     else release(work, t)
                 )
@@ -155,7 +157,7 @@ def run(dest, edition="4.2"):
                     from .visibility import await_inbox
 
                     meta.setdefault("inbox_visibility", []).append(
-                        await_inbox(dest, t, image)
+                        await_inbox(dest, t, image, mixed=mixed)
                     )
                 (dest / "trace" / f"prompt-{t}.txt").write_text(prompt)
                 cfg = {
@@ -208,7 +210,7 @@ if __name__ == "__main__":
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("dest", type=Path)
     p.add_argument(
-        "--edition", choices=("1", "2", "3", "3.1", "4", "4.1", "4.2"), default="4.2"
+        "--edition", choices=("1", "2", "3", "3.1", "4", "4.1", "4.2", "4.3"), default="4.2"
     )
     p.add_argument("--replay", action="store_true")
     a = p.parse_args()

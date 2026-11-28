@@ -110,3 +110,9 @@ python -m tasks.w4.tests.promise_controls
 ```
 
 [旧轨迹排序回归及新版对照](../../docs/results/w4-promise-20261128/)
+
+## 4.3 联席纪要与续签
+
+用 `python -m tasks.w4.pilot runs/w4/bulletins --edition 4.3` 开始一场新会话。默认入口仍复现 4.2。两版使用同一 Docker 镜像、十二轮、业务工具和评分权重。4.3 在九个业务日发放四站联席纪要，每份均包括现场、接驳和培训三种业务。借阅登记簿记录册名，两站中途换册，按签发日识别旧件。第 9 和 11 日的续签仅给出引用流水与变更项，需从早期原件接续同一业务的额度。
+
+[材料规模、离线试办及复现命令](../../docs/results/w4-bulletins/)

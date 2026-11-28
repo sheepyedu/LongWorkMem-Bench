@@ -19,7 +19,7 @@ print(hashlib.sha256(json.dumps(rows).encode()).hexdigest())
 PYCODE"""
 
 
-def await_inbox(run, t, image):
+def await_inbox(run, t, image, *, mixed=False):
     work = run / "work"
     rows = sorted(
         (
@@ -43,6 +43,15 @@ def await_inbox(run, t, image):
             "历史保障签章表.csv",
         )
     ]
+    if mixed:
+        from .quota.bulletins import retired_names
+
+        retired.extend(
+            f"inbox/06-{d:02}/{name}"
+            for d in (2, 7)
+            if t > d
+            for name in retired_names(d)
+        )
     check = (
         READ_TREE
         + "\npython3 - <<'PYCODE'\nfrom pathlib import Path\nretired="

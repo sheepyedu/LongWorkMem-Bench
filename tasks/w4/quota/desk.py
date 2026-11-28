@@ -160,6 +160,7 @@ def query(run, t, args):
     short = json.loads((run / "manifest.json").read_text()).get("release_revision") in (
         "4.1",
         "4.2",
+        "4.3",
     )
     if args["receipt"]:
         rows = receipts.get(args["receipt"], [])
