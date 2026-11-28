@@ -159,6 +159,25 @@ class NightCases(unittest.TestCase):
                     (work / "inbox/06-07/夜班/客户回条.csv").exists(), t >= 7
                 )
 
+    @unittest.skipUnless(os.environ.get("W4_TEST_ROOT"), "requires shared Docker mount")
+    def test_container_reads_only_current_signed_batch(self):
+        from tasks.w1.runstate import prepare
+        from tasks.w4.visibility import await_inbox
+
+        with TemporaryDirectory(dir=os.environ["W4_TEST_ROOT"]) as tmp:
+            run = Path(tmp) / "published"
+            work = prepare(run)
+            init(work)
+            annex.initialize(work)
+            night.initialize(work)
+            for t in range(1, 13):
+                release(work, t)
+                annex.release(work, t)
+                night.release(work, t)
+                self.assertEqual(
+                    await_inbox(run, t, "longworkmem-release:1")["turn"], t
+                )
+
     @unittest.skipUnless(os.environ.get("W4_TEST_ROOT"), "requires W4 Calc Docker")
     def test_full_replay_and_static_handover(self):
         with TemporaryDirectory() as tmp:

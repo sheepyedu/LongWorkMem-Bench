@@ -125,6 +125,12 @@ def run(dest, edition=3):
                     prompt += annex.release(work, t)
                 if edition == 3:
                     prompt += night.release(work, t)
+                if edition >= 2:
+                    from .visibility import await_inbox
+
+                    meta.setdefault("inbox_visibility", []).append(
+                        await_inbox(dest, t, image)
+                    )
                 (dest / "trace" / f"prompt-{t}.txt").write_text(prompt)
                 cfg = {
                     "mcpServers": {
