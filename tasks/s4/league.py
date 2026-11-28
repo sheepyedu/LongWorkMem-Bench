@@ -1,16 +1,18 @@
 """Fixed league schedule and engine-derived situation exercises."""
-from pathlib import Path
+
 import json
+from pathlib import Path
 
 from .public import PRACTICE
 
-GAMES = {"game-1": (17217,0,1), "game-2": (17219,1,1), "game-3": (17231,2,2)}
+GAMES = {"game-1": (17217, 0, 1), "game-2": (17219, 1, 1), "game-3": (17231, 2, 2)}
 EXERCISES = json.loads(Path(__file__).with_name("fixtures.json").read_text())
 SCHEDULE = [*GAMES, *PRACTICE]
 
 
 def create(name):
     from .arena import Arena
+
     if name in GAMES:
         arena = Arena(*GAMES[name])
         arena.advance()

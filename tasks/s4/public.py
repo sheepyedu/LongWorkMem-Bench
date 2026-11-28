@@ -17,21 +17,39 @@ When a tool says segment_done, this request is finished. Summarize the actual si
 A practice position starts from a supplied frozen midgame board. Play only the current turn;
 the league will open the next position after you end the turn. Practice positions have independent hands.
 Follow any earlier assignment for that practice table."""
- 
+
 PRACTICE = {
-    "transfer-2": ("A", "Acquire BRICK if reasonably possible and build one road this turn."),
+    "transfer-2": (
+        "A",
+        "Acquire BRICK if reasonably possible and build one road this turn.",
+    ),
     "route-2": ("B", "Complete the assigned corridor if possible, then end your turn."),
-    "transfer-3": ("C", "Acquire BRICK if reasonably possible and build one road this turn."),
-    "update-2": ("D", "Acquire BRICK if reasonably possible and build one road this turn."),
+    "transfer-3": (
+        "C",
+        "Acquire BRICK if reasonably possible and build one road this turn.",
+    ),
+    "update-2": (
+        "D",
+        "Acquire BRICK if reasonably possible and build one road this turn.",
+    ),
     "route-1": ("E", "Complete the assigned corridor if possible, then end your turn."),
-    "update-3": ("F", "Acquire BRICK if reasonably possible and build one road this turn."),
+    "update-3": (
+        "F",
+        "Acquire BRICK if reasonably possible and build one road this turn.",
+    ),
 }
 BRIEFINGS = {
-    "game-1": ("Play your first full match. The club has attached a short trade observation from a separate "
-               "practice game. Later positions may share counterparties but have independent hands."),
-    "game-2": ("Play the second full match, with new seats and boards. The club assigned corridor B to "
-               "practice table B (edge [5,16]) and corridor E to practice table E (edge [9,10]). "
-               "These assignments apply when those practice tables open later."),
-    "game-3": ("Play the third full match. The club attached a newer trade observation; use current evidence "
-               "where relevant. After this full game, the league will open six practice tables."),
+    "game-1": (
+        "Play your first full match. The club has attached a short trade observation from a separate "
+        "practice game. Later positions may share counterparties but have independent hands."
+    ),
+    "game-2": (
+        "Play the second full match, with new seats and boards. The club assigned corridor B to "
+        "practice table B (edge [5,16]) and corridor E to practice table E (edge [9,10]). "
+        "These assignments apply when those practice tables open later."
+    ),
+    "game-3": (
+        "Play the third full match. The club attached a newer trade observation; use current evidence "
+        "where relevant. After this full game, the league will open six practice tables."
+    ),
 }
