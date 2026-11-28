@@ -8,10 +8,20 @@ from .scenario import PROMPTS, CHANNELS
 
 
 def examine(run, scores):
+    from tasks.c2.cohorts import scenario as cohort
+
+    customer_run = scores.get("version") == cohort.SCORING_REVISION
     report = audit(
-        run, prompts=PROMPTS, channels=CHANNELS, injected={(8, "C", "C-resume-08")}
+        run,
+        prompts=cohort.PROMPTS if customer_run else PROMPTS,
+        channels=CHANNELS,
+        injected={(8, "C", "handover-C-Q29" if customer_run else "C-resume-08")},
     )
-    private = set(scores["checks"]) | {
+    private = set(scores["items"] if customer_run else scores["checks"]) | {
+        "tasks/c2/cohorts/grade",
+        "tasks.c2.cohorts.grade",
+        "tasks/c2/cohorts/reference",
+        "tasks/c2/cohorts/oracle",
         "tasks/c2/evolution/grade",
         "tasks.c2.evolution.grade",
         "tasks/c2/evolution/case_grade",

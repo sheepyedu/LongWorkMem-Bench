@@ -160,6 +160,8 @@ def run(dest, edition=None):
                 private_markers=(
                     "tasks/c2/grade",
                     "C2_PRIVATE_ORACLE",
+                    "tasks/c2/cohorts/grade",
+                    "tasks/c2/cohorts/reference",
                     "tasks/c2/evolution/grade",
                     "tasks/c2/evolution/reference",
                     "tasks/c2/evolution/oracle",
@@ -181,7 +183,11 @@ def run(dest, edition=None):
                             "command": sys.executable,
                             "args": [
                                 "-m",
-                                "tasks.c2.evolution.runner"
+                                getattr(
+                                    edition,
+                                    "SERVER_MODULE",
+                                    "tasks.c2.evolution.runner",
+                                )
                                 if edition
                                 else "tasks.c2.pilot",
                                 "--serve",

@@ -34,6 +34,24 @@ def run_cmd(work, cmd):
     return r["output"]
 
 
+def install_paging(portal):
+    s = portal.read_text().replace(
+        "while len(out) < limit:",
+        "while end is not None or len(out)<limit:",
+    )
+    start = s.index('    if parts.path == "/api/events":')
+    s = (
+        s[:start]
+        + """    if parts.path == "/api/pages":
+        offset, limit = int(query["offset"]),int(query["limit"])
+        page=rows[offset:offset+limit]
+        return "application/json",json.dumps(dict(items=page,next=offset+limit if offset+limit<len(rows) else None))
+"""
+        + s[start:]
+    )
+    portal.write_text(s)
+
+
 def control(run, noop=False):
     work = run / "work"
     setup(work)
@@ -43,21 +61,7 @@ def control(run, noop=False):
         if not noop:
             portal = work / "project/portal.py"
             if t == 1:
-                s = portal.read_text().replace(
-                    "while len(out) < limit:",
-                    "while end is not None or len(out)<limit:",
-                )
-                start = s.index('    if parts.path == "/api/events":')
-                s = (
-                    s[:start]
-                    + """    if parts.path == "/api/pages":
-        offset, limit = int(query["offset"]),int(query["limit"])
-        page=rows[offset:offset+limit]
-        return "application/json",json.dumps(dict(items=page,next=offset+limit if offset+limit<len(rows) else None))
-"""
-                    + s[start:]
-                )
-                portal.write_text(s)
+                install_paging(portal)
             if t == 2:
                 shutil.copy(
                     Path(__file__).resolve().parents[1] / "reference/line.py",
