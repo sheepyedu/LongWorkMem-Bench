@@ -1,0 +1,157 @@
+{
+  "protocol": "w4-release-v4",
+  "seed": 17217,
+  "variant": "A",
+  "model": "deepseek-v4-1-flash-261017",
+  "session": "session-1",
+  "harness": "Claude Code",
+  "cli": "2.1.314 (Claude Code)",
+  "image": "sha256:1e859abeb2f872837623df24fc3b6e15bd9dd61433497176215772e4922db693",
+  "git": "91526fa74b6e49e1f39cec5628da9fc5ecc8b0e9",
+  "reasoning": "provider-default",
+  "limit": null,
+  "start": "2026-11-28T10:45:10.210441+00:00",
+  "status": "complete",
+  "turns": [
+    {
+      "turn": 1,
+      "calls": 12,
+      "end": "2026-11-28T10:45:51.202333+00:00"
+    },
+    {
+      "turn": 2,
+      "calls": 5,
+      "end": "2026-11-28T10:46:20.129140+00:00"
+    },
+    {
+      "turn": 3,
+      "calls": 20,
+      "end": "2026-11-28T10:48:01.569545+00:00"
+    },
+    {
+      "turn": 4,
+      "calls": 5,
+      "end": "2026-11-28T10:48:19.480606+00:00"
+    },
+    {
+      "turn": 5,
+      "calls": 6,
+      "end": "2026-11-28T10:48:43.201537+00:00"
+    },
+    {
+      "turn": 6,
+      "calls": 4,
+      "end": "2026-11-28T10:49:01.018820+00:00"
+    },
+    {
+      "turn": 7,
+      "calls": 6,
+      "end": "2026-11-28T10:50:05.673992+00:00"
+    },
+    {
+      "turn": 8,
+      "calls": 7,
+      "end": "2026-11-28T10:50:49.661330+00:00"
+    },
+    {
+      "turn": 9,
+      "calls": 19,
+      "end": "2026-11-28T10:52:04.438829+00:00"
+    },
+    {
+      "turn": 10,
+      "calls": 18,
+      "end": "2026-11-28T10:53:05.027078+00:00"
+    },
+    {
+      "turn": 11,
+      "calls": 22,
+      "end": "2026-11-28T10:54:30.219647+00:00"
+    },
+    {
+      "turn": 12,
+      "calls": 6,
+      "end": "2026-11-28T10:55:04.910389+00:00"
+    }
+  ],
+  "release_revision": "4.2",
+  "isolation": {
+    "status": 0,
+    "output": "workspace ready\n"
+  },
+  "inbox_visibility": [
+    {
+      "turn": 1,
+      "files": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "probes": 1
+    },
+    {
+      "turn": 2,
+      "files": 3,
+      "sha256": "7e25f3d3d76f5f0cb744280903767f499c477e1eb9e62823fbec7d4ab7a02ac9",
+      "probes": 1
+    },
+    {
+      "turn": 3,
+      "files": 2,
+      "sha256": "8a3959404f7200f387c0ee5fc7b33aad65daa2f16aef84579637cd3954b6d501",
+      "probes": 1
+    },
+    {
+      "turn": 4,
+      "files": 3,
+      "sha256": "83d3d5796bb6bc5084e2042dd610c3b53f7c40fb2bf137bceffc6a0c08907f65",
+      "probes": 1
+    },
+    {
+      "turn": 5,
+      "files": 4,
+      "sha256": "836c2490c764ea6f21ca3736dc15b989042a7aba3e1b532dcd73efb28eb8f4e7",
+      "probes": 1
+    },
+    {
+      "turn": 6,
+      "files": 5,
+      "sha256": "0f8cad636904c1703c9aa92336008d22c252d10759d2e844bd01c1317873bed2",
+      "probes": 1
+    },
+    {
+      "turn": 7,
+      "files": 7,
+      "sha256": "6db616db502f7aefd3d1e457ff83cfa10a962d9bb8ee201f103f3228c9d51fb3",
+      "probes": 1
+    },
+    {
+      "turn": 8,
+      "files": 6,
+      "sha256": "661bbeab263cdac7d620c453ac4f7c16a6e2181dee88a36a2f5a5956df1c1d51",
+      "probes": 1
+    },
+    {
+      "turn": 9,
+      "files": 12,
+      "sha256": "1982418671c7d15a836367ca9472ebb6464a98c0554fab97e7f5664f24c3ed73",
+      "probes": 1
+    },
+    {
+      "turn": 10,
+      "files": 19,
+      "sha256": "2989249918098ed2b4e818cb9b7ac0b6f33bd6a67edae1f7f5882e52770e5e9e",
+      "probes": 1
+    },
+    {
+      "turn": 11,
+      "files": 25,
+      "sha256": "cb3fb3889ec863a2451f00fd2a946881bcab9b51dcd6ee7277bf8c2f094a1113",
+      "probes": 1
+    },
+    {
+      "turn": 12,
+      "files": 25,
+      "sha256": "cb3fb3889ec863a2451f00fd2a946881bcab9b51dcd6ee7277bf8c2f094a1113",
+      "probes": 1
+    }
+  ],
+  "end": "2026-11-28T10:55:05.157770+00:00"
+}
