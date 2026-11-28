@@ -13,7 +13,7 @@ from urllib.parse import urlencode
 
 def main():
     stage = int(sys.argv[1])
-    d = "scratch/"
+    d = str(Path(sys.argv[2]).parent) + "/"
     result = {}
 
     def line(*args):
@@ -41,7 +41,7 @@ def main():
     if stage == 2:
         result["base"] = obj(line("query", "B", "2026-03-02", "2026-03-23", "2"))
         result["load"] = all(
-            line("import", "scratch/inbound") is not None for _ in range(2)
+            line("import", d + "inbound") is not None for _ in range(2)
         )
         for v in ("2", "3", "4"):
             result["new" + v] = obj(line("query", "C", "2026-03-02", "2026-03-23", v))
@@ -54,7 +54,7 @@ def main():
             )
             output_probe("feed" + ch, "feed", ch, lo, hi, str(stage))
     if stage == 5:
-        output_probe("extra", "preview", "scratch/lookups.json")
+        output_probe("extra", "preview", d + "lookups.json")
     if stage == 8:
         for ch in "ABCD":
             for suffix in ("gap", "done"):
@@ -65,10 +65,10 @@ def main():
                     "2026-03-02",
                     "2026-03-23",
                     "8",
-                    "scratch/" + ch + suffix + "-receipts.json",
+                    d + ch + suffix + "-receipts.json",
                 )
     if stage == 10:
-        output_probe("extra", "history", "scratch/lookups.json", "scratch/ledger.json")
+        output_probe("extra", "history", d + "lookups.json", d + "ledger.json")
     if stage in (1, 3, 9):
         with socket.socket() as s:
             s.bind(("127.0.0.1", 0))
@@ -122,7 +122,11 @@ def main():
                     )
         finally:
             server.terminate()
-            server.wait()
+            try:
+                server.wait(timeout=1)
+            except subprocess.TimeoutExpired:
+                server.kill()
+                server.wait()
     Path(sys.argv[2]).write_text(json.dumps(result))
 
 

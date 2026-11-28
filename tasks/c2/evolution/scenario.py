@@ -3,22 +3,16 @@
 import csv
 from datetime import date, timedelta
 import hashlib
-import json
 from pathlib import Path
-import sqlite3
 import tarfile
 
 from tasks.c1.sandbox import WRITABLE
 from tasks.c2.scenario import write
-from tasks.c2.subscriber import accept
 
-CHANNELS = "ABCD"
+CHANNELS = ("A", "B", "C", "D")
 VERSION = "calendar-evolution-v1"
-ARCHIVE = (
-    Path(__file__).resolve().parents[3]
-    / "rollout/c2/deepseek-v4.1-flash/official/artifacts.tar.gz"
-)
-ARCHIVE_SHA = "cd84fa4c9fb10db1513f4926fb9b1e2ac3daa2503fc64556000303620ae36459"
+ARCHIVE = Path(__file__).with_name("fixtures") / "legacy-release.tar.gz"
+ARCHIVE_SHA = "d8d852b04a684c8696b96014d3754401b7344935dcacf5ea94887a0b0b8ab4c3"
 DAYS = ["2026-03-02", "2026-03-09", "2026-03-16", "2026-03-23"]
 LATE = ["2026-10-19", "2026-10-26", "2026-11-02", "2026-11-09"]
 PROMPTS = [

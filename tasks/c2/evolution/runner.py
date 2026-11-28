@@ -3,7 +3,6 @@
 from pathlib import Path
 import sys
 from tasks.c2 import pilot
-from . import runner
 from .scenario import setup, PROMPTS, VERSION, CHANNELS, release as issue
 from .receiver import online, publish, archive
 
@@ -33,7 +32,8 @@ def release(run, t):
 
 
 if __name__ == "__main__":
+    edition = sys.modules[__name__]
     if sys.argv[1] == "--serve":
-        pilot.serve(Path(sys.argv[2]), int(sys.argv[3]), sys.argv[4], runner)
+        pilot.serve(Path(sys.argv[2]), int(sys.argv[3]), sys.argv[4], edition)
     else:
-        pilot.run(Path(sys.argv[1]).resolve(), runner)
+        pilot.run(Path(sys.argv[1]).resolve(), edition)

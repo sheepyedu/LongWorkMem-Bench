@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import secrets
 import shutil
+import subprocess
 import tempfile
 from zoneinfo import ZoneInfo
 
@@ -116,7 +117,10 @@ def probe(snap, t, image, logs):
             (work / "data/portal.sqlite").write_bytes(data)
             shutil.rmtree(work / "out")
             (work / "out").mkdir()
-        sc = work / "scratch"
+        nonce = secrets.token_hex(12)
+        scratch = f"scratch/replay-{nonce}"
+        sc = work / scratch
+        sc.mkdir()
         if t == 2:
             write(
                 sc / "inbound/portfolio.json",
@@ -174,15 +178,14 @@ def probe(snap, t, image, logs):
                         )
                     ],
                 )
-        nonce = secrets.token_hex(12)
         (work / nonce).write_text(nonce)
-        out = f"scratch/{nonce}.json"
+        out = f"{scratch}/result.json"
         cmd = (
             f"cp {nonce} scratch/{nonce} && python3 - {t} {out} <<'ENDPROBE'\n"
             + Path(__file__).with_name("probe.py").read_text()
             + "\nENDPROBE"
         )
-        result = execute(work, cmd, image)
+        result = execute(work, cmd, image, timeout=240)
         if (
             read(work, "scratch/" + nonce, bytes) != nonce.encode()
             or result["status"] != 0
@@ -195,13 +198,13 @@ def probe(snap, t, image, logs):
             raise RuntimeError("missing host probe output")
         for k, v in list(data.items()):
             if k == "extra" and v is True:
-                data[k] = read(work, "scratch/extra.json", json.loads)
+                data[k] = read(work, scratch + "/extra.json", json.loads)
             if (k.startswith("feed") or k.endswith(("gap", "done"))) and v is True:
-                data[k] = read(work, "scratch/" + k + ".ics", decode)
+                data[k] = read(work, scratch + "/" + k + ".ics", decode)
         return data
 
 
-def grade(run):
+def grade(run, *, image=None):
     m = json.loads((run / "manifest.json").read_text())
     if (
         m.get("protocol") != VERSION
@@ -209,6 +212,13 @@ def grade(run):
         or [x["turn"] for x in m["turns"]] != list(range(1, 11))
     ):
         raise ValueError("incomplete evolution run")
+    replay_image = (
+        m["image"]
+        if image is None
+        else subprocess.check_output(
+            ["docker", "image", "inspect", "--format", "{{.Id}}", image], text=True
+        ).strip()
+    )
     checks = {}
 
     def add(k, w, f):
@@ -222,7 +232,7 @@ def grade(run):
         if not snap.is_dir():
             raise ValueError("missing frozen workspace")
         logs = json.loads((run / "receipts" / f"{t}.json").read_text())
-        p = probe(snap, t, m["image"], logs) if t in (1, 2, 3, 5, 6, 8, 9, 10) else {}
+        p = probe(snap, t, replay_image, logs) if t in (1, 2, 3, 5, 6, 8, 9, 10) else {}
         if t == 1:
             # March 6, 2026 to February 9, 2046 inclusive.
             start = date(2026, 3, 6)
@@ -431,6 +441,7 @@ def grade(run):
         raise ValueError("weights")
     return dict(
         version=VERSION + "/1",
+        replay_image=replay_image,
         total=round(sum(x["earned"] for x in checks.values()), 4),
         checks=checks,
     )
@@ -439,4 +450,6 @@ def grade(run):
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
     p.add_argument("run", type=Path)
-    print(json.dumps(grade(p.parse_args().run.resolve()), indent=2))
+    p.add_argument("--image", help="locally rebuilt equivalent replay image")
+    args = p.parse_args()
+    print(json.dumps(grade(args.run.resolve(), image=args.image), indent=2))

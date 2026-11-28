@@ -13,7 +13,7 @@ import uuid
 from tasks.c1.runstate import freeze
 from tasks.w1.claude import run_claude
 from tasks.w1.gateway import Gateway, MODEL, URL
-from tasks.w1.office import shell, tool
+from tasks.w1.office import SHELL_TIMEOUT, shell, tool
 from .scenario import setup, release, write, WRITABLE
 from .subscriber import receipts, publish, interrupt
 
@@ -34,7 +34,7 @@ ALLOWED = {"mcp__calendar__" + s["name"] for s in TOOLS}
 CONTEXT = "你是排期门户维护工程师。使用 calendar 工具完成实际工作。工作区 project、data、notes、out、scratch 可写、跨委托持久。input 为只读资料。Docker 与宿主分离。完成每次委托时简报实际交付、验证及遗留事项。"
 
 
-def execute(work, cmd, image):
+def execute(work, cmd, image, *, timeout=SHELL_TIMEOUT):
     return shell(
         work,
         cmd,
@@ -43,6 +43,7 @@ def execute(work, cmd, image):
         image=image,
         mount="/workspace",
         check_runtime=True,
+        timeout=timeout,
     )
 
 

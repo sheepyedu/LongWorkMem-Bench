@@ -2,7 +2,6 @@ import json
 import os
 from pathlib import Path
 import shutil
-import sqlite3
 import subprocess
 import sys
 from tempfile import TemporaryDirectory
@@ -13,7 +12,8 @@ from tasks.c2.scenario import write
 from tasks.c2.starter.calendar_io import encode
 from tasks.c2.subscriber import receipts, decode
 from tasks.c2.evolution import runner
-from tasks.c2.evolution.grade import grade
+from tasks.c2.evolution.grade import grade, indexed
+from tasks.c2.evolution.dependency import compare
 from tasks.c2.evolution.scenario import CHANNELS, VERSION, DAYS, LATE, setup
 from tasks.c2.evolution.receiver import publish
 
@@ -123,6 +123,26 @@ def control(run, noop=False):
     write(run / "manifest.json", manifest)
 
 
+class Formats(unittest.TestCase):
+    def test_time_equivalence_and_bad_fields(self):
+        keys = ["code", "day"]
+        rows = [dict(code="A", day="monday", utc="2026-03-02T11:00:00+01:00")]
+        self.assertEqual(
+            indexed(rows, keys, ["utc"]), {("A", "monday"): ["2026-03-02T10:00:00Z"]}
+        )
+        for invalid in (None, {}, [{}], [dict(code=[], day=4, utc=None)], rows + rows):
+            self.assertEqual(indexed(invalid, keys, ["utc"]), {})
+        self.assertEqual(
+            indexed([dict(code="x", day="a", pending="false")], keys, ["pending"]), {}
+        )
+
+    def test_archived_receiver_rejects_invalid_channels(self):
+        with TemporaryDirectory() as tmp:
+            for c in ("", "AB", "Z"):
+                with self.assertRaises(ValueError):
+                    runner.online(Path(tmp), 1, c)
+
+
 @unittest.skipUnless(os.getenv("C2_TEST_ROOT"), "Docker shared path required")
 class Evolution(unittest.TestCase):
     def test_native_tool_boundary(self):
@@ -190,13 +210,18 @@ class Evolution(unittest.TestCase):
                 g["total"],
                 [(k, v) for k, v in g["checks"].items() if v["fraction"] != 1],
             )
+            self.assertTrue(compare(run)["passed"])
             snap = run / "snapshots"
             (snap / "7/out/plan-B.ics").write_text("not ICS")
             (snap / "10/out/inquiry.json").write_text("[]")
             logs = json.loads((run / "receipts/8.json").read_text())
             logs["C"].append(dict(logs["C"][-1], key="redundant", receipt="C-99999"))
             write(run / "receipts/8.json", logs)
+            # Hidden input directories must not import a participant's scratch tests.
+            write(snap / "2/scratch/inbound/orders/collision.json", {"not": "an order"})
             bad = grade(run)["checks"]
+            self.assertEqual(bad["rules.unseen.2"]["fraction"], 1)
+
             for k in ("rollback.plan.B", "history.file.due", "resume.side-effects.C"):
                 self.assertEqual(bad[k]["earned"], 0, k)
             self.assertEqual(bad["resume.state.C"]["fraction"], 1)
