@@ -30,6 +30,16 @@ python -m tasks.s4.early_league /path/to/new/run --replay --image longworkmem-ca
 
 模型实跑需要设置 `ARK_API_KEY`；离线复评只需 Docker。两组采用默认原生压缩设置，精确阈值由运行框架决定。[早局试验与复评资料](../../docs/results/s4-early-duration-20261128/)
 
+### Codex 原生入口
+
+Codex 在同一线程接收相同的逐轮委托，使用同一 Docker 工位的 `look`、`act` 和 `notes`。运行使用当前 Codex 登录。原始事件保存在运行目录，评分由引擎重放独立计算。
+
+```sh
+python -m tasks.s4.codex_early /path/to/new/run --length 40 --model gpt-6.1-terra --effort low
+python -m tasks.s4.codex_early /path/to/existing/run --replay --image longworkmem-catan:early-league
+python -m tasks.s4.codex_audit /path/to/existing/run
+```
+
 ## 历史版本 · Catan 跨局联赛
 
 一个待测模型坐一席，Ash、Flint 和 Sail 是本地策略机器人。三局基础 Catan 开新会话、换地图与颜色，名称保持一致。六个独立练习局面随后打开。每个练习从固定中盘开始，模型控制当前一轮。模型能通过文本查看棋盘和自己的牌，完成建造、出价、确认交易，并维护自己的跨局笔记。

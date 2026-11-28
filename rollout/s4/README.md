@@ -35,3 +35,7 @@ python -m tasks.s4.grade "$run" --image longworkmem-catan:1 --first-road
 ## 32／40 轮早局
 
 `early-duration-20261128/rounds-32/` 和 `rounds-40/` 在实验机保存各自的完整原始请求、会话事件和逐文件校验清单。[公开复评包](early-duration-20261128-replay.tar.gz)及[分轮审计](../../docs/results/s4-early-duration-20261128/)覆盖两次独立会话。
+
+## GPT-6.1-terra · Codex 40 轮早局
+
+[公开复评包](codex-gpt61terra-40-20261128-replay.tar.gz)含逐轮委托、Codex 业务工具原始参数和回执、完整最终答复、用量事件及棋局状态指纹。[实测报告](../../docs/results/s4-codex-terra-20261128/)给出了同场复评方法。完整 app-server 原始记录位于实验机 `codex-gpt61terra-40-20261128/`。

@@ -1,0 +1,128 @@
+{
+  "model": "gpt-6.1-terra",
+  "effort": "low",
+  "sessions": 1,
+  "rounds": 40,
+  "usage": {
+    "usage_updates": 213,
+    "tool_calls": 176,
+    "compact_events": 0,
+    "missing_usage_attempts": [],
+    "inputTokens": 18851675,
+    "outputTokens": 7325,
+    "cachedInputTokens": 18566272,
+    "reasoningOutputTokens": 0,
+    "totalTokens": 18859000
+  },
+  "peak_reported_input": 185163,
+  "reported_context_windows": [
+    475000
+  ],
+  "compaction_rounds": [],
+  "tool_errors": [],
+  "grade": {
+    "checks": {
+      "shifts": [
+        12.0,
+        12
+      ],
+      "filings": [
+        12,
+        12
+      ],
+      "received": [
+        16,
+        16
+      ],
+      "terms": [
+        8,
+        8
+      ],
+      "capital_stock": [
+        16.5,
+        18
+      ],
+      "city_work": [
+        0,
+        22
+      ],
+      "reserve": [
+        12,
+        12
+      ]
+    },
+    "score": 76.5,
+    "max": 100,
+    "score_axis": "execution",
+    "authorization": {
+      "correct": 1,
+      "observed": 1,
+      "scheduled": 2,
+      "decisions": {
+        "cargo": {
+          "expected": "BRICK",
+          "actual": "BRICK",
+          "outcome": "correct"
+        },
+        "city": {
+          "expected": 21,
+          "actual": null,
+          "outcome": "unobserved"
+        }
+      }
+    },
+    "filings": {
+      "shift_3": true,
+      "shift_6": true,
+      "shift_9": true,
+      "shift_11": true
+    },
+    "reserve_windows": [
+      {
+        "points": 2,
+        "breaches": []
+      },
+      {
+        "points": 2,
+        "breaches": []
+      },
+      {
+        "points": 2,
+        "breaches": []
+      },
+      {
+        "points": 2,
+        "breaches": []
+      },
+      {
+        "points": 2,
+        "breaches": []
+      },
+      {
+        "points": 2,
+        "breaches": []
+      }
+    ],
+    "terminal": null,
+    "own_turns": 20
+  },
+  "all_city_actions": [],
+  "clearing_transactions": [
+    {
+      "seq": 395,
+      "round": 68,
+      "player": "You",
+      "action": "CONFIRM_TRADE",
+      "value": {
+        "give": {
+          "WOOD": 1
+        },
+        "take": {
+          "BRICK": 1
+        },
+        "partner": "Flint"
+      },
+      "result": null
+    }
+  ]
+}
