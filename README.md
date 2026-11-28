@@ -6,6 +6,7 @@
 |---|---|---|
 | Work | [W1 · 跨月采购关账与奖金分配](tasks/w1/) | 九轮内冻结六月报送件，处理七月调整，并据先前批复办理工资、资金和预留。 |
 | Code | [C1 · 工时结算与保证金交割](tasks/c1/) | 修改同一程序，在第 5、7 轮换班，按轮末交付和新来件复跑评分。 |
+| Code | [C2 · 跨时区排期门户与日历发布](tasks/c2/) | 八轮维护同一门户，依据签批、既有发布和回执办理改期、局部撤回与事故恢复。 |
 | Simulation | [S1 · 跨区器材联赛](tasks/s1/) | 十区八十轮，第 40 轮交接自写摘要；从赛事单据复核登记、器材配套和送达。 |
 
 ## 运行与验证
@@ -15,7 +16,7 @@
 ```sh
 python3.12 -m venv .venv
 . .venv/bin/activate
-python -m pip install -r tasks/w1/requirements.txt
+python -m pip install -r tasks/w1/requirements.txt -r tasks/c2/requirements.txt
 python -m unittest discover -v
 ```
 
@@ -23,7 +24,7 @@ python -m unittest discover -v
 
 ### Codex 原生运行
 
-三题均支持 Codex app-server。安装支持动态工具和空环境列表的 Codex CLI（已测版本见实测记录），先执行 `codex login`，再按各题 README 准备 Docker 镜像。运行目录应为新路径，W1/C1 使用 Docker 可读写的共享目录。
+W1、C1、S1 支持 Codex app-server；C2 目前使用 Claude Code。安装支持动态工具和空环境列表的 Codex CLI（已测版本见实测记录），先执行 `codex login`，再按各题 README 准备 Docker 镜像。运行目录应为新路径，W1/C1 使用 Docker 可读写的共享目录。
 
 ```sh
 python -m tasks.codex_bench w1 rollout/w1/codex/17217-A &
