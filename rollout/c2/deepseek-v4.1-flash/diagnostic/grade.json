@@ -1,0 +1,256 @@
+{
+  "version": "calendar-score/1.2",
+  "replay_image": "sha256:936b55ee37791494bc1b499515ea8529c06fa8cdab25192a943220e53003fbb8",
+  "total": 100.0,
+  "checks": {
+    "legacy.local-list": {
+      "weight": 3,
+      "fraction": 1.0,
+      "points": 3
+    },
+    "legacy.local-detail": {
+      "weight": 3,
+      "fraction": 1.0,
+      "points": 3
+    },
+    "legacy.utc": {
+      "weight": 3,
+      "fraction": 1.0,
+      "points": 3.0
+    },
+    "migration.registrations": {
+      "weight": 3,
+      "fraction": 1.0,
+      "points": 3
+    },
+    "series.venue": {
+      "weight": 7,
+      "fraction": 1.0,
+      "points": 7.0
+    },
+    "series.broadcast": {
+      "weight": 7,
+      "fraction": 1.0,
+      "points": 7.0
+    },
+    "series.original-identity": {
+      "weight": 4,
+      "fraction": 1.0,
+      "points": 4.0
+    },
+    "preview.local": {
+      "weight": 3,
+      "fraction": 1.0,
+      "points": 3.0
+    },
+    "preview.no-send": {
+      "weight": 1,
+      "fraction": 1.0,
+      "points": 1
+    },
+    "initial.A": {
+      "weight": 2,
+      "fraction": 1.0,
+      "points": 2.0
+    },
+    "initial.feed.A": {
+      "weight": 2,
+      "fraction": 1.0,
+      "points": 2.0
+    },
+    "initial.B": {
+      "weight": 2,
+      "fraction": 1.0,
+      "points": 2.0
+    },
+    "initial.feed.B": {
+      "weight": 2,
+      "fraction": 1.0,
+      "points": 2.0
+    },
+    "moved.A": {
+      "weight": 2,
+      "fraction": 1.0,
+      "points": 2.0
+    },
+    "temporary.A": {
+      "weight": 2,
+      "fraction": 1.0,
+      "points": 2.0
+    },
+    "neighbors.A": {
+      "weight": 2,
+      "fraction": 1.0,
+      "points": 2.0
+    },
+    "update.feed.A": {
+      "weight": 1,
+      "fraction": 1.0,
+      "points": 1.0
+    },
+    "delta.A": {
+      "weight": 1,
+      "fraction": 1.0,
+      "points": 1
+    },
+    "moved.B": {
+      "weight": 2,
+      "fraction": 1.0,
+      "points": 2.0
+    },
+    "temporary.B": {
+      "weight": 2,
+      "fraction": 1.0,
+      "points": 2.0
+    },
+    "neighbors.B": {
+      "weight": 2,
+      "fraction": 1.0,
+      "points": 2.0
+    },
+    "update.feed.B": {
+      "weight": 1,
+      "fraction": 1.0,
+      "points": 1.0
+    },
+    "delta.B": {
+      "weight": 1,
+      "fraction": 1.0,
+      "points": 1
+    },
+    "withdraw.A": {
+      "weight": 3,
+      "fraction": 1.0,
+      "points": 3
+    },
+    "protected.A": {
+      "weight": 2,
+      "fraction": 1.0,
+      "points": 2.0
+    },
+    "withdraw.feed.A": {
+      "weight": 1,
+      "fraction": 1.0,
+      "points": 1.0
+    },
+    "scope.A": {
+      "weight": 1,
+      "fraction": 1.0,
+      "points": 1
+    },
+    "withdraw.B": {
+      "weight": 3,
+      "fraction": 1.0,
+      "points": 3
+    },
+    "protected.B": {
+      "weight": 2,
+      "fraction": 1.0,
+      "points": 2.0
+    },
+    "withdraw.feed.B": {
+      "weight": 1,
+      "fraction": 1.0,
+      "points": 1.0
+    },
+    "scope.B": {
+      "weight": 1,
+      "fraction": 1.0,
+      "points": 1
+    },
+    "incident.received.A": {
+      "weight": 2,
+      "fraction": 1.0,
+      "points": 2
+    },
+    "incident.once.A": {
+      "weight": 2,
+      "fraction": 1.0,
+      "points": 2
+    },
+    "incident.unrelated.A": {
+      "weight": 1,
+      "fraction": 1.0,
+      "points": 1
+    },
+    "incident.received.B": {
+      "weight": 2,
+      "fraction": 1.0,
+      "points": 2
+    },
+    "incident.once.B": {
+      "weight": 2,
+      "fraction": 1.0,
+      "points": 2
+    },
+    "incident.unrelated.B": {
+      "weight": 1,
+      "fraction": 1.0,
+      "points": 1
+    },
+    "recover.unsent": {
+      "weight": 3,
+      "fraction": 1.0,
+      "points": 3
+    },
+    "recover.confirmed": {
+      "weight": 3,
+      "fraction": 1.0,
+      "points": 3
+    },
+    "quarter.A": {
+      "weight": 2,
+      "fraction": 1.0,
+      "points": 2.0
+    },
+    "quarter.B": {
+      "weight": 2,
+      "fraction": 1.0,
+      "points": 2.0
+    },
+    "fresh.subscription": {
+      "weight": 2,
+      "fraction": 1.0,
+      "points": 2.0
+    },
+    "backup.export": {
+      "weight": 2,
+      "fraction": 1.0,
+      "points": 2.0
+    },
+    "backup.legacy": {
+      "weight": 2,
+      "fraction": 1.0,
+      "points": 2
+    },
+    "backup.policy": {
+      "weight": 2,
+      "fraction": 1.0,
+      "points": 2.0
+    }
+  },
+  "diagnostics": {
+    "1": {
+      "errors": {}
+    },
+    "2": {
+      "errors": {}
+    },
+    "3": {},
+    "4": {
+      "errors": {}
+    },
+    "5": {
+      "errors": {}
+    },
+    "6": {
+      "errors": {}
+    },
+    "7": {
+      "errors": {}
+    },
+    "8": {
+      "errors": {}
+    }
+  }
+}

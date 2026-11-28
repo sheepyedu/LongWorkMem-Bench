@@ -147,13 +147,22 @@ def probe(snap, t, image):
         if t == 7:
             job = json.loads((w / "input/incident.json").read_text())
             job["B"]["key"] = "relay-other"
-            job["B"]["uid"] = "P83-20260501"
+            job["B"]["uid"] = "M42-20260410"
+            job["B"]["utc"] = "2026-04-10T16:30:00Z"
             write(w / "scratch/job.json", job)
             row = {k: v for k, v in job["B"].items() if k != "key"}
-            write(w / "scratch/missing.json", [])
+            prior = dict(
+                key="april-B",
+                receipt="B-00899",
+                rows={row["uid"]: dict(row, utc="2026-04-10T15:00:00Z")},
+            )
+            write(w / "scratch/missing.json", [prior])
             write(
                 w / "scratch/done.json",
-                [dict(key="relay-other", receipt="B-00900", rows={row["uid"]: row})],
+                [
+                    prior,
+                    dict(key="relay-other", receipt="B-00900", rows={row["uid"]: row}),
+                ],
             )
         tag = secrets.token_hex(16)
         (w / ("mount-" + tag)).write_text(tag)
@@ -357,9 +366,9 @@ def grade(run, *, image=None):
                     3,
                     p.get("missing")
                     == {
-                        "P83-20260501": dict(
-                            uid="P83-20260501",
-                            utc="2026-03-27T16:30:00Z",
+                        "M42-20260410": dict(
+                            uid="M42-20260410",
+                            utc="2026-04-10T16:30:00Z",
                             status="CONFIRMED",
                         )
                     },
@@ -397,7 +406,7 @@ def grade(run, *, image=None):
             )
     assert sum(x["weight"] for x in checks.values()) == 100
     return dict(
-        version="calendar-score/1.1",
+        version="calendar-score/1.2",
         replay_image=replay_image,
         total=round(sum(x["points"] for x in checks.values()), 4),
         checks=checks,

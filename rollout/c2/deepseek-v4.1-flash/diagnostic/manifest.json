@@ -1,0 +1,48 @@
+{
+  "model": "deepseek-v4-1-flash-261017",
+  "harness": "Claude Code",
+  "cli": "2.1.314 (Claude Code)",
+  "image": "sha256:936b55ee37791494bc1b499515ea8529c06fa8cdab25192a943220e53003fbb8",
+  "session": "session-1",
+  "turns": [
+    {
+      "turn": 1,
+      "calls": 9
+    },
+    {
+      "turn": 2,
+      "calls": 14
+    },
+    {
+      "turn": 3,
+      "calls": 3
+    },
+    {
+      "turn": 4,
+      "calls": 14
+    },
+    {
+      "turn": 5,
+      "calls": 17
+    },
+    {
+      "turn": 6,
+      "calls": 10
+    },
+    {
+      "turn": 7,
+      "calls": 11
+    },
+    {
+      "turn": 8,
+      "calls": 9
+    }
+  ],
+  "seed": 17217,
+  "variant": "A",
+  "protocol": "calendar-v1",
+  "status": "complete",
+  "reasoning": "provider-default",
+  "limit": null,
+  "git": "343ff9e80b6d3ecaf65ed26b83710ee1e03b2ac5"
+}

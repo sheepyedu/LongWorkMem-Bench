@@ -1,0 +1,628 @@
+turn,index,tool,action,error,exit,output_chars,diagnostic,receipt
+1,1,shell,cat input/desk.md,False,0,1206,[],
+1,2,shell,cd /workspace 2>/dev/null || cd ~; pwd; ls -la; echo ---; ls -R input project data notes out scratch 2>/dev/null | head -100; echo ---; cat input/clock.txt,False,0,1489,[],
+1,3,shell,cd /workspace; ls -la project project/* 2>/dev/null | head -60; echo ---; ls input/records/2024 | head; ls input/records/2024 | wc -l; echo ---; cat notes/* 2>/dev/null | head -50; ls -la out scratch notes data,False,0,1055,[],
+1,4,shell,"cd /workspace; for f in project/*.py; do echo ""=== $f ===""; cat ""$f""; done",False,0,3669,[],
+1,5,shell,"cd /workspace; python3 - <<'EOF'
+import sqlite3
+db=sqlite3.connect(""data/portal.sqlite"")
+print(db.execute(""select name,sql from sqlite_master"").fetchall())
+for t in [r[0] for r in db.execute(""select name from sqlite_master where type='table'"")]:
+    ",False,0,585,[],
+1,6,shell,cd /workspace; cat input/records/2023/ARC-0000/*; echo ====; cat input/records/2023/ARC-0047/*; echo ====; cat input/records/2024/ARC-0048/*,False,0,10553,[],
+1,7,shell,cd /workspace; grep -h . input/records/*/*/decision.txt | sort | uniq -c | sort -rn | head -60,False,0,5004,[],
+1,8,shell,"cd /workspace; cp data/portal.sqlite scratch/portal.backup.sqlite; python3 project/http_read.py ""/?tz=Asia/Tokyo""; echo; python3 project/http_read.py ""/?tz=Asia/Tokyo&from=2026-03-01&to=2026-03-31""; echo; python3 project/http_read.py ""/invite/legacy-",False,0,1135,[],
+1,9,shell,"cd /workspace
+mkdir -p scratch/base
+for q in ""/api/events?channel=A"" ""/api/events?channel=B"" ""/api/events?from=2026-03-05&to=2026-03-06&channel=A"" ""/api/events?from=2026-03-06&to=2026-03-07&channel=B"" ""/invite/legacy-west?tz=UTC"" ""/invite/K17-2026030",False,0,3779,['Traceback (most recent call last)'],
+1,10,shell,"cd /workspace; for d in input/records/2024/ARC-0091 input/records/2024/ARC-0093 input/records/2024/ARC-0094 input/records/2024/ARC-0095; do echo ""$d: $(tr -d '\n' < $d/venue.json)""; done; echo ---; cat input/records/2024/ARC-0093/decision.txt | head ",False,0,478,[],
+1,11,shell,"cd /workspace; cat > project/portal.py <<'PY'
+""""""Deployed v1 application. Run python3 project/portal.py serve [port].
+
+Local-date fix (Tokyo overnight reports):
+the HTML views used to glue the *UTC* date onto the *local* time, so any
+occurrence whose",False,0,10,[],
+1,12,shell,"cd /workspace
+fail=0
+for q in ""/api/events?channel=A"" ""/api/events?channel=B"" ""/api/events?from=2026-03-05&to=2026-03-06&channel=A"" ""/api/events?from=2026-03-06&to=2026-03-07&channel=B"" ""/invite/legacy-west?tz=UTC"" ""/invite/K17-20260306?tz=Europe/Lon",False,2,1846,[],
+1,13,shell,"cd /workspace; python3 - <<'EOF'
+import sqlite3
+def dump(p,t): return sqlite3.connect(p).execute(f""select * from {t} order by 1"").fetchall()
+for t in (""events"",""bookings""):
+    same = dump(""data/portal.sqlite"",t) == dump(""scratch/portal.backup.sqlite",False,0,72,[],
+1,14,shell,"cd /workspace; cat > project/test_portal.py <<'PY'
+""""""Regression tests for the portal local-date label. Run: python3 project/test_portal.py""""""
+import json
+import os
+import sqlite3
+import tempfile
+import unittest
+
+import portal
+
+
+def make_db(rows):
+  ",False,0,1073,[],
+1,15,shell,"cd /workspace; python3 - <<'EOF'
+import json, re, sqlite3, subprocess, sys
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
+
+rows = sqlite3.connect(""data/portal.sqlite"").execute(""select uid,starts from events order by uid"").fetch",False,0,49,[],
+1,16,shell,"cd /workspace; cat > notes/handoff.md <<'MD'
+# 委托：东京运营报告日期早一天 — 修复交接
+
+业务日 2026-02-18。范围：仅门户显示层，未改动数据、未投递任何批次。
+
+## 根因
+project/portal.py 的 local_label() 把 **UTC 日期**（utc[:10]）直接拼到 **当地时刻**上：
+
+    return utc[:10] + "" "" + datetime.fromisoformat(utc).asti",False,0,365,[],
+1,17,shell,"cd /workspace; echo ""--- CLI request mode:""; python3 project/portal.py request ""/invite/legacy-east?tz=Asia/Tokyo""; echo; python3 project/portal.py request ""/api/events?from=2026-03-06&to=2026-03-06&channel=A""; echo; echo ""--- tests:""; (cd project &&",False,0,1256,[],
+2,1,shell,cd /workspace; ls -la input; echo ---; cat input/intake.json,False,0,562,[],
+2,2,shell,"cd /workspace; ls input/records; echo ---; find input/records -maxdepth 2 -type d | sort | tail -20; echo ---; grep -rl ""OP-381\|OP-629"" input/records | head -20",False,0,650,[],
+2,3,shell,"cd /workspace; for f in input/records/OP-381.txt input/records/OP-629.txt; do echo ""=== $f""; cat ""$f""; echo; done",False,0,145,[],
+2,4,shell,"cd /workspace; python3 - <<'EOF'
+from datetime import datetime, date, timezone, timedelta
+from zoneinfo import ZoneInfo
+a = datetime.fromisoformat(""2026-03-06T15:00:00Z"")
+ny = ZoneInfo(""America/New_York"")
+print(""anchor UTC:"", a, ""| NY local:"", a.asti",False,0,620,[],
+2,5,shell,"cd /workspace; cat > project/portal.py <<'PY'
+""""""Deployed v1 application. Run python3 project/portal.py serve [port].
+
+Local-date fix (Tokyo overnight reports):
+labels take date *and* time from one instant converted into the requested zone
+(the HTML ",False,0,10,[],
+2,6,shell,"cd /workspace; python3 - <<'EOF'
+import re
+src = open(""project/portal.py"").read()
+
+# 1) clean the clock expression in migrate()
+src = src.replace('''        reference = anchor.date() if rule == RULE_UTC else anchor.astimezone(zone).date()
+        wan",False,0,3098,[],
+2,7,shell,"cd /workspace; cp data/portal.sqlite scratch/dry.sqlite
+echo ""=== run 1 ===""; PORTAL_DB=scratch/dry.sqlite python3 project/portal.py migrate
+echo ""=== run 2 (idempotency) ===""; PORTAL_DB=scratch/dry.sqlite python3 project/portal.py migrate
+echo ""=== ",False,0,1357,[],
+2,8,shell,"cd /workspace; cat input/clock.txt; echo ""=== API 2026-03-01..2026-04-05 ===""; PORTAL_DB=scratch/dry.sqlite python3 project/portal.py request ""/api/events?from=2026-03-01&to=2026-04-05&channel=A""; echo; echo ""=== no-range API (must stay 4 rows) ==="";",False,0,1843,[],
+2,9,shell,"cd /workspace; for u in ""K17-20260403"" ""M42-20260403"" ""K17-20260306"" ""M42-20261113"" ""legacy-east"" ""K17-20260307"" ""K17-99991231"" ""M42-2026""; do
+  echo -n ""$u  NY: ""; PORTAL_DB=scratch/dry.sqlite python3 project/portal.py request ""/invite/$u?tz=America",False,0,3112,['Traceback (most recent call last)'],
+2,10,shell,"cd /workspace; python3 - <<'EOF'
+src = open(""project/portal.py"").read()
+old = '''    step = timedelta(days=7)
+    k = 0
+    if start and start > base_day:
+        k = max(0, -(-(start - base_day).days // 7))
+    out = []
+    while len(out) < limit:
+ ",False,0,733,[],
+2,11,shell,"cd /workspace; python3 -c ""
+from datetime import date
+d=(date(9999,12,31)-date(2026,3,6)).days
+print('days:',d,'weeks exact:',d%7==0,'weekday:',date(9999,12,31).strftime('%A'))
+print('9999-12-31 is a real Friday occurrence:', d%7==0 and date(9999,12,",False,0,93,[],
+2,12,shell,"cd /workspace; cat > project/test_migrate.py <<'PY'
+""""""Tests for the pilot intake migration. Run: python3 project/test_migrate.py""""""
+import json
+import os
+import shutil
+import sqlite3
+import subprocess
+import sys
+import tempfile
+import unittest
+
+impo",False,0,4249,[],
+2,13,shell,"cd /workspace; python3 - <<'EOF'
+src = open(""project/test_migrate.py"").read()
+src = src.replace('''        self.assertEqual(utc[""K17-20400127""], ""2040-01-27T15:00:00Z"") if False else None
+''', '')
+open(""project/test_migrate.py"",""w"").write(src)
+EOF
+cd",False,0,1190,"['AssertionError', 'FAILED (', 'Traceback (most recent call last)']",
+2,14,shell,"cd /workspace; python3 - <<'EOF'
+src = open(""project/test_migrate.py"").read()
+src = src.replace('''        self.assertEqual(after[""bookings""], before[""bookings""])
+        self.assertEqual({u: s for u, s in after[""events""]},
+                         {",False,0,412,['FAILED ('],
+2,15,shell,"cd /workspace; python3 - <<'EOF'
+src = open(""project/test_migrate.py"").read()
+src = src.replace('''        self.assertEqual(sorted(set(kept) - dict(before[""events""])), [""H95-20260306""])''',
+'''        self.assertEqual(sorted(set(kept) - {u for u, _ i",False,0,258,[],
+2,16,shell,"cd /workspace; cp data/portal.sqlite scratch/portal.pre-migrate.sqlite; ls -la scratch/*.sqlite
+echo ""=== migrate run 1 (real DB) ===""; python3 project/portal.py migrate
+echo ""=== migrate run 2 ===""; python3 project/portal.py migrate
+echo ""=== migrat",False,0,1586,[],
+2,17,shell,"cd /workspace
+echo ""=== unchanged vs delegation-1 baselines (no-range API / legacy invites / UTC+London lists) ===""
+for q in ""/api/events?channel=A"" ""/api/events?channel=B"" ""/invite/legacy-west?tz=UTC"" ""/invite/K17-20260306?tz=Europe/London"" ""/?tz=UT",False,0,1249,[],
+2,18,shell,"cd /workspace; cat > notes/migration.md <<'MD'
+# 委托：迁移 intake.json 两个试点系列并按签批续排（业务日 2026-02-19）
+
+## 签批解读（资料库 input/records/*.txt）
+| 工单 | 系列 | 文本要点 | 规则 |
+|---|---|---|---|
+| OP-381 | K17 | 「全年保持首场的**场馆当地钟点**」 | `venue_local_clock` |
+| OP-629 | M42 | ",False,0,217,[],
+2,19,shell,"cd /workspace
+echo ""=== suites ===""; (cd project && python3 test_portal.py 2>&1 | tail -3; python3 test_migrate.py 2>&1 >/dev/null | tail -3)
+echo ""=== clean restart from backup + project/ ===""
+cp scratch/portal.pre-migrate.sqlite scratch/restart.sql",False,0,1128,[],
+3,1,shell,"cd /workspace; cat > scratch/preview_gen.py <<'PY'
+""""""One-off: London partner preview, 2026-03-06..2026-03-27, pilot series only.""""""
+import json, sqlite3, sys
+from datetime import date, timedelta
+sys.path.insert(0, ""project"")
+import portal
+
+ZONE = ""E",False,0,547,[],
+3,2,shell,"cd /workspace; python3 - <<'EOF'
+import json, re, sqlite3
+from datetime import date, datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
+
+data = json.load(open(""out/preview.json""))
+print(""rows:"", len(data), ""| keys ok:"", all(set(r)=={""uid"",""l",False,0,642,[],
+3,3,receipts,{'channel': 'A'},False,,2,[],
+3,4,receipts,{'channel': 'B'},False,,2,[],
+3,5,shell,"cd /workspace; cat > notes/preview.md <<'MD'
+# 委托：伦敦合作方四周试点预览（业务日 2026-02-19）
+
+交付：`out/preview.json`（仅此一件）。**预览请求，未投递**：未生成 ICS、未调用 publish；
+receipts(A)/receipts(B) 均为空，频道无新批次。
+
+## 内容
+2026-03-06 至 2026-03-27（伦敦日历，含端点）共 4 个周五 × 2 个试点系列 = 8 行。
+每行字段仅 `u",False,0,136,[],
+4,1,shell,"cd /workspace; python3 - <<'EOF'
+src = open(""project/portal.py"").read()
+
+# channel-aware pilot expansion (a series with no channel belongs to both)
+old = '''def series_rows(db, start=None, end=None):
+    try:
+        rows = db.execute(""select "" + "",""",False,0,1705,['Traceback (most recent call last)'],
+4,2,shell,"cd /workspace; python3 - <<'EOF'
+src = open(""project/prepare.py"").read()
+src = src.replace('''    print(f""key-suggestion={channel}-pilot-{start:%Y%m%d}-{end:%Y%m%d}-{digest}  sha256={digest}"")''',
+'''    tag = f""{date.fromisoformat(start):%Y%m%d}-{da",False,0,2513,[],
+4,3,shell,"cd /workspace; mv out/pilot-A-empty.ics scratch/pilot-A-empty.ics
+python3 - <<'EOF'
+import json, re, sqlite3, sys
+sys.path.insert(0,""project""); import portal
+db = portal.ensure_schema(sqlite3.connect(""data/portal.sqlite""))
+
+for ch, path in ((""A"",""out",False,0,348,[],
+4,4,publish,"{'channel': 'A', 'key': 'A-pilot-20260306-20260327-a7abb944', 'file': 'out/pilot-A-20260306-20260327.ics'}",False,,0,[],A-00001
+4,5,publish,"{'channel': 'B', 'key': 'B-pilot-20260306-20260327-a7abb944', 'file': 'out/pilot-B-20260306-20260327.ics'}",False,,0,[],B-00001
+4,6,receipts,{'channel': 'A'},False,,850,[],
+4,7,receipts,{'channel': 'B'},False,,850,[],
+4,8,publish,"{'channel': 'A', 'file': 'out/pilot-A-20260306-20260327.ics', 'key': 'A-pilot-20260306-20260327-a7abb944'}",False,,0,[],A-00001
+4,9,receipts,{'channel': 'A'},False,,850,[],
+4,10,shell,"cd /workspace; python3 - <<'EOF'
+src = open(""project/prepare.py"").read()
+src = src.replace('''    channel, start, end, output = argv[1], argv[2], argv[3], argv[4]
+    text, rows = build(channel, start, end)''',
+'''    channel, start, end, output = ar",False,0,1004,[],
+4,11,shell,"cd /workspace; python3 - <<'EOF'
+src = open(""project/test_prepare.py"").read()
+src = src.replace('''        self.assertEqual(len(ics_rows(open(out, newline="""").read())), 8)''',
+'''        with open(out, newline="""") as handle:
+            self.assertEq",False,0,534,[],
+4,12,shell,"cd /workspace/project; python3 test_migrate.py 2>&1 >/dev/null | tail -3; echo ""=== out/ ===""; ls -la /workspace/out",False,0,342,[],
+4,13,shell,"cd /workspace; python3 - <<'EOF'
+import re
+for ch in (""A"",""B""):
+    text = open(f""out/pilot-{ch}-20260306-20260327.ics"", newline="""").read()
+    rows = dict(re.findall(r""UID:(\S+)\r\nDTSTAMP:\S+\r\nDTSTART:(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z""",False,0,116,[],
+4,14,receipts,{'channel': 'A'},False,,850,[],
+4,15,receipts,{'channel': 'B'},False,,850,[],
+4,16,shell,"cd /workspace; cat > notes/release.md <<'MD'
+# 委托：首发投递四周试点到 A、B 两频道（业务日 2026-02-19）
+
+## 交付
+- `project/prepare.py`：`python3 project/prepare.py CHANNEL FROM TO OUTPUT`
+  —— 只展开该频道该区间（原定日，含端点）的试点场次，非试点存量活动绝不入包；
+  空区间输出合法 VCALENDAR；输出确定（行按 UID 排序、DTSTAMP",False,0,241,[],
+5,1,shell,"cd /workspace; ls -la input/records/*.txt 2>/dev/null; echo ---; for f in input/records/CH-51.txt input/records/CH-53.txt; do echo ""=== $f""; cat ""$f"" 2>/dev/null; echo; done; echo ""=== intake ===""; cat input/intake.json; echo ""=== clock ===""; cat inp",False,0,693,[],
+5,2,shell,"cd /workspace; python3 - <<'EOF'
+from datetime import date, datetime, timezone, timedelta
+from zoneinfo import ZoneInfo
+ny = ZoneInfo(""America/New_York"")
+# CH-51: K17 原定 3/20 提前一日，仍用场馆惯用钟点(10:00 NY)
+print(""CH-51 K17-20260320: 原 2026-03-20 10:00 NY =""",False,0,369,[],
+5,3,shell,"cd /workspace; cp data/portal.sqlite scratch/portal.pre-ch.sqlite; python3 - <<'EOF'
+src = open(""project/portal.py"").read()
+
+# --- schema: adjustments -------------------------------------------------- #
+src = src.replace('''        clock text not nu",False,0,10,[],
+5,4,shell,"cd /workspace; python3 - <<'EOF'
+src = open(""project/portal.py"").read()
+
+# ---- ticket parsing helpers ---------------------------------------------- #
+src = src.replace('''# ---------------------------------------------------------------------------",False,0,634,[],
+5,5,shell,"cd /workspace; python3 - <<'EOF'
+src = open(""project/portal.py"").read()
+src = src.replace('''TICKET = re.compile(r""\\b[A-Z]{2,}-\\d{3,}\\b"")''',
+'''TICKET = re.compile(r""\\b[A-Z]{2,}-\\d{3,}\\b"")          # a reference inside ticket text
+TICKET_NAME ",False,0,1753,[],
+5,6,shell,"cd /workspace; python3 - <<'EOF'
+src = open(""project/portal.py"").read()
+src = src.replace('''DAY_WORD = re.compile(r""(\\d{1,2})月(\\d{1,2})日"")''',
+'''DAY_WORD = re.compile(r""(?:(\\d{1,2})月)?\\s*(\\d{1,2})日"")     # ""3月13日、20日"" shares one month''')
+
+src",False,0,1412,[],
+5,7,shell,"cd /workspace; mkdir -p data
+python3 - <<'PY'
+import json
+# verbatim snapshots of receipts(A) / receipts(B) as returned by the subscription service
+rows = {
+ ""K17-20260306"": [""2026-03-06T15:00:00Z""], ""K17-20260313"": [""2026-03-13T14:00:00Z""],
+ ""K17-20",False,0,210,[],
+5,8,shell,"cd /workspace; python3 - <<'EOF'
+src = open(""project/prepare.py"").read()
+src = src.replace('''""""""Publish preparation: python3 project/prepare.py CHANNEL FROM TO OUTPUT''',
+'''""""""Publish preparation: python3 project/prepare.py CHANNEL FROM TO OUTPUT [",False,0,1430,[],
+5,9,shell,"cd /workspace; rm -f out/delta-A.ics out/delta-B.ics
+echo ""=== migrate live DB ===""; python3 project/portal.py migrate
+echo ""=== migrate again (idempotent) ===""; python3 project/portal.py migrate
+echo ""=== adjustments in DB ===""; python3 -c ""
+import ",False,0,2178,[],
+5,10,publish,"{'channel': 'A', 'file': 'out/delta-A-20260306-20260327.ics', 'key': 'A-delta-20260306-20260327-a299ba89'}",False,,0,[],A-00002
+5,11,publish,"{'channel': 'B', 'file': 'out/delta-B-20260306-20260327.ics', 'key': 'B-delta-20260306-20260327-a299ba89'}",False,,0,[],B-00002
+5,12,receipts,{'channel': 'A'},False,,1225,[],
+5,13,receipts,{'channel': 'B'},False,,1225,[],
+5,14,shell,"cd /workspace; python3 - <<'PY'
+import json
+old = {
+ ""K17-20260306"": ""2026-03-06T15:00:00Z"", ""K17-20260313"": ""2026-03-13T14:00:00Z"",
+ ""K17-20260320"": ""2026-03-20T14:00:00Z"", ""K17-20260327"": ""2026-03-27T14:00:00Z"",
+ ""M42-20260306"": ""2026-03-06T15:00:0",False,0,610,[],
+5,15,shell,"cd /workspace; python3 - <<'EOF'
+# --- test_migrate: expected times follow the new approvals ---
+src = open(""project/test_migrate.py"").read()
+src = src.replace('''    def test_venue_clock_series_follows_dst(self):
+        utc = self.utc_of(""2026-03-0",False,0,230,[],
+5,16,shell,"cd /workspace; cat > project/test_adjust.py <<'PY'
+""""""Single reschedule (CH-51) and temporary window (CH-53). Run: python3 project/test_adjust.py""""""
+import json
+import os
+import re
+import shutil
+import sqlite3
+import tempfile
+import unittest
+
+import ",False,0,139,[],
+5,17,shell,"cd /workspace; python3 - <<'EOF'
+src = open(""project/test_adjust.py"").read()
+src = src.replace('''    return {r[""uid""]: r[""utc""] for r in
+            json.loads(portal.route(db, f""/api/events?from={start}&to={end}&channel={channel}"")[1])}
+    ''',
+''",False,0,139,[],
+5,18,shell,"cd /workspace; sed -n '20,30p' project/test_adjust.py | cat -A | sed -n '1,12p'",False,0,415,[],
+5,19,shell,"cd /workspace; python3 - <<'EOF'
+lines = open(""project/test_adjust.py"").read().split(""\n"")
+start = next(i for i, l in enumerate(lines) if l.startswith(""def schedule(db""))
+end = next(i for i in range(start, len(lines)) if lines[i].strip() == """" and i ",False,0,2644,[],
+5,20,shell,cd /workspace/project && python3 test_adjust.py 2>&1 >/dev/null | tail -25,False,0,1762,"['AssertionError', 'FAILED (', 'Traceback (most recent call last)']",
+5,21,shell,"cd /workspace; python3 - <<'EOF'
+src = open(""project/test_adjust.py"").read()
+old_start = src.index(""    def test_unreadable_ticket_fails_loudly(self):"")
+old_end = src.index(""    def test_window_that_would_sweep_extra_occurrences_is_refused(self):"")
+n",False,0,1444,[],
+5,22,shell,"cd /workspace/project; for t in test_portal test_migrate test_prepare test_adjust; do printf ""%-14s "" $t; python3 $t.py 2>&1 >/dev/null | tail -1; done
+cd /workspace; echo ""=== live server: both channels ===""
+for ch in A B; do echo -n ""$ch: ""; python",False,0,2016,[],
+5,23,shell,"cd /workspace; cat > notes/release-ch51-ch53.md <<'MD'
+# 委托：CH-51 单场改期 + CH-53 临时窗口，双频道增量更新（业务日 2026-02-24）
+
+## 签批解读
+- **CH-51**「K17 原定 3月20日 场次提前一日，仍用场馆惯用钟点。A、B 均生效。」
+  → 单场改期：`K17-20260320` 由 03-20 移到 **03-19**，仍用场馆当地 10:00（EDT）= **2026-03-19T14:00",False,0,110,[],
+6,1,shell,"cd /workspace; ls input/records/*.txt; echo ---; cat input/records/CH-64.txt 2>/dev/null; echo; echo ""=== clock ===""; cat input/clock.txt; echo; echo ""=== intake ===""; cat input/intake.json",False,0,443,[],
+6,2,receipts,{'channel': 'A'},False,,1225,[],
+6,3,receipts,{'channel': 'B'},False,,1225,[],
+6,4,shell,"cd /workspace; cp data/portal.sqlite scratch/portal.pre-ch64.sqlite; python3 - <<'EOF'
+src = open(""project/portal.py"").read()
+
+# ---- 1. schema: channel + target on adjustment, with in-place upgrade ---- #
+src = src.replace('''    db.execute(""""""creat",False,0,10,[],
+6,5,shell,"cd /workspace; python3 - <<'EOF'
+src = open(""project/portal.py"").read()
+
+# ---- day scanning shared by both ticket kinds ---------------------------- #
+src = src.replace('''    year = as_utc(series[""anchor""]).year
+    days_listed, month = set(), None",False,0,1276,[],
+6,6,shell,"cd /workspace; grep -n ""def listed_days\|def parse_revocation\|def resolve_occurrence\|def occurrences_around\|channel=channels_of\|target=None\|query.get(\""channel\"", \""A\"")\|resolve_occurrence(db, uid"" project/portal.py; echo ""---""; sed -n '/^def i",False,0,1987,[],
+6,7,shell,"cd /workspace; cat > scratch/patch_ch64.py <<'PATCH'
+src = open(""project/portal.py"").read()
+
+# A) day scanner + revocation parser, inserted before parse_adjustment
+anchor = ""def parse_adjustment(text, series_by_code):""
+addition = '''def listed_days(t",False,0,18,[],
+6,8,shell,"cd /workspace; cp data/portal.sqlite scratch/try64.sqlite
+echo ""=== dry migrate (run 1) ===""; PORTAL_DB=scratch/try64.sqlite python3 project/portal.py migrate
+echo ""=== dry migrate (run 2) ===""; PORTAL_DB=scratch/try64.sqlite python3 project/portal.p",False,0,4433,['Traceback (most recent call last)'],
+6,9,shell,"cd /workspace; python3 - <<'EOF'
+src = open(""project/portal.py"").read()
+src = src.replace('TICKET = re.compile(r""\\b[A-Z]{2,}-\\d{3,}\\b"")          # a reference inside ticket text',
+                  'TICKET = re.compile(r""\\b[A-Z]{2,}-\\d{2,}\\b"") ",False,0,2370,[],
+6,10,shell,"cd /workspace
+echo ""=== migrate live ===""; python3 project/portal.py migrate
+echo ""=== migrate live again ===""; python3 project/portal.py migrate | tail -1
+echo; echo ""=== delta vs actual receipts: A (expect nothing) ===""
+python3 project/prepare.py A",False,0,1667,[],
+6,11,publish,"{'channel': 'B', 'file': 'out/delta-B-20260320-ch64.ics', 'key': 'B-delta-20260306-20260327-d427de8f'}",False,,0,[],B-00003
+6,12,receipts,{'channel': 'B'},False,,1410,[],
+6,13,shell,"cd /workspace; python3 - <<'PY'
+import json
+delta = {""M42-20260320"": ""2026-03-20T15:00:00Z""}     # turn 6, as the service reports it
+path = ""data/receipts-B.json""
+history = json.load(open(path))
+history.append({""turn"": 6, ""key"": ""B-delta-20260306-202",False,0,414,[],
+6,14,shell,"cd /workspace; python3 - <<'EOF'
+src = open(""project/test_adjust.py"").read()
+src = src.replace('''    def test_both_channels_get_the_same_change(self):
+        self.assertEqual(schedule(self.db, channel=""A""), schedule(self.db, channel=""B""))''',
+'''  ",False,0,1019,"['AssertionError', 'FAILED (', 'Traceback (most recent call last)']",
+6,15,shell,"cd /workspace; python3 - <<'EOF'
+src = open(""project/test_ch64.py"").read()
+src = src.replace('''        _, a_rows = prepare.build(""A""''', '''        a_text, a_rows = prepare.build(""A""''')
+src = src.replace('''        b_rows, b_text = prepare.build(""B",False,0,304,['FAILED ('],
+6,16,shell,"cd /workspace/project; python3 test_ch64.py 2>&1 >/dev/null | sed -n '/FAIL:/,/^$/p' | head -20; echo ""########""; python3 test_adjust.py 2>&1 >/dev/null | sed -n '/FAIL:/,/^$/p' | head -40",False,0,1876,"['AssertionError', 'Traceback (most recent call last)']",
+6,17,shell,"cd /workspace; python3 - <<'EOF'
+# 1) parsing tests: adjustment dicts now carry channel/target
+src = open(""project/test_adjust.py"").read()
+src = src.replace('''        self.assertEqual(parsed, dict(code=""K17"", kind=""move"", from_day=""2026-03-20"",
+    ",False,0,90,[],
+6,18,shell,"cd /workspace/project; for t in test_portal test_migrate test_prepare test_adjust test_ch64; do printf ""%-14s "" $t; python3 $t.py 2>&1 >/dev/null | grep -E ""^Ran|^OK|FAILED"" | tr '\n' ' '; echo; done
+cd /workspace; echo ""=== live server ===""
+python3 ",False,0,984,[],
+6,19,shell,"cd /workspace; cat > notes/release-ch64.md <<'MD'
+# 委托：CH-64 仅撤销 CH-53 对 B 的 3/20 单场，增量更正（业务日 2026-02-25）
+
+## 签批解读
+「仅撤销 CH-53 对 B 的 3月20日单场批准，恢复原合同时间。」
+→ 只对 **B 频道**、只对 **M42 原定 2026-03-20** 这一场撤销 CH-53 的 +2 小时，
+  回到 OP-629 的原合同时间 **2026-03-20T15:00:",False,0,66,[],
+7,1,shell,"cd /workspace; ls -la input; echo ---; cat input/incident.json 2>/dev/null || find . -name ""incident*.json"" -not -path ""./scratch/*"" 2>/dev/null",False,0,640,[],
+7,2,shell,"cd /workspace; cat input/clock.txt; echo; ls input/records/*.txt; echo ---; for f in input/records/*.txt; do echo ""== $f""; cat ""$f""; echo; done",False,0,482,[],
+7,3,receipts,{'channel': 'A'},False,,1389,[],
+7,4,receipts,{'channel': 'B'},False,,1410,[],
+7,5,shell,cd /workspace && ls && echo --- && ls input project out notes scratch data && echo --- && cat input/incident.json && echo --- && cat input/clock.txt,False,0,1592,[],
+7,6,shell,"cd /workspace && sed -n 1,120p project/portal.py",False,0,5735,[],
+7,7,shell,"cd /workspace && sed -n 120,330p project/portal.py",False,0,8451,[],
+7,8,shell,"cd /workspace && sed -n 330,520p project/portal.py",False,0,10022,[],
+7,9,shell,"cd /workspace && sed -n 520,700p project/portal.py && echo ==== && cat project/prepare.py",False,0,5123,[],
+7,10,shell,"cd /workspace && cp data/portal.sqlite scratch/portal.pre-incident.sqlite && cp data/receipts-A.json scratch/receipts-A.pre-incident.json && cp data/receipts-B.json scratch/receipts-B.pre-incident.json && python3 - <<'PY'
+import sqlite3, json
+db=sqli",False,0,828,[],
+7,11,shell,"cd /workspace && python3 - <<'PY'
+import json
+A = [{""turn"": 4, ""key"": ""A-pilot-20260306-20260327-a7abb944"", ""receipt"": ""A-00001"", ""rows"": {""K17-20260306"": {""uid"": ""K17-20260306"", ""utc"": ""2026-03-06T15:00:00Z"", ""status"": ""CONFIRMED""}, ""K17-20260313"": ",False,0,641,[],
+7,12,shell,"cd /workspace && cat project/calendar_io.py && echo ==== && sed -n 1,60p project/test_ch64.py",False,0,3116,[],
+7,13,shell,"cd /workspace && cat > project/recover.py <<'PY'
+""""""Recovery of an interrupted urgent update.
+
+python3 project/recover.py INCIDENT RECEIPTS CHANNEL OUTPUT
+
+INCIDENT  incident.json written by the duty desk when an urgent update was cut
+          off: ",False,0,706,[],
+7,14,shell,"cd /workspace && grep -rn ""20260327\|2026-03-27"" project/test_*.py | head -40",False,0,3693,[],
+7,15,shell,"cd /workspace && cat > scratch/patch_incident.py <<'PY'
+""""""Add the duty-desk incident corrections to the deployed app (idempotent patch).""""""
+import io
+
+PATH = ""project/portal.py""
+with io.open(PATH, encoding=""utf-8"") as handle:
+    text = handle.read(",False,0,481,[],
+7,16,shell,"cd /workspace && cp data/portal.sqlite scratch/try-incident.sqlite && PORTAL_DB=scratch/try-incident.sqlite python3 project/portal.py migrate && echo ""=== second run ==="" && PORTAL_DB=scratch/try-incident.sqlite python3 project/portal.py migrate | gr",False,0,954,[],
+7,17,shell,"cd /workspace && export PORTAL_DB=scratch/try-incident.sqlite && for ch in A B; do echo ""== api $ch""; python3 project/portal.py request ""/api/events?from=2026-03-26&to=2026-03-28&channel=$ch""; echo; echo ""== invite $ch""; python3 project/portal.py req",False,0,1040,[],
+7,18,shell,"cd /workspace && cmp scratch/d-B.ics scratch/recover-B.ics && echo ""B recovery ICS == prepare delta (byte identical)""; ls scratch/base | head; echo ---; export PORTAL_DB=scratch/try-incident.sqlite; python3 project/portal.py request ""/api/events"" > s",False,0,730,[],
+7,19,shell,cd /workspace && python3 project/portal.py migrate | tail -3 && python3 project/recover.py input/incident.json data/receipts-A.json A out/recover-A-0327.ics && python3 project/recover.py input/incident.json data/receipts-B.json B out/recover-B-0327.i,False,0,1121,[],
+7,20,publish,"{'channel': 'B', 'key': 'urgent-0327-B', 'file': 'out/recover-B-0327.ics'}",False,,0,[],B-00004
+7,21,receipts,{'channel': 'B'},False,,1574,[],
+7,22,shell,"cd /workspace && python3 - <<'PY'
+import json
+path = ""data/receipts-B.json""
+with open(path, encoding=""utf-8"") as handle:
+    batches = json.load(handle)
+batches.append({""turn"": 7, ""key"": ""urgent-0327-B"", ""receipt"": ""B-00004"",
+                ""rows"": ",False,0,681,[],
+7,23,shell,"cd /workspace && cp scratch/recover-B.ics out/urgent-B-20260327.ics && cmp out/urgent-B-20260327.ics scratch/d-B.ics && echo ""delivered payload == prepare delta for B (byte identical)"" && cat -v out/urgent-B-20260327.ics && ls -l out/",False,0,862,[],
+7,24,shell,"cd /workspace && rm -rf scratch/restart-check && mkdir -p scratch/restart-check/data && cp -r project scratch/restart-check/project && cp data/portal.sqlite scratch/restart-check/data/portal.sqlite && cd scratch/restart-check && ls && echo ""== no inp",False,0,480,[],
+7,25,shell,"cd /workspace && python3 - <<'PY'
+import json, sqlite3, sys
+sys.path.insert(0, ""project"")
+import portal
+db = portal.ensure_schema(sqlite3.connect(""data/portal.sqlite""))
+for channel in (""A"", ""B""):
+    with open(f""data/receipts-{channel}.json"", encodin",False,0,1863,[],
+7,26,shell,"cd /workspace && for t in test_portal test_migrate test_prepare test_adjust test_ch64; do echo ""=== $t""; (cd project && python3 $t.py 2>&1 | tail -20); done",False,0,8325,"['AssertionError', 'FAILED (', 'Traceback (most recent call last)']",
+7,27,shell,"cd /workspace/project && for t in test_migrate test_adjust test_ch64; do echo ""=== $t""; python3 $t.py 2>&1 | grep -E ""^(FAIL|ERROR|OK|Ran)|^(FAIL|ERROR):"" ; done",False,0,968,['FAILED ('],
+7,28,shell,"cd /workspace/project && sed -n 95,125p test_migrate.py; echo '---- adjust'; sed -n 80,160p test_adjust.py; echo '---- ch64'; sed -n 55,120p test_ch64.py; echo '---- prepare'; sed -n 40,56p test_prepare.py",False,0,11310,[],
+7,29,shell,"cd /workspace/project && grep -n ""2026-03-27\|20260327\|15:00:00Z"" test_migrate.py",False,0,763,[],
+7,30,shell,"cd /workspace/project && python3 test_migrate.py 2>&1 | grep -A12 ""test_cli_accepts_the_new_number"" | head -30",False,0,2450,"['AssertionError', 'Traceback (most recent call last)']",
+7,31,shell,"cd /workspace && cat > scratch/patch_incident2.py <<'PY'
+import io
+PATH = ""project/portal.py""
+with io.open(PATH, encoding=""utf-8"") as handle:
+    text = handle.read()
+
+old = '''        code, day = uid.rpartition(""-"")[0], uid_day(uid)
+        if not c",False,0,163,['FAILED ('],
+7,32,shell,"cd /workspace/project && grep -c 'M42-20260327"": {""uid"": ""M42-20260327"", ""utc"": ""2026-03-27T15:00:00Z""' test_adjust.py test_ch64.py; grep -n '}}], handle)' test_adjust.py",False,0,57,[],
+7,33,shell,"cd /workspace && cat > scratch/patch_tests_incident.py <<'PY'
+""""""Update the expectations that the urgent correction legitimately moves.""""""
+import io
+
+def patch(path, pairs):
+    with io.open(path, encoding=""utf-8"") as handle:
+        text = handle.re",False,0,586,[],
+7,34,shell,"cd /workspace/project && for t in test_migrate test_adjust test_ch64; do printf ""%-14s "" $t; python3 $t.py 2>&1 | grep -E ""^(OK|FAILED|Ran)"" | tr '\n' ' '; echo; done",False,0,126,[],
+7,35,shell,"cd /workspace && cat > project/test_recover.py <<'PY'
+""""""Recovery of an interrupted urgent update. Run: python3 project/test_recover.py""""""
+import json
+import os
+import shutil
+import sqlite3
+import tempfile
+import unittest
+
+import portal
+import prepar",False,0,3386,['FAILED ('],
+7,36,shell,"cd /workspace/project && python3 test_recover.py 2>&1 | grep -B2 -A14 ""^FAIL:""",False,0,1065,"['AssertionError', 'FAILED (', 'Traceback (most recent call last)']",
+7,37,shell,"cd /workspace && cat > scratch/patch_recover_pending.py <<'PY'
+import io
+PATH = ""project/recover.py""
+with io.open(PATH, encoding=""utf-8"") as handle:
+    text = handle.read()
+old = '''def pending(entry, state, by_key=None):
+    """"""True when the channe",False,0,34,[],
+7,38,shell,"cd /workspace/project && python3 -m py_compile portal.py prepare.py recover.py calendar_io.py && echo compile-ok && total=0; for t in test_portal test_migrate test_prepare test_adjust test_ch64 test_recover; do line=$(python3 $t.py 2>&1 | grep -E ""^R",False,0,257,[],
+7,39,shell,"cd /workspace && echo ""== migrate (repeatable) =="" && python3 project/portal.py migrate | grep -E ""urgent|CH-6|CH-5"" && echo ""== adjustments in the live database =="" && python3 - <<'PY'
+import sqlite3
+db = sqlite3.connect(""data/portal.sqlite"")
+for ro",False,0,1639,[],
+7,40,shell,cd /workspace && cat notes/handoff.md && echo '========' && tail -30 notes/release-ch64.md,False,0,3609,[],
+7,41,shell,"cd /workspace && cat > notes/recovery.md <<'MD'
+# 委托：值班台中断的紧急更新 — 恢复缺件（业务日 2026-02-26）
+
+范围：只补未送达项；不重发已收件，不改既有签批。实际投递 1 次（B 频道一批 1 场）。
+
+## 1. 工单与真实收件历史
+`input/incident.json`（值班台留下的中断工单，两个频道各一笔待确认）：
+
+| 频道 | 原始 key | UID | UTC | 状态 |
+|---|---|---|---|--",False,0,116,[],
+7,42,shell,"cd /workspace && python3 - <<'PY'
+import json, sqlite3
+old = sqlite3.connect(""scratch/portal.pre-incident.sqlite"")
+new = sqlite3.connect(""data/portal.sqlite"")
+for table in (""events"", ""bookings"", ""series""):
+    a = old.execute(f""select * from {table} ",False,0,742,[],
+7,43,shell,"cd /workspace && rm -rf scratch/restart-check && tmp=$(mktemp -d) && mkdir -p $tmp/data && cp -r project $tmp/project && cp data/portal.sqlite $tmp/data/portal.sqlite && (cd $tmp && ls && for ch in A B; do printf ""%s "" $ch; python3 project/portal.py ",False,0,654,[],
+7,44,shell,"cd /workspace/project && for t in test_portal test_migrate test_prepare test_adjust test_ch64 test_recover; do printf ""%-14s "" $t; python3 $t.py 2>&1 | grep -E ""^(OK|FAILED)"" | tr -d '\n'; python3 $t.py 2>&1 | grep -E ""^Ran"" | sed 's/Ran //;s/ in .*/",False,0,963,[],
+8,1,shell,"cd /workspace && cat input/clock.txt && echo --- && ls -l input/records && echo --- && for f in input/records/*.txt; do echo ""== $f""; cat ""$f""; echo; done && echo --- && ls -l out data && sed -n 1,80p input/desk.md",False,0,2757,[],
+8,2,shell,"cd /workspace && python3 - <<'PY'
+import sqlite3
+src = sqlite3.connect(""data/portal.sqlite"")
+dst = sqlite3.connect(""out/backup.sqlite"")
+with dst:
+    src.backup(dst)                     # 一致的快照, 不受写入影响
+dst.execute(""pragma journal_mode=delete"")
+print(",False,0,307,[],
+8,3,shell,"cd /workspace && python3 - <<'PY'
+import sqlite3
+a = sqlite3.connect(""data/portal.sqlite""); b = sqlite3.connect(""out/backup.sqlite"")
+for table in (""events"", ""bookings"", ""series"", ""adjustment""):
+    ra = a.execute(f""select * from {table} order by 1"").",False,0,153,[],
+8,4,shell,"cd /workspace && rm -rf scratch/clean && mkdir -p scratch/clean && cp -r project scratch/clean/project && cp out/backup.sqlite scratch/clean/backup.sqlite && ls scratch/clean && echo ""== clean instance: only project/ + backup.sqlite, no input/, no da",False,0,2170,[],
+8,5,shell,"cd /workspace && python3 - <<'PY'
+import sys
+sys.path.insert(0, ""project"")
+import sqlite3, portal
+live = portal.ensure_schema(sqlite3.connect(""data/portal.sqlite""))
+copy = portal.ensure_schema(sqlite3.connect(""out/backup.sqlite""))
+urls = [""/api/event",False,0,756,[],
+8,6,shell,"cd /workspace && echo ""== A delta =="" && python3 project/prepare.py A 2026-04-01 2026-06-30 out/q2-A.ics --since data/receipts-A.json | head -5 && echo ""== B delta =="" && python3 project/prepare.py B 2026-04-01 2026-06-30 out/q2-B.ics --since data/re",False,0,853,[],
+8,7,shell,"cd /workspace && python3 - <<'PY'
+import sys
+sys.path.insert(0, ""project"")
+import sqlite3, portal
+db = portal.ensure_schema(sqlite3.connect(""data/portal.sqlite""))
+for channel in (""A"", ""B""):
+    rows = portal.series_rows(db, portal.as_date(""2026-04-01",False,0,2915,[],
+8,8,publish,"{'channel': 'A', 'key': 'A-delta-20260401-20260630-5fc0bbd8', 'file': 'out/q2-A.ics'}",False,,0,[],A-00004
+8,9,publish,"{'channel': 'B', 'key': 'B-delta-20260401-20260630-5fc0bbd8', 'file': 'out/q2-B.ics'}",False,,0,[],B-00005
+8,10,receipts,{'channel': 'A'},False,,3949,[],
+8,11,receipts,{'channel': 'B'},False,,4134,[],
+8,12,shell,"cd /workspace && python3 - <<'PY'
+import json
+added = {
+ ""A"": {""turn"": 8, ""key"": ""A-delta-20260401-20260630-5fc0bbd8"", ""receipt"": ""A-00004""},
+ ""B"": {""turn"": 8, ""key"": ""B-delta-20260401-20260630-5fc0bbd8"", ""receipt"": ""B-00005""},
+}
+q2 = {""K17-2026%04d""",False,0,151,[],
+8,13,shell,"cd /workspace && python3 - <<'PY'
+import json, sys
+sys.path.insert(0, ""project"")
+import sqlite3, portal
+db = portal.ensure_schema(sqlite3.connect(""data/portal.sqlite""))
+start, end = portal.as_date(""2026-03-06""), portal.as_date(""2026-06-30"")
+for chann",False,0,3025,[],
+8,14,shell,"cd /workspace && python3 - <<'PY'
+import json
+Fridays = ((4, 3), (4, 10), (4, 17), (4, 24), (5, 1), (5, 8), (5, 15), (5, 22), (5, 29),
+           (6, 5), (6, 12), (6, 19), (6, 26))
+rows = {}
+for month, day in Fridays:
+    day_text = f""2026-{month:02d",False,0,576,[],
+8,15,shell,"cd /workspace && cat > project/backup.py <<'PY'
+""""""Handover backup of the portal database.
+
+python3 project/backup.py OUTPUT [SOURCE]
+
+SOURCE is a portal database (default: $PORTAL_DB or data/portal.sqlite) and
+OUTPUT is the handover copy.  The copy ",False,0,473,[],
+8,16,shell,"cd /workspace && cat > project/test_backup.py <<'PY'
+""""""Handover backup: one database file plus project/ is a working portal.
+Run: python3 project/test_backup.py
+""""""
+import io
+import json
+import os
+import shutil
+import sqlite3
+import subprocess
+impor",False,0,1220,"['AssertionError', 'FAILED (', 'Traceback (most recent call last)']",
+8,17,shell,"cd /workspace && python3 - <<'PY'
+import io
+path = ""project/test_backup.py""
+with io.open(path, encoding=""utf-8"") as handle:
+    text = handle.read()
+old = '''    def test_cli_reports_counts_and_digest(self):
+        target = os.path.join(self.tmp, ""b",False,0,34,[],
+8,18,shell,"cd /workspace && cat > project/test_q2.py <<'PY'
+""""""Q2 delivery: April–June for both channels, plus the new subscriber's file.
+Run: python3 project/test_q2.py
+""""""
+import json
+import os
+import sqlite3
+import unittest
+
+import portal
+import prepare
+
+ROO",False,0,26,[],
+8,19,shell,"cd /workspace && python3 - <<'PY'
+import io
+path = ""project/test_q2.py""
+with io.open(path, encoding=""utf-8"") as handle:
+    text = handle.read()
+old = '''    def test_nothing_is_left_pending_in_the_quarter(self):
+        for channel in (""A"", ""B""):
+  ",False,0,34,[],
+8,20,shell,"cd /workspace && python3 - <<'PY'
+import io
+path = ""project/test_q2.py""
+with io.open(path, encoding=""utf-8"") as handle:
+    text = handle.read()
+
+start = text.index('    def test_the_delivered_batch_was_exactly_the_quarter(self):')
+end = text.index('",False,0,1906,[],
+8,21,shell,"cd /workspace/project && for t in test_portal test_migrate test_prepare test_adjust test_ch64 test_recover test_backup test_q2; do printf ""%-14s "" $t; python3 $t.py 2>&1 | grep -E ""^(OK|FAILED)"" | tr -d '\n'; python3 $t.py 2>&1 | grep -E ""^Ran"" | sed",False,0,889,[],
+8,22,shell,"cd /workspace && echo ""== live portal (real server) =="" && for url in ""/invite/legacy-east?tz=Asia/Tokyo"" ""/invite/K17-20260306?tz=America/New_York"" ""/invite/M42-20260320?tz=UTC&channel=B"" ""/invite/K17-20260626?tz=Europe/London"" ""/api/events?from=202",False,0,722,[],
+8,23,shell,"cd /workspace && rm -rf scratch/clean && mkdir -p scratch/clean && cp -r project scratch/clean/project && cp out/backup.sqlite scratch/clean/handover.sqlite && cd scratch/clean && ls -R . | head -20 && export PORTAL_DB=$PWD/handover.sqlite && echo ""=",False,0,1266,[],
+8,24,shell,"cd /workspace && python3 project/backup.py scratch/fresh-backup.sqlite >/dev/null && sha256sum out/backup.sqlite scratch/fresh-backup.sqlite && cmp out/backup.sqlite scratch/fresh-backup.sqlite && echo ""delivered backup is still the current state (by",False,0,2272,[],
+8,25,shell,"cd /workspace && cat > notes/backup-q2.md <<'MD'
+# 委托：备份交接 + 第二季度全量发布（业务日 2026-03-30）
+
+交付：`out/backup.sqlite`（交接备份）、`out/q2-A.ics`、`out/q2-B.ics`（本批实际投递件）、
+`out/new-A.ics`（新订阅者的第二季度全量，仅交文件、**未投递**）。实际投递 2 次（A、B 各一批 26 场）。
+
+## 1. 交接备份
+新增入口：`python3 pr",False,0,404,[],
+8,26,shell,cd /workspace && rm -f scratch/fresh-backup.sqlite scratch/inc-api-*.txt scratch/inc-list-*.txt && cd project && total=0; for t in test_portal test_migrate test_prepare test_adjust test_ch64 test_recover test_backup test_q2; do line=$(python3 $t.py 2,False,0,450,[],
