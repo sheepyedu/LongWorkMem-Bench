@@ -143,11 +143,11 @@ def calc_evidence(path, image, state, caps, day, known, history):
         inspect_package(path)
         book = load_workbook(path)
         try:
-            cs = book["容量"]
-            qs = book["队列"]
+            cs = book["容量"] if "容量" in book else None
+            qs = book["队列"] if "队列" in book else None
             # Row and station keys are scored locally, including repeated case keys.
-            csids = [cs.cell(i, 1).value for i in range(2, 6)]
-            qids = [qs.cell(i, 1).value for i in range(2, 14)]
+            csids = [cs.cell(i, 1).value for i in range(2, 6)] if cs is not None else []
+            qids = [qs.cell(i, 1).value for i in range(2, 14)] if qs is not None else []
             for i, p in enumerate(csids, 2):
                 if p in w.POOLS and csids.count(p) == 1:
                     got[p, "可再分容量"] = cs.cell(i, 2).value
@@ -157,10 +157,12 @@ def calc_evidence(path, image, state, caps, day, known, history):
                 got[k, "顺序"] = i - 1
                 got[k, "站"] = qs.cell(i, 2).value
                 got[k, "净需求"] = qs.cell(i, 3).value
+            if qs is None:
+                return expected, got, "缺页:队列", {}
             files["baseline"] = path.read_bytes()
             # Edit a copy for each pair of stations; other stations remain untouched.
             # Two opposite edits force each row to demonstrate a real response.
-            for poolset in (0, 1):
+            for poolset in (0, 1) if cs is not None else ():
                 for mode in ("high", "low"):
                     for i, p in enumerate(csids, 2):
                         cs.cell(i, 2).value = (
@@ -208,6 +210,8 @@ def calc_evidence(path, image, state, caps, day, known, history):
             if k not in w.IDS or qids.count(k) != 1:
                 continue
             got[k, "加配"], got[k, "候补"] = raw["baseline"][i]
+            if not csids:
+                continue
             pair = w.POOLS.index(w.INFO[k][1]) // 2
             hi, lo = raw["high" + str(pair)][i], raw["low" + str(pair)][i]
             unaffected = [raw[m + str(1 - pair)][i] for m in ("low", "high")]
@@ -215,6 +219,8 @@ def calc_evidence(path, image, state, caps, day, known, history):
             n = 2 + w.IDS.index(k) % 4
             got[k, "增容响应"] = stable and hi == [n, 0] and hi != lo
             got[k, "停办响应"] = stable and lo == [0, n] and hi != lo
+    if files and not csids and error is None:
+        error = "缺页:容量"
     return expected, got, error, probes
 
 
@@ -224,6 +230,7 @@ def score(run):
         raise ValueError("宿主邮箱证据缺失")
     meta = json.loads((run / "manifest.json").read_text())
     image = os.getenv("W4_CALC_IMAGE") or meta.get("image") or "longworkmem-release:1"
+    clarified = meta.get("release_revision") == "4.1"
     days, receipts = replay(run, 12)
     mail = events(run, 12)
     atoms = []
@@ -394,7 +401,37 @@ def score(run):
                 where = "全程客户邮箱"
                 weight = 7 / 72
                 atom(t, k, "送达次数", weight, 1, len(sent), where)
-                atom(t, k, "通知时点", weight, 11, e["turn"] if e else None, where)
+                atom(
+                    t,
+                    k,
+                    "通知时点",
+                    weight / 2 if clarified else weight,
+                    11,
+                    e["turn"] if e else None,
+                    where,
+                )
+                if clarified:
+                    changed_at = [
+                        b["sequence"]
+                        for b in mail
+                        if b["turn"] == 11
+                        and b["recipient"] == DESK
+                        and any(
+                            row.get("案号") == k
+                            and not row.get("重复")
+                            and (
+                                row.get("状态") in ("受理", "部分受理")
+                                or "新实占" in row
+                            )
+                            for row in receipts[b["receipt"]]
+                        )
+                    ]
+                    after = (
+                        bool(e)
+                        and e["turn"] == 11
+                        and e["sequence"] > max(changed_at, default=0)
+                    )
+                    atom(t, k, "办后才通知", weight / 2, True, after, where)
                 atom(
                     t,
                     k,
@@ -497,7 +534,7 @@ def score(run):
     assert abs(sum(a["maximum"] for a in atoms) - 100) < 1e-8
     assert len({a["id"] for a in atoms}) == len(atoms)
     return dict(
-        version="release-v4",
+        version="release-v4.1" if clarified else "release-v4",
         total=round(sum(a["earned"] for a in atoms), 4),
         rounds=[
             round(sum(a["earned"] for a in atoms if a["turn"] == t), 6)

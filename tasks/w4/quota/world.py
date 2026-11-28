@@ -154,9 +154,13 @@ RULES = """六月四站服务承诺与排班规程。input/档案为旧材料；
 交班表 out/预约.xlsx 使用所附固定接口。容量页 A/B 为四个站及可再分容量（总容量减锁定合计），队列页 A/B/C/D/E 为案号、站、净需求、加配、候补，按当期有效优先顺序排列（全表按优先号、案号升序）。净需求=max(0,额度−锁定)。B2:B5容量及C2:C13需求是可直接改的整数；D/E 在 Calc 中自动按站从上往下分，允许部分满足；改变容量、单案需求后未影响客户也要正确。两日分别交付。"""
 
 
-def initialize(work):
+def initialize(work, *, clarified=False):
     init(work)  # reuse the customer archive and read-only/writable split
-    put(work / "input", "办公室/发布规程.txt", RULES)
+    put(
+        work / "input",
+        "办公室/发布规程.txt",
+        RULES + (CLARIFICATION if clarified else ""),
+    )
     d = work / "input/站务"
     csvfile(d / "章程.csv", "案号,对象,站,期初实占,期初锁定,章程额度,章程优先号", CASES)
     csvfile(d / "期初容量.csv", "站,容量", CAP.items())
@@ -220,3 +224,8 @@ def release(work, t):
     if t == 11:
         csvfile(d / "主动询证.csv", "案号", [(k,) for k in CHALLENGES])
     return f"6月{t}日。" + PROMPTS[t - 1]
+
+
+CLARIFICATION = """
+交付时点与范围：接班至终班的逐案 CSV 每次都含全12案，包含当天未变化的案件。第4日的回查也按全12案。调度日只需交一份调度.csv：先确定目标，再办理、查回单，最后把办完后的实占及最后受理号写回该案；无需抄写另一份开班表或另交结班表。11日发客户函应晚于本案实际办理。撤文只撤批文，注销券只注销列名续办券，两台账独立。旧期 L 系列档案不在本期任务范围。每轮只交本日所需产物，预约工作簿只在第8、12日办理；简报可仅写异常案号和未结动作。
+查询返回的“列”“行”共享一份表头，null 表示此行无此字段。case 填“变动”或“开班/变动”可只取相较上一日结班发生变化的案件（含站容量变化）；需要全量时仍可一次查全12案。"""

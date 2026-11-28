@@ -21,10 +21,14 @@ def write(root, name, cols, rows):
     w.csvfile(root / (name + ".csv"), ",".join(cols), rows)
 
 
-def play(run, mode="gold"):
+def play(run, mode="gold", *, clarified=False):
     work = prepare(run)
-    w.initialize(work)
+    w.initialize(work, clarified=clarified)
     (run / "manifest.json").write_text('{"protocol":"w4-release-v4"}')
+    if clarified:
+        (run / "manifest.json").write_text(
+            json.dumps({"protocol": "w4-release-v4", "release_revision": "4.1"})
+        )
     d = work / "input/站务"
     out = work / "out"
     charter = {r["案号"]: r for r in records(d / "章程.csv")}
@@ -44,6 +48,11 @@ def play(run, mode="gold"):
             "receipt_query",
             dict(case=case, as_of=str(cut), receipt=receipt),
         )
+        if clarified:
+            data = [
+                {c: v for c, v in zip(data["列"], r) if v is not None}
+                for r in data["行"]
+            ]
         return data if receipt else {x["案号"]: x for x in data}
 
     def send(t, subject, recipient, file):

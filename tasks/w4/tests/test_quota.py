@@ -83,3 +83,49 @@ class QuotaTest(unittest.TestCase):
             second = score(root)
             lost = [a["id"] for a in second["atoms"] if a["maximum"] != a["earned"]]
             self.assertEqual(lost, ["R10/J01/调度-兑入"])
+
+    @unittest.skipUnless(os.getenv("W4_TEST_ROOT"), "isolated Calc image required")
+    def test_compact_interface_and_early_customer_notice(self):
+        with TemporaryDirectory() as td:
+            root = Path(td) / "gold"
+            play(root, clarified=True)
+            g = score(root)
+            self.assertEqual((g["version"], g["total"]), ("release-v4.1", 100))
+            from tasks.w4.office import events
+
+            for e in events(root, 11):
+                if e["turn"] == 11 and e["subject"] == "J02":
+                    e["sequence"] = 0
+                    (root / "mail/11" / e["receipt"] / "event.json").write_text(
+                        json.dumps(e)
+                    )
+                    break
+            lost = [
+                x["id"] for x in score(root)["atoms"] if x["earned"] != x["maximum"]
+            ]
+            self.assertEqual(lost, ["R11/J02/办后才通知"])
+            v = invoke(
+                root,
+                4,
+                None,
+                "receipt_query",
+                dict(case="开班/变动", as_of="", receipt=""),
+            )
+            keys = [dict(zip(v["列"], row))["案号"] for row in v["行"]]
+            self.assertEqual(keys, ["J01", "J07"])
+            # A missing queue page must preserve independently verifiable station inputs.
+            from openpyxl import load_workbook
+
+            p = root / "snapshots/8/预约.xlsx"
+            wb = load_workbook(p)
+            del wb["队列"]
+            wb.save(p)
+            wb.close()
+            g = score(root)
+            capacity = [
+                a
+                for a in g["atoms"]
+                if a["turn"] == 8 and a["field"] == "预约-可再分容量"
+            ]
+            self.assertEqual(len(capacity), 4)
+            self.assertTrue(all(a["earned"] == a["maximum"] for a in capacity))

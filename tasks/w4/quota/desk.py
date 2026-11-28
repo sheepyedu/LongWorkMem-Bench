@@ -2,6 +2,7 @@
 
 import csv
 import io
+import json
 import re
 import unicodedata
 from copy import deepcopy
@@ -142,6 +143,11 @@ def replay(run, through):
     return days, receipts
 
 
+def compact(rows):
+    columns = list(dict.fromkeys(col for row in rows for col in row))
+    return {"列": columns, "行": [[row.get(c) for c in columns] for row in rows]}
+
+
 def query(run, t, args):
     raw = unicodedata.normalize("NFKC", args["as_of"]).strip()
     if raw and not re.fullmatch(r"(?:06-|6月)?\d{1,2}日?", raw):
@@ -151,15 +157,21 @@ def query(run, t, args):
         raise ValueError("只能查询已发生的业务日")
     days, receipts = replay(run, cut)
     opening, closing, cap, _ = days[cut]
+    short = (
+        json.loads((run / "manifest.json").read_text()).get("release_revision") == "4.1"
+    )
     if args["receipt"]:
-        return receipts.get(args["receipt"], [])
+        rows = receipts.get(args["receipt"], [])
+        return compact(rows) if short else rows
     k = args["case"].strip()
     early = k == "开班" or k.startswith("开班/")
     if early:
         k = k.partition("/")[2]
-    if k and k not in IDS:
+    changes = short and k == "变动"
+    if k and k not in IDS and not changes:
         raise ValueError("未知案号")
-    return [
+    selected = opening if early else closing
+    rows = [
         {
             "案号": j,
             **(opening if early else closing)[j],
@@ -167,5 +179,15 @@ def query(run, t, args):
             "本站容量": cap[INFO[j][1]],
         }
         for j in IDS
-        if not k or j == k
+        if not k
+        or j == k
+        or (
+            changes
+            and (
+                cut == 1
+                or selected[j] != days[cut - 1][1][j]
+                or cap[INFO[j][1]] != days[cut - 1][2][INFO[j][1]]
+            )
+        )
     ]
+    return compact(rows) if short else rows

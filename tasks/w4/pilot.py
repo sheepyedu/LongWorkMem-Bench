@@ -65,9 +65,10 @@ PYCODE"""
 QUOTA_CONTEXT = "你是四站服务运营专员。用 office 工具读 input/办公室/发布规程.txt，按业务日处理 inbox。共享盘可用 Python/openpyxl/Calc，out/notes/scratch 跨轮保留。简报只写本轮结果与未结事项。"
 
 
-def run(dest, edition="4"):
+def run(dest, edition="4.1"):
     revised = str(edition) == "3.1"
-    edition = 3 if revised else int(edition)
+    clarified = str(edition) == "4.1"
+    edition = 4 if clarified else 3 if revised else int(edition)
     if edition not in (1, 2, 3, 4):
         raise ValueError("未知 W4 题面")
     key = os.environ["ARK_API_KEY"]
@@ -79,7 +80,7 @@ def run(dest, edition="4"):
     if edition == 4:
         from .quota import world
 
-        world.initialize(work)
+        world.initialize(work, clarified=clarified)
     else:
         init(work)
     if edition in (2, 3):
@@ -112,6 +113,8 @@ def run(dest, edition="4"):
         status="running",
         turns=[],
     )
+    if clarified:
+        meta["release_revision"] = "4.1"
     if revised:
         meta["release_revision"] = "3.1"
     save(dest / "manifest.json", meta)
@@ -199,7 +202,9 @@ def run(dest, edition="4"):
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("dest", type=Path)
-    p.add_argument("--edition", choices=("1", "2", "3", "3.1", "4"), default="4")
+    p.add_argument(
+        "--edition", choices=("1", "2", "3", "3.1", "4", "4.1"), default="4.1"
+    )
     p.add_argument("--replay", action="store_true")
     a = p.parse_args()
     dest = a.dest.resolve()
