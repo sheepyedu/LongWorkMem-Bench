@@ -18,3 +18,7 @@ python -m tasks.s4.grade "$run" --image longworkmem-catan:1 --first-road
 ```
 
 原始上游请求与响应、Claude Code 事件和六场对照保存在实验机，各有 `SHA256SUMS`。上游用量和逐条可见性以[审计索引](../../docs/results/s4-catan-20261128/)为公开证据。
+
+## 续作与切桌
+
+`continuation-20261128/` 在实验机保留四场原始运行及逐文件校验值。公开包提供逐段委托、桌面操作与回执、状态指纹和公开复评命令。[续作对照](../../docs/results/s4-continuation-20261128/)。

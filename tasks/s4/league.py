@@ -10,20 +10,28 @@ EXERCISES = json.loads(Path(__file__).with_name("fixtures.json").read_text())
 SCHEDULE = [*GAMES, *PRACTICE]
 
 
-def create(name):
+def create(name, cautious=False):
     from .arena import Arena
 
     if name in GAMES:
         arena = Arena(*GAMES[name])
         arena.advance()
         return arena
-    exercise = EXERCISES[name]
+    if name == "continuation":
+        exercise = json.loads(
+            Path(__file__).with_name("continuation-board.json").read_text()
+        )
+    else:
+        exercise = EXERCISES[name]
     arena = Arena(*exercise["game"])
     arena.advance()
     for action in exercise["prefix"]:
         arena.apply(**action)
     for player in arena.game.state.players:
         player.policy_version = exercise["version"]
+        if cautious and player.name == "Ash":
+            player.retain_last_brick = True
+    arena.show_graph = exercise.get("graph", False)
     if arena.end_reason:
         raise RuntimeError("Completed exercise position")
     return arena

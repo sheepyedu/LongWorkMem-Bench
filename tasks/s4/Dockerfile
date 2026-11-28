@@ -10,6 +10,6 @@ RUN python -c 'from urllib.request import urlretrieve; urlretrieve("https://code
     && mkdir /opt/networkx && tar -xzf /tmp/networkx.tar.gz -C /opt/networkx --strip-components=1 networkx-networkx-3.7/networkx networkx-networkx-3.7/LICENSE.txt \
     && rm /tmp/networkx.tar.gz
 ENV PYTHONPATH=/opt/catanatron/catanatron:/opt/networkx
-COPY __init__.py arena.py bots.py engine.py fixtures.json league.py public.py /app/tasks/s4/
+COPY __init__.py arena.py bots.py continuation-board.json engine.py fixtures.json league.py public.py /app/tasks/s4/
 USER 65534:65534
 ENTRYPOINT ["python","-B","-u","-m","tasks.s4.engine"]

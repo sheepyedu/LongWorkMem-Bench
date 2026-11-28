@@ -20,12 +20,16 @@ def trade_action(color, give, take):
 
 
 class LeaguePlayer(Player):
+    retain_last_brick = False
+
     def __init__(self, color, name, policy_version=1):
         super().__init__(color)
         self.name = name
         self.policy_version = policy_version
 
     def accepts(self, offered, requested, hand, proposer_points):
+        if self.retain_last_brick and requested[1] and requested[1] == hand[1]:
+            return False
         weights = WEIGHT[self.name]
         offered_value = sum(q * w for q, w in zip(offered, weights))
         requested_value = sum(q * w for q, w in zip(requested, weights))

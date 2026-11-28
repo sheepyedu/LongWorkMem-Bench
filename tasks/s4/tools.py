@@ -76,8 +76,8 @@ class Table:
             raise ValueError(packet["error"])
         return packet["result"]
 
-    def open(self, name):
-        state = self.request("open", name=name)["state"]
+    def open(self, name, **options):
+        state = self.request("open", name=name, **options)["state"]
         self.table, self.first_position = name, state["position"]
         self.state = state
         self.set_goal(1)
