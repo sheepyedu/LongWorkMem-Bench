@@ -21,17 +21,22 @@ def write(root, name, cols, rows):
     w.csvfile(root / (name + ".csv"), ",".join(cols), rows)
 
 
-def play(run, mode="gold", *, clarified=False, promise=False):
+def play(run, mode="gold", *, clarified=False, promise=False, mixed=False):
+    if mixed:
+        from .bulletin_controls import BulletinReader
+
+        reader = BulletinReader()
+    promise = promise or mixed
     clarified = clarified or promise
     work = prepare(run)
-    w.initialize(work, clarified=clarified, promise=promise)
+    w.initialize(work, clarified=clarified, promise=promise, mixed=mixed)
     (run / "manifest.json").write_text('{"protocol":"w4-release-v4"}')
     if clarified:
         (run / "manifest.json").write_text(
             json.dumps(
                 {
                     "protocol": "w4-release-v4",
-                    "release_revision": "4.2" if promise else "4.1",
+                    "release_revision": "4.3" if mixed else "4.2" if promise else "4.1",
                 }
             )
         )
@@ -170,8 +175,10 @@ def play(run, mode="gold", *, clarified=False, promise=False):
         return facts, q, free, net, allocated
 
     for day in range(1, 13):
-        w.release(work, day, promise=promise)
+        w.release(work, day, promise=promise, mixed=mixed)
         inc = work / "inbox" / f"06-{day:02}"
+        if mixed:
+            papers += reader.read(inc, day, mode)
         if (inc / "签发原件.csv").exists():
             papers += records(inc / "签发原件.csv")
         if (inc / "撤文.csv").exists():

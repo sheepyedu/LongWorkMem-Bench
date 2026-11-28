@@ -155,14 +155,17 @@ RULES = """六月四站服务承诺与排班规程。input/档案为旧材料；
 交班表 out/预约.xlsx 使用所附固定接口。容量页 A/B 为四个站及可再分容量（总容量减锁定合计），队列页 A/B/C/D/E 为案号、站、净需求、加配、候补，按当期有效优先顺序排列（全表按优先号、案号升序）。净需求=max(0,额度−锁定)。B2:B5容量及C2:C13需求是可直接改的整数；D/E 在 Calc 中自动按站从上往下分，允许部分满足；改变容量、单案需求后未影响客户也要正确。两日分别交付。"""
 
 
-def initialize(work, *, clarified=False, promise=False):
+def initialize(work, *, clarified=False, promise=False, mixed=False):
+    from . import bulletins
+
     init(work)  # reuse the customer archive and read-only/writable split
     put(
         work / "input",
         "办公室/发布规程.txt",
         RULES
         + (CLARIFICATION if clarified else "")
-        + (settlement.GUIDE if promise else ""),
+        + (settlement.GUIDE if promise else "")
+        + (bulletins.GUIDE if mixed else ""),
     )
     d = work / "input/站务"
     csvfile(d / "章程.csv", "案号,对象,站,期初实占,期初锁定,章程额度,章程优先号", CASES)
@@ -202,11 +205,15 @@ def initialize(work, *, clarified=False, promise=False):
     wb.close()
 
 
-def release(work, t, *, promise=False):
+def release(work, t, *, promise=False, mixed=False):
+    if mixed:
+        from . import bulletins
+
+        bulletins.release(work, t)
     if promise:
         settlement.release(work, t)
     d = work / "inbox" / f"06-{t:02}"
-    if t in (3, 8):
+    if t in (3, 8) and not mixed:
         (work / "inbox" / f"06-{t - 1:02}" / "签发原件.csv").unlink()
     if t == 2:
         csvfile(
@@ -218,7 +225,7 @@ def release(work, t, *, promise=False):
         (work / "inbox/06-02/续办券.csv").unlink()
     if t in VOID:
         csvfile(d / "注销券.csv", "兑现案", [(k,) for k in VOID[t]])
-    if t in (2, 7):
+    if t in (2, 7) and not mixed:
         csvfile(
             d / "签发原件.csv",
             "流水,签发日,生效日,到期日,案号,签发人,性质,额度,优先号",

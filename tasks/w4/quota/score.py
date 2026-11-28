@@ -14,17 +14,19 @@ from tasks.w1.scoring_workbook import InvalidArtifact, inspect_package
 
 from ..night_score import recalculate
 from ..office import attachment, events
-from . import settlement
+from . import bulletins, settlement
 from . import world as w
 from .desk import BATCH, DAYS, DESK, parse, replay
 from .promise_score import integer_matches, scorecard
 
 
-def charter(k, day, known):
+def charter(k, day, known, papers=None):
     obj, site, _, _, ceil, rank = w.INFO[k]
     options = [(0, 0, "章程", ceil, rank)]
     removed = {v for t, vs in w.WITHDRAW.items() if t <= min(day, known) for v in vs}
-    for serial, issued, start, end, case, owner, kind, qty, priority in w.documents():
+    for serial, issued, start, end, case, owner, kind, qty, priority in (
+        w.documents() if papers is None else papers
+    ):
         if (
             case != k
             or issued > known
@@ -54,8 +56,8 @@ def voucher(k, day, known, history, promise=False):
     return settlement.entitlement(k, day, known, history, legacy) if promise else legacy
 
 
-def layout(state, caps, day, known, history, promise=False):
-    refs = {k: charter(k, day, known) for k in w.IDS}
+def layout(state, caps, day, known, history, promise=False, papers=None):
+    refs = {k: charter(k, day, known, papers) for k in w.IDS}
     refs = {
         k: (doc, base, extra, base + extra, rank - int(extra > 0))
         for k, (doc, base, rank) in refs.items()
@@ -120,8 +122,12 @@ def rows_at(path, cols):
     return rows, issues
 
 
-def calc_evidence(path, image, state, caps, day, known, history, promise=False):
-    refs, queue, free, dem, target = layout(state, caps, day, known, history, promise)
+def calc_evidence(
+    path, image, state, caps, day, known, history, promise=False, papers=None
+):
+    refs, queue, free, dem, target = layout(
+        state, caps, day, known, history, promise, papers
+    )
     expected = {}
     got = {}
     files = {}
@@ -266,7 +272,9 @@ def score(run):
         raise ValueError("宿主邮箱证据缺失")
     meta = json.loads((run / "manifest.json").read_text())
     image = os.getenv("W4_CALC_IMAGE") or meta.get("image") or "longworkmem-release:1"
-    promise = meta.get("release_revision") == "4.2"
+    mixed = meta.get("release_revision") == "4.3"
+    papers = bulletins.documents() if mixed else w.documents()
+    promise = mixed or meta.get("release_revision") == "4.2"
     clarified = promise or meta.get("release_revision") == "4.1"
     days, receipts = replay(run, 12)
     mail = events(run, 12)
@@ -307,7 +315,7 @@ def score(run):
             raise ValueError(f"缺轮末快照 R{t}")
         opening, end, caps, operations = days[t]
         refs, q, free, demand, targets = layout(
-            opening, caps, t, t, days[3][1], promise
+            opening, caps, t, t, days[3][1], promise, papers
         )
         if t in w.FILES:
             name, cols = w.FILES[t]
@@ -322,7 +330,7 @@ def score(run):
                 if t == 1:
                     values = [orig, lock, ceil]
                 if t == 2:
-                    values = charter(k, 3, 2)
+                    values = charter(k, 3, 2, papers)
                 if t == 4:
                     values = [
                         days[3][1][k]["实占"],
@@ -335,8 +343,8 @@ def score(run):
                     values = [w.SCOPES[p], 9 if p in ("东港", "北仓") else 11]
                 if t == 7:
                     values = [
-                        charter(k, 9, 7)[0],
-                        charter(k, 10, 7)[0],
+                        charter(k, 9, 7, papers)[0],
+                        charter(k, 10, 7, papers)[0],
                         days[3][1][w.VOUCHERS[k][0]]["实占"],
                         voucher(k, 9, 7, days[3][1], promise),
                     ]
@@ -567,6 +575,7 @@ def score(run):
                 t,
                 days[3][1],
                 promise,
+                papers,
             )
             calc_probes[str(t)] = probes
             if error:
@@ -589,11 +598,7 @@ def score(run):
         atoms, extra["fulfilment"] = scorecard(atoms)
     return dict(
         **extra,
-        version="release-v4.2"
-        if promise
-        else "release-v4.1"
-        if clarified
-        else "release-v4",
+        version="release-v" + meta["release_revision"] if clarified else "release-v4",
         total=round(sum(a["earned"] for a in atoms), 4),
         rounds=[
             round(sum(a["earned"] for a in atoms if a["turn"] == t), 6)
