@@ -15,7 +15,7 @@
 | Simulation | S1 | [跨幕卡牌构筑与临时赛制修订](../../tasks/s1/)；当前使用器材赛季工位 |
 | Simulation | S2 | 局部可见的仓储迷宫与大件回运（候选） |
 | Simulation | S3 | 多批次器材整备、借出与召回（原候选） |
-| Simulation | S4 | [Catan 跨局联赛](../../tasks/s4/) |
+| Simulation | S4 | [Catan 单桌资本工程（40 轮）](../../tasks/s4/) |
 
 ## W5 · 订阅合同迁移后的收入重述与经营模型交接
 

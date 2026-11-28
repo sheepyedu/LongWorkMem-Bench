@@ -8,7 +8,7 @@ import tarfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-SCRIPTS = ROOT / ".agents/skills/work-bench/scripts"
+SCRIPTS = ROOT / ".agent/skills/work-bench/scripts"
 score = runpy.run_path(str(SCRIPTS / "score.py"))["score"]
 analyze = runpy.run_path(str(SCRIPTS / "calibrate.py"))["analyze"]
 

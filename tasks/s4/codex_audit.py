@@ -4,17 +4,18 @@ import argparse
 import json
 from pathlib import Path
 
-from tasks.codex_bench import native_usage, recorded_turn
+from tasks.codex_trace import native_usage, recorded_turn
 
-from .early_league import episode
-from .grade import read_lines
+from .records import read_lines
+from .schedule import CONTEXT, PROMPTS, PROTOCOL
 from .tools import TOOLS
 
 
 def audit(run):
     trace = run / "trace"
     manifest = json.loads((run / "manifest.json").read_text())
-    ep = {episode(n).protocol: episode(n) for n in (32, 40)}[manifest["protocol"]]
+    if manifest["protocol"] != PROTOCOL:
+        raise ValueError("Unexpected S4 schedule")
     (thread,) = read_lines(trace / "threads.jsonl")
     allowed = [t["name"] for t in TOOLS]
     if (
@@ -22,7 +23,7 @@ def audit(run):
         or manifest["status"] != "complete"
         or thread["model"] != manifest["model"]
         or thread["effort"] != manifest["effort"]
-        or thread["context"] != ep.context
+        or thread["context"] != CONTEXT
         or thread["tools"] != allowed
         or thread["environments"] != []
     ):
@@ -43,7 +44,7 @@ def audit(run):
         i = block["index"]
         if block["session"] != thread["thread"]:
             raise ValueError("Unexpected Codex thread change")
-        prompt = ep.prompt(block["phase"], manifest["arm"], manifest["case"])
+        prompt = PROMPTS[block["phase"]]
         answer = recorded_turn(run, i, thread["thread"], prompt, allowed)
         native = []
         updates = 0

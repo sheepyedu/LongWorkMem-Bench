@@ -6,7 +6,7 @@ import json
 from collections import Counter
 from pathlib import Path
 
-from .grade import read_lines
+from .records import read_lines
 from .tools import ALLOWED
 
 PRIVATE_MARKERS = (

@@ -28,5 +28,5 @@ jobs:
           docker build -t longworkmem-release:1 -f tasks/w4/Release.Dockerfile tasks/w4
           W4_TEST_ROOT="$RUNNER_TEMP" python -m unittest discover -s tasks/w4/tests -t . -v
       - run: |
-          docker build -t longworkmem-catan:1 tasks/s4
+          docker build -t longworkmem-s4:40 tasks/s4
           S4_TEST_DOCKER=1 python -m unittest discover -v -s tasks/s4/tests -t .

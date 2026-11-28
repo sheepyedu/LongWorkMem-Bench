@@ -1,0 +1,35 @@
+{
+  "game": [
+    17211,
+    3,
+    1
+  ],
+  "version": 1,
+  "graph": true,
+  "prefix": [
+    {
+      "position": 4,
+      "choice": 13,
+      "give": null,
+      "take": null
+    },
+    {
+      "position": 5,
+      "choice": 1,
+      "give": null,
+      "take": null
+    },
+    {
+      "position": 10,
+      "choice": 6,
+      "give": null,
+      "take": null
+    },
+    {
+      "position": 11,
+      "choice": 2,
+      "give": null,
+      "take": null
+    }
+  ]
+}

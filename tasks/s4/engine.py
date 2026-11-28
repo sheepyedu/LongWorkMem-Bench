@@ -8,7 +8,7 @@ from contextlib import contextmanager
 
 from .league import create
 
-IMAGE = "longworkmem-catan:1"
+IMAGE = "longworkmem-s4:40"
 
 
 def serve():

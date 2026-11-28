@@ -1,0 +1,40 @@
+{
+  "requests": 204,
+  "usage": {
+    "input": 15722164,
+    "output": 36737,
+    "peak_input": 167717,
+    "cached": 15526912,
+    "cache_records": 204,
+    "reasoning": 0,
+    "reasoning_records": 204,
+    "usage_records": 204
+  },
+  "tools": {
+    "look": 26,
+    "act": 130,
+    "notes": 7
+  },
+  "model_visible_tool_records": 163,
+  "failed_attempts": 0,
+  "rejected": 2,
+  "compact_events": 1,
+  "compaction_boundaries": [
+    {
+      "round": 40,
+      "phase": "commission",
+      "meta": {
+        "trigger": "auto",
+        "pre_tokens": 167225,
+        "post_tokens": 5367
+      },
+      "provider_input_drops_in_segment": [
+        [
+          197,
+          167717,
+          6816
+        ]
+      ]
+    }
+  ]
+}

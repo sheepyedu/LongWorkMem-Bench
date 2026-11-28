@@ -9,7 +9,7 @@
 | Code | [C1 · 工时结算与保证金交割](tasks/c1/) | 修改同一程序，在第 5、7 轮换班，按轮末交付和新来件复跑评分。 |
 | Code | [C2 · 客户身份迁移与故障续投](tasks/c2/cohorts/) | 十轮维护旧邀请和新订阅，处理限域撤回、数据盘回滚与客户实际签收。[前版](tasks/c2/evolution/) |
 | Simulation | [S1 · 跨区器材联赛](tasks/s1/) | 十区八十轮，第 40 轮交接自写摘要；从赛事单据复核登记、器材配套和送达。 |
-| Simulation | [S4 · 单桌资本工程](tasks/s4/) | 固定城市节点 21。分别检验长期授权和经营执行，按 16 轮运行，提供 24 轮长度对照。 |
+| Simulation | [S4 · 单桌资本工程](tasks/s4/) | 40 轮固定单桌。跨 19 轮执行修订采购单，在最终委任窗口兑现节点 21 的城市授权。 |
 
 [完整题目清单](docs/design/session-candidates.md)收录已发布与候选题，W5「订阅合同迁移后的收入重述与经营模型交接」已登记，待构建。
 
@@ -65,15 +65,7 @@ wait
 
 [C2 首次开发与盲测](docs/results/c2-calendar-20261128/)记录八轮日历发布任务的环境验收、真实轨迹、正反例和评分审计。
 
-[S4 Catan 首次盲测与逐条审计](docs/results/s4-catan-20261128/)覆盖 19 段、548 次请求、三次原生压缩及六个短对照。正式成绩 71.5/100，代码与题面复核边界见审计。
-
-[S4 双桌续作配对盲测](docs/results/s4-continuation-20261128/)独立记录增强难度后的单桌与切桌比较、深度审计和离线复评。
-
-[S4 单桌长程资本工程](docs/results/s4-long-league-20261128/)将连续会话扩展到 16 段，加入分段交易、路线授权修订和延迟兑现的城市升级。
-
-[S4 单节点与长度实验](docs/results/s4-duration-20261128/)记录预留规则修订、授权与执行双轴，以及同任务的 16/24 轮比较。
-
-[S4 早局 32／40 轮试验](docs/results/s4-early-duration-20261128/)在同一棋盘增加真实经营回合，记录默认原生压缩和两项延迟授权的实际执行。[GPT-6.1-terra 的 Codex 同题实测](docs/results/s4-codex-terra-20261128/)完成 40 轮，经营分 76.5/100。
+[S4 最终版轨迹与离线复评](rollout/s4/)收录 DeepSeek + Claude Code（62.5 分）与 GPT-6.1-terra + Codex（76.5 分）的两场 40 轮实测。
 
 ## 当前观察与局限
 
@@ -85,7 +77,7 @@ wait
 
 ## 新题怎样验收
 
-Work 类出题人可以直接使用 [work-bench skill](.agents/skills/work-bench/SKILL.md)。其中收录了 [SWE-Milestone 等基准的构造与计分依据](.agents/skills/work-bench/references/milestones-and-reliability.md)、同场历史附件样例，以及可离线运行的[客观评分](.agents/skills/work-bench/references/scoring.md)和[重复试跑校准](.agents/skills/work-bench/references/calibration.md)工具。
+Work 类出题人可以直接使用 [work-bench skill](.agent/skills/work-bench/SKILL.md)。其中收录了 [SWE-Milestone 等基准的构造与计分依据](.agent/skills/work-bench/references/milestones-and-reliability.md)、同场历史附件样例，以及可离线运行的[客观评分](.agent/skills/work-bench/references/scoring.md)和[重复试跑校准](.agent/skills/work-bench/references/calibration.md)工具。
 
 1. **验证早期信息确实影响后期交付。** 为一条依赖准备成对材料，只改一项早期授权或签收回执；参考解应只改变受影响的后续账目、订单或操作。让模型自己的实际交付参与决定下一步，例如根据已发数量办理补发。
 2. **验证延迟依赖。** W4 在同一会话中安排首次使用、隔轮沿用、局部更新和历史追溯。其他题可按研究问题选用正确前置状态的短对照。分别记录首次交付、错误恢复和最终结果，模型按真实回执正确补救时应获得相应分数。
