@@ -37,3 +37,7 @@ W1、C1 替换相应题号和目录即可。W1 需宿主 LibreOffice Calc；C1 �
 ## W4 手册发布与历史勘误
 
 [两版 DeepSeek 4.1 Flash 轨迹](w4/)分别保存每轮委托、工具、响应、冻结附件和可独立复评的交付包。
+
+## S4 · Claude Code + DeepSeek 4.1 Flash
+
+[原场轨迹、审计索引与离线复评](s4/)覆盖三场 Catan 及六桌固定练习。

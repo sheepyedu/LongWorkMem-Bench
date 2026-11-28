@@ -1,0 +1,24 @@
+{
+  "requests": 548,
+  "usage": {
+    "input": 38032820,
+    "output": 82691,
+    "peak_input": 167998,
+    "cached": 37389440,
+    "cache_records": 548,
+    "reasoning": 0,
+    "reasoning_records": 548,
+    "usage_records": 548
+  },
+  "tools": {
+    "look": 23,
+    "act": 492,
+    "notes": 11
+  },
+  "rejected": 4,
+  "failed_attempts": 0,
+  "model_visible_tool_records": 526,
+  "compact_events": 3,
+  "segments": 19,
+  "faults": []
+}
