@@ -145,6 +145,8 @@ def run(dest, edition=None):
             ["git", "rev-parse", "HEAD"], cwd=Path(__file__).parent, text=True
         ).strip(),
     )
+    if edition:
+        m["material_revision"] = edition.MATERIAL_REVISION
     write(dest / "manifest.json", m)
     try:
         with (

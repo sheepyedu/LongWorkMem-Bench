@@ -1,0 +1,13 @@
+{
+  "attempts": 367,
+  "usage": {
+    "input": 29947065,
+    "output": 376610,
+    "peak_input": 168913,
+    "cached_input": 29298176,
+    "native_compactions": 3
+  },
+  "flags": [],
+  "tools": 403,
+  "rejected_by_client": 0
+}

@@ -211,6 +211,10 @@ class Evolution(unittest.TestCase):
         with TemporaryDirectory(dir=os.environ["C2_TEST_ROOT"]) as d:
             run = Path(d)
             control(run)
+            for t in range(1, 11):
+                materials = run / "snapshots" / str(t) / "input"
+                for rel in (materials / "current-ticket.txt").read_text().splitlines():
+                    self.assertTrue((materials / rel).is_file(), (t, rel))
             g = grade(run)
             self.assertEqual(
                 100,

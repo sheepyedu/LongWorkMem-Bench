@@ -11,6 +11,7 @@ from tasks.c2.scenario import write
 
 CHANNELS = ("A", "B", "C", "D")
 VERSION = "calendar-evolution-v1"
+MATERIAL_REVISION = "public-contract-clarification-1"
 ARCHIVE = Path(__file__).with_name("fixtures") / "legacy-release.tar.gz"
 ARCHIVE_SHA = "d8d852b04a684c8696b96014d3754401b7344935dcacf5ea94887a0b0b8ab4c3"
 DAYS = ["2026-03-02", "2026-03-09", "2026-03-16", "2026-03-23"]
@@ -27,7 +28,7 @@ PROMPTS = [
     "交接上线：从源码与数据库备份启动干净实例；导入秋季追加工单。给四端发布秋季四个服务日，交出完整 out/backup.sqlite 和 out/new-C.ics。旧链接、历史版本和协议身份继续有效。",
     "客户对之前的发布有争议。交付可复跑的追溯程序和 out/inquiry.json，逐笔还原问题所定版本的应发、实收与当时未结事项。以实际历史为准。此次只读。",
 ]
-GUIDE = """工程工位。project/ 是真实部署的旧门户与回归套件，data/portal.sqlite 是其签收备份，旧代码与报名需长期可用。较早交接资料描述旧产品；本次上线使用 contracts、version.txt 和分轮来件。可写 project、data、scratch、notes、out；input 只读。shell 位于无外网 Docker，每次独立，文件持续。python3 project/http_read.py URL 可通过真实 HTTP 访问门户。PORTAL_DB 指定数据库位置。发布工具 publish(channel,key,file) 读取 out/ 下的 ICS；同键同语义重试无副作用，不同内容不得复用键。receipts(channel) 读取在线批次，较早批次转入按编号索引的 input/vault/。每个新 key 都会通知客户。所有时间按 ISO8601 明示时区；业务版本为逻辑轮次，截止含端点。每轮具体接口见 input/contracts 与当天来件。档案中 draft/stale/training 不构成当前授权。可保留自己的索引。
+GUIDE = """工程工位。project/ 是真实部署的旧门户与回归套件，data/portal.sqlite 是其签收备份，旧代码与报名需长期可用。较早交接资料描述旧产品；本次上线使用 contracts、version.txt 和分轮来件。可写 project、data、scratch、notes、out；input 只读。shell 位于无外网 Docker，每次独立，文件持续。python3 project/http_read.py URL 可通过真实 HTTP 访问门户。PORTAL_DB 指定数据库位置。发布工具 publish(channel,key,file) 读取 out/ 下的 ICS；同键同语义重试无副作用，不同内容不得复用键。receipts(channel) 读取在线批次，较早批次转入按编号索引的 input/vault/。每个新 key 都会通知客户。所有时间按 ISO8601 明示时区；业务版本为逻辑轮次，截止含端点。每轮具体接口见 input/contracts 与当天来件。档案中 draft/stale/training 不构成当前授权。本轮新增或适用合同入口见 input/current-ticket.txt。clock.txt 是旧发布的封存日期，version.txt 是本次业务版本。重跑上一发布的原始测试时，其依赖的旧交付文件来自 input/previous-release/out，可先在副本中恢复到 out/。SQLite 可用 Python 标准库访问。可保留自己的索引。
 """
 SITES = [
     ("N84", "America/New_York", "09:45", "wall"),
@@ -171,12 +172,27 @@ def setup(work):
 
 def release(run, t):
     inp = run / "work/input"
-    (inp / "version.txt").write_text(str(t))
+    (inp / "version.txt").write_text(f"{t}\n")
+    contract_files = (
+        "paging.md",
+        "engine.md",
+        "interfaces.md",
+        "interfaces.md",
+        "support.md",
+        "engine.md interfaces.md",
+        "delivery.md",
+        "delivery.md incident.md",
+        "engine.md interfaces.md",
+        "inquiry.md",
+    )
+    (inp / "current-ticket.txt").write_text(
+        "\n".join("contracts/" + name for name in contract_files[t - 1].split()) + "\n"
+    )
     contract = inp / "contracts"
     if t == 2:
         write(inp / "portfolio.json", specs())
         (contract / "engine.md").write_text(
-            """新产品线独立于旧试点。python3 project/line.py import INPUT_DIR 增量导入 portfolio.json 与 INPUT_DIR/orders/*.json（文件含 version,rows）；写 PORTAL_DB。批次可乱序、重送；同一不可变 id 只登记一次。python3 project/line.py query CHANNEL FROM TO ASOF 输出 JSON 数组，每行为 code,day,utc（带时区时间）；按原始周一服务日含端点。只用 version<=ASOF 的已登记授权；普通批准按 code/频道/原定日匹配，取最大 (rank,version,id)，无批准沿用基础。撤回按 target、频道与原定日排除原批准，回退到剩余有效层，不追溯改写旧 ASOF。clock 为 UTC 或场馆当地钟点，由 basis 决定；shift_days 先移原定日再定时刻。未给窗的基础周排期自 2026-03-02 开始。新编号和重复导入用相同入口。"""
+            """新产品线独立于旧试点。python3 project/line.py import INPUT_DIR 增量导入 portfolio.json 与 INPUT_DIR/orders/*.json（文件含 version,rows）；写 PORTAL_DB。批次可乱序、重送；同一不可变 id 只登记一次。python3 project/line.py query CHANNEL FROM TO ASOF 输出 JSON 数组，每行为 code,day,utc（带时区时间）；day 固定为移期前的原始周一业务日，utc 为变更后实际发生时刻。FROM 和 TO 按原始业务日含端点筛选。只用 version<=ASOF 的已登记授权；普通批准按 code/频道/原定日匹配，取最大 (rank,version,id)，无批准沿用基础。撤回按 target、频道与原定日排除原批准，回退到剩余有效层，不追溯改写旧 ASOF。clock 为 UTC 或场馆当地钟点，由 basis 决定；shift_days 先移原定日再定时刻。未给窗的基础周排期自 2026-03-02 开始。新编号和重复导入用相同入口。"""
         )
     if batch(t):
         write(inp / f"orders/ops-{t}.json", dict(version=t, rows=batch(t)))

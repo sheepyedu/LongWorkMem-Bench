@@ -3,7 +3,14 @@
 from pathlib import Path
 import sys
 from tasks.c2 import pilot
-from .scenario import setup, PROMPTS, VERSION, CHANNELS, release as issue
+from .scenario import (
+    setup,
+    PROMPTS,
+    VERSION,
+    MATERIAL_REVISION,
+    CHANNELS,
+    release as issue,
+)
 from .receiver import online, publish, archive
 
 TOOLS = [

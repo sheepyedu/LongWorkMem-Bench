@@ -1,0 +1,404 @@
+turn,mcp_index,tool,command_or_batch,tool_error,shell_exit,result_chars,result_sha256,observations
+1,1,shell,"pwd; ls -la; echo ""---""; find . -maxdepth 2 -type d | head -50",False,0,617,3adf5f98c0be0749f118ce1b00675d0799e92bc7fe7eb2fb088ccff1982d6bd5,
+1,2,shell,cat input/contracts/paging.md,False,0,215,ad5569ff1106738e05eec2465b8bd8214d7347954a4accb7da188f65d61f7095,
+1,3,shell,"ls -la project; echo ""=== input tree ===""; find input -type f | head -80",False,0,4308,44b919434700a37c16c1c21559f3b60b19dccfd038d08a3adcc4eb03f87171e5,
+1,4,shell,"ls -la data; echo ""===""; find data -type f | head -40; echo ""=== notes ===""; ls -la notes out",False,0,610,e70a53a15c50b624c3bba5ba18f48ae21d238376558caee5c3ce4c3bd7adf193,
+1,5,shell,cd /workspace && cat project/portal.py,False,0,25006,96ec2781a1ef8604c689a38e815fab128148d4c4376189afb4432d1560327716,truncated tool output
+1,6,shell,"cd /workspace && sed -n '480,900p' project/portal.py",False,0,8486,dfc9a9f44f82f273894b4434305761c0792f49fc3e4ec48b6d4768ff1a99e38a,
+1,7,shell,"cd /workspace && echo ""=== input dirs ===""; ls -la input; echo ""=== contracts ===""; ls -la input/contracts; echo ""=== previous-release ===""; ls -laR input/previous-release | head -",False,0,4590,ae7a5ca3cd72c159731bd118ebda4216d4c4a8f53558526a287b6657d6c4ccd8,
+1,8,shell,"cd /workspace && cat project/test_portal.py; echo ""======== test_q2 ========""; cat project/test_q2.py",False,0,10637,24ba465847241c4e7ded9305a83548ab6b3987bf3847d7074bcb666d200f5a09,
+1,9,shell,"cd /workspace && echo ""=== handoff ===""; cat input/previous-release/notes/handoff.md; echo; echo ""=== desk.md ===""; cat input/desk.md; echo ""=== version ===""; cat input/version.txt",False,0,3419,7d99924f2986df8628d5d46d63d4ce7fb8f6b93766ebe48eb5a1ad7d86102adc,
+1,10,shell,"cd /workspace && echo ""=== release.md ===""; cat input/previous-release/notes/release.md; echo ""=== migration.md ===""; cat input/previous-release/notes/migration.md",False,0,5033,6b0c5769688d98dc5d9a65ffd5262b5aad2b94464c39bd6a49623999cc24158c,
+1,11,shell,"cd /workspace && for f in calendar_io.py http_read.py prepare.py recover.py backup.py; do echo ""===== $f =====""; cat project/$f; echo; done",False,0,15423,a3f5d119ba234d1a6f9fc674d15c5e7775770e25e8ae331ffe05577607b00ffe,
+1,12,shell,"cd /workspace && for t in test_portal test_migrate test_ch64 test_adjust test_prepare test_backup test_recover test_q2; do echo ""===== $t =====""; python3 project/$t.py 2>&1 | tail ",False,0,4119,5351cccc6158009660bbb7a311c6ef9663de9cd500a8cc2e72c03750997dbc1d,failed tests in visible output
+1,13,shell,cd /workspace && cat project/test_backup.py,False,0,7428,467381e2a4508f58a2aa2e86875a610c208804710c75bfe825437a33180eb747,
+1,14,shell,"cd /workspace && sed -n '1,80p' project/test_migrate.py; echo ""...""; grep -n ""occurrences\|MAX_OCCURRENCES\|1000\|2040\|pages\|/api/events"" project/test_migrate.py",False,0,3851,050acde885afc9ffce1874e23b288f41c75c3aef2e6927cc6108e2f855fda772,
+1,15,shell,"cd /workspace && sha256sum data/portal.sqlite input/previous-release/out/backup.sqlite; echo ""--- live db tables ---""; python3 - <<'PY'",False,0,1375,17771b64083e4f97176dbf697ae19131a0ce95a9195dad73c5628e0e45aaacd8,
+1,16,shell,"cd /workspace && ls -la input/previous-release/out; echo ""--- try regen q2 compare previous-release ---""; python3 project/prepare.py A 2026-04-01 2026-06-30 /tmp/q2A.ics >/dev/null",False,0,1081,ac3cf6cfe2e1c4cfc66a40ea5383d766d1cd52b7f97955a44a37385fb9878c89,
+1,17,shell,"cd /workspace && for f in preview.md release-ch64.md release-ch51-ch53.md recovery.md backup-q2.md; do echo ""===== $f =====""; cat input/previous-release/notes/$f; echo; done",False,0,13696,311bdc1d9317681d1330ed0baf049928656ce6b80efb068a342cb657d002abb7,
+1,18,shell,cd /workspace && python3 - <<'PY',False,0,437,da4c8aecc95cc74f6beed5185f5de41e261f227c905abf387ea55e4f33114f34,
+1,19,shell,"cd /workspace && cp -p input/previous-release/out/* out/ && ls -la out/ && echo ""--- full baseline suite ---"" && for t in test_portal test_migrate test_prepare test_adjust test_ch6",False,0,1692,eda1dadb7501f9b4bd278ab9151712ca1c84b964a0caf13b4b56fa4665720742,
+1,20,shell,"cd /workspace && for t in test_portal test_migrate test_prepare test_adjust test_ch64 test_recover test_backup test_q2; do printf ""%-14s "" $t; python3 project/$t.py 2>&1 | grep -E ",False,0,370,5af02b5383c4c4fb86a67fb6454cc47176970f3214c38ed5f291d210f7e9a562,
+1,21,shell,"cd /workspace && grep -rn ""MAX_OCCURRENCES\|limit="" project/*.py; echo ""--- occurrences callers ---""; grep -rn ""occurrences("" project/*.py",False,0,857,9f9b4328a91ae2bb9b7a7601d4389c314761481e7d9ab79ae800bd5022d5dab6,
+1,22,shell,cd /workspace && python3 - <<'PY',False,0,2667,bc24e3a7740501672915d35cf20e130ddbd7a320971f370eb3b6cc3f82208e9a,
+1,23,shell,"cd /workspace && grep -n ""def events\|def local_label\|def route\|/api/events\|def page"" project/portal.py; echo ""---""; sed -n '/^def events/,/^def main/p' project/portal.py",False,0,2164,d2beeb0c275a2fc7b001aef1d2677d9a9200cc085372700ce0b005a21f9414de,
+1,24,shell,cd /workspace && python3 - <<'PY',False,0,3014,b82c597b2be200e27598a418dc6349485b4629448dd8f7b89688e4a031e5178b,
+1,25,shell,"cd /workspace && for t in test_portal test_migrate test_prepare test_adjust test_ch64 test_recover test_backup test_q2; do printf ""%-14s "" $t; python3 project/$t.py 2>&1 | grep -E ",False,0,370,34c14a6e80acc11fcffb94dfeace3cfba11a92d2c0ea1140e5d5ae50d2ba0026,
+1,26,shell,cd /workspace && python3 - <<'PY',False,1,151,656d0ca5cf8be6178e88650122a16c4b14f068df4cbfb987a09b0dcc8473517a,command failed
+1,27,shell,cd /workspace && python3 - <<'PY',False,0,366,9769f4e213cb571a11b2a991cfba0438abfe36113a4ec6daecdc64de19d4e0c6,
+1,28,shell,cd /workspace && python3 - <<'PY',False,0,402,2059d8c612f21b7b000f0b2087378811ff81393c0ca161a60f5874c4a6c979bc,
+1,29,shell,cd /workspace && cat > project/test_pages.py <<'PY',False,0,55,2d4781c62a89bafe22d897bc992306ca3e006e812f25226f1b0ef07baaf31ae7,
+1,30,shell,"cd /workspace && sed -n '1,25p' project/portal.py",False,0,1151,5becab764a84c113617fc5e555adcc8e24ddb4dea4e06c575d05b54ef8201140,
+1,31,shell,cd /workspace && python3 - <<'PY',False,0,452,684eb9708caf14748d4ba1e25c942c39a02147252449b2dc57a1da0c1cfeca7e,
+1,32,shell,cd /workspace && python3 - <<'PY',False,0,216,da1dc000b3c92afc7899314714b583960f531097cb4ae9a2ff9d39e08395d2de,
+1,33,shell,cd /workspace && timeout 60 python3 - <<'PY',False,0,280,88a896bb7c48d1b106de26d4f609cdaaa46ae0fe9125d3f2226d6c0458d457ae,
+1,34,shell,"cd /workspace && echo ""--- CLI request ---""; python3 project/portal.py request ""/api/pages?channel=A&from=2026-03-27&to=2026-03-27&offset=0&limit=10""; echo; echo ""--- raw null tail",False,0,589,dac271ad7557893bd13b2867b864e524a473d41de2d882b63ec7566f60005c28,
+1,35,shell,cd /workspace && cat > notes/paging-and-long-range.md <<'MD',False,0,211,d9ced77bfa9bd4c56f1852a7375c5495e485b485df8b84028675b7bcedeecc15,
+1,36,shell,"cd /workspace && python3 -m py_compile project/*.py && echo ""compile OK"" && echo ""--- final full suite ---"" && pass=0; fail=0; for t in test_portal test_migrate test_prepare test_a",False,0,236,c5d9eba768ce6ca9204158cdc12f2d2e4ede05fa30c12c0a7866f8d99c9a2fbc,
+1,37,shell,"cd /workspace && echo ""live db hash (was 5c3c65ac...):""; sha256sum data/portal.sqlite; echo ""--- changed code regions ---""; grep -n ""MAX_OCCURRENCES\|def occurrences\|limit is None",False,0,1425,e84dcd5830c9129a5058c62bef80aeb1e7e61d73c5d34dbffc3f4110e883df9b,
+2,1,shell,"cd /workspace && echo ""=== version.txt ===""; cat input/version.txt; echo; echo ""=== input top ===""; ls -la input; echo ""=== contracts ===""; ls -la input/contracts; echo ""=== all in",False,0,3316,5d266e14370a828b28c9fc10f1e1621e48cc2ee4011d64c94c7d5463b3e0468b,
+2,2,shell,"cd /workspace && echo ""=== data ===""; ls -la data; echo ""=== notes ===""; ls -la notes; echo ""=== out ===""; ls -la out; echo ""=== scratch dirs ===""; ls scratch | head",False,0,1655,3fb43715ad8d4d6e1c2e959eda56b374ef2e8da0ab1ae7075ad975743e1cfa5a,
+2,3,shell,"cd /workspace && echo ""=== contracts/engine.md ===""; cat input/contracts/engine.md; echo; echo ""=== portfolio.json ===""; cat input/portfolio.json; echo; echo ""=== orders tree ==="";",False,0,1863,802eee0758b52405819571e8538fe54f097f2239087a339d65c0565e3681d8b6,
+2,4,shell,"cd /workspace && echo ""=== grep new-line terms across input ===""; grep -rIl -E ""N84|Q29|U56|J31|line-40|shift_days|asof|ASOF|撤回|target|portfolio|上线单|组合"" input 2>/dev/null | sort; e",False,0,9113,00792a97cf8b4f60895ffc93979e6dd6c6edc53c220fd4f164d291450102cae2,
+2,5,shell,"cd /workspace && echo ""=== regional sample ===""; find input/regional/2025/week-01 -type f -exec sh -c 'echo ""--- $1 ---""; cat ""$1""' _ {} \; | head -40; echo ""=== regional 2024 week",False,0,3207,22e8f5f59b5d3ef701b985d8befd2620cee764368067cabc6853e4082dc94b7e,
+2,6,shell,"cd /workspace && echo ""=== 2024 week-01 events.csv (head) ===""; head -12 input/regional/2024/week-01/events.csv; echo ""=== 2025 week-01 events.csv (head) ===""; head -12 input/regio",False,0,1966,a186e2948a634e363ac49f8c8221d96608a6772bd1ccebe609dd7a816cfb894b,
+2,7,shell,"cd /workspace && echo ""=== scratch/base ===""; ls -la scratch/base; echo ""=== grep whole workspace (small) ===""; grep -rIn -E ""line\.py|ASOF|shift_days|target|revoke|rank"" --include",False,0,6659,d84edd271a07db67e23c2052b5a7cea64d33db79ff3d13839c0604e289d9b473,
+2,8,shell,"cd /workspace && echo ""=== all non-regional files ===""; find . -type f -not -path ""./input/regional/*"" -not -path ""./scratch/*"" -not -path ""*/__pycache__/*"" | sort",False,0,14723,9afd766fb3bc42a357cb6ebb92c9d2a013b76abd19192e84fa6f21c85516e86e,
+2,9,shell,cd /workspace && python3 - <<'PY',False,0,262,6594fb114d984b40e63c2033ee5beb8b452e549b3a017f42ad8c1dedaed0481e,
+2,10,shell,"cd /workspace && sed -n '1,60p' input/desk.md; echo ""=== records CH/OP (old, not new) ===""; for f in input/records/CH-51.txt input/records/OP-381.txt; do echo ""--$f""; cat ""$f""; don",False,0,695,8fdc9f59f4cdd3efce0d1939e1dff888247acab75258d6ab4a4b8aeb1cfb9c0e,
+2,11,shell,cd /workspace && cat > project/line.py <<'PY',False,0,61,be728a159849dc1a9c7571138f1b31a0891c6f600aef0daadc42f5bebb28fe21,
+2,12,shell,"cd /workspace && cp data/portal.sqlite scratch/line-test.sqlite && export PORTAL_DB=scratch/line-test.sqlite && echo ""=== import ===""; python3 project/line.py import input; echo; e",False,0,357,45c815c958ccbfe9657253b0b0ea290793d818aed76351cc2d2daac1724dc422,
+2,13,shell,cd /workspace && python3 - <<'PY',False,0,995,a86a003e183d85085db8dcc55093c7c9d08dafd4fca0f371d78e2d4d882d74f3,
+2,14,shell,cd /workspace && export PORTAL_DB=scratch/line-test.sqlite,False,0,6774,5080ddab745f65ea789bd454649facc576e1d594b6d520cdeda53c4ba8f409f2,
+2,15,shell,cd /workspace && python3 - <<'PY',False,0,1471,cc3281dbd006f948882df3ec0c43d95f3fe7a1eb8cd525ff53a4caa5553c327e,
+2,16,shell,cd /workspace && python3 - <<'PY',False,0,40,7915691c892a957f9db2736ea7ae1fbd937b8410b09ec7f0b0bf0059c3368aa9,
+2,17,shell,cd /workspace && cat > project/test_line.py <<'PY',False,0,1296,0ca61b81e71bc00087a89e5582e5cf9ec31226c0238896fbc62deffe5f00573f,failed tests in visible output
+2,18,shell,cd /workspace && python3 - <<'PY',False,0,64,0f584e0830f6b1dd32174133f9cc0e140717eaaf7477c034f5a67cdde5e19660,
+2,19,shell,"cd /workspace && cp -p data/portal.sqlite scratch/portal.pre-line.sqlite && echo ""backup sha:""; sha256sum scratch/portal.pre-line.sqlite",False,0,1266,bc4b657d08480068e0f839e260a3d8de8ef52b4bf27b528d75f946fda011f552,
+2,20,shell,"cd /workspace && unset PORTAL_DB; echo ""=== full suite ===""; for t in test_portal test_migrate test_prepare test_adjust test_ch64 test_recover test_backup test_q2 test_pages test_l",False,0,476,ea106f070a6b330394d6d2238534ca74669750db2f9bdeb7a10010ce17dc4ee6,
+2,21,shell,cd /workspace && python3 - <<'PY',False,0,136,050273907413e0b31810b2d86b7ba9344997639c07ca6eee9ea0dbd3221b52d9,
+2,22,shell,cd /workspace && unset PORTAL_DB,False,0,2428,e9480e758b7836f0d86804dac347f897a10ea372ba2a9abe9e6c388c514b6131,
+2,23,shell,cd /workspace && python3 - <<'PY',False,0,573,8a46c4647451548f84bab693c231f66064922a66ed0ac74e0914d33ec1965927,
+2,24,shell,cd /workspace && python3 - <<'PY',False,0,71,2e2a5a4afc46bbb98890957b39d987e820548ef43ab84cc4ec658b7a78502b89,
+2,25,shell,cd /workspace && unset PORTAL_DB,False,0,1028,8729c4eb09523827fd4918912a31a8d1ae62f31eebf3041624d78cb292cd2bbc,
+2,26,shell,"cd /workspace && unset PORTAL_DB && echo ""=== line CLI on live ===""; python3 project/line.py query B 2026-03-02 2026-03-09 2; echo; python3 - <<'PY'",False,0,884,eb47f1a313dab3211a07bbcb1d4983332551340703f50cb348d5dab9a418bcf8,
+2,27,shell,cd /workspace && cat > notes/line-engine.md <<'MD',False,0,651,62de137d2a74e705512828146106d4c6b4ca0f10a0c0e2aff4d54ea7da7ea356,
+2,28,shell,"cd /workspace && sed -n '1,140p' project/line.py",False,0,5678,770149c60f77af8b0848ea4a8914942dab9a1b3ba4f1ad70894af56e6fe6a006,
+2,29,shell,"cd /workspace && sed -n '140,300p' project/line.py",False,0,8097,e3a83fa4b53a493a3414c799f012197dcf449474546e5c3a4a5dea361293b8f1,
+2,30,shell,"cd /workspace && sed -n '300,470p' project/line.py",False,0,5073,a1935802c1c02751ac6c17dba08df124a7a005ff1f5baabc359b159cd8cff0d3,
+2,31,shell,"cd /workspace && sed -n '1,140p' project/line.py",False,0,5678,770149c60f77af8b0848ea4a8914942dab9a1b3ba4f1ad70894af56e6fe6a006,
+2,32,shell,"cd /workspace && grep -n ""\btime("" project/line.py; grep -n ""[^.]\btime\b"" project/line.py | head",False,0,218,007fb620495a1a9aba5e18eb9fd76aa0c7636af085e309170e6153af601c7bd5,
+2,33,shell,cd /workspace && python3 - <<'PY',False,0,37,68dd5b1d65dcc610df3b39d464850a7e1fdee98ade20b4cb86bf4836a9086f58,
+2,34,shell,"cd /workspace && for t in portal migrate prepare adjust ch64 recover backup q2 pages line; do printf '%-10s ' ""$t""; PORTAL_DB=$PWD/data/portal.sqlite python3 -m unittest -q project",False,0,347,96a4d924813493853b0d3989f826f7c587b7b65b8b98f22c8aed2817aedc5522,
+2,35,shell,cd /workspace && python3 -m unittest -q project/test_line.py 2>&1 | head -30,False,0,731,b0aa0cd7a0e2d9a146dd99d502f224ce373a6e2b3962424703920ce705777947,failed tests in visible output
+2,36,shell,cd /workspace && total=0; for t in portal migrate prepare adjust ch64 recover backup q2 pages line; do out=$(PORTAL_DB=$PWD/data/portal.sqlite python3 project/test_$t.py 2>&1 | tai,False,0,1796,dc25f5628b1d5698aa9a58997f5bb8de5fa532fd2646380673a953e442937e21,
+2,37,shell,"cd /workspace && for t in migrate adjust ch64 recover; do printf '%-8s ' ""$t""; PORTAL_DB=$PWD/data/portal.sqlite python3 project/test_$t.py 2>&1 | grep -E ""^(OK|FAILED|Ran )"" | tr ",False,0,175,b0bf0bc2739b3060531611219c7c1aa0e5163bedd53174e1d35d7c3c29f7bef7,
+2,38,shell,"cd /workspace && sha256sum data/portal.sqlite scratch/portal.pre-line.sqlite 2>/dev/null; python3 -c """,False,0,286,8514239641c24d545fabd3369236c1ba60b74b7f138315fa838bddafa4da99a5,
+2,39,shell,cd /workspace && PORTAL_DB=$PWD/data/portal.sqlite python3 project/line.py query A 2026-03-30 2026-03-30 2 && echo --- && PORTAL_DB=$PWD/data/portal.sqlite python3 project/line.py ,False,0,2802,d664a50380d375c58708e677d5926e702aae6c2bb1df83d350e1d6736826432d,
+2,40,shell,cd /workspace && PORTAL_DB=$PWD/data/portal.sqlite python3 - <<'PY',False,1,168,cd3c1d724c3ac9b60227ced571641fc036f24ddf80516839e20d66067efcd4d2,command failed
+2,41,shell,"cd /workspace && grep -n ""^def \|^class \|Handler\|def main"" project/portal.py | head -40",False,0,1679,ad23ea0977e352e832baa3f452e0cc21afd4d101a63a6151e6bc38111609fdb5,
+2,42,shell,cd /workspace && PORTAL_DB=$PWD/data/portal.sqlite python3 project/portal.py --port 8137 >/tmp/portal.log 2>&1 &,False,127,20483,fb331c7fdd403b813f071a84ede26984dd6c8dea6b367f778022308709ce28cb,command failed
+2,43,shell,"cd /workspace && cat project/http_read.py && sed -n '677,705p' project/portal.py",False,0,1943,8be086139067507231fbf35f841475cb2230f3d9fe164007af8bdb8acb174240,
+2,44,shell,"cd /workspace && export PORTAL_DB=$PWD/data/portal.sqlite && for u in ""/api/events?channel=A&from=2026-03-01&to=2026-03-31"" ""/api/events?channel=B&from=2026-03-01&to=2026-05-31"" ""/",False,0,1117,01712ddf880eb3f55ae9265477eef271abfebb27ce2036853ef791dcf5b0ca8b,
+2,45,shell,"cd /workspace && sed -n '650,677p' project/portal.py",False,0,1422,472b538f5359b51f7ee01c7a6bd9c0b587da2c5c56164e14012ea45357b833c9,
+2,46,shell,"cd /workspace && export PORTAL_DB=$PWD/data/portal.sqlite && a=$(python3 project/portal.py request ""/invite/M42"" ) && b=$(PORTAL_DB=$PWD/scratch/portal.pre-line.sqlite python3 proj",False,0,87,b80d36d75fd0267ff648bdbfd188a4a928132d7ecba7292bd6e4353de481c722,
+2,47,shell,"cd /workspace && for u in ""/api/events?channel=A&from=2026-03-01&to=2026-03-31"" ""/api/events?channel=B&from=2026-03-01&to=2026-05-31"" ""/api/events?channel=A&from=2026-01-01&to=2026",False,0,791,46c5347713ee1b7d70cbb52e49523ab135b3c23baf7e558eaa0ac76f71c2d3c6,
+2,48,shell,"cd /workspace && ls -l out/ && sha256sum out/backup.sqlite 2>/dev/null && python3 -c """,False,0,1091,68363effb85f6c2a3a20ffc6bca7b960ee51ea8f34feeaa7410ac359cc40a10a,
+2,49,shell,cd /workspace && cat >> notes/line-engine.md <<'MD',False,0,355,33f0c2d03c8e6c1f14f990f565de59debddecf20b046485d2e01acc4e5d7e100,
+2,50,shell,cd /workspace && head -c 400 out/line-schedule-2026-03-30.json; echo; python3 - <<'PY',False,0,550,11392a19a3bfc545febdf41867380f4a8739335cfef1af9f2f618bdefba1696f,
+2,51,shell,cd /workspace && python3 - <<'PY',False,0,94,aba92401df9412a40a8fc0f6ee02fcec37e41072cf1fa909c8138d34d30b495d,
+2,52,shell,"cd /workspace && before=$(sha256sum data/portal.sqlite | cut -d"" "" -f1) && export PORTAL_DB=$PWD/data/portal.sqlite && python3 project/line.py import input | python3 -c """,False,0,377,fc8105edd91e3fe45762bd01e422b5cf713d14fe6495d45702e2f9ef37859982,
+3,1,shell,cd /workspace && cat input/version.txt input/clock.txt 2>/dev/null; echo '--- tree ---'; find input -maxdepth 2 -type f | sort | sed 's/^/  /',False,0,457,1c2b4de26a2ea525d59da3c9f0815572b1f688808adf877b5f4776549daff14b,
+3,2,shell,cd /workspace && echo '=== interfaces.md ==='; cat input/contracts/interfaces.md; echo; echo '=== identities.json ==='; cat input/identities.json,False,0,790,d770255096ce3b46817b16b23cbcb615cc4c82500212209590b2b28624c1ee86,
+3,3,shell,cd /workspace && echo '=== desk.md ==='; cat input/desk.md; echo; echo '=== engine.md ==='; cat input/contracts/engine.md,False,0,1020,8c17d660a781fb45a21280a3871f5c9b57f739f61f5d89732ffae9cd5d286ca9,
+3,4,shell,cd /workspace && echo '=== intake.json ==='; head -c 1500 input/intake.json; echo; echo '=== incident.json ==='; head -c 1200 input/incident.json; echo; echo '=== portfolio.json ==,False,0,1967,772ddeaa7e07443cbf62709843f4d8012757c9b967494b14862731e5624db685,
+3,5,shell,"cd /workspace && sed -n '1,70p' project/portal.py; echo '=== calendar_io ==='; cat project/calendar_io.py",False,0,4494,3d9151707a71be4ff8c31723b50c763dc616781bee219ff722a37333038873eb,
+3,6,shell,"cd /workspace && grep -rn ""calendar_io\|def encode"" project/*.py | grep -v test_ ; echo '=== prepare head ==='; sed -n '1,60p' project/prepare.py",False,0,2774,4ac87d74e6d4e3adb9aa89e55edc65e0856dff4ea0fdb4f22945d412e6207b0e,
+3,7,receipts,{'channel': 'A'},False,,2,4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945,0 online batches
+3,8,receipts,{'channel': 'B'},False,,2,4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945,0 online batches
+3,9,receipts,{'channel': 'C'},False,,2,4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945,0 online batches
+3,10,receipts,{'channel': 'D'},False,,2,4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945,0 online batches
+3,11,shell,cd /workspace && ls input/vault 2>/dev/null && cat input/vault/index.json 2>/dev/null | head -40; ls notes scratch data 2>/dev/null,False,0,1375,2c6e3076748beb484b8987dbc92da905d559bfeececa32dbe34d530c418f3d2b,
+3,12,shell,"cd /workspace && sed -n '1,60p' project/test_pages.py; echo '=== test_line head ==='; sed -n '1,60p' project/test_line.py",False,0,4228,60b49bac07bd00cbb491cff3ee80183a21b8cecd7b333a876d038a99e006fb4b,
+3,13,shell,cd /workspace && cp project/line.py scratch/line.pre-v2.py && cp project/portal.py scratch/portal.pre-v2.py && cp project/calendar_io.py scratch/calendar_io.pre-v2.py && cp data/po,False,0,123,6d9c006a8608eb3de1e7df20adad9430e03af8a4a652530010d05bdba9c9402b,
+3,14,shell,cd /workspace && python3 - <<'PY',False,0,41,d674c89169225a22d14af4818dfbc50ee913836ffc9be996fd1c8d45b537d692,
+3,15,shell,cd /workspace && python3 - <<'PY',False,0,41,d674c89169225a22d14af4818dfbc50ee913836ffc9be996fd1c8d45b537d692,
+3,16,shell,cd /workspace && python3 - <<'PY',False,0,41,d674c89169225a22d14af4818dfbc50ee913836ffc9be996fd1c8d45b537d692,
+3,17,shell,cd /workspace && python3 - <<'PY',False,0,41,d674c89169225a22d14af4818dfbc50ee913836ffc9be996fd1c8d45b537d692,
+3,18,shell,cd /workspace && python3 - <<'PY',False,0,41,d674c89169225a22d14af4818dfbc50ee913836ffc9be996fd1c8d45b537d692,
+3,19,shell,cd /workspace && python3 - <<'PY',False,0,2503,6595771296d07e72b6841d17afa330c9e70178d7d09667972a76db752e735c95,
+3,20,shell,cd /workspace && python3 - <<'PY',False,0,373,000a239dbc93741c959331172536f3257a8d9619febd53e2758445af73a670a8,
+3,21,shell,cd /workspace && cp data/portal.sqlite scratch/v2-try.sqlite && export PORTAL_DB=$PWD/scratch/v2-try.sqlite && python3 project/line.py import input | python3 -m json.tool | head -4,False,0,1524,b6908484f4b843e9e9371625679ef8b971737a480d8c80fedacf70e8e52c7a3d,
+3,22,shell,"cd /workspace && sed -n '224,246p' project/portal.py",False,0,861,7592cd4491fb2b3f8af4d1234fba516c2c59d688eea8499c54c3b18800a28495,
+3,23,shell,cd /workspace && python3 - <<'PY',False,0,3510,2e8cb49176d7369d29bea65bf587eb521573ddbc0289553e4d4c0cb29536dd06,
+3,24,shell,"cd /workspace && export PORTAL_DB=$PWD/scratch/v2-try.sqlite && echo '--- A ---' && python3 project/portal.py request ""/api/v2?channel=A&from=2026-03-30&to=2026-03-30"" && echo '---",False,0,2436,3ba28ec33458dafb09621f34f54a496a47524ad54f4aa24729ab62b67ac9f964,
+3,25,shell,"cd /workspace && export PORTAL_DB=$PWD/scratch/v2-try.sqlite && python3 project/portal.py request ""/api/v2?channel=A&from=2026-03-30&to=2026-03-30&asof=x"" >/dev/null 2>&1; echo ""ba",False,0,2358,b848dfce4c1b9e7a282fd13a9c95b6af005038e2891865945600c6d1e7cb456e,
+3,26,shell,cd /workspace && rm -rf scratch/in3 && mkdir -p scratch/in3/orders && cp input/portfolio.json input/identities.json scratch/in3/ && cp input/orders/ops-2.json scratch/in3/orders/ &,False,2,72,f4b1f5e38ba2beb2292b4aef508e6eff3d855711658ff9ca5185688650c28ed1,command failed
+3,27,shell,cd /workspace && export PORTAL_DB=$PWD/scratch/v2-try.sqlite && cp scratch/feed-C.ics scratch/feed-C.before.ics && python3 project/line.py import scratch/in3 && python3 project/lin,False,0,2219,b4b5331b4da93b034ffcd42119e2796185fd8c91b7d52239b21beb0a2012fc51,
+3,28,shell,cd /workspace && tr -d '\r' < scratch/feed-C.before.ics > /tmp/b.ics && tr -d '\r' < scratch/feed-C.ics > /tmp/a.ics && diff -u /tmp/b.ics /tmp/a.ics,False,1,557,a1555dcd4a43ef02bfcf4c18cbdd7f02d49b06749f2cadc02aed05fe02e0d1da,command failed
+3,29,shell,cd /workspace && cat > project/test_v2.py <<'PY',False,0,1685,09f310d804f3c5af0a321e1e9e442ebaf6ff7fc8681cb9a1419ce7b5a55710b0,failed tests in visible output
+3,30,shell,cd /workspace && python3 - <<'PY',False,0,2226,d45a219256e0b08de2b0776cea2021d44c276b1695317eb0a3908cc2b75e7611,
+3,31,shell,cd /workspace && python3 - <<'PY',False,0,1631,54ecbc7e1b84c2e8d92f06ba59b6884bc661e13205e7f7cd62648dacbba2e97a,failed tests in visible output
+3,32,shell,cd /workspace && python3 - <<'PY',False,0,1525,d510759e0c47141e45f0ee6cc4125c2ed2fb1d41584e7e0b781098e8ca08ba6b,
+3,33,shell,"cd /workspace && sed -n '672,706p' project/portal.py",False,0,1824,fe6f103b555e78d8bd02a571b85b1b8e86257c1510a2b8e29452ad51d472e9cc,
+3,34,shell,cd /workspace && python3 - <<'PY',False,0,290,9d3b849f5012ea9b6471b19864bdaacb187f0900ff84de4cdd82043eb4271756,
+3,35,shell,cd /workspace && python3 - <<'PY',False,0,1410,52de29ec69ffbea25ba27718115144239c42830137f7a0b29a057aa43650056a,failed tests in visible output
+3,36,shell,"cd /workspace && PORTAL_DB=$PWD/scratch/v2-try.sqlite python3 project/portal.py request ""/api/events?channel=A&from=2026-03-06&to=2026-03-27"" | python3 -c ""import json,sys; print([",False,0,172,a8dfb627efc6a970f53830b425b88eedefabc0df130ed3dee0b1f76eb2f0869a,
+3,37,shell,cd /workspace && python3 - <<'PY',False,0,285,258dad28fcc16015794c91fe42f94fe5f210300ef6fac5fffbe5bcb783259b0c,
+3,38,shell,"cd /workspace && for t in portal migrate prepare adjust ch64 recover backup q2 pages line v2 feed; do printf '%-8s ' ""$t""; PORTAL_DB=$PWD/scratch/v2-try.sqlite python3 project/test",False,0,487,26cfbd44c30bebbfde34cf4c3ba8454013fb14fed2806c812a94eedb8cb467ce,
+3,39,shell,"cd /workspace && PORTAL_DB=$PWD/scratch/v2-try.sqlite python3 project/test_line.py 2>&1 | grep -A 18 ""FAIL:""",False,0,2524,e7c27ac9c8d4cc70b8729cd67c2dcb3aff338d7c2f55e1089b0ee0fcc9741181,failed tests in visible output
+3,40,shell,"cd /workspace && sed -n '310,335p' project/test_line.py",False,0,1604,287f7bea3a2f8d82ef727c7c649ab9d55f096e033b4d8d07cef5a822bd19b298,
+3,41,shell,cd /workspace && python3 - <<'PY',False,0,165,7f30015459cdede0b625abfa2a92f26a68c27ff504d32a307a595157f18508b3,failed tests in visible output
+3,42,shell,cd /workspace && grep -n 'release_version' project/test_line.py,False,0,116,ee18db6dc529c63c5669bd33d9a18f6c2fca72a00abfe17716277a677e97f10d,
+3,43,shell,cd /workspace && python3 - <<'PY',False,0,64,1f11e5cdbbefef329a1617808b19c9157b4947d4d4491ca3bacb9dcb4b65b922,
+3,44,shell,cd /workspace && export PORTAL_DB=$PWD/data/portal.sqlite && python3 - <<'PY',False,0,245,c9a20db6de62fb5d40d53ec4fed403e086241017ecb04842e34869ebd88971e8,
+3,45,shell,cd /workspace && export PORTAL_DB=$PWD/data/portal.sqlite && python3 - <<'PY',False,0,307,30655c0b585b9673d896c780eefbfb9d4de2f76deda7fb4d95fe5d84bb01339a,
+3,46,shell,cd /workspace && export PORTAL_DB=$PWD/data/portal.sqlite && for ch in A B C D; do python3 project/line.py feed $ch 2026-03-02 2026-06-29 3 out/feed-$ch-20260302-20260629.ics; done,False,0,1041,8b9673eefb64de6194aab55666325dd8ca28e5592fbf2f3a4e053d1c037383f0,
+3,47,shell,cd /workspace && export PORTAL_DB=$PWD/data/portal.sqlite && before=$(sha256sum out/feed-*.ics | sha256sum) && for ch in A B C D; do python3 project/line.py feed $ch 2026-03-02 202,False,0,640,ecd700ab91a4e0b5ea42311db4339172f4d60d8407c8bd3b6d26d4226de937f3,
+3,48,shell,"cd /workspace && for u in ""/api/events?channel=A&from=2026-03-01&to=2026-03-31"" ""/api/events?channel=B&from=2026-03-01&to=2026-05-31"" ""/api/events?channel=A&from=2026-01-01&to=2026",False,0,874,b897453e057c403aecd6f8dc1a2bcc250113030410a0dea1a4c45624b146ecdd,
+3,49,shell,cd /workspace && PORTAL_DB=$PWD/data/portal.sqlite python3 - <<'PY',False,0,1017,625323b462a4c27406ffa38922fdef7a5fbf4d2894fbc98bb9e3955068e7b876,
+3,50,shell,cd /workspace && cat > notes/dual-version.md <<'MD',False,0,62,d18c6ce2e68670b90152b4d9d0f2561a5e4e05458fcfa51cc1e3f1fe4b2e3f23,
+3,51,shell,cd /workspace && sha256sum data/portal.sqlite scratch/portal.pre-v2.sqlite && total=0; for t in portal migrate prepare adjust ch64 recover backup q2 pages line v2 feed; do r=$(PORT,False,0,480,e20a6eff0c0546d9cf1270be4a1aa287948b1497db750abb6b6d94575e3ccd85,
+3,52,shell,"cd /workspace && python3 -c """,False,0,1753,ee42f89fc85172de8aebce089a37dfcccfc3117496ad1707214c486a33a2f896,
+4,1,shell,cd /workspace && head -c 600 data/receipts-A.json; echo; echo '--- B ---'; head -c 300 data/receipts-B.json,False,0,1071,56dfe914ae1e582dc7ac2109d515e567e3b513aa8e9bf853ca69d4efbab1d22e,
+4,2,shell,"cd /workspace && python3 -c """,False,0,508,eeffe7827767becd9a0d5079683a1cbdc40cc8b7723a263cf823e67629cccfaa,
+4,3,shell,cd /workspace && cat > project/release.py <<'PY',False,0,37,68dd5b1d65dcc610df3b39d464850a7e1fdee98ade20b4cb86bf4836a9086f58,
+4,4,shell,cd /workspace && cp data/portal.sqlite scratch/rel-try.sqlite && export PORTAL_DB=$PWD/scratch/rel-try.sqlite && rm -rf scratch/rel && python3 project/release.py build 2026-03-02 2,False,0,2251,854d126605d2bd3beecb51abf0072b1f49704a4d733cfb449b84f5fec846de77,
+4,5,shell,cd /workspace && export PORTAL_DB=$PWD/scratch/rel-try.sqlite && python3 project/release.py verify scratch/rel/first-manifest.json && echo '--- C 频道 U56 各日 ---' && grep -A2 'UID:li,False,0,554,88f38b8b21183735c21dc0777f3760471c91a4613481eee35bfa7f2bb27786bd,
+4,6,shell,cd /workspace && cat > project/test_release.py <<'PY',False,0,1576,7c36470b25119f617904da26b252350646f458aa21082ae140580528622af267,failed tests in visible output
+4,7,shell,cd /workspace && python3 - <<'PY',False,0,659,a6ab1e18c45ff951eea29990eb69c3b883cf0f855731b22a831cca3c0e54614f,
+4,8,shell,cd /workspace && python3 - <<'PY',False,0,511,b0feda07fb375e7e2fa0f11c592e4d1043e629b8d349ec9e3d0caf29545cdb93,
+4,9,shell,cd /workspace && sha256sum data/portal.sqlite && export PORTAL_DB=$PWD/data/portal.sqlite && python3 project/release.py build 2026-03-02 2026-03-23 3 --outdir out | tee scratch/fir,False,0,656,c4d90f3d8261eaced1f91ce2416ff1632e68cc298289c42d1c88a47074c7dc9f,
+4,10,publish,"{'channel': 'A', 'key': 'A-first-20260302-20260323-8cc95bf0', 'file': 'first-A-20260302-20260323.ics'}",True,,20,729458385fe3f7e00152e239db1e4e947bdffdf93188a6ad42bd08a4971a7a19,MCP error
+4,11,publish,"{'channel': 'A', 'file': 'out/first-A-20260302-20260323.ics', 'key': 'A-first-20260302-20260323-8cc95bf0'}",False,,49,870e2d92810fbe423b6c06471cb80c31d38a02e767b1351fd07747e66939f73f,new receipt A-00001
+4,12,publish,"{'channel': 'B', 'file': 'out/first-B-20260302-20260323.ics', 'key': 'B-first-20260302-20260323-6021bc6b'}",False,,49,37effa142e097b9fa909a71d30824516908c19ebd65e993a9564f775846a3eca,new receipt B-00001
+4,13,publish,"{'channel': 'C', 'file': 'out/first-C-20260302-20260323.ics', 'key': 'C-first-20260302-20260323-c3b5de37'}",False,,49,2b82576ff8524e6e30ad8f2e1ac6e67b7b7d5cf30da4f716c2a5233684d19777,new receipt C-00001
+4,14,publish,"{'channel': 'D', 'file': 'out/first-D-20260302-20260323.ics', 'key': 'D-first-20260302-20260323-a223e03c'}",False,,49,b271c16cc64012373a1f510a7fc0a5316556d4779c5876dbb65aa3c786b29bfa,new receipt D-00001
+4,15,publish,"{'channel': 'A', 'file': 'out/first-A-20260302-20260323.ics', 'key': 'A-first-20260302-20260323-8cc95bf0'}",False,,48,631f62441da2da796870b7cf215a69e08a419ae2945962ee070e8c29f7c6fa47,reused receipt
+4,16,receipts,{'channel': 'A'},False,,1610,361e7e62e5190035dc17e2490a389af3adf9b1366b1aa508b24eeba58fed0236,1 online batches
+4,17,receipts,{'channel': 'B'},False,,1770,afab30ca2a3e210995ff3af4ae1d9a3068c88231c69c6f1b1336aa66c95f2d81,1 online batches
+4,18,receipts,{'channel': 'C'},False,,1770,5e705df74da964d8b7328b8650b4bf697ab9acc7303e115054357572ccc635a6,1 online batches
+4,19,receipts,{'channel': 'D'},False,,1610,27aeb7ac25046669001a7731c6a3bf3c833d1db3f58f3b201593c418866dd7d1,1 online batches
+4,20,shell,cd /workspace && cat > out/receipts-first.json <<'JSON',False,0,263,140a7e5b45ddfea8f4157778377b9a5aea62a2bc7a975afffe0f7424ed5a5bd2,
+4,21,shell,cd /workspace && python3 - <<'PY',False,0,41,d674c89169225a22d14af4818dfbc50ee913836ffc9be996fd1c8d45b537d692,
+4,22,shell,cd /workspace && python3 - <<'PY',False,0,111,8642f8a451ff56d01b4816ed7b47a315b4c3a407a32e0b505c574c42e2b0129d,
+4,23,shell,"cd /workspace && head -40 notes/delivery-record-march-first.md && echo '...' && sed -n '/## C 端/,/## D 端/p' notes/delivery-record-march-first.md",False,0,3798,33bc6fb180a2066d84725c30aedd357e4dbeb790852bf61a7678fa484b60a2be,
+4,24,shell,cd /workspace && python3 - <<'PY',False,0,1397,0d6a094853cca1cce1e1268bbe4a8f026fde51ca09494525fe89f76b1e2b6c5b,
+4,25,shell,cd /workspace && python3 - <<'PY',False,0,221,0b8ebd88e823b5fdc6fcdbde573a54acc63afb43bdd194af5956bf9454136f9c,
+4,26,shell,cd /workspace && export PORTAL_DB=$PWD/data/portal.sqlite && python3 project/release.py record out/first-manifest.json out/receipts-first.json --json out/delivery-record-march-firs,False,0,428,9f58fdd22ee2f124ca9e13dd2074250371c2b9201a3f80f2f4f7007d2b107619,
+4,27,shell,"cd /workspace && for t in portal migrate prepare adjust ch64 recover backup q2 pages line v2 feed release; do printf '%-8s ' ""$t""; PORTAL_DB=$PWD/scratch/rel-try.sqlite python3 pro",False,0,691,6905a205c385347f48b20c45fedf0f484e23635142ea0c0733e8529a70b8aaef,
+4,28,shell,cd /workspace && cat > notes/release-first-march.md <<'MD',False,0,64,d29e1bad32185591e81c03b0c1ab15f7e75a44264abd6f625f72c7357fb1cef6,
+4,29,shell,"cd /workspace && cp data/portal.sqlite scratch/rebuild-from-scratch.sqlite && export PORTAL_DB=$PWD/scratch/rebuild-from-scratch.sqlite && python3 -c """,False,2,80,0d0bbc222f8dc1c4a6aa82bfe3401e8f518eceb808dbd6ed8a0a58b4e6452aa9,command failed
+4,30,shell,cd /workspace && rm -rf scratch/rebuild && PORTAL_DB=$PWD/scratch/rebuild-from-scratch.sqlite python3 project/release.py build 2026-03-02 2026-03-23 3 --tag first --outdir scratch/,False,0,883,43dd359676f525c89e7e6b1782af18f23f2c3a00a02f104bd53eb1e21f0250ca,
+4,31,shell,cd /workspace && python3 - <<'PY',False,0,1025,844157f191163b0cd040bd908415b3105d96b2996cf3a41e9bc69ec06fdbad8f,
+5,1,shell,cd /workspace && cat input/version.txt input/clock.txt; echo; echo '=== support.json ==='; cat input/support.json; echo; echo '=== vault ==='; ls -R input/vault 2>/dev/null | head ,False,0,773,0dc06b2fb1d724c8ef20b6446d8625864ad73488239fb1872d345c769600c42f,
+5,2,shell,"cd /workspace && python3 -c """,False,0,1467,58a86d86e183ef01f231313544ff42e0713f540afb80f48e3fb562add9472faf,
+5,3,receipts,{'channel': 'A'},False,,2,4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945,0 online batches
+5,4,shell,cd /workspace && cp project/line.py scratch/line.pre-support.py && cp project/portal.py scratch/portal.pre-support.py && cp data/portal.sqlite scratch/portal.pre-support.sqlite && ,False,0,3395,e5ef15aa6bd33a08b5d448652d2b0e6df2b200db1ef091b92ab1b0ba1e02df07,
+5,5,shell,cd /workspace && python3 - <<'PY',False,0,1822,7a02c21f1b1a1c64f42cffb21661eaa2ff2d3b67eb7121d9cbe9b0ef1347a633,
+5,6,shell,cd /workspace && python3 - <<'PY',False,0,2622,73f39e7b90c99e3d49dd93e04cb67e8dd5c2ab0454d36136b366c70c4e771be5,
+5,7,shell,cd /workspace && cat > project/support.py <<'PY',False,0,106,b1b8f919a3a52ddb4b038b7d12eeaa0aed32ee79ddb2b19c76cb1999aa75f49a,
+5,8,shell,cd /workspace && cat scratch/support-preview.md,False,0,1913,2713e2236851928ff5b6ba147772b5c936536920b5a691d6a5984a1fadaf95b2,
+5,9,shell,cd /workspace && cat > project/test_support.py <<'PY',False,0,2338,ac951ff11b272652e7755f1e6b15eb5f1947c451129514c75c6d44db60dafbbd,failed tests in visible output
+5,10,shell,cd /workspace && python3 - <<'PY',False,0,59,cd69eee192603e69b90527549d71163e48ce9ec54eb8488baa0f8fd6c20e998c,
+5,11,shell,"cd /workspace && for t in portal migrate prepare adjust ch64 recover backup q2 pages line v2 feed release support; do printf '%-8s ' ""$t""; PORTAL_DB=$PWD/scratch/rel-try.sqlite pyt",False,0,544,e48d7affc140beb68c44bf8bc15aa9879d321666e2cb35d93a16ff45a5bcea96,
+5,12,shell,cd /workspace && export PORTAL_DB=$PWD/data/portal.sqlite && before=$(sha256sum data/portal.sqlite | cut -d' ' -f1) && python3 project/support.py preview input/support.json --index,False,0,279,9360456c9fe9e88f58124d9c00855b7e924ed765c944eb0321962d8f4152e757,
+5,13,shell,"cd /workspace && for u in ""/api/events?channel=A&from=2026-03-01&to=2026-03-31"" ""/api/events?channel=B&from=2026-03-01&to=2026-05-31"" ""/api/pages?channel=A&from=2026-03-01&to=2026-",False,0,534,b22018d23c1af452f40bc7c95b272738a0ce0ab75d6061472afe335f407900f7,
+5,14,shell,cd /workspace && cat > notes/support-lookup.md <<'MD',False,0,191,961f26c1915415c0b3d253ca63fd47c4b5c693a0afcf5dc91102a9dfd552df5d,
+5,15,shell,cd /workspace && cat notes/support-answers-2026-03-16.md && echo '=== json head ===' && head -30 out/support-preview-2026-03-16.json,False,0,2881,adf3fab54f2ac00359cd1774566bfa0d62603b8a2b1528485b331137d3c7a868,
+5,16,receipts,{'channel': 'B'},False,,2,4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945,0 online batches
+5,17,shell,cd /workspace && ls -l out/support-preview-2026-03-16.json notes/support-*.md && sha256sum data/portal.sqlite && PORTAL_DB=$PWD/data/portal.sqlite python3 project/support.py previe,False,0,428,7db33b4193ed5f08e20cb9eaa95dad7637a7c5da653c8c98d40904dec9784132,
+6,1,shell,cd /workspace && cat input/version.txt input/clock.txt; echo; find input -maxdepth 2 -type f | sort | sed 's/^/  /',False,0,711,1ec845cfd4ddcf1ed9091c6312f948333c197482569c4e17cc7bbea026762948,
+6,2,shell,cd /workspace && echo '=== contracts/support.md ==='; cat input/contracts/support.md; echo; echo '=== orders/ops-6.json ==='; cat input/orders/ops-6.json; echo; echo '=== release-w,False,0,1522,dc39d3ac6c9da8c2dfcbc64b86d1aa178b415dafd3d96b8bcf377264b6e2db9d,
+6,3,shell,cd /workspace && echo '=== support.json ==='; cat input/support.json; echo '=== vault index ==='; cat input/vault/index.json; echo '=== identities (unchanged?) ==='; head -8 input/,False,0,823,9bc7d666b0fb44d076fe8e0aaa8add5d46b099d03cf4467bbea7e8e70fe2a720,
+6,4,shell,"cd /workspace && cp data/portal.sqlite scratch/adhoc-try.sqlite && PORTAL_DB=$PWD/scratch/adhoc-try.sqlite python3 project/line.py import input | python3 -c """,False,0,3781,2a56fe966753228b1a1d41e90eab64571f46a4b7363a811fc03174c0e49b1b2c,
+6,5,shell,"cd /workspace && cat input/vault/index.json && ls input/vault/ && python3 -c """,False,0,1327,299e16a0770ce609c0b6d225e70b9061029d8a423d2016dc6d9e5ebb1006ab09,
+6,6,shell,"cd /workspace && grep -n ""^import\|^from\|^def \|^BASE\|^FEED\|^STATUS\|^FALLBACK"" project/release.py | head -60 && echo ==== && grep -n ""^import\|^from\|^def "" project/support.py ",False,0,3652,11cfa415ab70277d88a45d521b9514bcf58dce8708849c8c7b1eca295ecfadb9,
+6,7,shell,"cd /workspace && sed -n 1,40p project/line.py && echo ...... && grep -n ""def feed_rows"" -A 40 project/line.py && echo ...... && sed -n '/^def main/,$p' project/line.py",False,0,5976,bf4b4bfb55b53faa19713f4f0df278c143c633f79518e47ef0d13c5c7bc089c3,
+6,8,shell,cd /workspace && cat input/contracts/support.md && echo ==== && cat input/support.json && echo ==== && cat input/release-window.json && echo ==== && cat input/orders/ops-6.json && ,False,0,1898,248a47d0272a789214e68ad14c3f98cad94f2656a311307f0aee3459fb5717c3,
+6,9,shell,"cd /workspace && sed -n '/^def receipt_for/,/^def record/p' project/release.py && sed -n '/^def record/,/^def render_markdown/p' project/release.py && head -c 600 out/receipts-firs",False,0,4598,1575f05e41d39b3736fa77d8e2312a6cbb4b1710db5091d15c2ca734e091fb7d,
+6,10,shell,"cd /workspace && sed -n '/^def feed(/,/^def local_time/p' project/line.py && sed -n '/^def explain/,/^def main/p' project/line.py && sed -n '/^def v2_rows/,/^def feed_stamp/p' proj",False,0,9999,a364a8d1d22b49b81eb9053909213ad4bfd32d83ceee5e473984529fa11ae09f,
+6,11,shell,cd /workspace && cp data/portal.sqlite scratch/portal.pre-adhoc6.sqlite && cp project/line.py scratch/line.pre-adhoc6.py && cp project/release.py scratch/release.pre-adhoc6.py && s,False,0,2578,879b5e8d62a74b7327900131742e2100ee1bd3ccdc678937d92f3ce35a6cc9f5,
+6,12,shell,"cd /workspace && sha256sum data/portal.sqlite && python3 project/line.py import input | python3 -c ""import json,sys; r=json.load(sys.stdin); print([e['action'] for e in r['orders']",False,127,313,55b708f968ebe56942d2d9af476c84c72db9201e18ded67b927ff3a1ce797793,command failed
+6,13,shell,cd /workspace && python3 - <<'PY',False,0,399,4581974aedd789c7fd8f599060370d76774baf7580972cdb32c0a2432c0bc185,
+6,14,shell,cd /workspace && python3 - <<'PY',False,0,1189,40440ce067da75aef84c17723c0b6017142555a930390d14c8d994ac1933b969,
+6,15,shell,"cd /workspace && sed -n 36,115p project/release.py && echo ...... && sed -n '/^def main/,$p' project/release.py",False,0,6072,912cc012e8c0578f5bca8bbe2623a92edc63497ce088402a6da2f5f09059c68f,
+6,16,shell,"cd /workspace && sed -n '/def encode_feed/,$p' project/calendar_io.py",False,0,803,4c0b4003d6f167807ca00d5c1f70629e264e328b621a268f66f3b8d99fbdb439,
+6,17,shell,cd /workspace && python3 - <<'PY',False,0,36,1dc03e1a16d2b4b3e22af7c10dcff6f5fd37167d22de011b9e2da670461b2ab4,
+6,18,shell,cd /workspace && python3 - <<'PY',False,0,45,796185ac3a5781ba174f49f9ef4bca3007a333e96f25146ffd39e469116648ac,
+6,19,shell,cd /workspace && cp data/portal.sqlite scratch/adhoc-try2.sqlite && mkdir -p scratch/try-out && PORTAL_DB=$PWD/scratch/adhoc-try2.sqlite python3 project/release.py delta 2026-03-02,False,0,10312,835a48f81d43547d77dd36cbd5ba09204dc31b674ed4598e6e49ee0392673064,
+6,20,shell,"cd /workspace && sed -n '/^def ics_starts/,/^def code_of/p' project/release.py",False,0,940,a0415643e22d63d6121dbe780878d02cffcbf64abe55112bc7916f09b0ff293d,
+6,21,shell,cd /workspace && python3 - <<'PY',False,0,739,d6088f3cf9ab8b4c1c819a619c64b0ba879c392537693f5d5e21b1323d269ef7,
+6,22,shell,"cd /workspace && python3 -c """,False,0,2380,5c4f709d8d4ddfb7dec9f90a460d6185ba00bf7bf2ba9caa9724aa55be968520,
+6,23,shell,cd /workspace && cp data/portal.sqlite scratch/portal.pre-delta6.sqlite && python3 project/release.py delta 2026-03-02 2026-03-23 6 --downstream input/vault/index.json --tag adhoc6,False,0,1516,ca674f3f56379ef8124ee7039c4a0a5cbb1c0bc8912933099849acc76afab969,
+6,24,shell,"cd /workspace && python3 project/http_read.py ""/api/v2?channel=A&from=2026-03-02&to=2026-03-23"" | head -c 900 && echo && python3 project/http_read.py ""/api/v2?channel=B&from=2026-0",False,0,3118,e1384eb5accb015469516aac2f436ecd2f88f88a066d16b650b06778d156d476,
+6,25,receipts,{'channel': 'A'},False,,2,4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945,0 online batches
+6,26,receipts,{'channel': 'B'},False,,2,4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945,0 online batches
+6,27,receipts,{'channel': 'C'},False,,2,4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945,0 online batches
+6,28,receipts,{'channel': 'D'},False,,2,4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945,0 online batches
+6,29,publish,"{'channel': 'A', 'key': 'A-adhoc6-20260302-20260323-88951c23', 'file': 'out/adhoc6-A-20260302-20260323.ics'}",False,,49,619c049670880de283c077be36cfcd0eccd3b944178e3806664cbac99b5b274d,new receipt A-00002
+6,30,publish,"{'channel': 'B', 'key': 'B-adhoc6-20260302-20260323-cc4665ad', 'file': 'out/adhoc6-B-20260302-20260323.ics'}",False,,49,d2dea467996811ae3ca6ff1bb70ce56b9a92654716e97e057afa782f65d302b7,new receipt B-00002
+6,31,publish,"{'channel': 'C', 'key': 'C-adhoc6-20260302-20260323-d60e194f', 'file': 'out/adhoc6-C-20260302-20260323.ics'}",False,,49,d7436661c05cb49cb13bef84d0d043a1aad4756ad8224dacecf0a24dae1c2b00,new receipt C-00002
+6,32,publish,"{'channel': 'D', 'key': 'D-adhoc6-20260302-20260323-6823c033', 'file': 'out/adhoc6-D-20260302-20260323.ics'}",False,,49,c49aabbb6bc173ee861dc70a96a3f7142ac288cbb8f505901fe817fb4e04c653,new receipt D-00002
+6,33,receipts,{'channel': 'A'},False,,471,e97bfd3869b05d33237dc7f80c11e713078c77b8e547edb8d887be321e3447cf,1 online batches
+6,34,receipts,{'channel': 'B'},False,,616,57ad1ad2bd592acf3f48534346c328fd389522763018480d51d03523070c795a,1 online batches
+6,35,receipts,{'channel': 'C'},False,,511,be3688c654bcfcddeb272fe3d1c542f484d18d844cd3ec30a062e20a4e6d5e86,1 online batches
+6,36,receipts,{'channel': 'D'},False,,566,fb7a60422d5fd018ce2b0b885583d1b6c3a298e6f9f9c85739c15bf3d1e454e9,1 online batches
+6,37,shell,cd /workspace && cat > out/receipts-adhoc6.json <<'JSON',False,0,1931,f11980cedf98f4de84fecabff66a2e76be260430f364a8022e0979bf07d707d2,
+6,38,shell,"cd /workspace && sed -n '/^def render_markdown/,/^def main/p' project/release.py",False,0,1782,75fa8b207c0d1126fdd7f5dc7bd2d7c7cfdc719a5b2a229b7b9cf7d5f72652db,
+6,39,shell,cd /workspace && python3 - <<'PY',False,0,1746,511ae0468eba249718addb94032c723d91132cc8154c7ea7e308cd8ae360693f,
+6,40,shell,"cd /workspace && sed -n 1,70p project/test_release.py && echo ...... && sed -n 1,40p project/test_support.py",False,0,3716,f4680d4afb7046f83f4b36df3039a4d88b00cee709eabcba93712cfdf52801bd,
+6,41,shell,"cd /workspace && grep -n ""def v2_json"" -A 12 project/portal.py && grep -n ""def when_json"" -A 14 project/portal.py && grep -n ""v2_json\|when_json"" project/test_v2.py | head -8",False,0,1543,9df60b90bb127ac1e9c05384d73623237a34502f27c845338e493fd51a5ffb67,
+6,42,shell,cd /workspace && cat > project/test_adhoc.py <<'PY',False,0,1740,fb1ae177ebc92601208a56f3a74394f1b7f609d7641f9afb0417874d4785e057,failed tests in visible output
+6,43,shell,"cd /workspace && python3 project/test_adhoc.py 2>&1 | sed -n 1,60p",False,0,7249,f5eed5dab73a06c2335226d5a4c664575cae17c00c83026a1a15b3d07c8611a9,
+6,44,shell,cd /workspace && python3 - <<'PY',False,0,272,1368f1e10a0097674c6664cf38040ada609904ed9b19fc9b6e887af37a6156ff,failed tests in visible output
+6,45,shell,cd /workspace && python3 - <<'PY',False,0,274,7bcfd2d69d4832cd65611e3ed0082f1dbe9c9d6098946f64ebe595dc598b7ccb,
+6,46,shell,"cd /workspace && for f in project/test_*.py; do printf '%-28s' ""$(basename $f)""; python3 ""$f"" 2>&1 | tail -3 | tr '\n' ' '; echo; done",False,0,2288,692dcf391f6e84a69df55540b0f1f7b4beaf71ee5be8b6e8e35f21b3d72adeb9,
+6,47,shell,"cd /workspace && python3 project/test_line.py 2>&1 | grep -A 20 ""FAIL:""",False,0,660,ca8e26acbd301eb14645e3b15d6eb2c8a6a9b5f0fd66456d5b0886ac88da5fd0,failed tests in visible output
+6,48,shell,"cd /workspace && sed -n 55,100p project/test_line.py",False,0,2564,8b37a4ade616ae59698750084666f418bfd80d8d89d73ecfc621daa884dd849a,
+6,49,shell,"cd /workspace && sed -n 1,30p project/test_line.py",False,0,990,aa0fede3d78de096fcacbc13d72cb4161e03166760b8445ed1926ff71b394682,
+6,50,shell,cd /workspace && python3 - <<'PY',False,0,133,db1010f324dd8d9ecd0bf2675f5614e548029de1bb3bcb39f183d6290da114e1,
+6,51,shell,"cd /workspace && for f in project/test_*.py; do printf '%-24s' ""$(basename $f)""; out=$(python3 ""$f"" 2>&1); code=$?; echo ""$out"" | grep -E ""^(OK|FAILED)"" | tr '\n' ' '; echo ""exit=$",False,0,552,83310e34abfca1c02a3e3e1da486052c9c795d78e936caeb527435e14f847058,
+6,52,shell,"cd /workspace && grep -n ""^def route"" -A 8 project/portal.py",False,0,589,56d511f0d720735ffc1a12150e2c032f6ae2607fd47e34f27959b6cbfeae91fe,
+6,53,shell,cd /workspace && python3 - <<'PY',False,0,514,f9d573fdd44ce05adf8f987fd28048085b15636389a6b76a710ff9a470471041,
+6,54,shell,cd /workspace && for ch in A B C D; do python3 project/line.py feed $ch 2026-03-02 2026-03-23 6 out/export6-$ch-20260302-20260323.ics; done && python3 - <<'PY',False,0,931,255450d61c3bec7a97e4872c2d10cbda2b73eb66f870b4d3fa4a59730e6fe839,
+6,55,shell,cd /workspace && python3 - <<'PY',False,0,418,19a127f9b03899ba316ff11ef9232d791a11833abf98547d3eeeab47e6fac815,
+6,56,shell,cd /workspace && cat > notes/adhoc6-go-live.md <<'MD',False,0,55,6cca86ff571663e41e810ae21aef526f55aa9a87e1e8d8743104b1987b814152,
+6,57,shell,cd /workspace && python3 - <<'PY',False,0,249,452c02d325036a5b89c648a4ce54dc8c675f97d937fcfdc99ef56463abd00ef3,
+6,58,shell,"cd /workspace && total=0; for f in project/test_*.py; do out=$(python3 ""$f"" 2>&1); n=$(echo ""$out"" | grep -oE ""Ran [0-9]+"" | grep -oE ""[0-9]+""); total=$((total+n)); echo ""$out"" | g",False,0,1242,ede4685fca69fce59c2df72891b028df2d75858ced58f80f30a39cbb7c32be33,
+6,59,shell,"cd /workspace && total=0; for f in project/test_*.py; do n=$(python3 ""$f"" 2>&1 | grep -E ""^Ran "" | tail -1 | awk '{print $2}'); printf '%-22s %s\n' ""$(basename $f)"" ""$n""; total=$((",False,0,443,6da3bcf2c1c907808ddc3684ca60715dcd3508d53147e8c8e00e63b2fafa2327,
+6,60,shell,"cd /workspace && sed -i 's/全套 15 个测试文件全绿（共 231 项）/全套 15 个测试文件全绿（共 254 项）/' notes/adhoc6-go-live.md && grep -n ""254"" notes/adhoc6-go-live.md",False,0,94,e6524a41cd04d6b7652906961a459fceef143336abc6203c44f484ddd4af2409,
+7,1,shell,cd /workspace && ls -R input | head -60 && echo ==== && cat input/version.txt; echo; cat input/clock.txt; echo; ls input/orders/ input/contracts/,False,0,1035,f513f8834bd94de8fab9a70b9625bb1230c0d2db380cfaed1eaa77bc5fb63cba,
+7,2,shell,"cd /workspace && for f in input/desk.md input/contracts/delivery.md input/contracts/engine.md input/contracts/interfaces.md; do echo ""=== $f""; cat ""$f""; echo; done",False,0,1554,764443c7c94346bc3e15a5909a390d7fc82eb5a369c353f8bff7e6af7268f084,
+7,3,shell,cd /workspace && cat input/orders/ops-7.json && echo ==== && cat input/intake.json && echo ==== && cat input/incident.json && echo ==== && ls -R input/regional input/records | head,False,0,1604,6ec0b96e78b150582b4f9df7b7e91b5adc07f9664145bdec73f0c6f7a22cc1db,
+7,4,receipts,{'channel': 'A'},False,,471,e97bfd3869b05d33237dc7f80c11e713078c77b8e547edb8d887be321e3447cf,1 online batches
+7,5,receipts,{'channel': 'B'},False,,616,57ad1ad2bd592acf3f48534346c328fd389522763018480d51d03523070c795a,1 online batches
+7,6,receipts,{'channel': 'C'},False,,511,be3688c654bcfcddeb272fe3d1c542f484d18d844cd3ec30a062e20a4e6d5e86,1 online batches
+7,7,receipts,{'channel': 'D'},False,,566,fb7a60422d5fd018ce2b0b885583d1b6c3a298e6f9f9c85739c15bf3d1e454e9,1 online batches
+7,8,shell,cd /workspace && ls -la input/regional 2>&1 | head; echo ====; ls input/records/2024 | head; echo ====; head -5 input/records/CH-51.txt; echo ====; ls input/previous-release/notes;,False,0,1075,6a2324089b14c06e5f82b1891059efe84aa641e2560675826f517d8e597d9d2e,
+7,9,shell,"cd /workspace && cp data/portal.sqlite scratch/portal.pre-ops7.sqlite && cp project/line.py scratch/line.pre-ops7.py && python3 project/line.py import input | python3 -c """,False,1,593,29fc337c323b34d1662f29538007dca22825ad1efee0b62cd7cecc5e0871fa91,command failed
+7,10,shell,cd /workspace && python3 - <<'PY',False,0,804,7727fefed61b80639bb7f84c7cd303edd7ff13cbafd4d5faafb146ab10847b99,
+7,11,shell,cd /workspace && python3 - <<'PY',False,0,2233,ef844e5844a873cf310a50931ab476d95f71940b13a893b22240c8474e6471a6,
+7,12,shell,cd /workspace && python3 - <<'PY',False,0,306,71332057153426c6c9ca610f8f286d207b9a49a739b710be2c01c075eb518968,
+7,13,shell,cd /workspace && python3 - <<'PY',False,0,212,4293d95d47cbcc4f83064e0639394571b1a145cbe34bb92a8f04d4ed35bb1add,
+7,14,shell,cd /workspace && for ch in A B C D; do python3 project/line.py delta $ch 2026-03-02 2026-03-23 7 out/receipts-$ch-merged.json out/plan-$ch.ics; done,False,0,2366,57db548c6b1ba6d0c5a8efb93d5977d95c7bd1874b75ccd803584901a1fd1761,
+7,15,shell,"cd /workspace && for f in out/plan-*.ics; do echo ""--- $f""; cat ""$f""; echo; done",False,0,1013,5b39855a280d18705ba6eeabd7460a3687af0ba1092d6818ee559417777d6f6f,
+7,16,shell,cd /workspace && cat > project/test_plan.py <<'PY',False,0,1082,2dbe74f7d8b35cc4aada3d89d62bb778fd4e3e1bf0979da87ac86d8f89945c96,failed tests in visible output
+7,17,shell,"cd /workspace && python3 project/test_plan.py 2>&1 | grep -E ""^(FAIL|ERROR):"" ",False,0,427,50f4364af57bd8ef471e33530882eccd8b2e4c13963c52720ab9a76d2571ed21,failed tests in visible output
+7,18,shell,cd /workspace && python3 - <<'PY',False,0,566,dbc700438dbe6420371605559b82bd7b4bf91ea87fa161130ed504ddb06c684c,failed tests in visible output
+7,19,shell,cd /workspace && python3 - <<'PY',False,0,944,73d8af1d8db625b7b2065a559283463b3d44975129be03672a0d76d41bb2210a,
+7,20,shell,cd /workspace && python3 - <<'PY',False,0,59,52782ad338b8d883814399a60e4c43e1b2b6f096b087a20bb37cfd35f846fb1a,
+7,21,shell,"cd /workspace && sed -i '/^import sys$/d' project/test_plan.py && for f in project/test_*.py; do out=$(python3 ""$f"" 2>&1); echo ""$out"" | grep -qE ""^OK"" || { echo ""FAIL $f""; echo ""$",False,0,180,dd4e2727f1517860130260dbb02d1b63e896d2bdc1144df90abb44ec280706e6,failed tests in visible output
+7,22,shell,cd /workspace && python3 - <<'PY',False,0,527,10384a5fc5f40cf412afa6c1438d22045622fa50f6c11eadc571799d277cde7b,
+7,23,shell,cd /workspace && python3 - <<'PY',False,0,193,d3c0518295382cdf0fafb23980af7b0bfa4d99882a6665ebbca6f72cb9e52223,
+7,24,shell,"cd /workspace && python3 project/test_plan.py 2>&1 | tail -3 && sha256sum out/plan-*.ics && python3 -c """,False,0,798,77ff7f8b915ce1358e6895de242233a52dbbe1aae808d6f9dc0d345d7605837c,
+7,25,receipts,{'channel': 'A'},False,,471,e97bfd3869b05d33237dc7f80c11e713078c77b8e547edb8d887be321e3447cf,1 online batches
+7,26,receipts,{'channel': 'D'},False,,566,fb7a60422d5fd018ce2b0b885583d1b6c3a298e6f9f9c85739c15bf3d1e454e9,1 online batches
+7,27,shell,"cd /workspace && python3 project/http_read.py ""/api/when?channel=D&code=U56&day=2026-03-23"" && python3 project/http_read.py ""/api/when?channel=C&code=Q29&day=2026-03-16"" && python3",False,0,2235,4d1d4b5c897f510f730dbddc77ff0c7420e70d7a5cabe1da53f4a29a2ddbd1d5,
+7,28,shell,cd /workspace && cat > notes/ops7-revocations-plan.md <<'MD',False,0,37,0faad865e4a1824907aa59ddc9a3d53a28785219006dbb584171de43afa4100b,
+7,29,shell,cd /workspace && cat >> notes/line-engine.md <<'MD',False,0,811,5f42b1d9768e7ea8035e07d466dc73bf3124224c3cf6cce95bdb4484af26418b,
+8,1,shell,cd /workspace && cat input/version.txt; echo; cat input/clock.txt; echo; ls input; echo ====; ls input/orders; echo ====; ls input/vault; echo ====; for f in input/contracts/*.md; ,False,0,1933,73cabaaf14b5a0194c885bbcef140b9f0ae6b5c529415798a305be590006a036,
+8,2,shell,cd /workspace && cat input/interruption.json && echo ==== && cat input/release-window.json && echo ==== && ls -la out/ | head -50,False,0,4132,95d2d7af8192f7ce0d6116cd065146a1bb1c619619f626155756e77369a6f948,
+8,3,receipts,{'channel': 'A'},False,,471,e97bfd3869b05d33237dc7f80c11e713078c77b8e547edb8d887be321e3447cf,1 online batches
+8,4,receipts,{'channel': 'B'},False,,616,57ad1ad2bd592acf3f48534346c328fd389522763018480d51d03523070c795a,1 online batches
+8,5,receipts,{'channel': 'C'},False,,683,4706268a3c1d022f380daabcad829668760f03502defed172e5ee292004de617,2 online batches
+8,6,receipts,{'channel': 'D'},False,,566,fb7a60422d5fd018ce2b0b885583d1b6c3a298e6f9f9c85739c15bf3d1e454e9,1 online batches
+8,7,shell,cd /workspace && cp data/portal.sqlite scratch/portal.pre-resume8.sqlite && cp project/line.py scratch/line.pre-resume8.py && cat > out/receipts-online-08.json <<'JSON',False,0,218,c769104bdc4688d49885f19f4301df7cc84ca0f10187fcd86d850dbf4de339d5,
+8,8,shell,cd /workspace && python3 - <<'PY',False,0,337,f40e6d6b9b247ad3c4388ebb70c5e1675e6b821133bc70e44941694c6d179431,
+8,9,shell,"cd /workspace && grep -n ""^CHANNEL_ALPHABET\|^CHANNELS"" project/line.py",False,0,91,5fea13c22e7b6d8edce2ac7fbe88c286ed14d8d4fcbc758bb547290856aaa27c,
+8,10,shell,cd /workspace && python3 - <<'PY',False,0,830,574e1b9c8d627f88a0861b5bb6c2dd648c80c4709c5d85088278c978a0998f28,
+8,11,shell,cd /workspace && python3 - <<'PY',False,0,1019,48763e93b6d078db34716e502907c9a9edd6998d307c91ea3f9285bacbddcc86,
+8,12,shell,cd /workspace && python3 project/line.py delta B 2026-03-02 2026-03-23 7 out/receipts-B-merged.json out/resume8-B-line-402-20260316.ics --only line-402-20260316 --stamp 20260330T00,False,0,2910,fdfa8d34c5f735c024f3b477994c9ddcab3bcf9d59d3443a48f0e86035f40274,
+8,13,publish,"{'channel': 'B', 'file': 'out/resume8-B-line-402-20260316.ics', 'key': 'B-remend8-20260302-20260323-86ba1786'}",False,,49,e4c4cf13a0b5f84638f816d420d9e51a3dc768faab948fb2ee6a7bc964b03969,new receipt B-00003
+8,14,publish,"{'channel': 'D', 'file': 'out/resume8-D-Q29-20260316.ics', 'key': 'D-resume-08'}",False,,49,bf3f516ae8e472c41e1d5501bc882582be23159c7ec48b9f2995efd1003ed8e5,new receipt D-00003
+8,15,publish,"{'channel': 'D', 'file': 'out/resume8-D-U56-20260323.ics', 'key': 'D-remend8-20260302-20260323-7d464e4f'}",False,,49,2be32aa5d4fb8c039f9f6d168536a71a58c4f2ee0b582f66bdec4f9ae5a4f1c5,new receipt D-00004
+8,16,receipts,{'channel': 'B'},False,,813,a1c2625da12a5cf565dbddc846fb2b8bf061c5952eca064887aed7f1575e3884,2 online batches
+8,17,receipts,{'channel': 'D'},False,,915,e268b2dbd90571e860a1d15266f3f53b1c4006cccd8d462c9ad5d125c1e67e0e,3 online batches
+8,18,receipts,{'channel': 'C'},False,,683,4706268a3c1d022f380daabcad829668760f03502defed172e5ee292004de617,2 online batches
+8,19,receipts,{'channel': 'A'},False,,471,e97bfd3869b05d33237dc7f80c11e713078c77b8e547edb8d887be321e3447cf,1 online batches
+8,20,shell,cd /workspace && for ch in A B C D; do cp out/receipts-$ch-merged.json out/receipts-$ch-merged-before8.json; done && cp out/receipts-merged.json out/receipts-merged-before8.json &&,False,0,841,cff3deb3124d5d386571edb3ed4566d4ecc299b13268ce7dc594a0daa252a483,
+8,21,shell,cd /workspace && mkdir -p scratch/rerun8 && for ch in A B C D; do python3 project/line.py delta $ch 2026-03-02 2026-03-23 7 out/receipts-$ch-merged.json scratch/rerun8/plan-$ch.ics,False,0,473,1e307431a943145d9e26b294ecccb11e846691a5422ecf20a826e299d4a4f794,
+8,22,shell,cd /workspace && python3 - <<'PY',False,0,1630,d86b67fe38769f4d3418b14496a361098ef08ee3d7462bbba013813a67a421b2,
+8,23,shell,cd /workspace && python3 - <<'PY',False,0,837,c6b08c087de91a5284e7948ad2fbc74fd60ff6753a0ced0e2ec0b9f5b98639ec,
+8,24,shell,cd /workspace && cat > project/test_resume.py <<'PY',False,0,958,d5c8c2652be770d4682189d0b997aac59e9b0793cedc79d43903fbfc74e27c77,failed tests in visible output
+8,25,shell,cd /workspace && python3 - <<'PY',False,0,173,3db0d24bcfe5ab58ad69403163104788c7c86f18208c07cf219ebcb8841a9ff4,failed tests in visible output
+8,26,shell,"cd /workspace && python3 project/test_resume.py 2>&1 | grep -B3 -A 12 ""^FAIL:""",False,0,806,dc7de24e33867498f97487ababff63fcff88e174d82310ed3819c4c6dae27b5d,failed tests in visible output
+8,27,shell,cd /workspace && python3 - <<'PY',False,0,658,c04ed31e63911799066548093b263ada3a0288d3b33b6e49264ac77ffdf9fd2d,
+8,28,shell,"cd /workspace && python3 project/test_plan.py 2>&1 | grep -A 10 ""^FAIL:""",False,0,3152,02e721270ed3c6b9d9b59e770cd0c5ae249d9495ff2c703f54e0f9ccdd78c507,failed tests in visible output
+8,29,shell,cd /workspace && python3 - <<'PY',False,0,146,cef174724602fc4b1809e8c3b0d7cc9d1e435896a66f4d9c9ccff05f00bf36b3,failed tests in visible output
+8,30,shell,"cd /workspace && python3 project/test_plan.py 2>&1 | grep -E ""^(FAIL|ERROR):"" && python3 project/test_plan.py 2>&1 | grep -A 8 ""^FAIL:"" | head -40",False,0,2998,8704fec9304a073153cb09a003590643adff5b28043ec8a3c07923a36a6738f5,failed tests in visible output
+8,31,shell,cd /workspace && python3 - <<'PY',False,0,201,a3648fa94390b5dd5f293958b8899dc60e0da238ab26fd150089473c257aa09c,
+8,32,shell,"cd /workspace && total=0; for f in project/test_*.py; do out=$(python3 ""$f"" 2>&1); n=$(echo ""$out"" | grep -E ""^Ran "" | tail -1 | awk '{print $2}'); ok=$(echo ""$out"" | grep -qE ""^OK",False,0,566,1f7f5b83308c7cbb2e012fe7d5fe4c075ea20a9c87c2890125eba820aba8220f,
+8,33,shell,cd /workspace && python3 - <<'PY',False,0,65,b2a1245638dd31819b3e0be899929aea8a369ea5e4a4c87a10c43f16bc5b9c6f,
+8,34,shell,cd /workspace && cat >> notes/line-engine.md <<'MD',False,0,429,e6f704053422fa477f6e56f8b612114f70aafa5e069bb00df6d6feb7d40b07e5,
+8,35,receipts,{'channel': 'B'},False,,813,a1c2625da12a5cf565dbddc846fb2b8bf061c5952eca064887aed7f1575e3884,2 online batches
+8,36,receipts,{'channel': 'D'},False,,915,e268b2dbd90571e860a1d15266f3f53b1c4006cccd8d462c9ad5d125c1e67e0e,3 online batches
+8,37,shell,"cd /workspace && python3 project/line.py reconcile 2026-03-02 2026-03-23 7 out/receipts-merged.json --json out/reconcile-08.json; echo ""reconcile exit=$?""; python3 project/line.py ",False,0,618,99d2ebca7ed31f6d5ec8d80383def3a94d113952cf09bef7750d912b858e5445,
+9,1,shell,cd /workspace && cat input/version.txt; echo; cat input/clock.txt; echo; ls input; echo ====; ls input/orders input/contracts; echo ====; cat input/release-window.json; echo ====; ,False,0,2146,b661f05b78612d2f235e978218b1d89b3fbbcdd8ea36e0f9bbd947ef5bc23e2d,
+9,2,shell,cd /workspace && cat input/orders/ops-9.json && echo ==== && cat input/portfolio.json && echo ==== && cat input/identities.json | head -30 && echo ==== && cat input/desk.md,False,0,2509,d53064e819c9a6005373a2c59537121cd3d34d007d9dd935be5c639a83fbe716,
+9,3,shell,cd /workspace && cp data/portal.sqlite scratch/portal.pre-handover9.sqlite && mkdir -p scratch/handover && cp data/portal.sqlite scratch/handover/instance.sqlite && sha256sum scrat,False,0,811,40cc12a622b3a9d24ff61628bd74db752b6ae782cae512e00cb75331ebf600bb,
+9,4,shell,cd /workspace && python3 - <<'PY',False,0,3930,eee1f1564604c493ce96856a33b8e6caf0eafec120d76f805633f71e0d6c06c6,
+9,5,shell,cd /workspace && PORTAL_DB=$PWD/scratch/handover/instance.sqlite python3 project/release.py build 2026-10-19 2026-11-09 9 --tag autumn --outdir out --stamp 20260330T000000Z | pytho,False,0,1554,ec78e9fb70da4caaf0126817a3995da7318b730cf725b91e250c0e18adc23ade,
+9,6,shell,cd /workspace && python3 - <<'PY',False,0,2851,b220ad2b72572fd79541163374ddf50098af1018b1406c1281f1e05f759ad34e,
+9,7,shell,"cd /workspace && for c in A B D; do echo ""== $c""; grep -E 'UID|DTSTART' out/autumn-$c-20261019-20261109.ics | paste - - | sed 's/UID://;s/DTSTART://'; done",False,0,1853,a64ef88ed3a176c0929d18af71734f5dffe613ec2c264aa5e3ab99e754936c19,
+9,8,receipts,{'channel': 'A'},False,,471,e97bfd3869b05d33237dc7f80c11e713078c77b8e547edb8d887be321e3447cf,1 online batches
+9,9,receipts,{'channel': 'B'},False,,813,a1c2625da12a5cf565dbddc846fb2b8bf061c5952eca064887aed7f1575e3884,2 online batches
+9,10,receipts,{'channel': 'C'},False,,683,4706268a3c1d022f380daabcad829668760f03502defed172e5ee292004de617,2 online batches
+9,11,receipts,{'channel': 'D'},False,,915,e268b2dbd90571e860a1d15266f3f53b1c4006cccd8d462c9ad5d125c1e67e0e,3 online batches
+9,12,shell,cd /workspace && cp out/autumn-C-20261019-20261109.ics out/new-C.ics && sha256sum out/new-C.ics out/autumn-C-20261019-20261109.ics && cat > out/receipts-autumn-pre.json <<'JSON',False,0,244,02b473795c2e6aea953a0302321581e05ceb4c20662d533dcc755c15b3f3f5e2,
+9,13,publish,"{'channel': 'A', 'key': 'A-autumn-20261019-20261109-5e77cd4d', 'file': 'out/autumn-A-20261019-20261109.ics'}",False,,49,07fa182dc88e3cd5d6b600e3322deb0aad917672a591a70c4be9ade0ccbd8932,new receipt A-00003
+9,14,publish,"{'channel': 'B', 'key': 'B-autumn-20261019-20261109-959e3f2b', 'file': 'out/autumn-B-20261019-20261109.ics'}",False,,49,4528cd958bf1ebe469f8e115f4dec0891246971cc4d31b8ba46a6fb2682e89ed,new receipt B-00004
+9,15,publish,"{'channel': 'C', 'key': 'C-autumn-20261019-20261109-d45ff6d0', 'file': 'out/new-C.ics'}",False,,49,401a973de71e8e7a8a32d16e47a3cd2ef9000ffae842fa4db9bb62bffe610ff0,new receipt C-00004
+9,16,publish,"{'channel': 'D', 'key': 'D-autumn-20261019-20261109-4bfed42d', 'file': 'out/autumn-D-20261019-20261109.ics'}",False,,49,e5d93bca83d0adf22017710af598204255956c61b9c2ebaa170d83e4d78eaf6f,new receipt D-00005
+9,17,receipts,{'channel': 'A'},False,,2082,e34fa7fbd17bf4389e0d4e1a20e662776cfb9c8a3b6276399d7beb822ae8bb3f,2 online batches
+9,18,receipts,{'channel': 'B'},False,,2584,3862733b95e62aa148980fb8b73de083cc2c6a5f6b8ae40ecb11e6368bc5bba2,3 online batches
+9,19,receipts,{'channel': 'C'},False,,2454,2481b47eb57e246740188fbb4c41e739e972949374a15b6331f6781baf2c36fa,3 online batches
+9,20,receipts,{'channel': 'D'},False,,2526,35313a68ac19cf29b956141f74f7582e7a90f74b041327eaf087b480bc9112a3,4 online batches
+9,21,shell,"cd /workspace && sed -n '1,60p' project/release.py && echo ===== && grep -n ""def record\|def verify\|def build_all\|def build\b\|add_parser\|def main"" -A4 project/release.py | sed ",False,0,5525,8da2ef5a216769974883275701d8f5e6541841570c8f233e4a4db0f85784c46e,
+9,22,shell,cd /workspace && python3 - <<'PY',False,0,289,126172fcb731c5e3d4117454703eabccf1a0e7e55b4ec65c8b42b9f0c3da14f2,
+9,23,shell,cd /workspace && PORTAL_DB=$PWD/scratch/handover/instance.sqlite python3 project/release.py record out/autumn-manifest.json out/receipts-autumn.json --json out/autumn-delivery.json,False,0,101,4cdc7c71787caa2bc33913b8eb101968a661100d26d8fb02b9445333a42f767f,
+9,24,shell,"cd /workspace && sed -n '1,80p' notes/autumn-delivery.md",False,0,5291,b93796c8fcd3d057e8d3ea810ab0876754dee9f1ac74a55e964d75a1259861c5,
+9,25,shell,cd /workspace && PORTAL_DB=$PWD/scratch/handover/instance.sqlite python3 project/line.py reconcile 2026-10-19 2026-11-09 9 out/receipts-autumn.json --json out/reconcile-autumn.json,False,0,4655,693babab1c6056ba2b51e715282a13f1313ffebaec68c1d5d0c351fbcdbf2398,
+9,26,shell,cd /workspace && python3 - <<'PY',False,0,5345,0d3d246036b8176228aaf59ad76c4f8ffd1610f1f50a73b36921d5085092e431,
+9,27,shell,"cd /workspace && sed -n '477,500p' project/release.py && grep -n ""def build_delta"" -A30 project/release.py",False,0,3263,da771d231f41e5e21d1e931c46c2a4b3149c18e7d431695b5034ba917badd7d3,
+9,28,shell,cd /workspace && cp scratch/handover/instance.sqlite scratch/handover/fixB.sqlite && PORTAL_DB=$PWD/scratch/handover/fixB.sqlite python3 project/release.py delta 2026-03-02 2026-03,False,0,3737,cf98f46d894930d488a3dfb2c78da203430eccddf3d7e12336a4a199e68ac9b1,
+9,29,shell,"cd /workspace && grep -n ""def delta_rows"" -A40 project/line.py",False,0,2417,b35a3c4d44885714284778bd7a7a6babec6bee08a0f58d81b4e71c62e0ea830e,
+9,30,shell,cd /workspace && ls out/receipts-*merged*.json && python3 - <<'PY',False,0,2295,450f82d649245a6252765ea4b0845fc887352b139d0a4741bfcc807f39fb2a63,
+9,31,shell,cd /workspace && python3 - <<'PY',False,0,1820,417b8a049ca5230fb27c0dfc4873ddc104a44c5004b551c40d787edddf94d39a,
+9,32,shell,cd /workspace && python3 - <<'PY',False,1,276,fa15de1a9770bf8d91a23139cc6ff4d4cd49a627c162f3f39c93a215d4f10acd,command failed
+9,33,shell,cd /workspace && python3 - <<'PY',False,0,1856,80cee6a809a09a8bf28941d78cd24f415f66511983b6479782e37335d07f5ee2,
+9,34,shell,"cd /workspace && grep -n ""def delta_rows"" -B4 -A25 project/release.py",False,0,1582,d6fdb3805a33503c0ad3e56ccaaead7520920b52732ae3a808b41bcda6b0e16b,
+9,35,shell,"cd /workspace && grep -n ""def downstream_state"" -A25 project/release.py && grep -n ""def _resolve\|def read_batches"" -A15 project/release.py | head -50",False,0,2495,1f4077f488b319f29191927c5a2c311a2c025856e60304ab0c3ccee683587a26,
+9,36,shell,cd /workspace && python3 - <<'PY',False,0,406,43c17043f6d046d4d9a81302a29732ba40db08b9a4fade3009c9050225816a3f,
+9,37,shell,"cd /workspace && ls project/test_*.py | wc -l && for f in project/test_*.py; do out=$(python3 ""$f"" 2>&1 | tail -3); echo ""== $f""; echo ""$out""; done",False,0,2376,f7d5ca98c012324180c2dd1c56bba71e24c7e41485e1e67b0970831776a3af1d,
+9,38,shell,"cd /workspace && total=0; for f in project/test_*.py; do r=$(python3 ""$f"" 2>&1); n=$(echo ""$r"" | grep -oE 'Ran [0-9]+ tests' | grep -oE '[0-9]+'); ok=$(echo ""$r"" | grep -cE '^OK$')",False,0,54,7cf70d9deecf6d11cf7ea0aec785722a2a5a60dd1d99ad520717716ca7fc28f0,
+9,39,shell,cd /workspace && sha256sum scratch/portal.pre-handover9.sqlite data/portal.sqlite scratch/handover/instance.sqlite && cp data/portal.sqlite scratch/portal.pre-handover9.verify.sqli,False,0,668,efc13eb02ef6bc2158163eaf9f4df56af0eb5b1c8b2c14d296bebcc63dac9bdb,
+9,40,shell,"cd /workspace && grep -n ""api/v2\|api/when\|invite/"" project/test_v2.py project/test_support.py | head -30 && echo ---- && sed -n '1,40p' project/http_read.py",False,0,2659,7938a9113dd472957d4e9b79f4df71eff3933211035f664f736947ed751f9660,
+9,41,shell,cd /workspace && cat > scratch/compare_handover.py <<'PY',False,0,141,cc6512ecf55df5ec0e73f29cd59039d91ec9b6ef43ec1d3a9a16dd1c3bcacf2d,
+9,42,shell,cd /workspace && python3 - <<'PY',False,0,1431,bde422f6fa4ef28745ee2916cfa0abd328de1ace5a0c8dbb611726e7430c1120,
+9,43,shell,"cd /workspace && sed -n '1,60p' project/test_release.py",False,0,2240,c4b6372317efda43adc7f09662f5e259c1c99183c912d1d3f9963a573c4cb659,
+9,44,shell,"cd /workspace && grep -n ""^def schedule\|^def import_dir\|^def query\|^def latest_version\|^def reconcile\b\|^def reconcile_channel\|^def feed_rows\|^def v2_rows"" -A12 project/line",False,0,4004,e486707adc411474bb9e8f1ff6912656fce20588ea392ef3d33e04af5b1a716d,
+9,45,shell,"cd /workspace && python3 -c """,False,0,950,134e32f912a523dfb5075a4e8fe40020e8cbb4ef1b09479bccb06fb4f43fa348,
+9,46,shell,cd /workspace && cat > project/test_handover.py <<'PY',False,0,2021,4d73f4760b46f73d56da2ab07015a79feb0742b24bbc997f4b13d674e0ef9647,failed tests in visible output
+9,47,shell,cd /workspace && python3 - <<'PY',False,0,1727,589b2687e724486e0be02c9d1ee3fd7741e89adc7f2b3787037090d4786cea35,
+9,48,shell,cd /workspace && python3 - <<'PY',False,0,3922,35a08f34a131c0b7ed0dbb53bc5e11245e9ca3be57c44a9391d97a158eda1e1d,failed tests in visible output
+9,49,shell,cd /workspace && python3 - <<'PY',False,0,1292,a198ff7031e53ca3c30703848f146d82a846eda027c81ff5e5016b17b81dda66,failed tests in visible output
+9,50,shell,"cd /workspace && grep -n ""def route"" -A20 project/portal.py | head -40 && grep -n ""def get"" -A5 project/test_v2.py && python3 -c """,False,0,2211,9d7684b25a7ee39a5ecffa827a678d35c81c5c0fd23e65f89388df7780340c72,
+9,51,shell,"cd /workspace && python3 project/test_handover.py 2>&1 | grep -A18 ""test_the_backup_is_sound_and_complete"" | head -30 && grep -n '""orders""\]' -A3 project/line.py | head -20 && pyth",False,0,3541,95ca274c401a2d6866c53afb14c561492ef3e21c63abc20135b64ecfc73a3d4b,failed tests in visible output
+9,52,shell,cd /workspace && ls input/orders && python3 - <<'PY',False,0,391,3527ef5305cc596c00118b481c1ff37939898976dd4fe80f08ffef3611823f85,
+9,53,shell,cd /workspace && python3 - <<'PY',False,0,769,1360bc634858fd0ff1a19ff6de48039448a15de6e8b2aae24c7d4d0c3faf01b6,failed tests in visible output
+9,54,shell,cd /workspace && python3 - <<'PY',False,0,496,a70b9da27b9f42f7d8e569eee9533a437abccef590ead00c6561c7c6632c9a65,
+9,55,shell,"cd /workspace && total=0; fails=0; for f in project/test_*.py; do r=$(python3 ""$f"" 2>&1); n=$(echo ""$r"" | grep -oE 'Ran [0-9]+ tests' | grep -oE '[0-9]+'); ok=$(echo ""$r"" | grep -c",False,0,1171,1a850c3e68a8c771509ab58ef4853b04ef97b9e2a54200c7eca30d6641cac183,failed tests in visible output
+9,56,shell,"cd /workspace && sed -n '415,455p' project/test_adhoc.py",False,0,2631,108a28b2fa19163d41b7f70d91d9fb90e9211cb42fd9466f33c2537ddf79ed11,
+9,57,shell,"cd /workspace && grep -n ""^ALSOF\|^START\|^END"" project/test_adhoc.py",False,0,137,6057eaaff8813b72135b4378715299594381c2e7f61b1c15f1251b9e5cceaf0e,
+9,58,shell,cd /workspace && python3 - <<'PY',False,0,150,a0d1b490dd3438aa6f4e48adda284cb470060e04de988a9628ee58727ce986b4,failed tests in visible output
+9,59,shell,"cd /workspace && python3 project/test_adhoc.py 2>&1 | grep -B2 -A14 ""^FAIL:""",False,0,825,330bf271725eed1fd4555d6a1f2437871af53c69cefaa6689a2a41e470740a95,failed tests in visible output
+9,60,shell,cd /workspace && python3 - <<'PY',False,0,129,442b012d21e51c5b0412cb6fd98d37722e94cfaedea05145aee9e3677b2b74b8,
+9,61,shell,"cd /workspace && total=0; fails=0; for f in project/test_*.py; do r=$(python3 ""$f"" 2>&1); n=$(echo ""$r"" | grep -oE 'Ran [0-9]+ tests' | grep -oE '[0-9]+'); ok=$(echo ""$r"" | grep -c",False,0,57,b19b55088640585ab06a2e99393be132fd19a3d2e91f473d70a6c66bb221612c,
+9,62,shell,"cd /workspace && cp out/backup.sqlite scratch/handover/served.sqlite && PORTAL_DB=$PWD/scratch/handover/served.sqlite python3 project/http_read.py ""/api/v2?channel=C&from=2026-10-1",False,0,1230,3d62f889aabc6ca9c8ebc6df064d47bb80ef414efd96729a12d51c9fa82ce173,
+9,63,shell,cd /workspace && PORTAL_DB=$PWD/scratch/handover/served.sqlite python3 project/release.py verify out/autumn-manifest.json --outdir out && PORTAL_DB=$PWD/scratch/handover/served.sql,False,0,738,9514eb6aa2ab408355155cac8d061e54d5182d09604503df8de8a3cc44017be0,
+9,64,shell,cd /workspace && cat > notes/handover9.md <<'MD',False,0,59,95fdf48f0572a8aa6dc586456a437cdafa6ca0c6617387a016a565da97b5fcd9,
+9,65,shell,cd /workspace && tail -20 notes/line-engine.md,False,0,1002,a1a74e6f992bd61aae59c90c11d781aa4ac7d3e998a998cf9f2cd57a0fdb1c03,
+9,66,shell,cd /workspace && cat >> notes/line-engine.md <<'MD',False,0,31,d5cf0ea10e2aa8a14e1db921e3167338803990516b494435e6d467df58939ccc,
+9,67,shell,"cd /workspace && total=0; fails=0; for f in project/test_*.py; do r=$(python3 ""$f"" 2>&1); n=$(echo ""$r"" | grep -oE 'Ran [0-9]+ tests' | grep -oE '[0-9]+'); ok=$(echo ""$r"" | grep -c",False,0,768,17b556b76340f2160ce5517c663c45943855481ecca26a447d81929e4152460a,
+10,1,shell,cd /workspace && ls -la input input/contracts 2>/dev/null && cat input/version.txt input/clock.txt 2>/dev/null && ls input/*.json input/vault 2>/dev/null | head -30,False,0,1940,d05dfbbbc800b7fe341720cc8fc3b2a54cf038f7bdbd8883095b9cbc3b154d6f,
+10,2,shell,cd /workspace && cat input/contracts/inquiry.md && echo ==== && cat input/questions.json && echo ==== && cat input/incident.json && echo ==== && cat input/contracts/incident.md,False,0,9277,53673cbb201437fb1cd8227e73ba4aa25e7887f031cbad3f8da0e34f0341d6ae,
+10,3,shell,cd /workspace && cat input/vault/index.json && echo ==== && head -c 600 input/vault/A-closing-04.json && echo && python3 - <<'PY',False,0,1128,fb7acf10cf885eab72407e581316d0fc88c13e7f1599ec8b8b9991ee899c50d7,
+10,4,shell,"cd /workspace && grep -n ""def preview_answers"" -A45 project/line.py && grep -n ""def preview\b"" -A30 project/line.py && grep -n ""preview"" -A6 project/line.py | sed -n '/add_parser(""",False,0,4298,6d49eda47acc0aabb56f2a79d7a2992190a31aaba03d902e91880da62fc19f7f,
+10,5,receipts,{'channel': 'A'},False,,2082,e34fa7fbd17bf4389e0d4e1a20e662776cfb9c8a3b6276399d7beb822ae8bb3f,2 online batches
+10,6,receipts,{'channel': 'B'},False,,2584,3862733b95e62aa148980fb8b73de083cc2c6a5f6b8ae40ecb11e6368bc5bba2,3 online batches
+10,7,receipts,{'channel': 'C'},False,,2454,2481b47eb57e246740188fbb4c41e739e972949374a15b6331f6781baf2c36fa,3 online batches
+10,8,receipts,{'channel': 'D'},False,,2526,35313a68ac19cf29b956141f74f7582e7a90f74b041327eaf087b480bc9112a3,4 online batches
+10,9,shell,cd /workspace && python3 - <<'PY',False,0,1223,834db626e1eb153b0e2d30478ae9a6c86514ede5518df3e3960e9d17ded12604,
+10,10,shell,"cd /workspace && grep -n ""^def prefix_for\|^def uid_for\|^def explain"" -A18 project/line.py | head -70 && python3 - <<'PY'",False,0,3824,ec01c266c7d8578be53a1b0eccead65f6f9882c4901d53905984b6e648450db3,
+10,11,shell,"cd /workspace && sed -n '539,575p' project/line.py && grep -n ""def explain"" -A60 project/line.py | sed -n '20,70p'",False,0,4030,0f8e9e837494ae16b9ce101a7fd369a095873a99135bfbbb539e9a9de608c250,
+10,12,shell,"cd /workspace && sed -n '1,40p' project/line.py && sed -n '990,1060p' project/line.py",False,0,3629,c5af9012422b8da2d025b282c12d3159539df10bfe9d62bdcef7c0cfcef1b861,
+10,13,shell,cd /workspace && python3 - <<'PY',False,0,567,e4105141c9c01af8649237f193bc747fe32b31bb5bee09c999d79f5be9ab529c,
+10,14,shell,"cd /workspace && grep -n ""def main"" -A8 project/line.py | head -14",False,0,444,e52916d4483c5892822b88ccceb43aae26c935cffc8ed11761ac4aafb9e9954d,
+10,15,shell,"cd /workspace && grep -n ""db = ensure_schema(sqlite3.connect(os.getenv"" -B2 -A3 project/line.py",False,0,288,d181b5f756af1420fd5ef89fc2c978a29cb8eb2aa9b9cfcb0f6ebd6918286955,
+10,16,shell,cd /workspace && python3 - <<'PY',False,0,1683,c5f3d34d12241e2465da4770bcec318289be0631b8176f4afea948a1ca66aae4,
+10,17,shell,cd /workspace && python3 - <<'PY',False,0,2727,c0cb02c50674e68942ce64bb44357d3f8621e40eb775d9249f93b7aeb38a32c6,
+10,18,shell,cd /workspace && cat > project/test_inquiry.py <<'PY',False,0,2526,84adeebd71359e3eda0a80ac2642dcb4a7ed85c7a996ac06db2b87d7d002fe41,
+10,19,shell,"cd /workspace && total=0; fails=0; for f in project/test_*.py; do r=$(python3 ""$f"" 2>&1); n=$(echo ""$r"" | grep -oE 'Ran [0-9]+ tests' | grep -oE '[0-9]+'); ok=$(echo ""$r"" | grep -c",False,0,758,c9e582f8433608bb885a7e38bfb07b8a0ef5d32832a8c964c0749cc636e1ff3a,
+10,20,shell,cd /workspace && cat > notes/inquiry-dispute.md <<'MD',False,0,60,e564bc322e57849db4beabf6110f63a1aa7bcc5819776c84245baedb2678435b,
+10,21,shell,cd /workspace && sha256sum data/portal.sqlite out/inquiry.json && python3 project/line.py history input/questions.json out/receipts-all.json out/inquiry.json && sha256sum data/port,False,0,663,541310b914f37621523e9ba156a9fdca6d6c8f83ad68be28e7f1724376e61953,

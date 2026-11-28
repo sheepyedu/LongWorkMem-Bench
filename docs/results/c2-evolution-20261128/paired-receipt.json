@@ -1,0 +1,41 @@
+{
+  "turn": 10,
+  "diagnostic": "change only the historical receipt",
+  "cases": [
+    {
+      "received": "2026-03-16T16:30:00Z",
+      "expected_due": "2026-03-16T16:30:00Z",
+      "answer": [
+        {
+          "channel": "B",
+          "code": "Q29",
+          "day": "2026-03-16",
+          "asof": 7,
+          "due": "2026-03-16T16:30:00Z",
+          "received": "2026-03-16T16:30:00Z",
+          "pending": false
+        }
+      ],
+      "exit": 0,
+      "passed": true
+    },
+    {
+      "received": "2026-03-16T17:00:00Z",
+      "expected_due": "2026-03-16T16:30:00Z",
+      "answer": [
+        {
+          "channel": "B",
+          "code": "Q29",
+          "day": "2026-03-16",
+          "asof": 7,
+          "due": "2026-03-16T16:30:00Z",
+          "received": "2026-03-16T17:00:00Z",
+          "pending": true
+        }
+      ],
+      "exit": 0,
+      "passed": true
+    }
+  ],
+  "passed": true
+}

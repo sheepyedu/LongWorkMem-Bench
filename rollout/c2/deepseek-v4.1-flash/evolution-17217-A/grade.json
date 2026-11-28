@@ -1,0 +1,439 @@
+{
+  "version": "calendar-evolution-v1/1.1",
+  "replay_image": "sha256:936b55ee37791494bc1b499515ea8529c06fa8cdab25192a943220e53003fbb8",
+  "total": 97.6471,
+  "checks": {
+    "paging.0": {
+      "turn": 1,
+      "weight": 1,
+      "fraction": 1.0,
+      "earned": 1
+    },
+    "paging.7": {
+      "turn": 1,
+      "weight": 1,
+      "fraction": 1.0,
+      "earned": 1
+    },
+    "paging.2020": {
+      "turn": 1,
+      "weight": 1,
+      "fraction": 1.0,
+      "earned": 1
+    },
+    "paging.2079": {
+      "turn": 1,
+      "weight": 1,
+      "fraction": 1.0,
+      "earned": 1
+    },
+    "legacy.detail": {
+      "turn": 1,
+      "weight": 1,
+      "fraction": 1.0,
+      "earned": 1
+    },
+    "legacy.v1": {
+      "turn": 1,
+      "weight": 1,
+      "fraction": 1.0,
+      "earned": 1
+    },
+    "rules.live": {
+      "turn": 2,
+      "weight": 6,
+      "fraction": 1.0,
+      "earned": 6.0
+    },
+    "rules.unseen.2": {
+      "turn": 2,
+      "weight": 3,
+      "fraction": 1.0,
+      "earned": 3.0
+    },
+    "rules.unseen.3": {
+      "turn": 2,
+      "weight": 3,
+      "fraction": 1.0,
+      "earned": 3.0
+    },
+    "rules.unseen.4": {
+      "turn": 2,
+      "weight": 4,
+      "fraction": 1.0,
+      "earned": 4.0
+    },
+    "wire.http.A": {
+      "turn": 3,
+      "weight": 0.5,
+      "fraction": 1.0,
+      "earned": 0.5
+    },
+    "wire.ics.A": {
+      "turn": 3,
+      "weight": 0.5,
+      "fraction": 1.0,
+      "earned": 0.5
+    },
+    "wire.http.B": {
+      "turn": 3,
+      "weight": 0.5,
+      "fraction": 1.0,
+      "earned": 0.5
+    },
+    "wire.ics.B": {
+      "turn": 3,
+      "weight": 0.5,
+      "fraction": 1.0,
+      "earned": 0.5
+    },
+    "wire.http.C": {
+      "turn": 3,
+      "weight": 0.5,
+      "fraction": 1.0,
+      "earned": 0.5
+    },
+    "wire.ics.C": {
+      "turn": 3,
+      "weight": 0.5,
+      "fraction": 1.0,
+      "earned": 0.5
+    },
+    "wire.http.D": {
+      "turn": 3,
+      "weight": 0.5,
+      "fraction": 1.0,
+      "earned": 0.5
+    },
+    "wire.ics.D": {
+      "turn": 3,
+      "weight": 0.5,
+      "fraction": 1.0,
+      "earned": 0.5
+    },
+    "launch.A": {
+      "turn": 4,
+      "weight": 1.5,
+      "fraction": 1.0,
+      "earned": 1.5
+    },
+    "launch.B": {
+      "turn": 4,
+      "weight": 1.5,
+      "fraction": 1.0,
+      "earned": 1.5
+    },
+    "launch.C": {
+      "turn": 4,
+      "weight": 1.5,
+      "fraction": 1.0,
+      "earned": 1.5
+    },
+    "launch.D": {
+      "turn": 4,
+      "weight": 1.5,
+      "fraction": 1.0,
+      "earned": 1.5
+    },
+    "preview.file": {
+      "turn": 5,
+      "weight": 1,
+      "fraction": 0.0,
+      "earned": 0.0
+    },
+    "preview.new": {
+      "turn": 5,
+      "weight": 1,
+      "fraction": 0.0,
+      "earned": 0.0
+    },
+    "override.changed.A": {
+      "turn": 6,
+      "weight": 1.5,
+      "fraction": 1.0,
+      "earned": 1.5
+    },
+    "override.feed.A": {
+      "turn": 6,
+      "weight": 1,
+      "fraction": 1.0,
+      "earned": 1.0
+    },
+    "override.delta.A": {
+      "turn": 6,
+      "weight": 1,
+      "fraction": 1.0,
+      "earned": 1
+    },
+    "override.changed.B": {
+      "turn": 6,
+      "weight": 1.5,
+      "fraction": 1.0,
+      "earned": 1.5
+    },
+    "override.feed.B": {
+      "turn": 6,
+      "weight": 1,
+      "fraction": 1.0,
+      "earned": 1.0
+    },
+    "override.delta.B": {
+      "turn": 6,
+      "weight": 1,
+      "fraction": 1.0,
+      "earned": 1
+    },
+    "override.changed.C": {
+      "turn": 6,
+      "weight": 1.5,
+      "fraction": 1.0,
+      "earned": 1.5
+    },
+    "override.feed.C": {
+      "turn": 6,
+      "weight": 1,
+      "fraction": 1.0,
+      "earned": 1.0
+    },
+    "override.delta.C": {
+      "turn": 6,
+      "weight": 1,
+      "fraction": 1.0,
+      "earned": 1
+    },
+    "override.changed.D": {
+      "turn": 6,
+      "weight": 1.5,
+      "fraction": 1.0,
+      "earned": 1.5
+    },
+    "override.feed.D": {
+      "turn": 6,
+      "weight": 1,
+      "fraction": 1.0,
+      "earned": 1.0
+    },
+    "override.delta.D": {
+      "turn": 6,
+      "weight": 1,
+      "fraction": 1.0,
+      "earned": 1
+    },
+    "rollback.plan.A": {
+      "turn": 7,
+      "weight": 2,
+      "fraction": 1.0,
+      "earned": 2.0
+    },
+    "rollback.plan.B": {
+      "turn": 7,
+      "weight": 2,
+      "fraction": 1.0,
+      "earned": 2.0
+    },
+    "rollback.plan.C": {
+      "turn": 7,
+      "weight": 2,
+      "fraction": 1.0,
+      "earned": 2.0
+    },
+    "rollback.plan.D": {
+      "turn": 7,
+      "weight": 2,
+      "fraction": 1.0,
+      "earned": 2.0
+    },
+    "resume.state.A": {
+      "turn": 8,
+      "weight": 1,
+      "fraction": 1.0,
+      "earned": 1.0
+    },
+    "resume.side-effects.A": {
+      "turn": 8,
+      "weight": 1,
+      "fraction": 1.0,
+      "earned": 1
+    },
+    "resume.replay.A": {
+      "turn": 8,
+      "weight": 1.5,
+      "fraction": 1.0,
+      "earned": 1.5
+    },
+    "resume.state.B": {
+      "turn": 8,
+      "weight": 1,
+      "fraction": 1.0,
+      "earned": 1.0
+    },
+    "resume.side-effects.B": {
+      "turn": 8,
+      "weight": 1,
+      "fraction": 1.0,
+      "earned": 1
+    },
+    "resume.replay.B": {
+      "turn": 8,
+      "weight": 1.5,
+      "fraction": 1.0,
+      "earned": 1.5
+    },
+    "resume.state.C": {
+      "turn": 8,
+      "weight": 1,
+      "fraction": 1.0,
+      "earned": 1.0
+    },
+    "resume.side-effects.C": {
+      "turn": 8,
+      "weight": 1,
+      "fraction": 1.0,
+      "earned": 1
+    },
+    "resume.replay.C": {
+      "turn": 8,
+      "weight": 1.5,
+      "fraction": 1.0,
+      "earned": 1.5
+    },
+    "resume.state.D": {
+      "turn": 8,
+      "weight": 1,
+      "fraction": 1.0,
+      "earned": 1.0
+    },
+    "resume.side-effects.D": {
+      "turn": 8,
+      "weight": 1,
+      "fraction": 1.0,
+      "earned": 1
+    },
+    "resume.replay.D": {
+      "turn": 8,
+      "weight": 1.5,
+      "fraction": 1.0,
+      "earned": 1.5
+    },
+    "quarter.send.A": {
+      "turn": 9,
+      "weight": 1,
+      "fraction": 1.0,
+      "earned": 1.0
+    },
+    "quarter.backup.A": {
+      "turn": 9,
+      "weight": 1,
+      "fraction": 1.0,
+      "earned": 1.0
+    },
+    "quarter.past.A": {
+      "turn": 9,
+      "weight": 1,
+      "fraction": 0.8823529411764706,
+      "earned": 0.8823529411764706
+    },
+    "quarter.send.B": {
+      "turn": 9,
+      "weight": 1,
+      "fraction": 1.0,
+      "earned": 1.0
+    },
+    "quarter.backup.B": {
+      "turn": 9,
+      "weight": 1,
+      "fraction": 1.0,
+      "earned": 1.0
+    },
+    "quarter.past.B": {
+      "turn": 9,
+      "weight": 1,
+      "fraction": 1.0,
+      "earned": 1.0
+    },
+    "quarter.send.C": {
+      "turn": 9,
+      "weight": 1,
+      "fraction": 1.0,
+      "earned": 1.0
+    },
+    "quarter.backup.C": {
+      "turn": 9,
+      "weight": 1,
+      "fraction": 1.0,
+      "earned": 1.0
+    },
+    "quarter.past.C": {
+      "turn": 9,
+      "weight": 1,
+      "fraction": 0.8823529411764706,
+      "earned": 0.8823529411764706
+    },
+    "quarter.send.D": {
+      "turn": 9,
+      "weight": 1,
+      "fraction": 1.0,
+      "earned": 1.0
+    },
+    "quarter.backup.D": {
+      "turn": 9,
+      "weight": 1,
+      "fraction": 1.0,
+      "earned": 1.0
+    },
+    "quarter.past.D": {
+      "turn": 9,
+      "weight": 1,
+      "fraction": 0.8823529411764706,
+      "earned": 0.8823529411764706
+    },
+    "quarter.new-client": {
+      "turn": 9,
+      "weight": 1,
+      "fraction": 1.0,
+      "earned": 1.0
+    },
+    "quarter.invite": {
+      "turn": 9,
+      "weight": 1,
+      "fraction": 1.0,
+      "earned": 1
+    },
+    "history.file.due": {
+      "turn": 10,
+      "weight": 3.3333333333333335,
+      "fraction": 1.0,
+      "earned": 3.3333333333333335
+    },
+    "history.file.received": {
+      "turn": 10,
+      "weight": 3.3333333333333335,
+      "fraction": 1.0,
+      "earned": 3.3333333333333335
+    },
+    "history.file.pending": {
+      "turn": 10,
+      "weight": 3.3333333333333335,
+      "fraction": 1.0,
+      "earned": 3.3333333333333335
+    },
+    "history.new.due": {
+      "turn": 10,
+      "weight": 2.0,
+      "fraction": 1.0,
+      "earned": 2.0
+    },
+    "history.new.received": {
+      "turn": 10,
+      "weight": 2.0,
+      "fraction": 1.0,
+      "earned": 2.0
+    },
+    "history.new.pending": {
+      "turn": 10,
+      "weight": 2.0,
+      "fraction": 1.0,
+      "earned": 2.0
+    }
+  }
+}
