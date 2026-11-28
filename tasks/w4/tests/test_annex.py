@@ -175,3 +175,32 @@ class FieldTest(unittest.TestCase):
                 dict(case="bad", as_of="6月7日", receipt=""),
             )
             self.assertEqual(got[0]["status"], "退信")
+
+
+class DependencyTest(unittest.TestCase):
+    def test_r3_dispatch_changes_r4_allocation(self):
+        from tasks.w4.annex_grade import allocation
+        from tasks.w4.office import events
+
+        with TemporaryDirectory() as td:
+            root = Path(td)
+            fixture(root / "base")
+            hard = root / "hard"
+            play(hard, root / "base")
+            mail = events(hard, 4, None)
+            targets = {
+                k: ("", obj, "")
+                for k, obj in [
+                    ("P03-R", "JL-A"),
+                    ("P09-R", "QH-A"),
+                    ("L01-R", "HZ-A"),
+                    ("L02-R", "JL-B"),
+                ]
+            }
+            before = allocation(hard, mail, 4, targets)
+            e = next(e for e in mail if e["turn"] == 3 and e["subject"] == "P01")
+            path = hard / "mail/3" / e["receipt"] / "payload"
+            path.write_text(re.sub(r"预留席位：\d+", "预留席位：0", path.read_text()))
+            after = allocation(hard, mail, 4, targets)
+            self.assertTrue(any(before[k][2] != after[k][2] for k in targets))
+            self.assertTrue(all(before[k][:2] == after[k][:2] for k in targets))

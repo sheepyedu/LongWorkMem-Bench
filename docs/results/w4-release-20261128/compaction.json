@@ -1,0 +1,16 @@
+[
+  {
+    "turn": 7,
+    "attempt": 70,
+    "summary_characters": 9640,
+    "summary_sha256": "b1a5cc52e3d8ef440f30fa19d444916290f3ff4661de384990c4418897fce3ea",
+    "native_and_next_input_match": true
+  },
+  {
+    "turn": 12,
+    "attempt": 120,
+    "summary_characters": 11444,
+    "summary_sha256": "3192cf1ec4489c980f6d1e5b8d2614790a90c3cf2f537d9fca346879df7d7196",
+    "native_and_next_input_match": true
+  }
+]

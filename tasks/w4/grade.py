@@ -86,6 +86,8 @@ def manual(data):
 
 
 def sheets(path, tabs=TABS):
+    if path.is_dir():
+        return {}, ["交接表为目录"]
     if not path.exists():
         return {}, ["缺交交接表"]
     try:
@@ -122,6 +124,12 @@ def sheets(path, tabs=TABS):
         finally:
             wb.close()
         return result, errors
+    except OSError as exc:
+        # openpyxl uses an errno-less OSError for a ZIP with no workbook part.
+        # A host filesystem error must propagate as a technical failure.
+        if exc.errno is not None:
+            raise
+        return {}, ["无效工作簿:" + str(exc)]
     except (
         BadZipFile,
         InvalidFileException,
@@ -151,6 +159,8 @@ def grade(run):
     if protocol not in ("w4-release-v1", "w4-release-v2"):
         raise ValueError("未知 W4 版本")
     v2 = protocol == "w4-release-v2"
+    if not (run / "mail").is_dir():
+        raise ValueError("缺少宿主邮箱证据，无法评分")
     all_events = events(run, 12, None)
     by = defaultdict(list)
     for e in all_events:

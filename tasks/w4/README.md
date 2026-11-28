@@ -26,10 +26,17 @@
 ```sh
 docker build -f tasks/w1/Office.Dockerfile -t longworkmem-office:1 .
 docker build -f tasks/w4/Release.Dockerfile -t longworkmem-release:1 tasks/w4
+mkdir -p runs
 W4_TEST_ROOT="$PWD/runs" python -m unittest discover -s tasks/w4/tests -t . -v
 python -m tasks.w4.pilot runs/w4/example
 python -m tasks.w4.pilot runs/w4/example --replay
 python -m tasks.w4.audit runs/w4/example
 ```
 
-创建测试共享目录可用 `mkdir -p runs`。运行器记录实际镜像 ID、CLI 与 git 版本、时间、业务回执、原生会话和每次上游请求。默认使用火山方舟 DeepSeek V4.1 Flash 1017 的供应商默认推理配置；无测试请求上限。离线复评仅读取冻结产物和邮件；传输与声明审计还需要本地原始轨迹。分轮得分、技术缺口与实测条件见仓库实测索引。
+运行器记录实际镜像 ID、CLI 与 git 版本、时间、业务回执、原生会话和每次上游请求。默认使用火山方舟 DeepSeek V4.1 Flash 1017 的供应商默认推理配置；无测试请求上限。离线复评仅读取冻结产物和邮件；传输与声明审计还需要本地原始轨迹。分轮得分、技术缺口与实测条件见仓库实测索引。
+
+## 现场服务附页版
+
+默认运行 `--edition 2`，重现基础版使用 `--edition 1`。复评依 manifest 选择冻结语义。v2 继续使用相同的工位镜像、十二日时钟和两个交付形式。正式签发名册在 R2/R7 当轮可读，站点决议有授权、作用域、生效区间和撤回日；设备需求按最新修订去重，同日按公开优先顺序分配。日初可用工位取决于模型此前实际投递的附件与已退信件。R11 查历史应签、实发与当时占用，R12 交割剩余席位。试跑诊断和两版独立回放见[实测报告](../../docs/results/w4-release-20261128/)。
+
+两版各轮满分相同。v2 将 50 分分配给新增的实际业务责任：R2/R3/R4/R6/R9/R10 的附页分别 3/8/5/7/5/9 分，R11 附页及追溯共 10 分，R12 容量交割 3 分。同一日其余业务组按原比例分配剩余分值。登记事实、真实寄件与基于前态的补救可分别得分。现场层独立参考脚本从公开材料另算金标，测试期内核对撤回、当日有效性、重复设备、候补、冻结附件、晚到签收和错误邮箱。

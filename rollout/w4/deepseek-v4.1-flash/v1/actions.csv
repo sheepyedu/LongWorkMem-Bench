@@ -1,0 +1,101 @@
+turn,action,tool,case_or_command,observed,tool_error
+1,1,shell,cat input/办公室/发布规程.txt,exit=0 bytes=1790,False
+1,2,shell,ls -la; echo ---; find input inbox notes out scratch -maxdepth 3 2>/dev/null | head -100,exit=0 bytes=3552,False
+1,3,shell,find out inbox notes scratch -type f | head -50; echo ---; cat input/办公室/上班遗留.csv; echo ---; cat input/客户档案/索引.csv,exit=0 bytes=476,False
+1,4,shell,find input/客户档案 -type f | sort,exit=0 bytes=12405,False
+1,5,shell,"cd out && python3 -c """,exit=0 bytes=480,False
+1,6,shell,"ls inbox; echo ---; for f in input/客户档案/*/在用/*.md; do echo ""## $f""; cat ""$f""; done",exit=0 bytes=1300,False
+1,7,receipt_query,* @ 1,0 records,False
+1,8,shell,ls -R input/渠道伙伴 | head -60; echo ---; head -5 input/部门共享/设施/000.txt; echo ---; cat input/客户档案/海州/服务网点/000.csv,exit=0 bytes=1043,False
+1,9,shell,cd out && python3 - <<'EOF',exit=0 bytes=803,False
+1,10,shell,"ls -la inbox; echo ---; grep -rl ""L0[1-4]"" input inbox 2>/dev/null | head -20",exit=0 bytes=136,False
+1,11,shell,cat > notes/0601_简报.md <<'EOF',exit=0 bytes=194,False
+2,1,shell,ls -la inbox; find inbox -type f | sort; echo ---; ls -la input/办公室 input/部门共享,exit=0 bytes=795,False
+2,2,shell,"find input -newermt ""2026-11-28 07:49"" -type f 2>/dev/null | head; echo ---; find . -newermt ""2026-11-28 08:00"" -type f 2>/dev/null | grep -v '^./out\|^./n",exit=0 bytes=484,False
+2,3,shell,"cd inbox/06-02; for f in *; do echo ""===== $f""; cat ""$f""; echo; done",exit=0 bytes=463,False
+2,4,shell,cd input/客户档案/海州/历史; ls; echo ====; cat 01/A-000.md; echo ====; cat 04/B-186.md; echo ====; cat ../../榆川/历史/02/B-021.md,exit=0 bytes=507,False
+2,5,shell,"cd input/客户档案; for f in 海州/服务网点/000.csv 海州/服务网点/006.csv 榆川/服务网点/003.csv 清河/服务网点/004.csv; do echo ""== $f""; cat $f; done; echo; ls */服务网点 | head -3; wc -l */",exit=0 bytes=553,False
+2,6,shell,"cd input/客户档案; awk -F, 'FNR>1{print $2,$3,$5}' */服务网点/*.csv | sort | uniq -c; echo ---; grep -rh ""邮件\|邮箱"" --include=*.md . | sort | uniq -c | head",exit=0 bytes=436,False
+2,7,shell,"cd input/客户档案; cat */在用/*.md | grep -c 对象; echo ---; grep -rh ""版号"" */在用/*.md; echo ---; cat 江临/历史/01/A-001.md 北安/历史/04/B-191.md",exit=0 bytes=537,False
+2,8,shell,cd out && python3 - <<'EOF',exit=0 bytes=778,False
+2,9,shell,cd out && python3 - <<'EOF',exit=0 bytes=881,False
+2,10,draft,P01,"hz.service@office.test {'receipt': 'D-f5f10ea02e5f49d4', 'action': 'draft'}",False
+2,11,draft,P02,"hz.service@office.test {'receipt': 'D-1ac7b11e049440db', 'action': 'draft'}",False
+2,12,draft,P04,"jl.service@office.test {'receipt': 'D-bfa96d6af0eb4379', 'action': 'draft'}",False
+2,13,draft,P09,"qh.service@office.test {'receipt': 'D-23777c7649434650', 'action': 'draft'}",False
+2,14,shell,cat >> notes/0601_简报.md <<'EOF',exit=127 bytes=313,True
+2,15,receipt_query,* @ 2,0 records,False
+3,1,shell,"ls -R inbox; echo =====; find inbox -type f -newermt ""2026-11-28 07:51"" | sort; echo =====; for f in inbox/06-03/*; do echo ""## $f""; cat ""$f""; echo; done",exit=0 bytes=362,False
+3,2,shell,"find input inbox -newermt ""2026-11-28 07:51"" -type f | sort; echo ---; ls -la input/办公室 inbox/06-03",exit=0 bytes=445,False
+3,3,receipt_query,* @ 3,0 records,False
+3,4,shell,cd out && python3 - <<'EOF',exit=0 bytes=814,False
+3,5,deliver,P01,"hz.service@office.test {'receipt': 'M-942ff25b0fd74afa', 'action': 'deliver'}",False
+3,6,deliver,P02,"hz.service@office.test {'receipt': 'M-53a20823534840bc', 'action': 'deliver'}",False
+3,7,deliver,P03,"jl.service@office.test {'receipt': 'M-3b5dd418a7784dcf', 'action': 'deliver'}",False
+3,8,deliver,P04,"jl.service@office.test {'receipt': 'M-b7ae362e89804806', 'action': 'deliver'}",False
+3,9,deliver,P05,"np.service@office.test {'receipt': 'M-c6ec7d10dd70456c', 'action': 'deliver'}",False
+3,10,deliver,P06,"np.service@office.test {'receipt': 'M-d7a483055f974f40', 'action': 'deliver'}",False
+3,11,deliver,P07,"yc.service@office.test {'receipt': 'M-dbf5b69165a640f1', 'action': 'deliver'}",False
+3,12,deliver,P09,"qh.service@office.test {'receipt': 'M-ca8d1d183e834197', 'action': 'deliver'}",False
+3,13,deliver,P10,"qh.service@office.test {'receipt': 'M-8d57fdade1a34cde', 'action': 'deliver'}",False
+3,14,deliver,P11,"ba.service@office.test {'receipt': 'M-fef35067ee8040d0', 'action': 'deliver'}",False
+3,15,receipt_query,* @ 06-03,invalid literal for int() with base 10: '06-03',True
+3,16,receipt_query,* @ 3,10 records,False
+3,17,shell,cat >> notes/0601_简报.md <<'EOF',exit=0 bytes=3,False
+4,1,shell,"ls -R inbox; echo =====; for f in inbox/06-04/*; do echo ""## $f""; cat ""$f""; echo; done",exit=0 bytes=450,False
+4,2,receipt_query,* @ 4,10 records,False
+4,3,shell,cd out && python3 - <<'EOF',exit=0 bytes=457,False
+4,4,deliver,P03-R,"jl.backup@office.test {'receipt': 'M-ec6976ad7a184e4b', 'action': 'deliver'}",False
+4,5,deliver,P09-R,"qh.backup@office.test {'receipt': 'M-292d47f28803414e', 'action': 'deliver'}",False
+4,6,deliver,L01-R,"hz.backup@office.test {'receipt': 'M-8ab337d2811d4636', 'action': 'deliver'}",False
+4,7,deliver,L02-R,"jl.backup@office.test {'receipt': 'M-f6cf7a9d59e14f02', 'action': 'deliver'}",False
+4,8,receipt_query,* @ 4,14 records,False
+4,9,shell,cd out && python3 - <<'EOF',exit=0 bytes=539,False
+4,10,shell,pwd; cat >> ../notes/0601_简报.md <<'EOF',exit=0 bytes=166,False
+4,11,shell,cd /office && cat >> notes/0601_简报.md <<'EOF',exit=0 bytes=118,False
+5,1,shell,"cd /office && ls -R inbox | head -30; echo =====; for f in inbox/06-05/*; do echo ""## $f""; cat ""$f""; echo; done",exit=0 bytes=468,False
+5,2,shell,cd /office/out && python3 - <<'EOF',exit=0 bytes=550,False
+5,3,shell,cd /office && cat >> notes/0601_简报.md <<'EOF',exit=0 bytes=5,False
+6,1,shell,"cd /office && ls inbox/06-06; echo =====; for f in inbox/06-06/*; do echo ""## $f""; cat ""$f""; echo; done",exit=0 bytes=100,False
+6,2,shell,"cd /office && find input inbox -newermt ""2026-11-28 07:52"" -type f | sort; echo ---; ls input/客户档案/海州/服务网点 input/客户档案/清河/服务网点 | tr '\n' ' '; echo; grep -h ",exit=0 bytes=613,False
+6,3,shell,cd /office/out && python3 - <<'EOF',exit=0 bytes=202,False
+6,4,deliver,N01,"hz.new@office.test {'receipt': 'M-a6ee8a8ab31f4518', 'action': 'deliver'}",False
+6,5,deliver,N02,"hz.new@office.test {'receipt': 'M-9168c46180924972', 'action': 'deliver'}",False
+6,6,deliver,N03,"jl.new@office.test {'receipt': 'M-d066b69a20aa409a', 'action': 'deliver'}",False
+6,7,deliver,N04,"qh.new@office.test {'receipt': 'M-03ae3b5cc10e45e0', 'action': 'deliver'}",False
+6,8,receipt_query,N03 @ 6,1 records,False
+6,9,shell,cd /office && cat >> notes/0601_简报.md <<'EOF',exit=0 bytes=94,False
+7,1,shell,"cd /office && ls inbox/06-07; echo =====; for f in inbox/06-07/*; do echo ""## $f""; cat ""$f""; echo; done",exit=0 bytes=225,False
+7,2,shell,cd /office/out && python3 - <<'EOF',exit=0 bytes=116,False
+8,1,shell,"cd /office && ls inbox/06-08; echo =====; for f in inbox/06-08/*; do echo ""## $f""; cat ""$f""; echo; done",exit=0 bytes=170,False
+8,2,shell,"cd /office/input/部门共享/设施 && ls; echo =====; grep -l ""值班\|调班\|席位"" *.txt | head; echo =====; for f in *.txt; do echo ""-- $f""; cat $f; done",exit=0 bytes=2984,False
+8,3,shell,cd /office/out && python3 - <<'EOF',exit=0 bytes=73,False
+9,1,shell,"cd /office && ls inbox/06-09; echo =====; for f in inbox/06-09/*; do echo ""## $f""; cat ""$f""; echo; done",exit=0 bytes=97,False
+9,2,shell,"cd /office && find input inbox -newermt ""2026-11-28 07:53"" -type f | sort; echo ---; cd out && python3 - <<'EOF'",exit=0 bytes=205,False
+9,3,deliver,T01,"hz.new@office.test {'receipt': 'M-c3dc51f4d2534e6f', 'action': 'deliver'}",False
+9,4,deliver,T02,"jl.new@office.test {'receipt': 'M-24b17b5055ba4aa4', 'action': 'deliver'}",False
+9,5,deliver,T03,"qh.service@office.test {'receipt': 'M-7abdbe8644184d36', 'action': 'deliver'}",False
+9,6,receipt_query,T01 @ 9,1 records,False
+9,7,shell,cd /office && cat >> notes/0601_简报.md <<'EOF',exit=0 bytes=3,False
+10,1,shell,"cd /office && ls inbox/06-10; echo =====; for f in inbox/06-10/*; do echo ""## $f""; cat ""$f""; echo; done; echo; find input inbox -newermt ""2026-11-28 07:54""",exit=0 bytes=179,False
+10,2,shell,cd /office/out && python3 - <<'EOF',exit=0 bytes=91,False
+10,3,deliver,U01,"hz.new@office.test {'receipt': 'M-839624b9ffa0458a', 'action': 'deliver'}",False
+10,4,deliver,U04,"jl.new@office.test {'receipt': 'M-fcd33af5644347d0', 'action': 'deliver'}",False
+10,5,receipt_query,* @ 10,1 records,False
+10,6,shell,cd /office && cat >> notes/0601_简报.md <<'EOF',exit=0 bytes=3,False
+11,1,shell,"cd /office && ls inbox/06-11; echo =====; for f in inbox/06-11/*; do echo ""## $f""; cat ""$f""; echo; done",exit=0 bytes=516,False
+11,2,receipt_query,* @ 11,23 records,False
+11,3,receipt_query,* @ 11,1 records,False
+11,4,receipt_query,* @ 11,1 records,False
+11,5,receipt_query,* @ 11,1 records,False
+11,6,receipt_query,* @ 11,1 records,False
+11,7,receipt_query,* @ 11,1 records,False
+11,8,receipt_query,* @ 11,1 records,False
+11,9,receipt_query,* @ 4,14 records,False
+11,10,shell,cd /office/out && python3 - <<'EOF',exit=0 bytes=457,False
+11,11,deliver,L03-C,"np.service@office.test {'receipt': 'M-d4e7b113ee4f4b1e', 'action': 'deliver'}",False
+11,12,shell,cd /office && cat >> notes/0601_简报.md <<'EOF',exit=0 bytes=3,False
+12,1,shell,"cd /office && ls inbox/06-12; echo =====; for f in inbox/06-12/*; do echo ""## $f""; cat ""$f""; echo; done",exit=0 bytes=359,False
+12,2,receipt_query,* @ 12,24 records,False
+12,3,shell,cd /office/out && python3 - <<'EOF',exit=0 bytes=678,False
+12,4,shell,cd /office && cat >> notes/0601_简报.md <<'EOF',exit=0 bytes=449,False

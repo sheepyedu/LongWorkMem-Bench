@@ -18,7 +18,7 @@ from .annex import (
     withdrawn,
 )
 from .office import attachment, status
-from .scenario import FIRST, AUDITS
+from .scenario import AUDITS
 
 WEIGHTS = {2: 3, 3: 8, 4: 5, 6: 7, 9: 5, 10: 9, 11: 10, 12: 3}
 FIELDS = ("服务主站", "服务凭证", "预留席位")

@@ -7,7 +7,7 @@ import unittest
 import shutil
 
 from openpyxl import load_workbook
-from tasks.w4.grade import grade
+from tasks.w4.grade import grade, sheets
 from tasks.w4.tests.test_release import fixture
 
 
@@ -65,3 +65,20 @@ class Mutations(unittest.TestCase):
         self.assertLess(g["rounds"][2], 13)
         self.assertLess(g["rounds"][10], 17)
         self.assertEqual(g["rounds"][9], 14)
+
+    def test_wrong_file_types_and_lost_host_mail(self):
+        from zipfile import ZipFile
+
+        sample = self.root / "broken.xlsx"
+        sample.mkdir()
+        self.assertTrue(sheets(sample)[1])
+        sample.rmdir()
+        with ZipFile(sample, "w") as archive:
+            archive.writestr(
+                "[Content_Types].xml",
+                '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"/>',
+            )
+        self.assertTrue(sheets(sample)[1])
+        shutil.rmtree(self.root / "mail")
+        with self.assertRaises(ValueError):
+            grade(self.root)

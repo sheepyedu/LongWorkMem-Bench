@@ -1,0 +1,178 @@
+turn,action,tool,case_or_command,observed,tool_error
+1,1,shell,"cd / && ls -la; echo ""---""; find . -maxdepth 3 -type d 2>/dev/null | head -50",exit=0 bytes=2050,False
+1,2,shell,"cat input/办公室/发布规程.txt; echo ""====""; cat input/办公室/现场服务约定.txt",exit=0 bytes=4199,False
+1,3,shell,cd /office && ls -laR | head -100,exit=0 bytes=3895,False
+1,4,shell,cd /office && find . -type f | head -200,exit=0 bytes=9968,False
+1,5,shell,"cd /office && echo ""===上班遗留===""; cat input/办公室/上班遗留.csv; echo; echo ""===客户档案索引===""; cat input/客户档案/索引.csv; echo; echo ""===现场服务===""; find input/现场服务 -type f",exit=0 bytes=3906,False
+1,6,shell,"cd /office && python3 -c """,exit=0 bytes=814,False
+1,7,shell,"cd /office && find input/客户档案/HZ 2>/dev/null; echo ""---names---""; ls input/客户档案; echo ""===在用 dirs===""; for c in input/客户档案/*/; do echo ""## $c""; find ""$c/在用",exit=0 bytes=767,False
+1,8,shell,"cd /office && echo ""===站点底册===""; cat input/现场服务/站点底册.csv; echo; echo ""===凭证册===""; cat input/现场服务/凭证册.csv; echo; echo ""===期初容量===""; cat input/现场服务/期初容量.csv",exit=0 bytes=480,False
+1,9,shell,"cd /office && for f in input/客户档案/*/在用/*.md; do echo ""==== $f ====""; cat ""$f""; echo; done",exit=0 bytes=1392,False
+1,10,receipt_query,* @ 1,0 records,False
+1,11,shell,"cd /office && find input/客户档案/*/服务网点 -type f | head -60; echo ""=== HZ 服务网点 ===""; find input/客户档案/海州/服务网点 -type f -exec echo ""--- {} ---"" \; -exec cat {} \;",exit=0 bytes=4647,False
+1,12,receipt_query,L01 @ 1,0 records,False
+1,13,receipt_query,L02 @ 1,0 records,False
+1,14,receipt_query,L03 @ 1,0 records,False
+1,15,receipt_query,L04 @ 1,0 records,False
+1,16,receipt_query,* @ 2,只可查询截至当前业务日的历史,True
+1,17,receipt_query,* @ 12,只可查询截至当前业务日的历史,True
+1,18,receipt_query,L01 @ 1,0 records,False
+1,19,receipt_query,* @ 31,只可查询截至当前业务日的历史,True
+1,20,shell,"cd /office && echo ""===历史 HZ/01===""; for f in input/客户档案/海州/历史/01/*.md; do echo ""---$f---""; cat ""$f""; done; echo; echo ""===all 历史 dirs per client===""; for ",exit=0 bytes=1991,False
+1,21,shell,"cd /office && echo ""===one 渠道伙伴 csv===""; head -5 input/渠道伙伴/海州/配件/工单-000.csv; echo; cat input/部门共享/设施/000.txt; echo; echo ""===清单 files count===""; find inpu",exit=0 bytes=263,False
+1,22,shell,cd /office && python3 - <<'PY',exit=0 bytes=456,False
+1,23,shell,"cd /office && grep -rl ""在用手册\|当前版\|版号"" input | grep -v '客户档案/.*/历史' | head; echo ""---在用 all content count---""; grep -rn ""登记日"" input | head -20; echo ""--- i",exit=0 bytes=1459,False
+1,24,shell,cd /office && cat > notes/第1轮_交接.md <<'EOF',exit=0 bytes=589,False
+2,1,shell,"cd /office && echo ""=== inbox ===""; ls -laR inbox; echo ""=== input top ===""; find input -maxdepth 2 -type d; echo ""=== today files (mtime) ===""; find input",exit=0 bytes=7763,False
+2,2,shell,cd /office && find . -type f | grep -v '客户档案/.*/历史' | grep -v '渠道伙伴' | grep -v '部门共享' | sort,exit=0 bytes=5832,False
+2,3,shell,"cd /office/inbox/06-02 && for f in 值班签发名册.csv 服务部签发.txt 渠道建议.txt 设备申请.csv 评审单.csv; do echo ""===== $f =====""; cat ""$f""; echo; done",exit=0 bytes=1465,False
+2,4,shell,"cd /office/inbox/06-02/签署附件 && for d in HZ-A HZ-B; do for f in $d/*.txt; do echo ""---$f---""; cat ""$f""; echo; done; done",exit=0 bytes=969,False
+2,5,shell,"cd /office/inbox/06-02/签署附件 && for d in JL-A JL-B NP-A NP-B YC-A YC-B QH-A QH-B BA-A BA-B; do echo ""###### $d ######""; for f in $d/*.txt; do echo ""---$(bas",exit=0 bytes=4855,False
+2,6,shell,"cd /office && grep -rln ""评审\|手册\|附页\|服务主站\|预留席位\|服务凭证"" input inbox 2>/dev/null | grep -v 历史 | head -40; echo ""=== search done ===""; echo ""=== sample 部门共享 f",exit=0 bytes=578,False
+2,7,shell,"cd /office && echo ""=== all 历史 counts and sample across clients ===""; for c in 海州 江临 南浦 榆川 清河 北安; do echo ""## $c""; for b in 01 02 03 04; do echo -n ""  $b: ",exit=0 bytes=2008,False
+2,8,shell,"cd /office && for c in 海州 江临 南浦 榆川 清河 北安; do echo ""##### $c #####""; for b in 01 02 03 04; do f=$(ls input/客户档案/$c/历史/$b/A-*.md | head -1); echo ""--- $f ---",exit=0 bytes=2864,False
+2,9,shell,"cd /office && grep -rln ""容量\|席位\|增额\|主站"" input inbox 2>/dev/null | head; echo ""===""; cat input/现场服务/期初容量.csv; echo ""=== check for more csv in 现场服务 ===""; ls",exit=0 bytes=760,False
+2,10,shell,cd /office && python3 - <<'PY',exit=0 bytes=432,False
+2,11,shell,"cd /office && mkdir -p notes/06-02_存档 out/评审稿 && cp -r inbox/06-02/. notes/06-02_存档/ && cp inbox/06-02/值班签发名册.csv notes/签发名册_06-02.csv && echo ""archived:"" ",exit=0 bytes=67,False
+2,12,shell,cd /office && python3 - <<'PY',exit=0 bytes=248,False
+2,13,shell,cd /office && python3 - <<'PY',exit=1 bytes=351,True
+2,14,shell,cd /office && python3 - <<'PY',exit=0 bytes=485,False
+2,15,shell,cd /office && python3 - <<'PY',exit=1 bytes=193,True
+2,16,shell,cd /office && python3 - <<'PY',exit=0 bytes=2049,False
+2,17,shell,cd /office && python3 - <<'PY',exit=0 bytes=78,False
+2,18,draft,P01,"hz.service@office.test {'receipt': 'D-8fb47875dcec42a2', 'action': 'draft'}",False
+2,19,draft,P02,"hz.service@office.test {'receipt': 'D-6e62c3dfa4304163', 'action': 'draft'}",False
+2,20,draft,P04,"jl.service@office.test {'receipt': 'D-8c297a9f5b1945fd', 'action': 'draft'}",False
+2,21,draft,P09,"qh.service@office.test {'receipt': 'D-6399d127c37c4675', 'action': 'draft'}",False
+2,22,shell,cd /office && cat > notes/第2轮_交接.md <<'EOF',exit=0 bytes=1507,False
+2,23,receipt_query,P01 @ 2,0 records,False
+2,24,shell,"cd /office && for f in out/评审稿/*.md; do echo ""== $f ==""; grep -c '^对象：' ""$f""; grep -c '^换机时限：' ""$f""; grep -c '^服务主站：' ""$f""; grep -c '^服务凭证：' ""$f""; grep -c ",exit=0 bytes=148,False
+3,1,shell,"cd /office && echo ""=== inbox tree ===""; find inbox -type f | sort; echo; echo ""=== inbox root ===""; ls -la inbox",exit=0 bytes=1817,False
+3,2,shell,"cd /office/inbox/06-03 && echo ""=== 第一批放行.csv ===""; cat 第一批放行.csv; echo; echo ""=== 设备申请.csv ===""; cat 设备申请.csv",exit=0 bytes=2207,False
+3,3,shell,"cd /office && for f in inbox/06-02/签署附件/HZ-A/*.txt inbox/06-02/签署附件/HZ-B/*.txt; do echo ""---$f---""; cat -A ""$f""; echo; done",exit=0 bytes=2736,False
+3,4,shell,cd /office && python3 - <<'PY',exit=0 bytes=1415,False
+3,5,shell,cd /office && python3 - <<'PY',exit=0 bytes=1120,False
+3,6,shell,cd /office && python3 - <<'PY',exit=0 bytes=710,False
+3,7,deliver,P01,"hz.service@office.test {'receipt': 'M-dcee8245f2da4ac3', 'action': 'deliver'}",False
+3,8,deliver,P02,"hz.service@office.test {'receipt': 'M-caec28e575524387', 'action': 'deliver'}",False
+3,9,deliver,P03,"jl.service@office.test {'receipt': 'M-075e076b9a94419a', 'action': 'deliver'}",False
+3,10,deliver,P04,"jl.service@office.test {'receipt': 'M-698d116d75ec4bfe', 'action': 'deliver'}",False
+3,11,deliver,P05,"np.service@office.test {'receipt': 'M-5c3a0aee66b443a9', 'action': 'deliver'}",False
+3,12,deliver,P06,"np.service@office.test {'receipt': 'M-5a75851b26f2440f', 'action': 'deliver'}",False
+3,13,deliver,P07,"yc.service@office.test {'receipt': 'M-fa81432fedb14833', 'action': 'deliver'}",False
+3,14,deliver,P09,"qh.service@office.test {'receipt': 'M-929814ee280147a8', 'action': 'deliver'}",False
+3,15,deliver,P10,"qh.service@office.test {'receipt': 'M-1a97eb8998894223', 'action': 'deliver'}",False
+3,16,deliver,P11,"ba.service@office.test {'receipt': 'M-0f81c0c4fc3249ab', 'action': 'deliver'}",False
+3,17,receipt_query,* @ 3,10 records,False
+3,18,shell,cd /office && python3 - <<'PY',exit=0 bytes=1087,False
+3,19,shell,"cd /office && for f in out/首批/*.md; do echo ""== $(basename $f) ==""; grep -E '^(对象|换机时限|服务主站|服务凭证|预留席位)：' ""$f"" | tr '\n' ' '; echo; done",exit=0 bytes=1234,False
+3,20,shell,"cd /office && python3 -c """,exit=0 bytes=589,False
+4,1,shell,"cd /office && echo ""=== inbox tree ===""; find inbox -type f | sort; echo; echo ""=== 06-04 files ===""; ls -la inbox/06-04 2>/dev/null",exit=0 bytes=1898,False
+4,2,receipt_query,* @ 4,10 records,False
+4,3,shell,"cd /office/inbox/06-04 && echo ""=== 异常办理.txt ===""; cat 异常办理.txt; echo; echo ""=== 设备申请.csv ===""; cat 设备申请.csv",exit=0 bytes=2896,False
+4,4,shell,"cd /office && echo ""=== grep 增额/容量/席位 ===""; grep -rn ""增额\|容量\|席位\|主站"" input --include=*.txt --include=*.csv | grep -v 现场服务约定 | grep -v 发布规程 | head -40; ech",exit=0 bytes=654,False
+4,5,shell,"cd /office && cat input/现场服务/期初容量.csv; echo ""---- lines:""; wc -l input/现场服务/期初容量.csv; echo ""=== any .csv in inbox 06-04 ===""; ls -la inbox/06-04",exit=0 bytes=374,False
+4,6,shell,cd /office && python3 - <<'PY',exit=0 bytes=952,False
+4,7,shell,cd /office && python3 - <<'PY',exit=0 bytes=626,False
+4,8,shell,cd /office && python3 - <<'PY',exit=0 bytes=356,False
+4,9,shell,cd /office && python3 - <<'PY',exit=0 bytes=760,False
+4,10,deliver,P03-R,"jl.backup@office.test {'receipt': 'M-6581e61d7789445f', 'action': 'deliver'}",False
+4,11,deliver,P09-R,"qh.backup@office.test {'receipt': 'M-f8edb908cab9451c', 'action': 'deliver'}",False
+4,12,deliver,L01-R,"hz.backup@office.test {'receipt': 'M-d9e662f951c046a8', 'action': 'deliver'}",False
+4,13,deliver,L02-R,"jl.backup@office.test {'receipt': 'M-b29ce08a91284039', 'action': 'deliver'}",False
+4,14,receipt_query,* @ 4,14 records,False
+4,15,shell,cd /office && python3 - <<'PY',exit=0 bytes=281,False
+4,16,shell,"cd /office && echo ""=== workbook sheets/rows ===""; python3 -c """,exit=0 bytes=360,False
+5,1,shell,"cd /office && echo ""=== inbox tree (06-05) ===""; find inbox -type f | sort | grep 06-05; echo; ls -la inbox/06-05 2>/dev/null; echo ""=== contents ===""; for",exit=0 bytes=509,False
+5,2,shell,cd /office && python3 - <<'PY',exit=0 bytes=550,False
+5,3,shell,cd /office && cat > notes/第5轮_交接.md <<'EOF',exit=0 bytes=242,False
+6,1,shell,"cd /office && echo ""=== 06-06 ===""; find inbox/06-06 -type f | sort; echo; for f in inbox/06-06/*; do echo ""----- $f -----""; cat ""$f""; echo; done",exit=0 bytes=1158,False
+6,2,receipt_query,* @ 6,14 records,False
+6,3,shell,cd /office && python3 - <<'PY',exit=0 bytes=730,False
+6,4,shell,cd /office && python3 - <<'PY',exit=0 bytes=776,False
+6,5,shell,cd /office && python3 - <<'PY',exit=0 bytes=1042,False
+6,6,deliver,N01,"hz.new@office.test {'receipt': 'M-c026ba2beaaa44af', 'action': 'deliver'}",False
+6,7,deliver,N02,"hz.new@office.test {'receipt': 'M-2f84c39a3086444e', 'action': 'deliver'}",False
+6,8,deliver,N03,"jl.new@office.test {'receipt': 'M-38d901c076e54063', 'action': 'deliver'}",False
+6,9,deliver,N04,"qh.service@office.test {'receipt': 'M-adf5341ec9c749aa', 'action': 'deliver'}",False
+6,10,shell,cd /office && python3 - <<'PY',exit=0 bytes=322,False
+6,11,receipt_query,* @ 6,18 records,False
+6,12,shell,cd /office && sed -i 's#N01 HZ-A → hz.new@office.test；南站? 见下；回执#N01 HZ-A → hz.new@office.test；西湾；回执#' notes/第6轮_交接.md && grep 'N01 HZ-A' notes/第6轮_交接.md,exit=0 bytes=131,False
+7,1,shell,"cd /office && echo ""=== 06-07 ===""; find inbox/06-07 -type f | sort; echo; for f in inbox/06-07/*; do echo ""----- $f -----""; cat ""$f""; echo; done",exit=0 bytes=1782,False
+7,2,shell,"cd /office && for f in inbox/06-07/签署附件/*/*.txt; do echo ""---$f---""; cat ""$f""; echo; done",exit=0 bytes=4504,False
+7,3,shell,"cd /office && mkdir -p notes/06-07_存档 && cp -r inbox/06-07/. notes/06-07_存档/ && cp inbox/06-07/值班签发名册.csv notes/签发名册_06-07.csv && echo ""archived: $(find no",exit=0 bytes=132,False
+7,4,shell,"cd /office && echo ""=== 验收签发.txt ==="" && cat inbox/06-07/验收签发.txt && echo ""=== 撤单.csv ==="" && cat inbox/06-07/撤单.csv && echo ""=== 新增席位.csv ==="" && cat inbo",exit=0 bytes=519,False
+7,5,shell,cd /office && cat > notes/第7轮_交接.md <<'MD',exit=0 bytes=550,False
+7,6,shell,cd /office && python3 - <<'PY',exit=0 bytes=169,False
+8,1,shell,"cd /office && echo ""=== inbox/06-08 tree ==="" && find inbox/06-08 -type f | sort && echo ""--- contents ---"" && for f in $(find inbox/06-08 -type f | sort);",exit=0 bytes=219,False
+8,2,shell,"cd /office && echo ""=== 值班 sheet headers ==="" && python3 -c ""import openpyxl;[print(r) for r in openpyxl.load_workbook('out/交接.xlsx')['值班'].iter_rows(value",exit=0 bytes=3612,False
+8,3,shell,"cd /office && echo ""=== 设施 files mentioning 调班/周五/东台/西台 ==="" && grep -l -e '调班' -e '周五' -e '东台' -e '西台' input/部门共享/设施/*.txt 2>/dev/null",exit=0 bytes=3687,False
+8,4,shell,"cd /office && echo ""=== grep 赵宁/吴禾/东台/西台/调班 across everything ==="" && grep -rn -e '赵宁' -e '吴禾' -e '东台' -e '西台' -e '调班' input inbox notes 2>/dev/null | grep",exit=0 bytes=757,False
+8,5,shell,"cd /office && echo ""=== ls -la 设施 dir ==="" && ls -la input/部门共享/设施/",exit=0 bytes=4425,False
+8,6,shell,cd /office && cp inbox/06-08/设施部签发.txt notes/06-08_设施部签发.txt 2>/dev/null; mkdir -p notes/06-08_存档 && cp inbox/06-08/设施部签发.txt notes/06-08_存档/,exit=0 bytes=66,False
+8,7,shell,cd /office && cat > notes/第8轮_交接.md <<'MD',exit=0 bytes=239,False
+9,1,shell,"cd /office && echo ""=== inbox/06-09 tree ==="" && find inbox/06-09 -type f | sort && echo ""--- contents ---"" && for f in $(find inbox/06-09 -type f | sort);",exit=0 bytes=990,False
+9,2,shell,"cd /office && echo ""===== 站点底册 ====="" && cat input/现场服务/站点底册.csv && echo && echo ""===== 凭证册 ====="" && cat input/现场服务/凭证册.csv && echo && echo ""===== 期初容量 ==",exit=0 bytes=1875,False
+9,3,shell,"cd /office && echo ""===== 06-02 服务部签发 ====="" && cat inbox/06-02/服务部签发.txt && echo && echo ""===== 06-02 渠道建议 ====="" && cat inbox/06-02/渠道建议.txt && echo && e",exit=0 bytes=1232,False
+9,4,shell,"cd /office && for d in 评审稿 首批 补办 网点; do echo ""############ $d ############""; for f in out/$d/*.md; do echo ""----- $f -----""; cat ""$f""; echo; done; done",exit=0 bytes=5327,False
+9,5,shell,"cd /office && echo ""===== day2 docs: HZ-A/JL-B/QH-A ====="" && for o in HZ-A JL-B QH-A; do for f in inbox/06-02/签署附件/$o/*.txt; do echo ""--- $f""; cat ""$f""; e",exit=0 bytes=3102,False
+9,6,shell,"cd /office && echo ""===== R3_附页演算.json ====="" && cat notes/R3_附页演算.json 2>/dev/null; echo; echo ""===== R4_补办附页.json ====="" && cat notes/R4_补办附页.json 2>/dev",exit=0 bytes=4604,False
+9,7,shell,cd /office && python3 - <<'PY',exit=0 bytes=990,False
+9,8,shell,cd /office && python3 - <<'PY',exit=0 bytes=903,False
+9,9,shell,cd /office && python3 - <<'PY',exit=0 bytes=854,False
+9,10,shell,cd /office && mkdir -p out/末班 && python3 - <<'PY',exit=0 bytes=696,False
+9,11,deliver,T01,"hz.new@office.test {'receipt': 'M-0da551b853044184', 'action': 'deliver'}",False
+9,12,deliver,T02,"jl.new@office.test {'receipt': 'M-ce6e8f7291844470', 'action': 'deliver'}",False
+9,13,deliver,T03,"qh.service@office.test {'receipt': 'M-bd6142f45c1d4a73', 'action': 'deliver'}",False
+9,14,shell,cd /office && mkdir -p notes/06-09_存档 && cp inbox/06-09/. -r notes/06-09_存档/ && cat > notes/R9_末班附页.json <<'JSON',exit=0 bytes=97,False
+9,15,receipt_query,* @ 9,21 records,False
+10,1,shell,"cd /office && echo ""=== inbox/06-10 tree ==="" && find inbox/06-10 -type f | sort && echo ""--- contents ---"" && for f in $(find inbox/06-10 -type f | sort);",exit=0 bytes=2602,False
+10,2,shell,cd /office && python3 - <<'PY',exit=0 bytes=710,False
+10,3,shell,cd /office && mkdir -p out/差量 && python3 - <<'PY',exit=0 bytes=461,False
+10,4,deliver,U01,"hz.new@office.test {'receipt': 'M-e5676fc65af547e4', 'action': 'deliver'}",False
+10,5,deliver,U04,"jl.new@office.test {'receipt': 'M-341a4c943eb74a30', 'action': 'deliver'}",False
+10,6,shell,cd /office && mkdir -p notes/06-10_存档 && cp -r inbox/06-10/. notes/06-10_存档/ && cat > notes/R10_差量附页.json <<'JSON',exit=0 bytes=98,False
+11,1,shell,"cd /office && echo ""=== inbox/06-11 tree ==="" && find inbox/06-11 -type f | sort && echo ""--- contents ---"" && for f in $(find inbox/06-11 -type f | sort);",exit=0 bytes=1962,False
+11,2,shell,"cd /office && echo ""===== 06-03 第一批放行.csv ====="" && cat inbox/06-03/第一批放行.csv && echo && echo ""===== 06-03 设备申请.csv ====="" && cat inbox/06-03/设备申请.csv && e",exit=0 bytes=2770,False
+11,3,shell,"cd /office && echo ""===== 索引.csv ====="" && cat input/客户档案/索引.csv && echo && echo ""===== 签发名册_06-02 ====="" && cat notes/签发名册_06-02.csv && echo && echo ""====",exit=0 bytes=2192,False
+11,4,receipt_query,P01 @ 4,1 records,False
+11,5,receipt_query,P02 @ 4,1 records,False
+11,6,receipt_query,P04 @ 4,1 records,False
+11,7,receipt_query,P05 @ 4,1 records,False
+11,8,receipt_query,P09 @ 4,1 records,False
+11,9,receipt_query,P10 @ 4,1 records,False
+11,10,shell,"cd /office && for o in HZ-B NP-A QH-B; do echo ""===== $o (day7) =====""; for f in inbox/06-07/签署附件/$o/*.txt; do echo ""--- $f""; cat ""$f""; echo; done; done",exit=0 bytes=1414,False
+11,11,shell,cd /office && cat > /tmp/audit.py <<'PY',exit=0 bytes=1654,False
+11,12,shell,cd /office && cat > /tmp/errata.py <<'PY',exit=0 bytes=1599,False
+11,13,shell,cd /office && mkdir -p out/勘误 && python3 - <<'PY',exit=0 bytes=1691,False
+11,14,shell,"cd /office && for c in P01 P02 P04 P05 P09 P10; do echo ""===== out/首批/$c.md =====""; cat ""out/首批/$c.md""; echo; done",exit=0 bytes=1354,False
+11,15,deliver,P01-C,"hz.review@office.test {'receipt': 'M-2eba982d725b4977', 'action': 'deliver'}",False
+11,16,deliver,P02-C,"hz.review@office.test {'receipt': 'M-bd54c2cde75749a8', 'action': 'deliver'}",False
+11,17,deliver,P04-C,"jl.review@office.test {'receipt': 'M-9058feccfcb54bef', 'action': 'deliver'}",False
+11,18,deliver,P05-C,"np.service@office.test {'receipt': 'M-a58a7ab30cd14c3f', 'action': 'deliver'}",False
+11,19,deliver,P09-C,"qh.service@office.test {'receipt': 'M-b822b9d13613448c', 'action': 'deliver'}",False
+11,20,deliver,P10-C,"qh.service@office.test {'receipt': 'M-9fda031680a44abb', 'action': 'deliver'}",False
+11,21,deliver,L03-C,"np.service@office.test {'receipt': 'M-150b7e9b00cf4bda', 'action': 'deliver'}",False
+11,22,shell,cd /office && python3 - <<'PY',exit=0 bytes=1089,False
+11,23,shell,cd /office && mkdir -p notes/06-11_存档 && cp -r inbox/06-11/. notes/06-11_存档/ && cat > notes/第11轮_交接.md <<'MD',exit=0 bytes=212,False
+11,24,receipt_query,P04-C @ 11,1 records,False
+11,25,receipt_query,L03-C @ 11,1 records,False
+12,1,shell,"cd /office && echo ""=== inbox/06-12 tree ==="" && find inbox/06-12 -type f | sort && echo ""--- contents ---"" && for f in $(find inbox/06-12 -type f | sort);",exit=0 bytes=408,False
+12,2,shell,cd /office && python3 - <<'PY',exit=0 bytes=1086,False
+12,3,receipt_query,P01 @ 12,1 records,False
+12,4,receipt_query,P03 @ 12,1 records,False
+12,5,receipt_query,P03-R @ 12,1 records,False
+12,6,receipt_query,L01-R @ 12,1 records,False
+12,7,receipt_query,L02-R @ 12,1 records,False
+12,8,receipt_query,N01 @ 12,1 records,False
+12,9,receipt_query,N03 @ 12,1 records,False
+12,10,receipt_query,T01 @ 12,1 records,False
+12,11,receipt_query,U01 @ 12,1 records,False
+12,12,receipt_query,U04 @ 12,1 records,False
+12,13,receipt_query,L03-C @ 12,1 records,False
+12,14,shell,"cd ""$(pwd)""; python3 - <<'PY'",exit=0 bytes=864,False
+12,15,shell,"cd ""$(pwd)""; for f in $(find out -name '*.md' | sort); do echo ""=== $f ===""; grep -E '对象：|换机时限：|服务主站：|预留席位：' ""$f""; done",exit=0 bytes=3728,False
+12,16,receipt_query,* @ 12,30 records,False
+12,17,shell,"cd ""$(pwd)""; python3 - <<'PY'",exit=0 bytes=279,False
+12,18,shell,"cd ""$(pwd)""; python3 - <<'PY'",exit=0 bytes=832,False
+12,19,shell,"cd ""$(pwd)""; mkdir -p notes/06-12_存档; cp -r inbox/06-12/* notes/06-12_存档/ 2>/dev/null; cat > notes/第12轮_交接.md <<'MD'",exit=0 bytes=31,False

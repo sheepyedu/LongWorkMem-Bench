@@ -2,7 +2,9 @@
 
 import argparse
 from collections import Counter, defaultdict
+from hashlib import sha256
 import json
+import re
 import unicodedata
 from pathlib import Path
 
@@ -30,6 +32,19 @@ def audit(run):
         + (NOTICES.get(i, "") if meta["protocol"] == "w4-release-v2" else "")
         for i in ROUNDS
     ]
+    # Bind special Claude Code user messages to both the native compaction event
+    # and the earlier provider-generated summary. Ordinary user prompts remain exact.
+    synthetic = {}
+    for turn in ROUNDS:
+        cli = lines(trace / f"turn-{turn}.jsonl")
+        if any(event.get("subtype") == "compact_boundary" for event in cli):
+            for event in cli:
+                if event.get("type") == "user" and event.get("isSynthetic"):
+                    for block in event["message"]["content"]:
+                        if block.get("type") == "text":
+                            synthetic[block["text"]] = turn
+    summaries = []
+    compression = []
     attempts = []
     records = defaultdict(list)
     allowed_responses = defaultdict(set)
@@ -49,14 +64,49 @@ def audit(run):
         if q:
             known_prompts = set(public[:t])
             visible = [m["content"] for m in q["messages"] if m["role"] == "user"]
+            is_compression = bool(
+                visible
+                and sha256(visible[-1].encode()).hexdigest()
+                == "63e2bfb4ded280d5057a66d8a034ef352a73960d97d955b990e78f04f0db1fb0"
+                and t in synthetic.values()
+            )
+            if is_compression:
+                known_prompts.add(visible[-1])
+            bound = {
+                v
+                for v in visible
+                if v in synthetic
+                and synthetic[v] <= t
+                and any(body in v for body in summaries)
+            }
             if (
                 not visible
-                or set(visible) - known_prompts
+                or set(visible) - known_prompts - bound
                 or visible[-1] != public[t - 1]
+                and not is_compression
+                and not (visible[-1] in bound and synthetic[visible[-1]] == t)
             ):
-                flags.append(
-                    [n, "unexpected user context (inspect compaction if present)"]
-                )
+                flags.append([n, "unexpected user context"])
+            if is_compression and resp:
+                text = resp["choices"][0]["message"].get("content") or ""
+                match = re.search(r"<summary>(.*?)</summary>", text, re.S)
+                if match and match[1].strip():
+                    body = match[1].strip()
+                    summaries.append(body)
+                    compression.append(
+                        dict(
+                            turn=t,
+                            attempt=n,
+                            summary_characters=len(body),
+                            summary_sha256=sha256(body.encode()).hexdigest(),
+                            native_and_next_input_match=False,
+                        )
+                    )
+                else:
+                    flags.append([n, "summary missing"])
+            for entry, body in zip(compression, summaries):
+                if any(body in v for v in bound):
+                    entry["native_and_next_input_match"] = True
             definitions = {
                 f["function"]["name"]: (
                     f["function"]["description"],
@@ -140,6 +190,8 @@ def audit(run):
                 usage=tokens or None,
             )
         )
+    native_feedback = defaultdict(set)
+    seen_uses = set()
     per = []
     for entry in meta["turns"]:
         t = entry["turn"]
@@ -167,6 +219,7 @@ def audit(run):
                     continue
                 if b["type"] == "tool_use":
                     ident = b["id"]
+                    seen_uses.add(ident)
                     waiting[ident] = (b["name"], b["input"])
                     if waiting[ident] != origins.get(ident):
                         flags.append([t, "origin mismatch"])
@@ -174,6 +227,7 @@ def audit(run):
                     ident = b["tool_use_id"]
                     call = waiting.pop(ident, None)
                     txt = result_text(b.get("content", ""))
+                    native_feedback[ident].add(txt)
                     if not call or txt not in allowed_responses.get(ident, set()):
                         flags.append([t, "tool output provenance"])
                     if call and call[0] not in ALLOWED:
@@ -209,6 +263,8 @@ def audit(run):
             flags.append([t, "final response mismatch"])
         if entry["calls"] != sum(a["t"] == t for a in attempts):
             flags.append([t, "missing upstream attempt"])
+        cited = sorted(set(re.findall(r"\b[MD]-[0-9a-f]{16}\b", " ".join(finals))))
+        earlier = {e["receipt"] for e in events(run, t, None)}
         usage["native_compactions"] += compacts
         per.append(
             dict(
@@ -219,10 +275,28 @@ def audit(run):
                 compactions=compacts,
                 rejected=rejected,
                 final=finals,
+                cited_receipts=cited,
+                ungrounded_receipts=sorted(set(cited) - earlier),
                 mail=store,
             )
         )
-    return dict(attempts=attempts, usage=dict(usage), rounds=per, flags=flags)
+    if native_feedback != allowed_responses:
+        flags.append(["all", "upstream feedback beyond verified native outputs"])
+    if seen_uses != set(origins):
+        flags.append(
+            ["all", "unconsumed provider tool calls", len(set(origins) - seen_uses)]
+        )
+    if len(compression) != usage["native_compactions"] or any(
+        not c["native_and_next_input_match"] for c in compression
+    ):
+        flags.append(["all", "native compaction provenance not reconciled"])
+    return dict(
+        attempts=attempts,
+        usage=dict(usage),
+        rounds=per,
+        compression=compression,
+        flags=flags,
+    )
 
 
 if __name__ == "__main__":
