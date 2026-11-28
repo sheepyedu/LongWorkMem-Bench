@@ -504,6 +504,12 @@ def replay(dest, image=None, *, episode=CONTINUATION):
                 if state_receipt(desk) != block["after"]:
                     raise ValueError(f"Invalid phase final state: {phase}")
                 states[phase] = desk.active.state
+                if (
+                    episode.stop_on_terminal
+                    and desk.active.state["finished"]
+                    and index != len(blocks)
+                ):
+                    raise ValueError("Unexpected work after game terminal")
             if len(blocks) < len(episode.phases) and not desk.active.state["finished"]:
                 raise ValueError("Short schedule without engine terminal")
             if desk.seq != len(rows):

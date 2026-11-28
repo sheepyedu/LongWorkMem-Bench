@@ -18,6 +18,18 @@ python -m tasks.s4.audit /path/to/new/run
 
 [评分修订、16/24 轮证据与复评](../../docs/results/s4-duration-20261128/) · [早期双节点试跑](../../docs/results/s4-long-league-20261128/)
 
+## 32／40 轮早局长度实验
+
+两组从同一棋盘的较早位置开始，使用一个连续的 Claude Code 会话。第 1 轮授权节点 21 并签发矿石采购单，第 13 轮把货物改为砖。32 轮组在第 24／32 轮验收采购／城市，40 轮组在第 32／40 轮验收。每多一个班次就增加一次真实掷骰、对手行动、库存变化和经营决策。对局自然结束时封存最后一个真实状态；尚未执行的授权记为未观察。
+
+```sh
+docker build -t longworkmem-catan:early-league tasks/s4
+python -m tasks.s4.early_league /path/to/new/run --length 40
+python -m tasks.s4.early_league /path/to/new/run --replay --image longworkmem-catan:early-league
+```
+
+模型实跑需要设置 `ARK_API_KEY`；离线复评只需 Docker。两组采用默认原生压缩设置，精确阈值由运行框架决定。[早局试验与复评资料](../../docs/results/s4-early-duration-20261128/)
+
 ## 历史版本 · Catan 跨局联赛
 
 一个待测模型坐一席，Ash、Flint 和 Sail 是本地策略机器人。三局基础 Catan 开新会话、换地图与颜色，名称保持一致。六个独立练习局面随后打开。每个练习从固定中盘开始，模型控制当前一轮。模型能通过文本查看棋盘和自己的牌，完成建造、出价、确认交易，并维护自己的跨局笔记。

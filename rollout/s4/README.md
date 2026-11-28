@@ -31,3 +31,7 @@ python -m tasks.s4.grade "$run" --image longworkmem-catan:1 --first-road
 ## 单节点正式版与轮数对照
 
 [试跑证据与离线复评](../../docs/results/s4-duration-20261128/)。完整本机归档位于 `duration-20261128/`。
+
+## 32／40 轮早局
+
+`early-duration-20261128/rounds-32/` 和 `rounds-40/` 在实验机保存各自的完整原始请求、会话事件和逐文件校验清单。[公开复评包](early-duration-20261128-replay.tar.gz)及[分轮审计](../../docs/results/s4-early-duration-20261128/)覆盖两次独立会话。

@@ -99,6 +99,7 @@ class EarlyLeagueTests(unittest.TestCase):
                 initial.append(blocks[0]["before"])
                 self.assertEqual(len(blocks), length)
                 self.assertEqual(blocks[-9]["phase"], "clearing")
+                self.assertEqual(result["score"], 100)
                 self.assertEqual(result["authorization"]["correct"], 2)
                 self.assertIsNone(result["terminal"])
                 self.assertTrue(all(result["filings"].values()))

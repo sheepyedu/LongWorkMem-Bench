@@ -1,0 +1,410 @@
+{
+  "rounds-32": {
+    "checks": {
+      "shifts": [
+        12.0,
+        12
+      ],
+      "filings": [
+        12,
+        12
+      ],
+      "received": [
+        16,
+        16
+      ],
+      "terms": [
+        8,
+        8
+      ],
+      "capital_stock": [
+        4.5,
+        18
+      ],
+      "city_work": [
+        0,
+        22
+      ],
+      "reserve": [
+        10,
+        12
+      ]
+    },
+    "score": 62.5,
+    "max": 100,
+    "score_axis": "execution",
+    "authorization": {
+      "correct": 1,
+      "observed": 1,
+      "scheduled": 2,
+      "decisions": {
+        "cargo": {
+          "expected": "BRICK",
+          "actual": "BRICK",
+          "outcome": "correct"
+        },
+        "city": {
+          "expected": 21,
+          "actual": null,
+          "outcome": "unobserved"
+        }
+      }
+    },
+    "filings": {
+      "shift_3": true,
+      "shift_6": true,
+      "shift_9": true,
+      "shift_11": true
+    },
+    "reserve_windows": [
+      {
+        "points": 2,
+        "breaches": []
+      },
+      {
+        "points": 2,
+        "breaches": []
+      },
+      {
+        "points": 0,
+        "breaches": [
+          150
+        ]
+      },
+      {
+        "points": 2,
+        "breaches": []
+      },
+      {
+        "points": 2,
+        "breaches": []
+      },
+      {
+        "points": 2,
+        "breaches": []
+      }
+    ],
+    "terminal": null,
+    "own_turns": 14,
+    "requests": 147,
+    "usage": {
+      "input": 8186867,
+      "output": 20529,
+      "peak_input": 114613,
+      "cached": 8063104,
+      "cache_records": 147,
+      "reasoning": 0,
+      "reasoning_records": 147,
+      "usage_records": 147
+    },
+    "tools": {
+      "look": 35,
+      "act": 76,
+      "notes": 4
+    },
+    "model_visible_tool_records": 115,
+    "failed_attempts": 0,
+    "rejected": 1,
+    "compact_events": 0,
+    "auto_compact_percent": null,
+    "compaction_boundaries": [],
+    "revision": "c0fa8966c8544fd2e2fa9f0ba9ba6f1b5c982388",
+    "image": "sha256:b36dfdddc262bd74b3a22e10b4e90199e71812ebc3476fac4ef6513bd0905551",
+    "claude": "2.1.314 (Claude Code)",
+    "model": "deepseek-v4-1-flash-261017",
+    "start": "2026-11-28T10:58:54.783485+00:00",
+    "end": "2026-11-28T11:11:08.948016+00:00",
+    "main_initial": "6f57e8bf8e1e860509b9ef7f9b53d1eff214f62a0472d4fb78dec026290f59f4",
+    "completed_rounds": 32,
+    "checkpoints": {
+      "clearing": {
+        "round": 24,
+        "before": {
+          "active": "8250b4fb44e208f6f1ff24628d4de00c5cad229d9f90fb30456b6a89239ea7d3",
+          "main": "8250b4fb44e208f6f1ff24628d4de00c5cad229d9f90fb30456b6a89239ea7d3",
+          "position": 253
+        },
+        "requests_before": 110,
+        "input_before": 4534037,
+        "peak_input_before": 82703,
+        "decisions": [
+          {
+            "seq": 263,
+            "action": "MARITIME_TRADE",
+            "value": [
+              "WOOD",
+              "WOOD",
+              "WOOD",
+              "WOOD",
+              "BRICK"
+            ]
+          }
+        ]
+      },
+      "commission": {
+        "round": 32,
+        "before": {
+          "active": "410c22baa513e9790233795451d66a8e3eb52c79fa9b1715583608ce433585e8",
+          "main": "410c22baa513e9790233795451d66a8e3eb52c79fa9b1715583608ce433585e8",
+          "position": 304
+        },
+        "requests_before": 143,
+        "input_before": 7735093,
+        "peak_input_before": 111115,
+        "decisions": []
+      }
+    },
+    "city_builds": [
+      {
+        "round": 15,
+        "phase": "shift_7",
+        "event": 150,
+        "node": 21,
+        "wheat_after_payment": 0
+      }
+    ]
+  },
+  "rounds-40": {
+    "checks": {
+      "shifts": [
+        12.0,
+        12
+      ],
+      "filings": [
+        12,
+        12
+      ],
+      "received": [
+        16,
+        16
+      ],
+      "terms": [
+        8,
+        8
+      ],
+      "capital_stock": [
+        4.5,
+        18
+      ],
+      "city_work": [
+        0,
+        22
+      ],
+      "reserve": [
+        10,
+        12
+      ]
+    },
+    "score": 62.5,
+    "max": 100,
+    "score_axis": "execution",
+    "authorization": {
+      "correct": 1,
+      "observed": 1,
+      "scheduled": 2,
+      "decisions": {
+        "cargo": {
+          "expected": "BRICK",
+          "actual": "BRICK",
+          "outcome": "correct"
+        },
+        "city": {
+          "expected": 21,
+          "actual": null,
+          "outcome": "unobserved"
+        }
+      }
+    },
+    "filings": {
+      "shift_3": true,
+      "shift_6": true,
+      "shift_9": true,
+      "shift_11": true
+    },
+    "reserve_windows": [
+      {
+        "points": 2,
+        "breaches": []
+      },
+      {
+        "points": 2,
+        "breaches": []
+      },
+      {
+        "points": 0,
+        "breaches": [
+          156
+        ]
+      },
+      {
+        "points": 2,
+        "breaches": []
+      },
+      {
+        "points": 2,
+        "breaches": []
+      },
+      {
+        "points": 2,
+        "breaches": []
+      }
+    ],
+    "terminal": null,
+    "own_turns": 20,
+    "requests": 204,
+    "usage": {
+      "input": 15722164,
+      "output": 36737,
+      "peak_input": 167717,
+      "cached": 15526912,
+      "cache_records": 204,
+      "reasoning": 0,
+      "reasoning_records": 204,
+      "usage_records": 204
+    },
+    "tools": {
+      "look": 26,
+      "act": 130,
+      "notes": 7
+    },
+    "model_visible_tool_records": 163,
+    "failed_attempts": 0,
+    "rejected": 2,
+    "compact_events": 1,
+    "auto_compact_percent": null,
+    "compaction_boundaries": [
+      {
+        "round": 40,
+        "phase": "commission",
+        "meta": {
+          "trigger": "auto",
+          "pre_tokens": 167225,
+          "post_tokens": 5367
+        },
+        "provider_input_drops_in_segment": [
+          [
+            197,
+            167717,
+            6816
+          ]
+        ]
+      }
+    ],
+    "revision": "c0fa8966c8544fd2e2fa9f0ba9ba6f1b5c982388",
+    "image": "sha256:b36dfdddc262bd74b3a22e10b4e90199e71812ebc3476fac4ef6513bd0905551",
+    "claude": "2.1.314 (Claude Code)",
+    "model": "deepseek-v4-1-flash-261017",
+    "start": "2026-11-28T10:58:54.783481+00:00",
+    "end": "2026-11-28T11:16:32.499194+00:00",
+    "main_initial": "6f57e8bf8e1e860509b9ef7f9b53d1eff214f62a0472d4fb78dec026290f59f4",
+    "completed_rounds": 40,
+    "checkpoints": {
+      "clearing": {
+        "round": 32,
+        "before": {
+          "active": "87175cc49cb3a48148941bf517892a1901edc70324e92140dd77a0f03917993f",
+          "main": "87175cc49cb3a48148941bf517892a1901edc70324e92140dd77a0f03917993f",
+          "position": 366
+        },
+        "requests_before": 144,
+        "input_before": 8220023,
+        "peak_input_before": 119616,
+        "decisions": [
+          {
+            "seq": 394,
+            "action": "MARITIME_TRADE",
+            "value": [
+              "WOOD",
+              "WOOD",
+              "WOOD",
+              "WOOD",
+              "BRICK"
+            ]
+          }
+        ]
+      },
+      "commission": {
+        "round": 40,
+        "before": {
+          "active": "8d25533c52e763b3830fec3f79f5a92b5fd38af1b6542748a19818f514579c3a",
+          "main": "8d25533c52e763b3830fec3f79f5a92b5fd38af1b6542748a19818f514579c3a",
+          "position": 460
+        },
+        "requests_before": 179,
+        "input_before": 12933344,
+        "peak_input_before": 149353,
+        "decisions": [
+          {
+            "seq": 465,
+            "action": "OFFER_TRADE",
+            "value": {
+              "give": {
+                "WHEAT": 1
+              },
+              "take": {
+                "ORE": 1
+              }
+            }
+          },
+          {
+            "seq": 469,
+            "action": "MARITIME_TRADE",
+            "value": [
+              "WHEAT",
+              "WHEAT",
+              null,
+              null,
+              "ORE"
+            ]
+          },
+          {
+            "seq": 470,
+            "action": "OFFER_TRADE",
+            "value": {
+              "give": {
+                "WOOD": 2
+              },
+              "take": {
+                "ORE": 1
+              }
+            }
+          },
+          {
+            "seq": 514,
+            "action": "OFFER_TRADE",
+            "value": {
+              "give": {
+                "BRICK": 2
+              },
+              "take": {
+                "ORE": 1
+              }
+            }
+          },
+          {
+            "seq": 518,
+            "action": "OFFER_TRADE",
+            "value": {
+              "give": {
+                "WOOD": 2,
+                "BRICK": 1
+              },
+              "take": {
+                "ORE": 1
+              }
+            }
+          }
+        ]
+      }
+    },
+    "city_builds": [
+      {
+        "round": 15,
+        "phase": "shift_7",
+        "event": 156,
+        "node": 21,
+        "wheat_after_payment": 1
+      }
+    ]
+  }
+}
