@@ -53,7 +53,7 @@ wait
 
 ## 新题怎样验收
 
-Work 类出题人可以直接使用 [work-bench skill](.agents/skills/work-bench/SKILL.md)。其中收录了五套基准的原题与评分机制、同场前后对照设计，以及可离线运行的历史附件评分样例。
+Work 类出题人可以直接使用 [work-bench skill](.agents/skills/work-bench/SKILL.md)。其中收录了 [SWE-Milestone 等基准的构造与计分依据](.agents/skills/work-bench/references/milestones-and-reliability.md)、同场历史附件样例，以及可离线运行的[客观评分](.agents/skills/work-bench/references/scoring.md)和[重复试跑校准](.agents/skills/work-bench/references/calibration.md)工具。
 
 1. **验证早期信息确实影响后期交付。** 为一条依赖准备成对材料，只改一项早期授权或签收回执；参考解应只改变受影响的后续账目、订单或操作。让模型自己的实际交付参与决定下一步，例如根据已发数量办理补发。
 2. **验证延迟依赖。** W4 在同一会话中安排首次使用、隔轮沿用、局部更新和历史追溯。其他题可按研究问题选用正确前置状态的短对照。分别记录首次交付、错误恢复和最终结果，模型按真实回执正确补救时应获得相应分数。
