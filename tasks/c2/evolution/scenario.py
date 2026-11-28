@@ -11,6 +11,7 @@ from tasks.c2.scenario import write
 
 CHANNELS = ("A", "B", "C", "D")
 VERSION = "calendar-evolution-v1"
+SCORING_REVISION = VERSION + "/cases-1"
 MATERIAL_REVISION = "public-contract-clarification-1"
 ARCHIVE = Path(__file__).with_name("fixtures") / "legacy-release.tar.gz"
 ARCHIVE_SHA = "d8d852b04a684c8696b96014d3754401b7344935dcacf5ea94887a0b0b8ab4c3"

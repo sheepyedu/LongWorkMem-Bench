@@ -6,13 +6,14 @@ from pathlib import Path
 import subprocess
 import sys
 import socket
+import sqlite3
 import time
 from urllib.request import urlopen
 from urllib.parse import urlencode
 
 
 def main():
-    stage = int(sys.argv[1])
+    stage = int(sys.argv[1]) if sys.argv[1].isdigit() else sys.argv[1]
     d = str(Path(sys.argv[2]).parent) + "/"
     result = {}
 
@@ -38,6 +39,49 @@ def main():
         path.unlink(missing_ok=True)
         result[key] = line(*args, str(path)) is not None and path.is_file()
 
+    if stage == "upgrade":
+
+        def legacy_state(db):
+            return [
+                db.execute("select uid,starts from events order by uid").fetchall(),
+                db.execute("select id,uid from bookings order by id").fetchall(),
+            ]
+
+        try:
+            with sqlite3.connect("data/portal.sqlite") as db:
+                db.execute(
+                    "insert into bookings(id,uid) values(?,?)",
+                    (Path(sys.argv[2]).parent.name + "-registration", "legacy-east"),
+                )
+                before = legacy_state(db)
+            result["imported"] = all(
+                line("import", "input") is not None for _ in range(2)
+            )
+            with sqlite3.connect("data/portal.sqlite") as db:
+                after = legacy_state(db)
+            for label, old, new in zip(("events", "bookings"), before, after):
+                result[label] = (
+                    len(set(old) & set(new)) / len(set(old) | set(new)) if old else 0
+                )
+
+        except sqlite3.Error:
+            result["imported"] = False
+        for ch in ("B", "C"):
+            output_probe("feed" + ch, "feed", ch, "2026-03-16", "2026-03-16", "3")
+    if stage == "cold":
+        result["imported"] = all(
+            line("import", d + "inbound") is not None for _ in range(2)
+        )
+        for version in (9, 10):
+            for channel in ("A", "C"):
+                output_probe(
+                    f"feed{channel}{version}",
+                    "feed",
+                    channel,
+                    "2026-03-16",
+                    "2026-03-16",
+                    str(version),
+                )
     if stage == 2:
         result["base"] = obj(line("query", "B", "2026-03-02", "2026-03-23", "2"))
         result["load"] = all(

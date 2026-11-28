@@ -43,6 +43,8 @@ wait
 
 [GPT-6.1-sol 四场公开轨迹](rollout/#gpt-61-sol)覆盖 W1、C1、S1 三场并行实测，以及修正权限说明后的 C1 追加场。可在线查看每轮题面、回答、工具操作和结果，也可下载冻结交付并离线复评。[分数与用量](docs/results/codex-gpt61sol-20261127/)
 
+[C2 评分校准](docs/results/c2-case-calibration/)给出十轮逐项得失与同一份代码的配对验收。沿用原题面，降低常规排期和首发的权重，增加升级、回退和历史签收的独立证据。
+
 [C2 十轮进阶版首场审计](docs/results/c2-evolution-20261128/)记录 DeepSeek 的 97.6471 分、三次原生压缩、两处交付偏差与题面勘误。当前实测仍有明显高分风险。
 
 [W4 两版开发及 DeepSeek 盲测](docs/results/w4-release-20261128/)记录基础场、现场附页加难场、两版冻结成绩和可重放轨迹。[按实际履约复评](docs/results/w4-release-20261128/outcome-calibration.md)对照 W1 分析得失、离线变异和下一版工作环境。

@@ -11,10 +11,17 @@ from tasks.c2.pilot import execute
 from tasks.c2.scenario import write
 from tasks.c2.starter.calendar_io import encode
 from tasks.c2.subscriber import receipts, decode
-from tasks.c2.evolution import runner
+from tasks.c2.evolution import case_grade, runner
 from tasks.c2.evolution.grade import grade, indexed, equal_rows
 from tasks.c2.evolution.dependency import compare
-from tasks.c2.evolution.scenario import CHANNELS, VERSION, DAYS, LATE, setup
+from tasks.c2.evolution.scenario import (
+    CHANNELS,
+    VERSION,
+    SCORING_REVISION,
+    DAYS,
+    LATE,
+    setup,
+)
 from tasks.c2.evolution.receiver import publish
 
 IMAGE = "longworkmem-calendar:1"
@@ -124,6 +131,22 @@ def control(run, noop=False):
 
 
 class Formats(unittest.TestCase):
+    def test_delivery_precision_and_final_state(self):
+        want = {"x": 1, "y": 2}
+        batches = [dict(rows=want), dict(rows={"x": 9})]
+        self.assertEqual(case_grade.delta_score(batches, want), 2 / 5)
+        self.assertEqual(case_grade.delta_score(list(reversed(batches)), want), 4 / 5)
+        self.assertEqual(case_grade.delta_score([], want), 0)
+
+    def test_handover_day_contract_depends_on_visible_material(self):
+        rows = case_grade.flatten(9, "A", DAYS)
+        moved = next(r for r in rows if r["code"] == "N84" and r["day"] == DAYS[2])
+        moved["day"] = "2026-03-15"
+        self.assertEqual(case_grade.past_score(rows, "A", False), 1)
+        self.assertEqual(case_grade.past_score(rows, "A", True), 15 / 16)
+        moved["day"] = "2027-01-01"
+        self.assertEqual(case_grade.past_score(rows, "A", False), 15 / 16)
+
     def test_time_equivalence_and_bad_fields(self):
         keys = ["code", "day"]
         rows = [dict(code="A", day="monday", utc="2026-03-02T11:00:00+01:00")]
@@ -222,6 +245,16 @@ class Evolution(unittest.TestCase):
                 [(k, v) for k, v in g["checks"].items() if v["fraction"] != 1],
             )
             self.assertTrue(compare(run)["passed"])
+            manifest = json.loads((run / "manifest.json").read_bytes())
+            write(
+                run / "manifest.json",
+                {**manifest, "scoring_revision": SCORING_REVISION},
+            )
+            calibrated = grade(run)
+            write(run / "manifest.json", manifest)
+            self.assertEqual(calibrated["total"], 100)
+            self.assertEqual(calibrated["legacy_total"], g["total"])
+
             snap = run / "snapshots"
             (snap / "7/out/plan-B.ics").write_text("not ICS")
             (snap / "10/out/inquiry.json").write_text("[]")
