@@ -41,23 +41,30 @@ def indexed(rows, keys, fields):
     out = {}
     if not isinstance(rows, list):
         return {}
-    try:
-        for row in rows:
+    for index, row in enumerate(rows):
+        try:
             key = tuple(row[k] for k in keys)
-            if key in out:
-                return {}
+            hash(key)
+        except (KeyError, TypeError):
+            # An unidentifiable extra row remains in the denominator.
+            out[(None, index, None)] = None
+            continue
+        if key in out:
+            out[key] = None
+            continue
+        try:
             vals = []
-            for f in fields:
-                value = row[f]
-                if f in ("utc", "due", "received") and value is not None:
+            for field in fields:
+                value = row[field]
+                if field in ("utc", "due", "received") and value is not None:
                     value = instant(value)
-                if f == "pending" and type(value) is not bool:
-                    return {}
+                if field == "pending" and type(value) is not bool:
+                    raise ValueError("expected a JSON boolean")
                 vals.append(value)
             out[key] = vals
-        return out
-    except (ValueError, KeyError, TypeError, AttributeError, OverflowError):
-        return {}
+        except (ValueError, KeyError, TypeError, AttributeError, OverflowError):
+            out[key] = None
+    return out
 
 
 def flatten(t, c, days):
@@ -440,7 +447,7 @@ def grade(run, *, image=None):
     if abs(sum(x["weight"] for x in checks.values()) - 100) > 1e-8:
         raise ValueError("weights")
     return dict(
-        version=VERSION + "/1",
+        version=VERSION + "/1.1",
         replay_image=replay_image,
         total=round(sum(x["earned"] for x in checks.values()), 4),
         checks=checks,

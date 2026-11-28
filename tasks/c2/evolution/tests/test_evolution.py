@@ -12,7 +12,7 @@ from tasks.c2.scenario import write
 from tasks.c2.starter.calendar_io import encode
 from tasks.c2.subscriber import receipts, decode
 from tasks.c2.evolution import runner
-from tasks.c2.evolution.grade import grade, indexed
+from tasks.c2.evolution.grade import grade, indexed, equal_rows
 from tasks.c2.evolution.dependency import compare
 from tasks.c2.evolution.scenario import CHANNELS, VERSION, DAYS, LATE, setup
 from tasks.c2.evolution.receiver import publish
@@ -130,10 +130,17 @@ class Formats(unittest.TestCase):
         self.assertEqual(
             indexed(rows, keys, ["utc"]), {("A", "monday"): ["2026-03-02T10:00:00Z"]}
         )
+        expected = indexed(rows, keys, ["utc"])
         for invalid in (None, {}, [{}], [dict(code=[], day=4, utc=None)], rows + rows):
-            self.assertEqual(indexed(invalid, keys, ["utc"]), {})
+            self.assertEqual(equal_rows(indexed(invalid, keys, ["utc"]), expected), 0)
+        mixed = rows + [dict(code="B", day="monday", utc="wrong")]
+        expected[("B", "monday")] = ["2026-03-02T11:00:00Z"]
+        self.assertEqual(equal_rows(indexed(mixed, keys, ["utc"]), expected), 0.5)
         self.assertEqual(
-            indexed([dict(code="x", day="a", pending="false")], keys, ["pending"]), {}
+            indexed([dict(code="x", day="a", pending="false")], keys, ["pending"])[
+                ("x", "a")
+            ],
+            None,
         )
 
     def test_archived_receiver_rejects_invalid_channels(self):

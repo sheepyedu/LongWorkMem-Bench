@@ -47,3 +47,5 @@ python -m tasks.c2.evolution.audit /path/to/docker-shared/new-run grade.json
 ```
 
 离线复评只需 manifest、snapshots 和 receipts。完整轨迹审计还需要原始 CLI、MCP、供应商请求和响应。初始客户端和归档来源固定，历史测试有各自的输入与产物前提。还原原交付可在隔离副本中把 input/previous-release/out 的文件复制到 out 后运行旧测试。
+
+跨机复核可在 grade 后加 `--image longworkmem-calendar:1`，应与原固定 Dockerfile 一致。输出含实际镜像标识。单独运行 `python -m tasks.c2.evolution.dependency RUN` 可复核第十轮程序是否随历史回执改变答案。此项配对诊断单列。
