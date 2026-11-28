@@ -181,6 +181,13 @@ def grade(run):
     manifest = run / "manifest.json"
     if (
         manifest.is_file()
+        and json.loads(manifest.read_text()).get("protocol") == "w4-release-v4"
+    ):
+        from .quota.score import score
+
+        return score(run)
+    if (
+        manifest.is_file()
         and json.loads(manifest.read_text()).get("protocol") == "w4-release-v3"
     ):
         from .night_score import score

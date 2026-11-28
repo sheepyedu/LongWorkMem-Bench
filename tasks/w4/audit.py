@@ -11,7 +11,7 @@ from pathlib import Path
 from tasks.transcript import enc, lines, result_text
 from .grade import grade
 from .office import ALLOWED, TOOLS, events
-from .pilot import CONTEXT
+from .pilot import CONTEXT, QUOTA_CONTEXT
 from .scenario import PROMPTS, ROUNDS
 
 
@@ -39,6 +39,12 @@ def audit(run):
         + (NIGHT.get(i, "") if meta["protocol"] == "w4-release-v3" else "")
         for i in ROUNDS
     ]
+    context = CONTEXT
+    if meta["protocol"] == "w4-release-v4":
+        from .quota.world import PROMPTS as quota_prompts
+
+        public = [f"6月{i}日。" + quota_prompts[i - 1] for i in ROUNDS]
+        context = QUOTA_CONTEXT
     # Bind special Claude Code user messages to both the native compaction event
     # and the earlier provider-generated summary. Ordinary user prompts remain exact.
     synthetic = {}
@@ -137,6 +143,7 @@ def audit(run):
                 flags.append([n, "unexpected model or tool schema"])
             for marker in (
                 "W4_PRIVATE_ORACLE_7cf2",
+                "W4_QUOTA_PRIVATE_A79",
                 "W4_NIGHT_GRADER_3a9",
                 "tasks.w4.grade",
                 "tasks/w4/grade",
@@ -150,10 +157,10 @@ def audit(run):
                     flags.append([n, "private marker", marker])
             systems = [m["content"] for m in q["messages"] if m["role"] == "system"]
             if systems not in (
-                [CONTEXT],
+                [context],
                 [
                     "You are a Claude agent, built on Anthropic's Claude Agent SDK.\n"
-                    + CONTEXT
+                    + context
                 ],
             ):
                 flags.append([n, "system instructions differ"])
