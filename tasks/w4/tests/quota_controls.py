@@ -113,7 +113,7 @@ def play(run, mode="gold"):
         }
         q = (
             sorted(ids, key=lambda k: (facts[k][-1], k))
-            if mode != "arrival"
+            if mode != "arrival" and not (mode == "recover" and day == 3)
             else list(ids)
         )
         free = {}
@@ -287,6 +287,7 @@ if __name__ == "__main__":
             "opening",
             "arrival",
             "ignore_feedback",
+            "recover",
             "empty",
         ):
             p = Path(td) / mode

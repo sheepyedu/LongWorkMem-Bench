@@ -305,7 +305,19 @@ def audit(run):
         not c["native_and_next_input_match"] for c in compression
     ):
         flags.append(["all", "native compaction provenance not reconciled"])
+    extra = {}
+    if meta["protocol"] == "w4-release-v4":
+        from .quota.audit import verify_replies
+
+        checks = verify_replies(run, per)
+        extra["desk_query_checks"] = checks
+        flags.extend(
+            [x["turn"], "counterparty prefix mismatch", x["operation"]]
+            for x in checks
+            if not x["matched"]
+        )
     return dict(
+        **extra,
         attempts=attempts,
         usage=dict(usage),
         rounds=per,
