@@ -98,9 +98,9 @@ def invoke(run, t, image, name, args):
         e = json.loads(path.read_text())
         e["sequence"] = seq
         manifest = run / "manifest.json"
-        if (
-            manifest.is_file()
-            and json.loads(manifest.read_text()).get("protocol") == "w4-release-v2"
+        if manifest.is_file() and json.loads(manifest.read_text()).get("protocol") in (
+            "w4-release-v2",
+            "w4-release-v3",
         ):
             known = {
                 address(i, role)

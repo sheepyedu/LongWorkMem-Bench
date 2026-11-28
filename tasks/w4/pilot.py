@@ -62,7 +62,7 @@ PYCODE"""
     return result
 
 
-def run(dest, edition=2):
+def run(dest, edition=3):
     key = os.environ["ARK_API_KEY"]
     image = subprocess.check_output(
         ["docker", "image", "inspect", "longworkmem-release:1", "-f", "{{.Id}}"],
@@ -70,10 +70,14 @@ def run(dest, edition=2):
     ).strip()
     work = prepare(dest)
     init(work)
-    if edition == 2:
+    if edition >= 2:
         from . import annex
 
         annex.initialize(work)
+    if edition == 3:
+        from . import night
+
+        night.initialize(work)
     sid = str(uuid.uuid4())
     meta = dict(
         protocol=f"w4-release-v{edition}",
@@ -107,6 +111,7 @@ def run(dest, edition=2):
                 timeout=600,
                 private_markers=(
                     "tasks/w4/grade",
+                    "W4_NIGHT_GRADER_3a9",
                     "W4_PRIVATE_ORACLE_7cf2",
                     "w4-implementation",
                 ),
@@ -116,8 +121,10 @@ def run(dest, edition=2):
             (client / "desk").mkdir()
             for t in ROUNDS:
                 prompt = release(work, t)
-                if edition == 2:
+                if edition >= 2:
                     prompt += annex.release(work, t)
+                if edition == 3:
+                    prompt += night.release(work, t)
                 (dest / "trace" / f"prompt-{t}.txt").write_text(prompt)
                 cfg = {
                     "mcpServers": {
@@ -168,7 +175,7 @@ def run(dest, edition=2):
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("dest", type=Path)
-    p.add_argument("--edition", type=int, choices=(1, 2), default=2)
+    p.add_argument("--edition", type=int, choices=(1, 2, 3), default=3)
     p.add_argument("--replay", action="store_true")
     a = p.parse_args()
     dest = a.dest.resolve()

@@ -26,10 +26,17 @@ def audit(run):
     score = grade(run)
     from .annex import NOTICES
 
+    from .night import NOTICES as NIGHT
+
     public = [
         f"6月{i}日。"
         + PROMPTS[i - 1]
-        + (NOTICES.get(i, "") if meta["protocol"] == "w4-release-v2" else "")
+        + (
+            NOTICES.get(i, "")
+            if meta["protocol"] in ("w4-release-v2", "w4-release-v3")
+            else ""
+        )
+        + (NIGHT.get(i, "") if meta["protocol"] == "w4-release-v3" else "")
         for i in ROUNDS
     ]
     # Bind special Claude Code user messages to both the native compaction event
@@ -130,6 +137,7 @@ def audit(run):
                 flags.append([n, "unexpected model or tool schema"])
             for marker in (
                 "W4_PRIVATE_ORACLE_7cf2",
+                "W4_NIGHT_GRADER_3a9",
                 "tasks.w4.grade",
                 "tasks/w4/grade",
                 "w4-implementation",

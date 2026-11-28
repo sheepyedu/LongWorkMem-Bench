@@ -7,7 +7,7 @@ from pathlib import Path
 
 from .annex_grade import FIELDS, fields
 from .format_review import review
-from .grade import grade, manual
+from .grade import daytime_grade, manual
 from .office import attachment, events
 
 # Each customer-facing action belongs to one release window, including quiet days.
@@ -22,11 +22,15 @@ RELEASES = (
 
 
 def score(run):
-    frozen = grade(run)
-    if frozen["version"] != "release-v2":
+    frozen = daytime_grade(run)
+    if frozen["version"] not in ("release-v2", "release-v3"):
         raise ValueError("现场履约评分仅适用于 w4-release-v2")
     recovered = set(review(run, frozen)["eligible_expanded_claims"])
     log = events(run, 12, None)
+    if frozen["version"] == "release-v3":
+        from .night import IDS
+
+        log = [e for e in log if e["subject"] not in IDS]
     groups = []
 
     def facts(turn, name):

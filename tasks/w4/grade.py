@@ -148,6 +148,19 @@ def sheets(path, tabs=TABS):
 
 def grade(run):
     run = Path(run)
+    manifest = run / "manifest.json"
+    if (
+        manifest.is_file()
+        and json.loads(manifest.read_text()).get("protocol") == "w4-release-v3"
+    ):
+        from .night_score import score
+
+        return score(run)
+    return daytime_grade(run)
+
+
+def daytime_grade(run):
+    run = Path(run)
     from . import annex, annex_grade as field
 
     manifest = run / "manifest.json"
@@ -156,12 +169,16 @@ def grade(run):
         if manifest.is_file()
         else "w4-release-v1"
     )
-    if protocol not in ("w4-release-v1", "w4-release-v2"):
+    if protocol not in ("w4-release-v1", "w4-release-v2", "w4-release-v3"):
         raise ValueError("未知 W4 版本")
-    v2 = protocol == "w4-release-v2"
+    v2 = protocol != "w4-release-v1"
     if not (run / "mail").is_dir():
         raise ValueError("缺少宿主邮箱证据，无法评分")
     all_events = events(run, 12, None)
+    if protocol == "w4-release-v3":
+        from .night import IDS
+
+        all_events = [e for e in all_events if e["subject"] not in IDS]
     by = defaultdict(list)
     for e in all_events:
         by[e["subject"]].append(e)
