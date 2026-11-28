@@ -7,8 +7,9 @@ from .grade import OBJECTS, grade, norm, sheets
 from .scenario import address, object_id
 
 
-def review(run):
-    raw = grade(run)
+def review(run, raw=None):
+    if raw is None:
+        raw = grade(run)
     sheet = sheets(run / "snapshots/11/交接.xlsx")[0].get("追溯", {})
     original = next(
         d

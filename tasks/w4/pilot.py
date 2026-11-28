@@ -159,6 +159,10 @@ def run(dest, edition=2):
     from .grade import grade
 
     save(dest / "grade.json", grade(dest))
+    if edition == 2:
+        from .outcome_score import score
+
+        save(dest / "grade-outcomes-1.json", score(dest))
 
 
 if __name__ == "__main__":

@@ -45,7 +45,7 @@ wait
 
 [C2 十轮进阶版首场审计](docs/results/c2-evolution-20261128/)记录 DeepSeek 的 97.6471 分、三次原生压缩、两处交付偏差与题面勘误。当前实测仍有明显高分风险。
 
-[W4 两版开发及 DeepSeek 盲测](docs/results/w4-release-20261128/)记录基础场、现场附页加难场、两版冻结成绩和可重放轨迹。
+[W4 两版开发及 DeepSeek 盲测](docs/results/w4-release-20261128/)记录基础场、现场附页加难场、两版冻结成绩和可重放轨迹。[按实际履约复评](docs/results/w4-release-20261128/outcome-calibration.md)对照 W1 分析得失、离线变异和下一版工作环境。
 
 [C2 首次开发与盲测](docs/results/c2-calendar-20261128/)记录八轮日历发布任务的环境验收、真实轨迹、正反例和评分审计。
 
