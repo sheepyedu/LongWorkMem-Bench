@@ -1,0 +1,278 @@
+{
+  "usage": {
+    "input": 11771512,
+    "output": 107199,
+    "peak_input": 159008,
+    "cached_input": 11605248,
+    "native_compactions": 0
+  },
+  "compression": [],
+  "desk_query_checks": [
+    {
+      "turn": 1,
+      "operation": 10,
+      "matched": true
+    },
+    {
+      "turn": 2,
+      "operation": 3,
+      "matched": true
+    },
+    {
+      "turn": 3,
+      "operation": 2,
+      "matched": true
+    },
+    {
+      "turn": 3,
+      "operation": 7,
+      "matched": true
+    },
+    {
+      "turn": 3,
+      "operation": 8,
+      "matched": true
+    },
+    {
+      "turn": 3,
+      "operation": 11,
+      "matched": true
+    },
+    {
+      "turn": 3,
+      "operation": 14,
+      "matched": true
+    },
+    {
+      "turn": 3,
+      "operation": 15,
+      "matched": true
+    },
+    {
+      "turn": 4,
+      "operation": 2,
+      "matched": true
+    },
+    {
+      "turn": 8,
+      "operation": 2,
+      "matched": true
+    },
+    {
+      "turn": 9,
+      "operation": 2,
+      "matched": true
+    },
+    {
+      "turn": 9,
+      "operation": 6,
+      "matched": true
+    },
+    {
+      "turn": 9,
+      "operation": 9,
+      "matched": true
+    },
+    {
+      "turn": 9,
+      "operation": 12,
+      "matched": true
+    },
+    {
+      "turn": 9,
+      "operation": 15,
+      "matched": true
+    },
+    {
+      "turn": 9,
+      "operation": 16,
+      "matched": true
+    },
+    {
+      "turn": 10,
+      "operation": 2,
+      "matched": true
+    },
+    {
+      "turn": 10,
+      "operation": 6,
+      "matched": true
+    },
+    {
+      "turn": 10,
+      "operation": 9,
+      "matched": true
+    },
+    {
+      "turn": 10,
+      "operation": 12,
+      "matched": true
+    },
+    {
+      "turn": 10,
+      "operation": 15,
+      "matched": true
+    },
+    {
+      "turn": 10,
+      "operation": 16,
+      "matched": true
+    },
+    {
+      "turn": 11,
+      "operation": 2,
+      "matched": true
+    },
+    {
+      "turn": 11,
+      "operation": 3,
+      "matched": true
+    },
+    {
+      "turn": 11,
+      "operation": 7,
+      "matched": true
+    },
+    {
+      "turn": 11,
+      "operation": 10,
+      "matched": true
+    },
+    {
+      "turn": 11,
+      "operation": 13,
+      "matched": true
+    },
+    {
+      "turn": 11,
+      "operation": 16,
+      "matched": true
+    },
+    {
+      "turn": 11,
+      "operation": 17,
+      "matched": true
+    },
+    {
+      "turn": 11,
+      "operation": 29,
+      "matched": true
+    },
+    {
+      "turn": 12,
+      "operation": 2,
+      "matched": true
+    }
+  ],
+  "flags": [],
+  "rounds": [
+    {
+      "turn": 1,
+      "requests": 12,
+      "actions": 12,
+      "action_errors": 0,
+      "rejected_tools": 0,
+      "ungrounded_receipts": [],
+      "compactions": 0
+    },
+    {
+      "turn": 2,
+      "requests": 5,
+      "actions": 5,
+      "action_errors": 0,
+      "rejected_tools": 0,
+      "ungrounded_receipts": [],
+      "compactions": 0
+    },
+    {
+      "turn": 3,
+      "requests": 20,
+      "actions": 20,
+      "action_errors": 1,
+      "rejected_tools": 0,
+      "ungrounded_receipts": [],
+      "compactions": 0
+    },
+    {
+      "turn": 4,
+      "requests": 5,
+      "actions": 5,
+      "action_errors": 0,
+      "rejected_tools": 0,
+      "ungrounded_receipts": [],
+      "compactions": 0
+    },
+    {
+      "turn": 5,
+      "requests": 6,
+      "actions": 5,
+      "action_errors": 0,
+      "rejected_tools": 0,
+      "ungrounded_receipts": [],
+      "compactions": 0
+    },
+    {
+      "turn": 6,
+      "requests": 4,
+      "actions": 3,
+      "action_errors": 0,
+      "rejected_tools": 0,
+      "ungrounded_receipts": [],
+      "compactions": 0
+    },
+    {
+      "turn": 7,
+      "requests": 6,
+      "actions": 5,
+      "action_errors": 1,
+      "rejected_tools": 0,
+      "ungrounded_receipts": [],
+      "compactions": 0
+    },
+    {
+      "turn": 8,
+      "requests": 7,
+      "actions": 7,
+      "action_errors": 0,
+      "rejected_tools": 0,
+      "ungrounded_receipts": [],
+      "compactions": 0
+    },
+    {
+      "turn": 9,
+      "requests": 19,
+      "actions": 18,
+      "action_errors": 0,
+      "rejected_tools": 0,
+      "ungrounded_receipts": [],
+      "compactions": 0
+    },
+    {
+      "turn": 10,
+      "requests": 18,
+      "actions": 18,
+      "action_errors": 0,
+      "rejected_tools": 0,
+      "ungrounded_receipts": [],
+      "compactions": 0
+    },
+    {
+      "turn": 11,
+      "requests": 22,
+      "actions": 30,
+      "action_errors": 0,
+      "rejected_tools": 0,
+      "ungrounded_receipts": [],
+      "compactions": 0
+    },
+    {
+      "turn": 12,
+      "requests": 6,
+      "actions": 6,
+      "action_errors": 0,
+      "rejected_tools": 0,
+      "ungrounded_receipts": [],
+      "compactions": 0
+    }
+  ]
+}

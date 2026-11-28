@@ -1,0 +1,4 @@
+id,turn,case,field,maximum,earned,expected,observed,evidence,responsibility
+R09/J02/调度-优先号,9,J02,调度-优先号,0.013071895424836602,0,0,1,snapshots/9/调度.csv,交付证据
+R09/J02/调度-基础额度,9,J02,调度-基础额度,0.013071895424836602,0,5,4,snapshots/9/调度.csv,交付证据
+R09/J02/调度-额度,9,J02,调度-额度,0.013071895424836602,0,7,6,snapshots/9/调度.csv,交付证据
