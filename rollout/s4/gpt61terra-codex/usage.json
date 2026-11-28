@@ -1,0 +1,22 @@
+{
+  "model": "gpt-6.1-terra",
+  "effort": "low",
+  "rounds": 40,
+  "usage": {
+    "usage_updates": 213,
+    "tool_calls": 176,
+    "compact_events": 0,
+    "missing_usage_attempts": [],
+    "inputTokens": 18851675,
+    "outputTokens": 7325,
+    "cachedInputTokens": 18566272,
+    "reasoningOutputTokens": 0,
+    "totalTokens": 18859000
+  },
+  "peak_reported_input": 185163,
+  "reported_context_windows": [
+    475000
+  ],
+  "compaction_rounds": [],
+  "tool_errors": []
+}

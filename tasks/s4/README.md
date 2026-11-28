@@ -1,94 +1,47 @@
 # S4 · 单桌资本工程
 
-正式实例固定一个四人棋盘、一个连续会话、一个城市授权节点 21，默认 16 段。三个对手使用固定战略配置。从报价、收货、路线修订到定居点交付，再用开局授权完成城市升级。24 段是同一实例的长度对照。
+一个模型在同一条会话中经营四人 Catan 棋局，完成 **40 个用户轮次**。开局、对手和委托固定，棋盘种子 17211。三个对手 Ash、Flint、Sail 在本地执行策略。模型通过 `look` 看局面、`act` 行动、`notes` 管理自己的笔记。棋局若自然终止，就冻结该局，所有未到达的交付窗口按实际记录评分。
+
+| 轮次 | 用户任务 |
+|---|---|
+| 1 | 只在委任开放时把节点 21 升级为城市。签发矿石采购单，限价四张牌。自愿支出小麦后至少留两张，强制损失豁免。 |
+| 1–31 | 经营 15 个班次，各有开局和结算两段。在第 3、6、9、11 班收班后登记库存。第 13 轮签字将采购货物改为砖。 |
+| 32–39 | 在第 32 轮的清算窗口完成采购，验收实际收货，继续经营、备料并确认库存。 |
+| 40 | 委任正式开放。在两次己方普通回合内升级获准的定居点。 |
+
+[逐轮英文题面](schedule.py) · [两条模型轨迹与复评](../../rollout/s4/)
+
+## 运行
+
+从仓库根目录使用 Python 3.12、Docker 及相应客户端。Codex 使用已有登录。Claude Code 使用环境变量 `ARK_API_KEY` 指定的 DeepSeek 凭据。每次实跑写入一个新的目录。交互沿用框架默认原生压缩。
 
 ```sh
-docker build -t longworkmem-catan:long-league tasks/s4
-python -m tasks.s4.long_league /path/to/new/run
-python -m tasks.s4.long_league /path/to/length-study --length 24
-python -m tasks.s4.long_league /path/to/new/run --replay --image longworkmem-catan:long-league
-python -m tasks.s4.audit /path/to/new/run
+docker build -t longworkmem-s4:40 tasks/s4
+python -m tasks.s4 runs/s4-terra --harness codex --model gpt-6.1-terra --effort low
+python -m tasks.s4 runs/s4-deepseek --harness claude
+python -m tasks.s4 runs/s4-terra --replay
 ```
 
-正式报告列两项。**授权应用**报告两个决策的预期、实际、正确／错误／未观察，分别给出正确数、可观察数及计划数。**经营执行**以 100 分记录施工时机、材料、贸易及库存。城市按正确窗口实际建成计经营分，早期批准的节点是否选对由授权轴判定。总分字段 `score` 的含义为经营执行。
+## 客观评分
 
-小麦预留占经营分 12 分。六个固定窗口各 2 分。实质推进且无违规可得分，包括没有花麦的有效推进。强制损失豁免，业务空转不给分；全部交付后现场验收可构成最后一个窗口的进度。每次自愿支出后低于两麦均保留事件编号和该窗口最低余额，同一窗口多次违规最多扣 2 分。
+评分版本为 `s4-40-score-v2`。评测端从固定开局重放每条工具操作，核对题面、操作顺序、回执和每轮前后局面，再从引擎完整事件流评分。模型自述不计分，评分器和参考行动保存在玩家工具可见范围之外。
 
-两版有相同的四个交割库存单、动作机会和累计游戏回合。24 段把每个运营班次拆为开局、运营、只读核对。城市授权的兑现从第 13 段移到第 21 段。库存单单列核验，有效记忆的证据来自实际授权行动。可给 24 段另加 `--compact-percent 20` 做原生压缩诊断，清单记录阈值，用量以服务回执为准。公开历史包依清单协议复评，旧节点仅用于历史档案。
-
-[评分修订、16/24 轮证据与复评](../../docs/results/s4-duration-20261128/) · [早期双节点试跑](../../docs/results/s4-long-league-20261128/)
-
-## 32／40 轮早局长度实验
-
-两组从同一棋盘的较早位置开始，使用一个连续的 Claude Code 会话。第 1 轮授权节点 21 并签发矿石采购单，第 13 轮把货物改为砖。32 轮组在第 24／32 轮验收采购／城市，40 轮组在第 32／40 轮验收。每多一个班次就增加一次真实掷骰、对手行动、库存变化和经营决策。对局自然结束时封存最后一个真实状态；尚未执行的授权记为未观察。
-
-```sh
-docker build -t longworkmem-catan:early-league tasks/s4
-python -m tasks.s4.early_league /path/to/new/run --length 40
-python -m tasks.s4.early_league /path/to/new/run --replay --image longworkmem-catan:early-league
-```
-
-模型实跑需要设置 `ARK_API_KEY`；离线复评只需 Docker。两组采用默认原生压缩设置，精确阈值由运行框架决定。[早局试验与复评资料](../../docs/results/s4-early-duration-20261128/)
-
-### Codex 原生入口
-
-Codex 在同一线程接收相同的逐轮委托，使用同一 Docker 工位的 `look`、`act` 和 `notes`。运行使用当前 Codex 登录。原始事件保存在运行目录，评分由引擎重放独立计算。
-
-```sh
-python -m tasks.s4.codex_early /path/to/new/run --length 40 --model gpt-6.1-terra --effort low
-python -m tasks.s4.codex_early /path/to/existing/run --replay --image longworkmem-catan:early-league
-python -m tasks.s4.codex_audit /path/to/existing/run
-```
-
-## 历史版本 · Catan 跨局联赛
-
-一个待测模型坐一席，Ash、Flint 和 Sail 是本地策略机器人。三局基础 Catan 开新会话、换地图与颜色，名称保持一致。六个独立练习局面随后打开。每个练习从固定中盘开始，模型控制当前一轮。模型能通过文本查看棋盘和自己的牌，完成建造、出价、确认交易，并维护自己的跨局笔记。
-
-### 历史联赛运行
-
-使用仓库根目录、Python 3.12、Docker 和 Claude Code。游戏容器基于上游 Catanatron 的固定提交，容器以无网络、只读根文件系统和非特权用户运行。使用模型服务的主机进程与容器以标准输入输出交互。Claude Code 只连接桌面 MCP 的 `look`、`act`、`notes`，评分代码和指标表仅供评测端使用。
-
-```sh
-docker build -t longworkmem-catan:1 tasks/s4
-S4_TEST_DOCKER=1 python -m unittest discover -v -s tasks/s4/tests -t .
-python -m tasks.s4.pilot /path/to/new/run
-python -m tasks.s4.grade /path/to/new/run
-python -m tasks.s4.audit /path/to/new/run
-```
-
-Docker 镜像重建后的本机复评分可用 `grade --image longworkmem-catan:1 RUN` 指定重建镜像。记忆对照入口 `python -m tasks.s4.controls RUN NEW_CONTROL_DIR` 会从两桌独立快照比较保留笔记、空笔记和补齐事实三个条件，并保留各自轨迹。
-
-`pilot` 使用宿主环境的 `ARK_API_KEY` 访问 DeepSeek V4.1 Flash 1017，关闭额外推理。评测端已有获授权的 Chat Completions 代理时可以传 `--upstream`。其他两条命令在既有轨迹上运行，无需模型接口。发生供应商或控制器故障的运行保留原始记录。模型连续两个推进段未产生棋局动作时记录停滞，在已经实际发生的状态上结算该桌。
-
-首次盲测使用原题面。可通过 `pilot --prompt-version clarified RUN` 使用明确标注赛期和回合进度的变体，并在后续分析时独立记录。此变体沿用相同引擎和地图，适合与 `grade --first-road RUN` 联用。
-
-每个完整棋局由多段连续 Claude Code 用户交互组成。每段最多推进本席七个普通回合，setup、弃牌和响应其他玩家交易按当前动作继续。完整棋局保留每个实际行动和回执。练习桌各自有独立手牌；前缀由引擎重放到固定状态。文本界面显示当前局面和合法动作，但桌面工具无法读取练习前缀、未来棋局或其他会话的原始历史。模型主动保存的笔记会跨会话保留。动作编号仅对指定事件位置有效。报价广播给三席，接受后需确认一个对手才实际交换资源。
-
-## 评测端指标
-
-| 维度 | 分值 | 证据 |
+| 检查点 | 分值 | 得分条件 |
 |---|---:|---|
-| 整局经营 | 40 | 三盘平均。终局自有胜利点最多 25 分，胜局率最多 15 分。 |
-| 跨局交易经验 | 20 | 两桌各 10 分。首次尝试成交且总成本合格 3 分，实际拿到砖且总成本合格 3 分，取得砖后实际铺路 4 分。 |
-| 对手策略更新 | 20 | 两桌各 10 分，沿用相同动作评分。在已由引擎验证的状态中，旧报价被拒绝，更新后的合理成本仍可成交。 |
-| 早期计划接续 | 20 | 两桌各 10 分。实际铺路 4 分，在先前指派的边铺路 6 分。 |
+| 完成班次 | 12 | 15 个经营班次各 0.8 分，以结算段本席实际结束回合为准。 |
+| 库存单 | 12 | 四份各 3 分。收班后成功写入对应文件，冻结时的 JSON 位置、手牌与引擎一致，省略零余额。删除、错账、重复键或收班前预填均不给分。 |
+| 交付采购货物 | 16 | 清算窗口本席参与的首笔实际成交，净收到的唯一货物为砖。支持海运、本人发起及由对方发起的成交。批准报价本身不算收货。 |
+| 数量与限价 | 8 | 该笔交易净收一张砖，实际支付 1 至 4 张牌。 |
+| 委任前备料 | 18 | 第 39 轮收盘时，每张矿石 4 分，最多三张。每张小麦 1.5 分，最多四张，覆盖建城支出与预留。 |
+| 按授权施工 | 22 | 本席首次建城动作必须在第 40 轮、节点 21。提前施工或错址后再补建也不能拿回该项。 |
+| 小麦预留 | 12 | 六个窗口各 2 分。须有己方掷骰、建设、购发展牌或实际交易，且本席每次自愿支出小麦后均不少于两张。强制弃牌和他席自行支出不算违规。 |
 
-评分采用引擎回执和动作事件。冻结版 v1 的路线验收接受任一次铺对。复核选项 `--first-road` 可在同一轨迹上要求首条铺路即符合指派，单独生成 v1.1 明细，防止连续铺多条路覆盖目标。每项只计算本席实际执行的动作，练习前缀和其他席位无法得分；练习只计算当前回合。记忆笔记和文字自述不直接计分。牌数、棋盘、历史证据与同分合法动作均可检查，模型输出的 Markdown 和总结不需要按计分格式解析。无动作对照仍可显示既有游戏状态，六个练习项均为零分。
+预留窗口依次覆盖班次 1–3、4–6、7–9、10–15、清算至 yard 收班、final 开班至委任结束。每窗口最多扣 2 分。**授权使用**另列采购货物与城市节点／时机两项的正确数、可观察数、计划数。提前施工是可观察的错误；始终没有建城动作记为未观察。采购数量与限价、小麦预留另有分项。
 
-另外可以用 `python -m tasks.s4.grade RUN --calibration` 运行 v1.2 校准评分。该口径满分 60，降低整局胜负和常规铺路的权重，单独核验首报与实际成本。原始正式成绩仍使用 v1。[复评对照与加压设计](../../docs/results/s4-catan-20261128/scoring-calibration.md)
-
-**设计边界。** 练习从已保存的局面开始，整局反映真实对手互动。当前版本的一个赛程只支持单个实例的难度判断。同行赛对照应交换同一席位和牌局种子，并在同一练习棋局分别比较自写记忆、空记忆和正确历史事实。跨局新会话与 Claude 原生压缩单列报告。参考轨迹受到上游 GPL-3.0-or-later 引擎启发，游戏规则和合法动作直接由 [Catanatron](https://github.com/bcollazo/catanatron/tree/ecf931181b9a65bb4116a2153fb78c16f1438e00) 执行。Docker 保留引擎及依赖的许可证。
-
-## 续作与切桌实验
-
-`catan-continuation-v1` 是单独的 20 分检查。A 桌固定于一段真实四人棋局，先铺主干，随后收到路线通知，继续铺支路、买入缺少的资源并完成定居点。复盘计算还原棋局状态、主动支出后的保留资源和真实动作。A 版在中间做只读进度确认，B 版切去独立棋局完成购砖、铺路与回合结束，再回到同一个 A 状态。两版同用一条原生 Claude 会话，桌面回执用桌号标识本次操作。两条历史（`keep` 与 `revise`）改变授权目标，保持当前棋盘和行动可见性一致。可选 `--opponent base` 保留原策略，默认 `cautious` 对照中 Ash 保留手里最后的砖。
+## 验证
 
 ```sh
-docker build -t longworkmem-catan:continuation tasks/s4
-python -m tasks.s4.continuation /path/to/new/run --arm single --case keep
-python -m tasks.s4.continuation /path/to/another/run --arm switch --case keep
-python -m tasks.s4.continuation /path/to/new/run --replay --image longworkmem-catan:continuation
-python -m tasks.s4.audit /path/to/new/run
+S4_TEST_DOCKER=1 python -m unittest discover -v -s tasks/s4/tests -t .
 ```
 
-将 `--case` 改为 `revise` 即运行另一条历史。原始 v1 样题可继续按上文运行。续作试验的[A/B 结果与复评](../../docs/results/s4-continuation-20261128/)独立归档。
+测试包含 100 分可达参考路径、错误提交、两场真实轨迹回放、工具回执篡改和未达终局的截断。引擎、依赖源与校验值固定在 [Dockerfile](Dockerfile) 中。

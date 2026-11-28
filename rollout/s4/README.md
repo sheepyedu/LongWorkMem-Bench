@@ -1,41 +1,27 @@
-# S4 轨迹
+# S4 · 40 轮最终版轨迹
 
-历史联赛使用 Claude Code 和 DeepSeek V4.1 Flash，三场 Catan 完整对局及六桌固定回放练习。真实竞赛、原生压缩和短记忆对照按各自的场次记录。
+两场都从同一棋局开始，均完成 40 轮。下表按最终评分器重新计算。输入包含缓存，输出和输入分别统计。
 
-完整记录保存于实验机的 `rollout/s4/catan-v1-20261128/`。每场保存逐段委托、Claude Code 原始事件、上游请求与响应、本席操作日志、进程退出状态、阶段棋局和笔记快照。复评由固定引擎重放实际操作。结果报告与逐条审阅入口见 [S4 正式实测](../../docs/results/s4-catan-20261128/)。
+| 运行 | 经营分 | 采购 | 城市 | 输入 token | 输出 token | 原生压缩 |
+|---|---:|---|---|---:|---:|---:|
+| [DeepSeek V4.1 Flash + Claude Code](deepseek-flash-claude/) | 62.5 | 4 木换 1 砖 | 第 15 轮提前建在 21 | 15,722,164 | 36,737 | 1 |
+| [GPT-6.1-terra + Codex](gpt61terra-codex/) | 76.5 | 1 木换 1 砖 | 委任期缺一麦，未建城 | 18,851,675 | 7,325 | 0 |
 
-## 公开复评
+每个目录含冻结分项、用量和离线复评包。两包均保存逐轮题面、实际桌面操作、工具回执及状态指纹。DeepSeek 包内附逐轮答复、204 份模型请求与响应及实际采用的压缩摘要。Codex 包内含逐轮原生业务工具事件、答复和用量。完整宿主原始日志另存实验机。每种组合各一场。
 
-[复评包](catan-v1-20261128-replay.tar.gz)保存脱敏会话索引、逐段委托、全部桌面工具参数与结果、冻结局面。它与原场的游戏状态逐事件一致。先校验包，再用 Docker 重放。命令从仓库根目录运行。
+## 从空目录复评
 
 ```sh
 (cd rollout/s4 && shasum -a 256 -c SHA256SUMS)
-run=$(mktemp -d)
-tar -xzf rollout/s4/catan-v1-20261128-replay.tar.gz -C "$run"
-docker build -t longworkmem-catan:1 tasks/s4
-python -m tasks.s4.grade "$run" --image longworkmem-catan:1
-python -m tasks.s4.grade "$run" --image longworkmem-catan:1 --first-road
+docker build -t longworkmem-s4:40 tasks/s4
+for model in deepseek-flash-claude gpt61terra-codex; do
+  run=$(mktemp -d)
+  tar -xf "rollout/s4/$model/replay.tar.xz" -C "$run"
+  python -m tasks.s4 "$run" --replay
+  cmp "$run/grade.json" "rollout/s4/$model/grade.json"
+done
 ```
 
-原始上游请求与响应、Claude Code 事件和六场对照保存在实验机，各有 `SHA256SUMS`。上游用量和逐条可见性以[审计索引](../../docs/results/s4-catan-20261128/)为公开证据。
+[正式题面与评分规则](../../tasks/s4/)
 
-## 续作与切桌
-
-`continuation-20261128/` 在实验机保留四场原始运行及逐文件校验值。公开包提供逐段委托、桌面操作与回执、状态指纹和公开复评命令。[续作对照](../../docs/results/s4-continuation-20261128/)。
-
-
-## 单桌长程资本工程
-
-`long-league-20261128/` 为实验机的完整原始轨迹。公开复评包含题面、工具日志和状态指纹。[结果与离线复评](../../docs/results/s4-long-league-20261128/)。
-
-## 单节点正式版与轮数对照
-
-[试跑证据与离线复评](../../docs/results/s4-duration-20261128/)。完整本机归档位于 `duration-20261128/`。
-
-## 32／40 轮早局
-
-`early-duration-20261128/rounds-32/` 和 `rounds-40/` 在实验机保存各自的完整原始请求、会话事件和逐文件校验清单。[公开复评包](early-duration-20261128-replay.tar.gz)及[分轮审计](../../docs/results/s4-early-duration-20261128/)覆盖两次独立会话。
-
-## GPT-6.1-terra · Codex 40 轮早局
-
-[公开复评包](codex-gpt61terra-40-20261128-replay.tar.gz)含逐轮委托、Codex 业务工具原始参数和回执、完整最终答复、用量事件及棋局状态指纹。[实测报告](../../docs/results/s4-codex-terra-20261128/)给出了同场复评方法。完整 app-server 原始记录位于实验机 `codex-gpt61terra-40-20261128/`。
+解包后可用 `python -m tasks.s4.audit "$run"` 审计 DeepSeek 轨迹，或用 `python -m tasks.s4.codex_audit "$run"` 审计 Codex 轨迹。
