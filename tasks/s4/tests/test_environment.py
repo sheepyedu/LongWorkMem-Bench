@@ -173,6 +173,12 @@ class CatanEnvironmentTests(unittest.TestCase):
                 ),
                 10,
             )
+            self.assertEqual(
+                evaluate_table(
+                    name, self.table.request("end_state"), origin, calibration=True
+                ),
+                {"assigned_edge": (6, 6)},
+            )
         for name, cap in TRADE_CAP.items():
             origin = self.table.open(name)["position"]
             cost = {"SHEEP": "1"} if cap == 1 else {"SHEEP": 1, "WHEAT": 1}
@@ -200,6 +206,16 @@ class CatanEnvironmentTests(unittest.TestCase):
                 ),
                 10,
             )
+            self.assertEqual(
+                evaluate_table(
+                    name, self.table.request("end_state"), origin, calibration=True
+                ),
+                {
+                    "first_brick_attempt": (1, 1),
+                    "purchase_cost": (4, 4),
+                    "road_after_purchase": (1, 1),
+                },
+            )
 
     def test_replay_determinism(self):
         first = self.table.open("transfer-2")
@@ -221,6 +237,58 @@ class ScoreBoundaryTests(unittest.TestCase):
             evaluate_table("route-1", events, 0, first_road=True)["assigned_edge"],
             (0, 6),
         )
+        self.assertEqual(
+            evaluate_table("route-1", events, 0, calibration=True),
+            {"assigned_edge": (0, 6)},
+        )
+
+    def test_brick_speed_and_price_are_independent(self):
+        overpriced = {"give": {"WOOD": 1, "WHEAT": 1}, "take": {"BRICK": 1}}
+        efficient = {"give": {"SHEEP": 1}, "take": {"BRICK": 1}}
+        for actions, expected in (
+            (
+                [("OFFER_TRADE", overpriced), ("CONFIRM_TRADE", overpriced)],
+                (1, 0, 1),
+            ),
+            (
+                [
+                    ("OFFER_TRADE", overpriced),
+                    ("CANCEL_TRADE", None),
+                    ("OFFER_TRADE", efficient),
+                    ("CONFIRM_TRADE", efficient),
+                ],
+                (0, 4, 1),
+            ),
+            (
+                [
+                    ("OFFER_TRADE", {"give": {"SHEEP": 1}, "take": {"ORE": 1}}),
+                    ("CANCEL_TRADE", None),
+                    ("OFFER_TRADE", efficient),
+                    ("CONFIRM_TRADE", efficient),
+                ],
+                (1, 4, 1),
+            ),
+        ):
+            events = {
+                "events": [
+                    {"seq": i, "player": "You", "action": action, "value": value}
+                    for i, (action, value) in enumerate(
+                        [*actions, ("BUILD_ROAD", [1, 2])], 1
+                    )
+                ]
+            }
+            result = evaluate_table("transfer-2", events, 0, calibration=True)
+            self.assertEqual(
+                tuple(
+                    result[k][0]
+                    for k in (
+                        "first_brick_attempt",
+                        "purchase_cost",
+                        "road_after_purchase",
+                    )
+                ),
+                expected,
+            )
 
     def test_wrong_player_late_action_and_prefix_do_not_count(self):
         events = {

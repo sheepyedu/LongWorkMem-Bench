@@ -18,11 +18,13 @@ TARGET_EDGE = {"route-1": [9, 10], "route-2": [5, 16]}
 TRADE_CAP = {"transfer-2": 1, "transfer-3": 1, "update-2": 2, "update-3": 2}
 
 
-def evaluate_table(name, events, prefix, *, first_road=False):
+def evaluate_table(name, events, prefix, *, first_road=False, calibration=False):
     if name in GAMES:
+        vp_max, win_max = (6, 2) if calibration else (25 / 3, 5)
+        vp = min(events["vp"]["You"], 10)
         return {
-            "victory_points": (min(events["vp"]["You"], 10) * 25 / 30, 25 / 3),
-            "won": (5 if events["winner"] == "You" else 0, 5),
+            "victory_points": (vp * 6 / 10 if calibration else vp * 25 / 30, vp_max),
+            "won": (win_max if events["winner"] == "You" else 0, win_max),
         }
     current = []
     for e in events["events"][prefix:]:
@@ -32,27 +34,32 @@ def evaluate_table(name, events, prefix, *, first_road=False):
             current.append(e)
     roads = [e for e in current if e["action"] == "BUILD_ROAD"]
     if name in TARGET_EDGE:
-        return {
-            "paved": (4 if roads else 0, 4),
-            "assigned_edge": (
-                6
-                if any(
-                    sorted(e["value"]) == TARGET_EDGE[name]
-                    for e in (roads[:1] if first_road else roads)
-                )
-                else 0,
-                6,
-            ),
-        }
+        eligible = roads[:1] if first_road or calibration else roads
+        assigned = (
+            6 if any(sorted(e["value"]) == TARGET_EDGE[name] for e in eligible) else 0,
+            6,
+        )
+        if calibration:
+            return {"assigned_edge": assigned}
+        return {"paved": (4 if roads else 0, 4), "assigned_edge": assigned}
     deals = []
     for e in current:
         if e["action"] == "CONFIRM_TRADE" and e["value"]["take"].get("BRICK"):
             deals.append((e["seq"], sum(e["value"]["give"].values())))
         if e["action"] == "MARITIME_TRADE" and e["value"][-1] == "BRICK":
             deals.append((e["seq"], sum(x is not None for x in e["value"][:-1])))
-    first_offer = next(
-        (e for e in current if e["action"] in ("MARITIME_TRADE", "OFFER_TRADE")), None
-    )
+    attempts = (e for e in current if e["action"] in ("MARITIME_TRADE", "OFFER_TRADE"))
+    if calibration:
+        attempts = (
+            e
+            for e in attempts
+            if (
+                e["value"]["take"].get("BRICK")
+                if e["action"] == "OFFER_TRADE"
+                else e["value"][-1] == "BRICK"
+            )
+        )
+    first_offer = next(attempts, None)
     timely = any(deal[0] < road["seq"] for deal in deals for road in roads)
     # Charge the total cards paid for brick, including unnecessary extra purchases.
     efficient = bool(deals) and sum(cost for _, cost in deals) <= TRADE_CAP[name]
@@ -69,6 +76,12 @@ def evaluate_table(name, events, prefix, *, first_road=False):
                 for e in subsequent
             )
         )
+    if calibration:
+        return {
+            "first_brick_attempt": (1 if first_paid else 0, 1),
+            "purchase_cost": (4 if efficient else 0, 4),
+            "road_after_purchase": (1 if timely else 0, 1),
+        }
     return {
         "first_attempt": (3 if first_paid and efficient else 0, 3),
         "purchase_cost": (3 if efficient else 0, 3),
@@ -89,7 +102,7 @@ def read_lines(path):
                 yield row
 
 
-def replay(run, image=None, local=False, *, first_road=False):
+def replay(run, image=None, local=False, *, first_road=False, calibration=False):
     manifest = json.loads((run / "manifest.json").read_text())
     if (
         manifest["protocol"] != PROTOCOL
@@ -169,7 +182,7 @@ def replay(run, image=None, local=False, *, first_road=False):
                 "events": len(events["events"]) - prefix,
             }
             for check, (points, maximum) in evaluate_table(
-                name, events, prefix, first_road=first_road
+                name, events, prefix, first_road=first_road, calibration=calibration
             ).items():
                 checks.append(
                     {"table": name, "check": check, "earned": points, "max": maximum}
@@ -178,8 +191,14 @@ def replay(run, image=None, local=False, *, first_road=False):
         raise ValueError("Unconsumed tool journal")
     return {
         "score": round(sum(r["earned"] for r in checks), 4),
-        "max": 100,
-        "scorer": "catan-v1.1" if first_road else "catan-v1",
+        "max": 60 if calibration else 100,
+        "scorer": (
+            "catan-v1.2-calibration"
+            if calibration
+            else "catan-v1.1"
+            if first_road
+            else "catan-v1"
+        ),
         "checks": checks,
         "tables": summaries,
         "replay_image": None if local else image or manifest["image"],
@@ -201,14 +220,26 @@ def main():
         action="store_true",
         help="Replay with the pinned dependencies installed locally",
     )
-    p.add_argument(
+    scorer = p.add_mutually_exclusive_group()
+    scorer.add_argument(
         "--first-road",
         action="store_true",
         help="Re-score the prior corridor on the first paved edge only",
     )
+    scorer.add_argument(
+        "--calibration",
+        action="store_true",
+        help="Use the stricter 60-point v1.2 calibration rubric",
+    )
     args = p.parse_args()
     try:
-        result = replay(args.run, args.image, args.local, first_road=args.first_road)
+        result = replay(
+            args.run,
+            args.image,
+            args.local,
+            first_road=args.first_road,
+            calibration=args.calibration,
+        )
     except (KeyError, IndexError, TypeError, ValueError, OSError, RuntimeError) as exc:
         print(
             json.dumps(
@@ -216,9 +247,12 @@ def main():
             )
         )
         raise SystemExit(2) from None
-    with (args.run / ("checks-v1.1.csv" if args.first_road else "checks.csv")).open(
-        "w", newline=""
-    ) as stream:
+    filename = {
+        "catan-v1": "checks.csv",
+        "catan-v1.1": "checks-v1.1.csv",
+        "catan-v1.2-calibration": "checks-v1.2-calibration.csv",
+    }[result["scorer"]]
+    with (args.run / filename).open("w", newline="") as stream:
         writer = csv.DictWriter(stream, fieldnames=("table", "check", "earned", "max"))
         writer.writeheader()
         writer.writerows(result["checks"])

@@ -70,6 +70,9 @@ class ReplayBoundaryTests(unittest.TestCase):
             first = replay(root)
             self.assertEqual(first["score"], 0)
             self.assertEqual(sum(check["max"] for check in first["checks"]), 100)
+            calibration = replay(root, calibration=True)
+            self.assertEqual(calibration["score"], 0)
+            self.assertEqual(sum(check["max"] for check in calibration["checks"]), 60)
             path = trace / "game-1-events.json"
             forged = json.loads(path.read_text())
             forged["winner"] = "You"
