@@ -1,0 +1,132 @@
+{
+  "source_protocol": "calendar-evolution-v1",
+  "source_commit": "aa837f909f112c59560dbde27f1ad0e3a86217d4",
+  "compatible_turn": 1,
+  "earned": 4,
+  "possible": 4,
+  "new_edition_total": null,
+  "items": {
+    "01/pages/0/uids": {
+      "turn": 1,
+      "metric": "pages",
+      "expected": [
+        "K17-20260306",
+        "K17-20260313",
+        "K17-20260320",
+        "K17-20260327",
+        "K17-20260403",
+        "K17-20260410",
+        "K17-20260417"
+      ],
+      "observed": [
+        "K17-20260306",
+        "K17-20260313",
+        "K17-20260320",
+        "K17-20260327",
+        "K17-20260403",
+        "K17-20260410",
+        "K17-20260417"
+      ],
+      "weight": "1/2",
+      "passed": true
+    },
+    "01/pages/0/cursor": {
+      "turn": 1,
+      "metric": "pages",
+      "expected": 7,
+      "observed": 7,
+      "weight": "1/2",
+      "passed": true
+    },
+    "01/pages/7/uids": {
+      "turn": 1,
+      "metric": "pages",
+      "expected": [
+        "K17-20260424",
+        "K17-20260501",
+        "K17-20260508",
+        "K17-20260515",
+        "K17-20260522",
+        "K17-20260529",
+        "K17-20260605"
+      ],
+      "observed": [
+        "K17-20260424",
+        "K17-20260501",
+        "K17-20260508",
+        "K17-20260515",
+        "K17-20260522",
+        "K17-20260529",
+        "K17-20260605"
+      ],
+      "weight": "1/2",
+      "passed": true
+    },
+    "01/pages/7/cursor": {
+      "turn": 1,
+      "metric": "pages",
+      "expected": 14,
+      "observed": 14,
+      "weight": "1/2",
+      "passed": true
+    },
+    "01/pages/2020/uids": {
+      "turn": 1,
+      "metric": "pages",
+      "expected": [
+        "M42-20441209",
+        "M42-20441216",
+        "M42-20441223",
+        "M42-20441230",
+        "M42-20450106",
+        "M42-20450113",
+        "M42-20450120"
+      ],
+      "observed": [
+        "M42-20441209",
+        "M42-20441216",
+        "M42-20441223",
+        "M42-20441230",
+        "M42-20450106",
+        "M42-20450113",
+        "M42-20450120"
+      ],
+      "weight": "1/2",
+      "passed": true
+    },
+    "01/pages/2020/cursor": {
+      "turn": 1,
+      "metric": "pages",
+      "expected": 2027,
+      "observed": 2027,
+      "weight": "1/2",
+      "passed": true
+    },
+    "01/pages/2079/uids": {
+      "turn": 1,
+      "metric": "pages",
+      "expected": [
+        "M42-20460126",
+        "M42-20460202",
+        "M42-20460209",
+        "legacy-west"
+      ],
+      "observed": [
+        "M42-20460126",
+        "M42-20460202",
+        "M42-20460209",
+        "legacy-west"
+      ],
+      "weight": "1/2",
+      "passed": true
+    },
+    "01/pages/2079/cursor": {
+      "turn": 1,
+      "metric": "pages",
+      "expected": null,
+      "observed": null,
+      "weight": "1/2",
+      "passed": true
+    }
+  }
+}

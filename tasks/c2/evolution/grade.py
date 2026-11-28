@@ -477,6 +477,12 @@ def legacy_grade(run, *, image=None, observations=None):
 
 def grade(run, *, image=None):
     revision = json.loads((run / "manifest.json").read_bytes()).get("scoring_revision")
+    from tasks.c2.cohorts.scenario import SCORING_REVISION as cohorts_revision
+
+    if revision == cohorts_revision:
+        from tasks.c2.cohorts.grade import grade as cohorts_grade
+
+        return cohorts_grade(run, image=image)
     if revision is None:
         return legacy_grade(run, image=image)
     if revision == SCORING_REVISION:

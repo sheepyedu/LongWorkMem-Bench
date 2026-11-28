@@ -21,6 +21,8 @@ def trade_action(color, give, take):
 
 class LeaguePlayer(Player):
     retain_last_brick = False
+    protect_capital = False
+    target_production = False
 
     def __init__(self, color, name, policy_version=1):
         super().__init__(color)
@@ -29,6 +31,8 @@ class LeaguePlayer(Player):
 
     def accepts(self, offered, requested, hand, proposer_points):
         if self.retain_last_brick and requested[1] and requested[1] == hand[1]:
+            return False
+        if self.protect_capital and requested[4] and hand[4] - requested[4] < 2:
             return False
         weights = WEIGHT[self.name]
         offered_value = sum(q * w for q, w in zip(offered, weights))
@@ -126,12 +130,22 @@ class LeaguePlayer(Player):
                 )
             if kind == T.MOVE_ROBBER:
                 tile, victim = value
-                nodes = board.map.land_tiles[tile].nodes.values()
-                return (
+                target = board.map.land_tiles[tile]
+                nodes = target.nodes.values()
+                score = (
                     get_visible_victory_points(state, victim) * 3 if victim else 0
                 ) - 25 * any(
                     board.buildings.get(n, (None,))[0] == self.color for n in nodes
                 )
+                if self.target_production and victim and target.number:
+                    score += (6 - abs(7 - target.number)) * sum(
+                        2 if building == "CITY" else 1
+                        for owner, building in (
+                            board.buildings.get(n, (None, None)) for n in nodes
+                        )
+                        if owner == victim
+                    )
+                return score
             if kind == T.MARITIME_TRADE:
                 return (
                     18

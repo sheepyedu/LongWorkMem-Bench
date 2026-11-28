@@ -10,7 +10,7 @@ EXERCISES = json.loads(Path(__file__).with_name("fixtures.json").read_text())
 SCHEDULE = [*GAMES, *PRACTICE]
 
 
-def create(name, cautious=False):
+def create(name, cautious=False, strategic=False, track_wheat=False):
     from .arena import Arena
 
     if name in GAMES:
@@ -29,9 +29,14 @@ def create(name, cautious=False):
         arena.apply(**action)
     for player in arena.game.state.players:
         player.policy_version = exercise["version"]
-        if cautious and player.name == "Ash":
+        if (cautious or strategic) and player.name == "Ash":
             player.retain_last_brick = True
+        if strategic and player.name == "Ash":
+            player.protect_capital = True
+        if strategic and player.name == "Flint":
+            player.target_production = True
     arena.show_graph = exercise.get("graph", False)
+    arena.track_wheat = track_wheat
     if arena.end_reason:
         raise RuntimeError("Completed exercise position")
     return arena

@@ -22,3 +22,8 @@ python -m tasks.s4.grade "$run" --image longworkmem-catan:1 --first-road
 ## 续作与切桌
 
 `continuation-20261128/` 在实验机保留四场原始运行及逐文件校验值。公开包提供逐段委托、桌面操作与回执、状态指纹和公开复评命令。[续作对照](../../docs/results/s4-continuation-20261128/)。
+
+
+## 单桌长程资本工程
+
+`long-league-20261128/` 为实验机的完整原始轨迹。公开复评包含题面、工具日志和状态指纹。[结果与离线复评](../../docs/results/s4-long-league-20261128/)。

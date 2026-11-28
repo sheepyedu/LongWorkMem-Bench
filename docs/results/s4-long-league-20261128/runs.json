@@ -1,0 +1,174 @@
+{
+  "east": {
+    "score": 68,
+    "max": 100,
+    "checks": {
+      "feeder": [
+        8,
+        8
+      ],
+      "quote": [
+        4,
+        4
+      ],
+      "brick_received": [
+        8,
+        8
+      ],
+      "current_spur": [
+        12,
+        12
+      ],
+      "outpost": [
+        8,
+        12
+      ],
+      "capital_stock": [
+        8,
+        12
+      ],
+      "authorized_city": [
+        20,
+        20
+      ],
+      "reserve_construction": [
+        0,
+        10
+      ],
+      "reserve_operations": [
+        0,
+        14
+      ]
+    },
+    "first_spur": [
+      23,
+      52
+    ],
+    "first_city": 21,
+    "outpost_phase": "production_turn",
+    "city_phase": "commission",
+    "voluntary_reserve_breaches": [
+      239,
+      314,
+      389,
+      391
+    ],
+    "own_turns_advanced": 9,
+    "game_terminal": null,
+    "requests": 85,
+    "usage": {
+      "input": 3581829,
+      "output": 8574,
+      "peak_input": 84065,
+      "cached": 3492480,
+      "cache_records": 85,
+      "reasoning": 0,
+      "reasoning_records": 85,
+      "usage_records": 85
+    },
+    "tools": {
+      "look": 5,
+      "act": 65
+    },
+    "model_visible_tool_records": 70,
+    "failed_attempts": 0,
+    "rejected": 3,
+    "compact_events": 0,
+    "revision": "19d95829227acd168f5a6bcf448db15376c976cf",
+    "image": "sha256:bc5420a355725804abb1cd14c92cf154e4e3208a13235c3a89808491d4a52422",
+    "claude": "2.1.314 (Claude Code)",
+    "model": "deepseek-v4-1-flash-261017",
+    "start": "2026-11-28T09:50:45.048073+00:00",
+    "end": "2026-11-28T09:56:59.444036+00:00",
+    "main_initial": "908be45c5f3bfd25fd308e53d3fa366e2be1d4796e40942617d8c3e2e88c6731",
+    "before_commission": {
+      "active": "7132e8a3d4383c675da77d7afcf852bc1e130d76d16427175f36f1048a02d4c9",
+      "main": "7132e8a3d4383c675da77d7afcf852bc1e130d76d16427175f36f1048a02d4c9",
+      "position": 375
+    }
+  },
+  "east-capital": {
+    "score": 100,
+    "max": 100,
+    "checks": {
+      "feeder": [
+        8,
+        8
+      ],
+      "quote": [
+        4,
+        4
+      ],
+      "brick_received": [
+        8,
+        8
+      ],
+      "current_spur": [
+        12,
+        12
+      ],
+      "outpost": [
+        12,
+        12
+      ],
+      "capital_stock": [
+        12,
+        12
+      ],
+      "authorized_city": [
+        20,
+        20
+      ],
+      "reserve_construction": [
+        10,
+        10
+      ],
+      "reserve_operations": [
+        14,
+        14
+      ]
+    },
+    "first_spur": [
+      23,
+      52
+    ],
+    "first_city": 46,
+    "outpost_phase": "outpost",
+    "city_phase": "commission",
+    "voluntary_reserve_breaches": [],
+    "own_turns_advanced": 8,
+    "game_terminal": null,
+    "requests": 101,
+    "usage": {
+      "input": 4492915,
+      "output": 11874,
+      "peak_input": 89343,
+      "cached": 4397312,
+      "cache_records": 101,
+      "reasoning": 0,
+      "reasoning_records": 101,
+      "usage_records": 101
+    },
+    "tools": {
+      "look": 13,
+      "act": 59,
+      "notes": 13
+    },
+    "model_visible_tool_records": 85,
+    "failed_attempts": 0,
+    "rejected": 2,
+    "compact_events": 0,
+    "revision": "19d95829227acd168f5a6bcf448db15376c976cf",
+    "image": "sha256:bc5420a355725804abb1cd14c92cf154e4e3208a13235c3a89808491d4a52422",
+    "claude": "2.1.314 (Claude Code)",
+    "model": "deepseek-v4-1-flash-261017",
+    "start": "2026-11-28T09:50:45.048076+00:00",
+    "end": "2026-11-28T09:57:49.010064+00:00",
+    "main_initial": "908be45c5f3bfd25fd308e53d3fa366e2be1d4796e40942617d8c3e2e88c6731",
+    "before_commission": {
+      "active": "11fb5747cd187afefa785dda656be8b1a6bec766235ddb242072fa48c75d2026",
+      "main": "11fb5747cd187afefa785dda656be8b1a6bec766235ddb242072fa48c75d2026",
+      "position": 369
+    }
+  }
+}
