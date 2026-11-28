@@ -81,9 +81,12 @@ def read_lines(path):
         for no, line in enumerate(stream, 1):
             if line.strip():
                 try:
-                    yield json.loads(line)
+                    row = json.loads(line)
                 except json.JSONDecodeError as exc:
                     raise ValueError(f"Unreadable {path.name} line {no}") from exc
+                if not isinstance(row, dict):
+                    raise ValueError(f"Expected an object in {path.name} line {no}")
+                yield row
 
 
 def replay(run, image=None, local=False, *, first_road=False):
@@ -204,7 +207,15 @@ def main():
         help="Re-score the prior corridor on the first paved edge only",
     )
     args = p.parse_args()
-    result = replay(args.run, args.image, args.local, first_road=args.first_road)
+    try:
+        result = replay(args.run, args.image, args.local, first_road=args.first_road)
+    except (KeyError, IndexError, TypeError, ValueError, OSError, RuntimeError) as exc:
+        print(
+            json.dumps(
+                {"valid": False, "score": None, "error": str(exc)}, ensure_ascii=False
+            )
+        )
+        raise SystemExit(2) from None
     with (args.run / ("checks-v1.1.csv" if args.first_road else "checks.csv")).open(
         "w", newline=""
     ) as stream:

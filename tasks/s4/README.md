@@ -8,7 +8,7 @@
 
 ```sh
 docker build -t longworkmem-catan:1 tasks/s4
-S4_TEST_DOCKER=1 python -m unittest -v tasks.s4.tests.test_environment
+S4_TEST_DOCKER=1 python -m unittest discover -v -s tasks/s4/tests -t .
 python -m tasks.s4.pilot /path/to/new/run
 python -m tasks.s4.grade /path/to/new/run
 python -m tasks.s4.audit /path/to/new/run

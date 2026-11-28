@@ -133,8 +133,7 @@ def inspect(run):
             for m in req_msgs:
                 if m["role"] in ("user", "tool", "system"):
                     value = content(m.get("content"))
-                    if m["role"] != "tool":
-                        indicators.extend(k for k in PRIVATE_MARKERS if k in value)
+                    indicators.extend(k for k in PRIVATE_MARKERS if k in value)
                     if m["role"] == "tool" and m.get("tool_call_id") in tool_returns:
                         expected = tool_returns[m["tool_call_id"]][0]
                         if value == expected:

@@ -23,4 +23,4 @@ jobs:
           C2_TEST_ROOT="$RUNNER_TEMP" python -m unittest discover -s tasks/c2/tests -t . -v
       - run: |
           docker build -t longworkmem-catan:1 tasks/s4
-          S4_TEST_DOCKER=1 python -m unittest -v tasks.s4.tests.test_environment
+          S4_TEST_DOCKER=1 python -m unittest discover -v -s tasks/s4/tests -t .
