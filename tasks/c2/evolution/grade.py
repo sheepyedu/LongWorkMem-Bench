@@ -21,6 +21,7 @@ from .scenario import (
     DAYS,
     LATE,
     VERSION,
+    SCORING_REVISION,
     specs,
     identities,
     queries,
@@ -108,7 +109,7 @@ def alternate_log(logs):
     return changed
 
 
-def probe(snap, t, image, logs):
+def probe(snap, t, image, logs, *, withdrawal=None, questions=None, predecessor=None):
     with tempfile.TemporaryDirectory(
         dir=os.getenv("C2_TEST_ROOT") or snap.parents[2]
     ) as tmp:
@@ -124,6 +125,14 @@ def probe(snap, t, image, logs):
             (work / "data/portal.sqlite").write_bytes(data)
             shutil.rmtree(work / "out")
             (work / "out").mkdir()
+        mode = str(t)
+        if predecessor is not None:
+            shutil.rmtree(work / "data")
+            freeze(predecessor / "data", work / "data")
+            mapping = identities()
+            mapping["N84"]["C"] = "line-991"
+            write(work / "input/identities.json", mapping)
+            mode = "upgrade"
         nonce = secrets.token_hex(12)
         scratch = f"scratch/replay-{nonce}"
         sc = work / scratch
@@ -185,10 +194,20 @@ def probe(snap, t, image, logs):
                         )
                     ],
                 )
+        if withdrawal is not None:
+            mode = "cold"
+            inbound = sc / "inbound"
+            write(inbound / "portfolio.json", specs())
+            write(inbound / "orders/new.json", {"version": 10, "rows": [withdrawal]})
+            (inbound / "version.txt").write_text("10\n")
+            (work / "input/version.txt").write_text("10\n")
+        if questions is not None:
+            write(sc / "lookups.json", questions)
+            write(sc / "ledger.json", logs)
         (work / nonce).write_text(nonce)
         out = f"{scratch}/result.json"
         cmd = (
-            f"cp {nonce} scratch/{nonce} && python3 - {t} {out} <<'ENDPROBE'\n"
+            f"cp {nonce} scratch/{nonce} && python3 - {mode} {out} <<'ENDPROBE'\n"
             + Path(__file__).with_name("probe.py").read_text()
             + "\nENDPROBE"
         )
@@ -211,7 +230,7 @@ def probe(snap, t, image, logs):
         return data
 
 
-def grade(run, *, image=None):
+def legacy_grade(run, *, image=None, observations=None):
     m = json.loads((run / "manifest.json").read_text())
     if (
         m.get("protocol") != VERSION
@@ -240,6 +259,8 @@ def grade(run, *, image=None):
             raise ValueError("missing frozen workspace")
         logs = json.loads((run / "receipts" / f"{t}.json").read_text())
         p = probe(snap, t, replay_image, logs) if t in (1, 2, 3, 5, 6, 8, 9, 10) else {}
+        if observations is not None:
+            observations[t] = p
         if t == 1:
             # March 6, 2026 to February 9, 2046 inclusive.
             start = date(2026, 3, 6)
@@ -452,6 +473,17 @@ def grade(run, *, image=None):
         total=round(sum(x["earned"] for x in checks.values()), 4),
         checks=checks,
     )
+
+
+def grade(run, *, image=None):
+    revision = json.loads((run / "manifest.json").read_bytes()).get("scoring_revision")
+    if revision is None:
+        return legacy_grade(run, image=image)
+    if revision == SCORING_REVISION:
+        from .case_grade import grade as case_grade
+
+        return case_grade(run, image=image)
+    raise ValueError(f"unsupported scoring revision {revision!r}")
 
 
 if __name__ == "__main__":
