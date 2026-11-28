@@ -85,7 +85,7 @@ def manual(data):
     return field("对象"), field("换机时限")
 
 
-def sheets(path):
+def sheets(path, tabs=TABS):
     if not path.exists():
         return {}, ["缺交交接表"]
     try:
@@ -96,7 +96,7 @@ def sheets(path):
         result = {}
         errors = []
         try:
-            for name, columns in TABS.items():
+            for name, columns in tabs.items():
                 if name not in wb:
                     errors.append("缺页:" + name)
                     continue
@@ -140,6 +140,17 @@ def sheets(path):
 
 def grade(run):
     run = Path(run)
+    from . import annex, annex_grade as field
+
+    manifest = run / "manifest.json"
+    protocol = (
+        json.loads(manifest.read_text()).get("protocol")
+        if manifest.is_file()
+        else "w4-release-v1"
+    )
+    if protocol not in ("w4-release-v1", "w4-release-v2"):
+        raise ValueError("未知 W4 版本")
+    v2 = protocol == "w4-release-v2"
     all_events = events(run, 12, None)
     by = defaultdict(list)
     for e in all_events:
@@ -157,6 +168,7 @@ def grade(run):
         return (recipient, object_id(i, s), f"{days(i, s, t)}个工作日")
 
     first = {k: spec(k, i, s, 3) for k, i, s in FIRST if k not in ("P08", "P12")}
+    r3_plan = field.allocation(run, all_events, 3, first) if v2 else {}
     details = []
     issues = {}
     states = {}
@@ -164,12 +176,18 @@ def grade(run):
         snap = run / "snapshots" / str(t)
         if not snap.is_dir():
             raise ValueError(f"缺少轮末快照 R{t}，无法评分")
-        wb, errors = sheets(snap / "交接.xlsx")
+        wb, errors = sheets(
+            snap / "交接.xlsx", {**TABS, **annex.EXTRA_TABS} if v2 else TABS
+        )
+        extra_weight = field.WEIGHTS.get(t, 0) if v2 else 0
+        multiplier = (POINTS[t - 1] - extra_weight) / POINTS[t - 1]
         if errors:
             issues[t] = errors
         actions = [e for e in all_events if e["turn"] == t]
 
-        def group(label, weight, checks):
+        def group(label, weight, checks, *, extra=False):
+            if not extra:
+                weight *= multiplier
             if not checks:
                 raise ValueError("空检查组")
             hits = sum(bool(v["ok"]) for v in checks.values())
@@ -186,13 +204,13 @@ def grade(run):
         def check(want, got):
             return dict(expected=want, observed=got, ok=want == got)
 
-        def table(name, weight, expected):
+        def table(name, weight, expected, *, extra=False):
             data = wb.get(name, {})
             out = {}
             for k, row in expected.items():
                 for col, value in row.items():
                     actual = data.get(k, {}).get(col)
-                    if col == "实际附件" and actual:
+                    if col in ("实际附件", "原实发席位") and actual:
                         actual = ";".join(
                             sorted(norm(x) for x in re.split(r"[;、,]", actual))
                         )
@@ -200,8 +218,18 @@ def grade(run):
                         actual = re.sub(r"^(?:6月|06-)?0?(\d{1,2})日?$", r"\1", actual)
                     out[k + "/" + col] = check(str(value), actual)
             for k in data.keys() - expected.keys():
+                if (
+                    v2
+                    and name == "通讯"
+                    and k in CODES[2:]
+                    and all(
+                        data[k].get(c) == address(CODES.index(k))
+                        for c in TABS["通讯"][1:]
+                    )
+                ):
+                    continue
                 out[k + "/多余行"] = check("无", "存在")
-            group(name, weight, out)
+            group(name, weight, out, extra=extra)
 
         def mail(expected, route, content, action="deliver"):
             routing = {}
@@ -225,6 +253,20 @@ def grade(run):
                 routing,
             )
             group("冻结附件", content, terms)
+            if v2:
+                plan = field.allocation(run, all_events, t, expected)
+                evidence = {}
+                for k, expected_fields in plan.items():
+                    rows = [
+                        field.fields(attachment(run, e))
+                        for e in actions
+                        if e["subject"] == k and e["action"] == action
+                    ]
+                    for i, column in enumerate(field.FIELDS):
+                        evidence[k + "/" + column] = check(
+                            [expected_fields[i]], [r[i] for r in rows]
+                        )
+                group("现场附页", 3 if t == 11 else extra_weight, evidence, extra=True)
 
         if t == 1:
             table(
@@ -340,12 +382,20 @@ def grade(run):
                     len(original) != 1
                     or (original[0]["recipient"], *manual(attachment(run, original[0])))
                     != target
+                    or (v2 and field.fields(attachment(run, original[0])) != r3_plan[k])
                 ):
                     fix[k + "-C"] = (current(i, t, "review"), *spec(k, i, s, t)[1:])
             # The public audit sheet carries independent facts with fixed within-case weights.
             for col, w in zip(TABS["追溯"][1:], (3, 4, 3, 3)):
                 table("追溯", w, {k: {col: v[col]} for k, v in expected.items()})
             mail(fix, 2, 2)
+            if v2:
+                table(
+                    "附页追溯",
+                    7,
+                    field.historical(run, all_events, r3_plan),
+                    extra=True,
+                )
         else:
             expected = {}
             for k in CLOSING:
@@ -368,6 +418,20 @@ def grade(run):
                     )
                 )
             table("交割", 6, expected)
+            if v2:
+                occ = field.occupied(run, all_events, 12, 12)
+                table(
+                    "席位交割",
+                    3,
+                    {
+                        p: {
+                            "累计占用": occ[p],
+                            "可用席位": field.capacity(12)[p] - occ[p],
+                        }
+                        for p in annex.POOLS
+                    },
+                    extra=True,
+                )
         if t in (1, 5, 7, 8, 12) and actions:
             # Cap the loss for an unsolicited mailing at one point per quiet round.
             positive = sum(d["earned"] for d in details if d["turn"] == t)
@@ -387,7 +451,7 @@ def grade(run):
     pairs = [("P01", "N01"), ("P02", "N02"), ("P04", "N03"), ("P09", "N04")]
     eligible = [n for k, n in pairs if states.get((3, k))]
     return dict(
-        version="release-v1",
+        version=protocol.removeprefix("w4-"),
         total=round(sum(d["earned"] for d in details), 4),
         rounds=results,
         delayed_retention={

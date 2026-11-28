@@ -62,7 +62,7 @@ PYCODE"""
     return result
 
 
-def run(dest):
+def run(dest, edition=2):
     key = os.environ["ARK_API_KEY"]
     image = subprocess.check_output(
         ["docker", "image", "inspect", "longworkmem-release:1", "-f", "{{.Id}}"],
@@ -70,9 +70,13 @@ def run(dest):
     ).strip()
     work = prepare(dest)
     init(work)
+    if edition == 2:
+        from . import annex
+
+        annex.initialize(work)
     sid = str(uuid.uuid4())
     meta = dict(
-        protocol="w4-release-v1",
+        protocol=f"w4-release-v{edition}",
         seed=17217,
         variant="A",
         model=MODEL,
@@ -112,6 +116,8 @@ def run(dest):
             (client / "desk").mkdir()
             for t in ROUNDS:
                 prompt = release(work, t)
+                if edition == 2:
+                    prompt += annex.release(work, t)
                 (dest / "trace" / f"prompt-{t}.txt").write_text(prompt)
                 cfg = {
                     "mcpServers": {
@@ -158,6 +164,7 @@ def run(dest):
 if __name__ == "__main__":
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("dest", type=Path)
+    p.add_argument("--edition", type=int, choices=(1, 2), default=2)
     p.add_argument("--replay", action="store_true")
     a = p.parse_args()
     dest = a.dest.resolve()
@@ -166,4 +173,4 @@ if __name__ == "__main__":
 
         print(json.dumps(grade(dest), ensure_ascii=False, indent=2))
     else:
-        run(dest)
+        run(dest, a.edition)

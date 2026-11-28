@@ -3,11 +3,12 @@
 import fcntl
 import json
 import sys
+import re
 from pathlib import Path
 
 from tasks.w1.mail import act
 from tasks.w1.office import TOOLS as OFFICE_TOOLS, shell, tool
-from .scenario import ROUNDS
+from .scenario import ROUNDS, address, CODES
 
 TOOLS = [
     *OFFICE_TOOLS,
@@ -36,6 +37,8 @@ def events(run, day, action="deliver"):
 def status(event, day):
     if event is None:
         return "未发"
+    if event.get("unknown_mailbox") and day > event["turn"]:
+        return "退信"
     if (
         event["subject"] in ("P03", "P09")
         and event["recipient"].endswith(".service@office.test")
@@ -64,7 +67,11 @@ def invoke(run, t, image, name, args):
             run / "work", args["command"], "docker", image=image, check_runtime=True
         )
     if name == "receipt_query":
-        day = int(args["as_of"] or t)
+        raw = args["as_of"].strip()
+        match = re.fullmatch(r"(?:(?:06-|6月))?(\d{1,2})(?:日)?", raw)
+        if raw and not match:
+            raise ValueError("日期示例：4、06-04、6月4日，空字符串表示今天")
+        day = int(match[1]) if match else t
         if not 1 <= day <= t:
             raise ValueError("只可查询截至当前业务日的历史")
         result = []
@@ -90,6 +97,21 @@ def invoke(run, t, image, name, args):
         path = run / "mail" / str(t) / receipt / "event.json"
         e = json.loads(path.read_text())
         e["sequence"] = seq
+        manifest = run / "manifest.json"
+        if (
+            manifest.is_file()
+            and json.loads(manifest.read_text()).get("protocol") == "w4-release-v2"
+        ):
+            known = {
+                address(i, role)
+                for i in range(len(CODES))
+                for role in ("service", "backup")
+            }
+            if t >= 5:
+                known.update(
+                    address(i, role) for i in (0, 1) for role in ("new", "review")
+                )
+            e["unknown_mailbox"] = e["recipient"] not in known
         path.write_text(json.dumps(e, ensure_ascii=False))
     return {"receipt": receipt, "action": name}
 
