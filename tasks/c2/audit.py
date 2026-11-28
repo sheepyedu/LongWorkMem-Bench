@@ -24,7 +24,9 @@ def result_text(blocks):
     return "\n".join(b.get("text", "") for b in blocks if b.get("type") == "text")
 
 
-def audit(run):
+def audit(run, *, prompts=PROMPTS, channels="AB", injected=None):
+    if injected is None:
+        injected = {(7, "A", "urgent-0327-A")}
     meta = json.loads((run / "manifest.json").read_text())
     trace = run / "trace"
     ledger = []
@@ -46,9 +48,9 @@ def audit(run):
                 m.get("content") for m in q.get("messages", []) if m["role"] == "user"
             ]
             first_prompts.setdefault(t, visible)
-            if not any(PROMPTS[t - 1] in str(v) for v in visible):
+            if not any(prompts[t - 1] in str(v) for v in visible):
                 # Native compaction may remove an older user message; report separately.
-                if not first_prompts[t] or PROMPTS[t - 1] not in str(
+                if not first_prompts[t] or prompts[t - 1] not in str(
                     first_prompts[t][-1]
                 ):
                     flags.append([f.name, "public prompt absent"])
@@ -159,7 +161,7 @@ def audit(run):
             flags.append([t, "turn reconciliation"])
         if len(answers) == 1 and answers[0].strip() not in answer_sources.get(t, []):
             flags.append([t, "final text differs from provider"])
-        if (trace / f"prompt-{t}.txt").read_text() != PROMPTS[t - 1]:
+        if (trace / f"prompt-{t}.txt").read_text() != prompts[t - 1]:
             flags.append([t, "prompt script differs"])
         custody = Counter()
         for j in journal:
@@ -180,7 +182,7 @@ def audit(run):
         if matched != custody:
             flags.append([t, "MCP result count or content differs"])
         batches = json.loads((run / "receipts" / f"{t}.json").read_text())
-        for c in "AB":
+        for c in channels:
             old = terminal.get(c, [])
             if batches[c][: len(old)] != old:
                 flags.append([t, c, "receipt history rewritten"])
@@ -196,7 +198,7 @@ def audit(run):
             signed = Counter(
                 (b["key"], b["receipt"])
                 for b in new
-                if not (t == 7 and c == "A" and b["key"] == "urgent-0327-A")
+                if (t, c, b["key"]) not in injected
             )
             if signed != observed:
                 flags.append([t, c, "subscriber records differ from tool receipts"])
@@ -213,7 +215,7 @@ def audit(run):
                     for b in batches[c]
                     if b["turn"] == t
                 ]
-                for c in "AB"
+                for c in channels
             },
         )
     return dict(attempts=ledger, usage=usage, flags=flags, turns=per)

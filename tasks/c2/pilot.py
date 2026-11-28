@@ -46,7 +46,8 @@ def execute(work, cmd, image):
     )
 
 
-def serve(run, t, image):
+def serve(run, t, image, edition=None):
+    active_tools = edition.TOOLS if edition else TOOLS
     for line in sys.stdin:
         msg = json.loads(line)
         if "id" not in msg:
@@ -59,14 +60,14 @@ def serve(run, t, image):
                 serverInfo=dict(name="calendar", version="1"),
             )
         elif method == "tools/list":
-            result = dict(tools=TOOLS)
+            result = dict(tools=active_tools)
         elif method == "tools/call":
             p = msg["params"]
             args = p["arguments"]
             name = p["name"]
             try:
                 contract = next(
-                    (s["inputSchema"] for s in TOOLS if s["name"] == name), None
+                    (s["inputSchema"] for s in active_tools if s["name"] == name), None
                 )
                 if (
                     not contract
@@ -79,9 +80,13 @@ def serve(run, t, image):
                 if name == "shell":
                     value = execute(run / "work", args["command"], image)
                 elif name == "publish":
-                    value = publish(run, t, **args)
+                    value = (edition.publish if edition else publish)(run, t, **args)
                 elif name == "receipts":
-                    value = receipts(run, args["channel"])
+                    value = (
+                        edition.online(run, t, args["channel"])
+                        if edition
+                        else receipts(run, args["channel"])
+                    )
                 else:
                     raise ValueError("unknown tool")
                 result = dict(
@@ -113,14 +118,14 @@ def serve(run, t, image):
         )
 
 
-def run(dest):
+def run(dest, edition=None):
     image = subprocess.check_output(
         ["docker", "image", "inspect", "longworkmem-calendar:1", "-f", "{{.Id}}"],
         text=True,
     ).strip()
     dest.mkdir(parents=True, exist_ok=False, mode=0o700)
     (dest / "trace").mkdir()
-    setup(dest / "work")
+    (edition.setup if edition else setup)(dest / "work")
     sid = str(uuid.uuid4())
     m = dict(
         model=MODEL,
@@ -131,7 +136,7 @@ def run(dest):
         turns=[],
         seed=17217,
         variant="A",
-        protocol="calendar-v1",
+        protocol=edition.VERSION if edition else "calendar-v1",
         status="running",
         reasoning="provider-default",
         limit=None,
@@ -148,14 +153,22 @@ def run(dest):
                 dest,
                 allowed=ALLOWED,
                 timeout=600,
-                private_markers=("tasks/c2/grade", "C2_PRIVATE_ORACLE"),
+                private_markers=(
+                    "tasks/c2/grade",
+                    "C2_PRIVATE_ORACLE",
+                    "tasks/c2/evolution/grade",
+                    "tasks/c2/evolution/reference",
+                    "tasks/c2/evolution/oracle",
+                ),
             ) as gw,
         ):
             client = Path(td)
             (client / "desk").mkdir()
-            for t in range(1, 9):
-                prompt = release(dest / "work", t)
-                if t == 7:
+            for t in range(1, len(edition.PROMPTS) + 1 if edition else 9):
+                prompt = (
+                    edition.release(dest, t) if edition else release(dest / "work", t)
+                )
+                if not edition and t == 7:
                     interrupt(dest)
                 (dest / "trace" / f"prompt-{t}.txt").write_text(prompt)
                 cfg = {
@@ -164,7 +177,9 @@ def run(dest):
                             "command": sys.executable,
                             "args": [
                                 "-m",
-                                "tasks.c2.pilot",
+                                "tasks.c2.evolution.runner"
+                                if edition
+                                else "tasks.c2.pilot",
                                 "--serve",
                                 str(dest),
                                 str(t),
@@ -194,7 +209,12 @@ def run(dest):
                 freeze(dest / "work", dest / "snapshots" / str(t))
                 write(
                     dest / "receipts" / f"{t}.json",
-                    {ch: receipts(dest, ch) for ch in ("A", "B")},
+                    {
+                        ch: receipts(dest, ch, edition.CHANNELS)
+                        for ch in edition.CHANNELS
+                    }
+                    if edition
+                    else {ch: receipts(dest, ch) for ch in ("A", "B")},
                 )
                 m["turns"].append(dict(turn=t, calls=n))
                 write(dest / "manifest.json", m)

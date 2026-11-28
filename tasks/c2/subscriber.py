@@ -38,17 +38,17 @@ def decode(data):
         raise ValueError("invalid calendar: " + type(exc).__name__) from exc
 
 
-def receipts(run, ch):
-    if ch not in ("A", "B"):
+def receipts(run, ch, channels=("A", "B")):
+    if ch not in channels:
         raise ValueError("unknown channel")
     file = run / "subscriber" / (ch + ".json")
     return json.loads(file.read_text()) if file.exists() else []
 
 
-def accept(run, t, ch, key, rows):
+def accept(run, t, ch, key, rows, channels=("A", "B")):
     if not re.fullmatch(r"[A-Za-z0-9._:-]{1,120}", key):
         raise ValueError("invalid key")
-    log = receipts(run, ch)
+    log = receipts(run, ch, channels)
     for batch in log:
         if batch["key"] == key:
             if batch["rows"] != rows:
@@ -63,13 +63,13 @@ def accept(run, t, ch, key, rows):
     return dict(receipt=receipt, already_received=False)
 
 
-def publish(run, t, channel, key, file):
+def publish(run, t, channel, key, file, channels=("A", "B")):
     rel = Path(file)
     if rel.is_absolute() or rel.parts[:1] != ("out",) or ".." in rel.parts:
         raise ValueError("expected out/ file")
     work = run / "work"
     safe_file(work / "out", work / rel)
-    return accept(run, t, channel, key, decode((work / rel).read_bytes()))
+    return accept(run, t, channel, key, decode((work / rel).read_bytes()), channels)
 
 
 def interrupt(run):
