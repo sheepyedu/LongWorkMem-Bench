@@ -8,7 +8,9 @@ import subprocess
 import sys
 import threading
 import uuid
+from collections.abc import Callable
 from contextlib import ExitStack, contextmanager
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -35,6 +37,22 @@ STOP_ACTION = {
     "route": "BUILD_ROAD",
     "delivery": "BUILD_SETTLEMENT",
 }
+
+
+@dataclass(frozen=True)
+class Episode:
+    protocol: str
+    phases: tuple[str, ...]
+    prompt: Callable
+    evaluate: Callable
+    context: str
+    cases: tuple[str, ...]
+    arms: tuple[str, ...]
+    opponents: tuple[str, ...]
+    # Completed own turns permitted and events that close the segment early.
+    rules: dict[str, tuple[int, tuple[str, ...]]] | None = None
+
+
 GAME_CONTEXT = CONTEXT.split("A practice position")[0].replace(
     "Win each full match by playing it.", "Play the league work orders from the user."
 ) + (
@@ -92,7 +110,7 @@ def digest(value):
 
 
 class Desk:
-    def __init__(self, main, stack, trace, image, arm):
+    def __init__(self, main, stack, trace, image, arm, rules=None):
         self.main, self.stack, self.trace, self.image, self.arm = (
             main,
             stack,
@@ -101,6 +119,7 @@ class Desk:
             arm,
         )
         self.side = None
+        self.rules = rules
         self.seq = 0
         self.lock = threading.Lock()
 
@@ -115,10 +134,16 @@ class Desk:
             )
             self.side.open("update-3")
         self.active = self.side if self.label == "B" else self.main
-        self.active.set_goal(1)
-        self.readonly = phase == "revision" or (
-            phase == "interlude" and self.label == "A"
-        )
+        if self.rules is None:
+            self.active.set_goal(1)
+            self.readonly = phase == "revision" or (
+                phase == "interlude" and self.label == "A"
+            )
+            self.stop_actions = (STOP_ACTION.get(phase),)
+        else:
+            turns, self.stop_actions = self.rules[phase]
+            self.active.set_goal(turns)
+            self.readonly = turns == 0
         self.closed = self.readonly
 
     def snapshot(self, table=None):
@@ -136,7 +161,7 @@ class Desk:
                 target = self.main if name == "notes" else self.active
                 result = target.dispatch(name, args)
                 event = result.get("event", {})
-                if event.get("action") == STOP_ACTION.get(self.phase) and event:
+                if event and event.get("action") in self.stop_actions:
                     self.closed = True
                 if name in {"look", "act"} and "state" in result:
                     result["segment_done"] = self.closed or self.active.done()
@@ -156,13 +181,18 @@ class Desk:
 
 
 @contextmanager
-def environment(image, trace, notes, arm, opponent):
+def environment(image, trace, notes, arm, opponent, rules=None):
     with ExitStack() as stack:
         main = Table(
             stack.enter_context(connect(image)), trace / "engine-a.jsonl", notes
         )
-        main.open("continuation", cautious=opponent == "cautious")
-        yield Desk(main, stack, trace, image, arm)
+        options = {"cautious": opponent == "cautious"}
+        if opponent == "strategic":
+            options["strategic"] = True
+        if rules is not None:
+            options["track_wheat"] = True
+        main.open("continuation", **options)
+        yield Desk(main, stack, trace, image, arm, rules)
 
 
 def state_receipt(desk):
@@ -260,14 +290,19 @@ def evaluate(case, rows):
     }
 
 
-def run(dest, arm, case, opponent, key, upstream, image):
+CONTINUATION = Episode(
+    PROTOCOL, PHASES, user_prompt, evaluate, GAME_CONTEXT, tuple(CASES), ARMS, OPPONENTS
+)
+
+
+def run(dest, arm, case, opponent, key, upstream, image, *, episode=CONTINUATION):
     dest.mkdir(mode=0o700, parents=True)
     trace = dest / "trace"
     trace.mkdir()
     (trace / "mcp.jsonl").touch()
     session = str(uuid.uuid4())
     meta = {
-        "protocol": PROTOCOL,
+        "protocol": episode.protocol,
         "arm": arm,
         "case": case,
         "opponent": opponent,
@@ -287,7 +322,7 @@ def run(dest, arm, case, opponent, key, upstream, image):
     try:
         with (
             environment(
-                meta["image"], trace, dest / "memory.json", arm, opponent
+                meta["image"], trace, dest / "memory.json", arm, opponent, episode.rules
             ) as desk,
             broker(desk) as (address, token),
             Gateway(
@@ -315,10 +350,10 @@ def run(dest, arm, case, opponent, key, upstream, image):
                     }
                 }
             }
-            for index, phase in enumerate(PHASES, 1):
+            for index, phase in enumerate(episode.phases, 1):
                 desk.start(phase)
                 before = state_receipt(desk)
-                prompt = user_prompt(phase, arm, case)
+                prompt = episode.prompt(phase, arm, case)
                 (trace / f"prompt-{index}.txt").write_text(prompt)
                 row = {
                     "index": index,
@@ -341,7 +376,7 @@ def run(dest, arm, case, opponent, key, upstream, image):
                     prompt,
                     client,
                     config=config,
-                    context=GAME_CONTEXT,
+                    context=episode.context,
                     allowed=ALLOWED,
                     first_session=index == 1,
                 )
@@ -366,22 +401,27 @@ def run(dest, arm, case, opponent, key, upstream, image):
         write(dest / "manifest.json", meta)
 
 
-def replay(dest, image=None):
+def replay(dest, image=None, *, episode=CONTINUATION):
     meta = json.loads((dest / "manifest.json").read_text())
-    if meta["protocol"] != PROTOCOL or meta["status"] != "complete":
-        raise ValueError("Provide a complete continuation run")
+    if meta["protocol"] != episode.protocol or meta["status"] != "complete":
+        raise ValueError("Provide a complete run with the specified protocol")
     arm, case, opponent = meta["arm"], meta["case"], meta["opponent"]
-    if arm not in ARMS or case not in CASES or opponent not in OPPONENTS:
+    if (
+        arm not in episode.arms
+        or case not in episode.cases
+        or opponent not in episode.opponents
+    ):
         raise ValueError("Unknown continuation condition")
     blocks = meta["blocks"]
-    if [row["phase"] for row in blocks] != list(PHASES):
+    if [row["phase"] for row in blocks] != list(episode.phases):
         raise ValueError("Continuation schedule mismatch")
     rows = list(read_lines(dest / "trace/mcp.jsonl"))
     with TemporaryDirectory() as tmp:
         trace = Path(tmp)
         with environment(
-            image or meta["image"], trace, trace / "notes", arm, opponent
+            image or meta["image"], trace, trace / "notes", arm, opponent, episode.rules
         ) as desk:
+            states = {}
             for index, block in enumerate(blocks, 1):
                 phase = block["phase"]
                 desk.start(phase)
@@ -392,7 +432,7 @@ def replay(dest, image=None):
                     or block["first_tool"] != desk.seq + 1
                     or not desk.seq <= block["last_tool"] <= len(rows)
                     or (dest / "trace" / f"prompt-{index}.txt").read_text()
-                    != user_prompt(phase, arm, case)
+                    != episode.prompt(phase, arm, case)
                 ):
                     raise ValueError(f"Invalid phase boundary: {phase}")
                 for row in rows[desk.seq : block["last_tool"]]:
@@ -408,9 +448,12 @@ def replay(dest, image=None):
                         )
                 if state_receipt(desk) != block["after"]:
                     raise ValueError(f"Invalid phase final state: {phase}")
+                states[phase] = desk.active.state
             if desk.seq != len(rows):
                 raise ValueError("Unconsumed tools")
-    return evaluate(case, rows)
+    if episode.rules is None:
+        return episode.evaluate(case, rows)
+    return episode.evaluate(case, rows, states)
 
 
 def main():

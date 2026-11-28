@@ -51,6 +51,7 @@ def offer_deck(value):
 
 class Arena:
     show_graph = False
+    track_wheat = False
 
     def __init__(self, seed, rotation=0, policy_version=1):
         colors = list(Color)
@@ -100,7 +101,27 @@ class Arena:
     def execute(self, action):
         previous_turn = self.game.state.num_turns
         record = self.game.execute(action)
-        self.events.append(self.event(record))
+        event = self.event(record)
+        if self.track_wheat:
+            kind = action.action_type
+            if kind == T.CONFIRM_TRADE:
+                spent = (
+                    event["value"]["give"].get("WHEAT")
+                    if action.color == self.you
+                    else event["value"]["take"].get("WHEAT")
+                    if action.value[-1] == self.you
+                    else False
+                )
+            else:
+                spent = action.color == self.you and (
+                    kind in {T.BUILD_SETTLEMENT, T.BUILD_CITY, T.BUY_DEVELOPMENT_CARD}
+                    or kind == T.MARITIME_TRADE
+                    and "WHEAT" in event["value"][:-1]
+                )
+            if spent:
+                hand = get_player_freqdeck(self.game.state, self.you)
+                event["wheat_after_spend"] = hand[RESOURCES.index("WHEAT")]
+        self.events.append(event)
         if action.action_type == T.OFFER_TRADE:
             self.offers_this_turn[previous_turn] = (
                 self.offers_this_turn.get(previous_turn, 0) + 1
