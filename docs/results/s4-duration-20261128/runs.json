@@ -1,0 +1,562 @@
+{
+  "rounds-16": {
+    "score": 98,
+    "max": 100,
+    "score_axis": "execution",
+    "authorization": {
+      "correct": 2,
+      "observed": 2,
+      "scheduled": 2,
+      "decisions": {
+        "route": {
+          "expected": [
+            23,
+            52
+          ],
+          "actual": [
+            23,
+            52
+          ],
+          "outcome": "correct"
+        },
+        "city": {
+          "expected": 21,
+          "actual": 21,
+          "outcome": "correct"
+        }
+      }
+    },
+    "checks": {
+      "feeder": [
+        8,
+        8
+      ],
+      "brick_quote": [
+        4,
+        4
+      ],
+      "brick_received": [
+        12,
+        12
+      ],
+      "survey_spur_built": [
+        8,
+        8
+      ],
+      "connected_outpost": [
+        18,
+        18
+      ],
+      "capital_stock": [
+        18,
+        18
+      ],
+      "city_delivered": [
+        20,
+        20
+      ],
+      "reserve": [
+        10,
+        12
+      ]
+    },
+    "reserve_windows": [
+      {
+        "window": [
+          "mobilize",
+          "quote",
+          "amendment",
+          "receipt"
+        ],
+        "progress": true,
+        "points": 2,
+        "minimum_after_voluntary_wheat_spend": 3,
+        "breach_events": []
+      },
+      {
+        "window": [
+          "spur",
+          "outpost"
+        ],
+        "progress": true,
+        "points": 2,
+        "minimum_after_voluntary_wheat_spend": 2,
+        "breach_events": []
+      },
+      {
+        "window": [
+          "handoff_to_operations",
+          "supply_turn"
+        ],
+        "progress": true,
+        "points": 2,
+        "minimum_after_voluntary_wheat_spend": null,
+        "breach_events": []
+      },
+      {
+        "window": [
+          "production_turn",
+          "working_capital"
+        ],
+        "progress": true,
+        "points": 2,
+        "minimum_after_voluntary_wheat_spend": null,
+        "breach_events": []
+      },
+      {
+        "window": [
+          "decision_record",
+          "capital_market",
+          "commission"
+        ],
+        "progress": true,
+        "points": 0,
+        "minimum_after_voluntary_wheat_spend": 0,
+        "breach_events": [
+          369
+        ]
+      },
+      {
+        "window": [
+          "protect_delivery",
+          "recovery",
+          "final_handover"
+        ],
+        "progress": true,
+        "points": 2,
+        "minimum_after_voluntary_wheat_spend": null,
+        "breach_events": []
+      }
+    ],
+    "inventory_filings": {
+      "supply_turn": true,
+      "production_turn": true,
+      "working_capital": true,
+      "capital_market": true
+    },
+    "own_turns_advanced": 6,
+    "requests": 90,
+    "usage": {
+      "input": 3331909,
+      "output": 12162,
+      "peak_input": 73765,
+      "cached": 3253248,
+      "cache_records": 90,
+      "reasoning": 0,
+      "reasoning_records": 90,
+      "usage_records": 90
+    },
+    "tools": {
+      "look": 12,
+      "act": 45,
+      "notes": 17
+    },
+    "model_visible_tool_records": 74,
+    "failed_attempts": 0,
+    "rejected": 1,
+    "compact_events": 0,
+    "auto_compact_percent": null,
+    "compaction_boundaries": [],
+    "revision": "5759e9b9b5a41e9f6386f9528fa36495acd02bbf",
+    "image": "sha256:bc5420a355725804abb1cd14c92cf154e4e3208a13235c3a89808491d4a52422",
+    "claude": "2.1.314 (Claude Code)",
+    "model": "deepseek-v4-1-flash-261017",
+    "start": "2026-11-28T10:15:01.809183+00:00",
+    "end": "2026-11-28T10:20:54.645570+00:00",
+    "main_initial": "908be45c5f3bfd25fd308e53d3fa366e2be1d4796e40942617d8c3e2e88c6731",
+    "before_commission": {
+      "active": "5644576df141b991e1e717fa5fff3eda8e0c64fcd6ed166c37e4244aabdb0c77",
+      "main": "5644576df141b991e1e717fa5fff3eda8e0c64fcd6ed166c37e4244aabdb0c77",
+      "position": 364
+    },
+    "commission_round": 13,
+    "requests_before_commission": 75,
+    "input_before_commission": 2310100,
+    "peak_before_commission": 62027
+  },
+  "rounds-24": {
+    "score": 92,
+    "max": 100,
+    "score_axis": "execution",
+    "authorization": {
+      "correct": 2,
+      "observed": 2,
+      "scheduled": 2,
+      "decisions": {
+        "route": {
+          "expected": [
+            23,
+            52
+          ],
+          "actual": [
+            23,
+            52
+          ],
+          "outcome": "correct"
+        },
+        "city": {
+          "expected": 21,
+          "actual": 21,
+          "outcome": "correct"
+        }
+      }
+    },
+    "checks": {
+      "feeder": [
+        8,
+        8
+      ],
+      "brick_quote": [
+        4,
+        4
+      ],
+      "brick_received": [
+        12,
+        12
+      ],
+      "survey_spur_built": [
+        8,
+        8
+      ],
+      "connected_outpost": [
+        18,
+        18
+      ],
+      "capital_stock": [
+        12,
+        18
+      ],
+      "city_delivered": [
+        20,
+        20
+      ],
+      "reserve": [
+        10,
+        12
+      ]
+    },
+    "reserve_windows": [
+      {
+        "window": [
+          "mobilize",
+          "quote",
+          "amendment",
+          "receipt"
+        ],
+        "progress": true,
+        "points": 2,
+        "minimum_after_voluntary_wheat_spend": 2,
+        "breach_events": []
+      },
+      {
+        "window": [
+          "spur",
+          "outpost"
+        ],
+        "progress": true,
+        "points": 0,
+        "minimum_after_voluntary_wheat_spend": 1,
+        "breach_events": [
+          239
+        ]
+      },
+      {
+        "window": [
+          "handoff_to_operations",
+          "supply_turn"
+        ],
+        "progress": true,
+        "points": 2,
+        "minimum_after_voluntary_wheat_spend": null,
+        "breach_events": []
+      },
+      {
+        "window": [
+          "production_turn",
+          "working_capital"
+        ],
+        "progress": true,
+        "points": 2,
+        "minimum_after_voluntary_wheat_spend": null,
+        "breach_events": []
+      },
+      {
+        "window": [
+          "decision_record",
+          "capital_market",
+          "commission"
+        ],
+        "progress": true,
+        "points": 2,
+        "minimum_after_voluntary_wheat_spend": 2,
+        "breach_events": []
+      },
+      {
+        "window": [
+          "protect_delivery",
+          "recovery",
+          "final_handover"
+        ],
+        "progress": true,
+        "points": 2,
+        "minimum_after_voluntary_wheat_spend": null,
+        "breach_events": []
+      }
+    ],
+    "inventory_filings": {
+      "supply_turn": true,
+      "production_turn": true,
+      "working_capital": true,
+      "capital_market": true
+    },
+    "own_turns_advanced": 7,
+    "requests": 98,
+    "usage": {
+      "input": 4272497,
+      "output": 14157,
+      "peak_input": 90156,
+      "cached": 4177536,
+      "cache_records": 98,
+      "reasoning": 0,
+      "reasoning_records": 98,
+      "usage_records": 98
+    },
+    "tools": {
+      "look": 18,
+      "act": 52,
+      "notes": 4
+    },
+    "model_visible_tool_records": 74,
+    "failed_attempts": 0,
+    "rejected": 0,
+    "compact_events": 0,
+    "auto_compact_percent": null,
+    "compaction_boundaries": [],
+    "revision": "5759e9b9b5a41e9f6386f9528fa36495acd02bbf",
+    "image": "sha256:bc5420a355725804abb1cd14c92cf154e4e3208a13235c3a89808491d4a52422",
+    "claude": "2.1.314 (Claude Code)",
+    "model": "deepseek-v4-1-flash-261017",
+    "start": "2026-11-28T10:15:01.809169+00:00",
+    "end": "2026-11-28T10:21:14.051507+00:00",
+    "main_initial": "908be45c5f3bfd25fd308e53d3fa366e2be1d4796e40942617d8c3e2e88c6731",
+    "before_commission": {
+      "active": "906f8fb6b4d3de0d3cc805e9bb5acc72315ec271366d2597627fe0fe7f70f906",
+      "main": "906f8fb6b4d3de0d3cc805e9bb5acc72315ec271366d2597627fe0fe7f70f906",
+      "position": 344
+    },
+    "commission_round": 21,
+    "requests_before_commission": 73,
+    "input_before_commission": 2358661,
+    "peak_before_commission": 63074
+  },
+  "rounds-24-compact20": {
+    "score": 68,
+    "max": 100,
+    "score_axis": "execution",
+    "authorization": {
+      "correct": 1,
+      "observed": 1,
+      "scheduled": 2,
+      "decisions": {
+        "route": {
+          "expected": [
+            23,
+            52
+          ],
+          "actual": [
+            23,
+            52
+          ],
+          "outcome": "correct"
+        },
+        "city": {
+          "expected": 21,
+          "actual": null,
+          "outcome": "unobserved"
+        }
+      }
+    },
+    "checks": {
+      "feeder": [
+        8,
+        8
+      ],
+      "brick_quote": [
+        4,
+        4
+      ],
+      "brick_received": [
+        12,
+        12
+      ],
+      "survey_spur_built": [
+        8,
+        8
+      ],
+      "connected_outpost": [
+        12,
+        18
+      ],
+      "capital_stock": [
+        18,
+        18
+      ],
+      "city_delivered": [
+        0,
+        20
+      ],
+      "reserve": [
+        6,
+        12
+      ]
+    },
+    "reserve_windows": [
+      {
+        "window": [
+          "mobilize",
+          "quote",
+          "amendment",
+          "receipt"
+        ],
+        "progress": true,
+        "points": 2,
+        "minimum_after_voluntary_wheat_spend": null,
+        "breach_events": []
+      },
+      {
+        "window": [
+          "spur",
+          "outpost"
+        ],
+        "progress": true,
+        "points": 0,
+        "minimum_after_voluntary_wheat_spend": 0,
+        "breach_events": [
+          242
+        ]
+      },
+      {
+        "window": [
+          "handoff_to_operations",
+          "supply_turn"
+        ],
+        "progress": true,
+        "points": 0,
+        "minimum_after_voluntary_wheat_spend": 0,
+        "breach_events": [
+          273
+        ]
+      },
+      {
+        "window": [
+          "production_turn",
+          "working_capital"
+        ],
+        "progress": true,
+        "points": 2,
+        "minimum_after_voluntary_wheat_spend": 3,
+        "breach_events": []
+      },
+      {
+        "window": [
+          "decision_record",
+          "capital_market",
+          "commission"
+        ],
+        "progress": true,
+        "points": 2,
+        "minimum_after_voluntary_wheat_spend": null,
+        "breach_events": []
+      },
+      {
+        "window": [
+          "protect_delivery",
+          "recovery",
+          "final_handover"
+        ],
+        "progress": false,
+        "points": 0,
+        "minimum_after_voluntary_wheat_spend": null,
+        "breach_events": []
+      }
+    ],
+    "inventory_filings": {
+      "supply_turn": true,
+      "production_turn": true,
+      "working_capital": true,
+      "capital_market": true
+    },
+    "own_turns_advanced": 6,
+    "requests": 89,
+    "usage": {
+      "input": 1624971,
+      "output": 23256,
+      "peak_input": 37571,
+      "cached": 1532672,
+      "cache_records": 89,
+      "reasoning": 0,
+      "reasoning_records": 89,
+      "usage_records": 89
+    },
+    "tools": {
+      "look": 16,
+      "act": 42,
+      "notes": 6
+    },
+    "model_visible_tool_records": 64,
+    "failed_attempts": 0,
+    "rejected": 1,
+    "compact_events": 2,
+    "auto_compact_percent": 20,
+    "compaction_boundaries": [
+      {
+        "round": 9,
+        "phase": "supply_turn",
+        "meta": {
+          "trigger": "auto",
+          "pre_tokens": 36071,
+          "post_tokens": 3229
+        },
+        "provider_input_drops_in_segment": [
+          [
+            38,
+            36686,
+            4849
+          ]
+        ]
+      },
+      {
+        "round": 19,
+        "phase": "capital_market",
+        "meta": {
+          "trigger": "auto",
+          "pre_tokens": 36742,
+          "post_tokens": 2963
+        },
+        "provider_input_drops_in_segment": [
+          [
+            74,
+            37571,
+            4155
+          ]
+        ]
+      }
+    ],
+    "revision": "14eb39afe71ac3d031338c3b39f76b9e1e180b9d",
+    "image": "sha256:bc5420a355725804abb1cd14c92cf154e4e3208a13235c3a89808491d4a52422",
+    "claude": "2.1.314 (Claude Code)",
+    "model": "deepseek-v4-1-flash-261017",
+    "start": "2026-11-28T10:18:41.892784+00:00",
+    "end": "2026-11-28T10:25:26.819287+00:00",
+    "main_initial": "908be45c5f3bfd25fd308e53d3fa366e2be1d4796e40942617d8c3e2e88c6731",
+    "before_commission": {
+      "active": "d250947645636e251fa06e84fe998de616d6f2dfcbb9808d31a059fd7372f54c",
+      "main": "d250947645636e251fa06e84fe998de616d6f2dfcbb9808d31a059fd7372f54c",
+      "position": 386
+    },
+    "commission_round": 21,
+    "requests_before_commission": 79,
+    "input_before_commission": 1512379,
+    "peak_before_commission": 37571
+  }
+}
