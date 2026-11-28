@@ -1,0 +1,10 @@
+{
+  "shadow_score": 85.5083,
+  "gold": 100.0,
+  "early_notice_mutation": [
+    "R11/J02/办后才通知"
+  ],
+  "queries": 31,
+  "original_utf8_bytes": 37735,
+  "compact_utf8_bytes": 18559
+}

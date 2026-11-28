@@ -35,7 +35,7 @@ def await_inbox(run, t, image):
         f"inbox/06-{d:02}/{f}"
         for d in (2, 7)
         if t > d
-        for f in ("值班签发名册.csv", "夜班/当班签单.csv")
+        for f in ("值班签发名册.csv", "夜班/当班签单.csv", "签发原件.csv", "续办券.csv")
     ]
     check = (
         READ_TREE
