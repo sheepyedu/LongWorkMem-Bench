@@ -3,6 +3,7 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+from tasks.s4.audit import compaction_precedes_task
 from tasks.s4.continuation import run
 from tasks.s4.single_site import EXTENDED, FORMAL, score
 
@@ -18,6 +19,46 @@ def action(phase, seq, name, value, **fields):
 
 
 class ReserveTests(unittest.TestCase):
+    def test_native_summary_must_be_adopted_before_real_work(self):
+        native = [{"subtype": "compact_boundary"}]
+        request = {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": "CRITICAL: Respond with TEXT ONLY. Summarize.",
+                }
+            ]
+        }
+        reply = {
+            "choices": [{"message": {"content": "<summary>retained history</summary>"}}]
+        }
+        users = [
+            {
+                "role": "user",
+                "content": "This session is being continued: retained history",
+            },
+            {"role": "user", "content": "new work order"},
+        ]
+        following = {"messages": users}
+        self.assertTrue(
+            compaction_precedes_task(
+                native, request, reply, following, "new work order"
+            )
+        )
+        self.assertFalse(
+            compaction_precedes_task([], request, reply, following, "new work order")
+        )
+        self.assertFalse(
+            compaction_precedes_task(
+                native, request, reply, following, "different work order"
+            )
+        )
+        self.assertFalse(
+            compaction_precedes_task(
+                native, request, reply, {"messages": users[-1:]}, "new work order"
+            )
+        )
+
     def test_other_site_cannot_start_a_formal_run(self):
         with TemporaryDirectory() as tmp:
             dest = Path(tmp) / "archive-only-node"

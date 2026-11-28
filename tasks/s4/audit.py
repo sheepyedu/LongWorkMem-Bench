@@ -46,6 +46,40 @@ def attempt_calls(message):
             continue
 
 
+def compaction_precedes_task(events, request, response, following, prompt):
+    """Verify a native, text-only summary and its adoption by the first work request."""
+    if not any(e.get("subtype") == "compact_boundary" for e in events):
+        return False
+    messages = request.get("messages", [])
+    if (
+        not messages
+        or messages[-1].get("role") != "user"
+        or not content(messages[-1].get("content")).startswith(
+            "CRITICAL: Respond with TEXT ONLY."
+        )
+    ):
+        return False
+    msg = response.get("choices", [{}])[0].get("message", {})
+    body = content(msg.get("content"))
+    if msg.get("tool_calls") or "<summary>" not in body or "</summary>" not in body:
+        return False
+    summary = body.rsplit("<summary>", 1)[1].split("</summary>", 1)[0].strip()
+    users = [
+        content(m.get("content"))
+        for m in following.get("messages", [])
+        if m["role"] == "user"
+    ]
+    return bool(
+        summary
+        and users
+        and prompt.strip() in users[-1]
+        and any(
+            u.startswith("This session is being continued") and summary in u
+            for u in users
+        )
+    )
+
+
 def inspect(run):
     manifest = json.loads((run / "manifest.json").read_text())
     if manifest["status"] != "complete":
@@ -146,9 +180,17 @@ def inspect(run):
                     faults.append(f"Segment {idx}: fresh match has prior transcript")
                 users = [m["content"] for m in req_msgs if m["role"] == "user"]
                 if not any(original_prompt.strip() in u for u in users):
-                    faults.append(
-                        f"Segment {idx}: first request missing exact task message"
+                    following = (
+                        json.loads(attempts[1].read_text()).get("request", {})
+                        if len(attempts) > 1
+                        else {}
                     )
+                    if block["first_session"] or not compaction_precedes_task(
+                        events, req, reply, following, original_prompt
+                    ):
+                        faults.append(
+                            f"Segment {idx}: first request missing exact task message"
+                        )
             if indicators:
                 faults.append(f"Request {n}: private marker in inbound text")
             use = reply.get("usage", {})
