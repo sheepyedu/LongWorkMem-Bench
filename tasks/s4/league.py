@@ -17,7 +17,7 @@ def create(name, cautious=False, strategic=False, track_wheat=False):
         arena = Arena(*GAMES[name])
         arena.advance()
         return arena
-    if name == "continuation":
+    if name in ("continuation", "early-league"):
         exercise = json.loads(
             Path(__file__).with_name("continuation-board.json").read_text()
         )
@@ -25,7 +25,8 @@ def create(name, cautious=False, strategic=False, track_wheat=False):
         exercise = EXERCISES[name]
     arena = Arena(*exercise["game"])
     arena.advance()
-    for action in exercise["prefix"]:
+    prefix = exercise["prefix"][:4] if name == "early-league" else exercise["prefix"]
+    for action in prefix:
         arena.apply(**action)
     for player in arena.game.state.players:
         player.policy_version = exercise["version"]

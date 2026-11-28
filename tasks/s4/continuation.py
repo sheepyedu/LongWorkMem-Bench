@@ -52,6 +52,8 @@ class Episode:
     # Completed own turns permitted and events that close the segment early.
     rules: dict[str, tuple[int, tuple[str, ...]]] | None = None
     shared_turns: tuple[tuple[str, str], ...] = ()
+    board: str = "continuation"
+    stop_on_terminal: bool = False
 
 
 GAME_CONTEXT = CONTEXT.split("A practice position")[0].replace(
@@ -186,7 +188,16 @@ class Desk:
 
 
 @contextmanager
-def environment(image, trace, notes, arm, opponent, rules=None, shared_turns=()):
+def environment(
+    image,
+    trace,
+    notes,
+    arm,
+    opponent,
+    rules=None,
+    shared_turns=(),
+    board="continuation",
+):
     with ExitStack() as stack:
         main = Table(
             stack.enter_context(connect(image)), trace / "engine-a.jsonl", notes
@@ -196,7 +207,7 @@ def environment(image, trace, notes, arm, opponent, rules=None, shared_turns=())
             options["strategic"] = True
         if rules is not None:
             options["track_wheat"] = True
-        main.open("continuation", **options)
+        main.open(board, **options)
         yield Desk(main, stack, trace, image, arm, rules, shared_turns)
 
 
@@ -353,6 +364,7 @@ def run(
                 opponent,
                 episode.rules,
                 episode.shared_turns,
+                episode.board,
             ) as desk,
             broker(desk) as (address, token),
             Gateway(
@@ -423,6 +435,8 @@ def run(
                     f"{arm}/{case} {phase} {before['position']} → {after['position']} ({gw.count} cumulative requests)",
                     flush=True,
                 )
+                if episode.stop_on_terminal and desk.active.state["finished"]:
+                    break
             meta["status"] = "complete"
     except BaseException as error:
         meta.update(status="error", error_type=type(error).__name__)
@@ -444,7 +458,10 @@ def replay(dest, image=None, *, episode=CONTINUATION):
     ):
         raise ValueError("Unknown continuation condition")
     blocks = meta["blocks"]
-    if [row["phase"] for row in blocks] != list(episode.phases):
+    expected = (
+        episode.phases[: len(blocks)] if episode.stop_on_terminal else episode.phases
+    )
+    if not blocks or [row["phase"] for row in blocks] != list(expected):
         raise ValueError("Continuation schedule mismatch")
     rows = list(read_lines(dest / "trace/mcp.jsonl"))
     with TemporaryDirectory() as tmp:
@@ -457,6 +474,7 @@ def replay(dest, image=None, *, episode=CONTINUATION):
             opponent,
             episode.rules,
             episode.shared_turns,
+            episode.board,
         ) as desk:
             states = {}
             for index, block in enumerate(blocks, 1):
@@ -486,6 +504,8 @@ def replay(dest, image=None, *, episode=CONTINUATION):
                 if state_receipt(desk) != block["after"]:
                     raise ValueError(f"Invalid phase final state: {phase}")
                 states[phase] = desk.active.state
+            if len(blocks) < len(episode.phases) and not desk.active.state["finished"]:
+                raise ValueError("Short schedule without engine terminal")
             if desk.seq != len(rows):
                 raise ValueError("Unconsumed tools")
     if episode.rules is None:
