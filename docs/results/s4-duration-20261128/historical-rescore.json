@@ -1,0 +1,195 @@
+{
+  "east": {
+    "archived_grade": 68,
+    "new_execution_score": 82,
+    "authorization": {
+      "correct": 2,
+      "observed": 2,
+      "scheduled": 2,
+      "decisions": {
+        "route": {
+          "expected": [
+            23,
+            52
+          ],
+          "actual": [
+            23,
+            52
+          ],
+          "outcome": "correct"
+        },
+        "city": {
+          "expected": 21,
+          "actual": 21,
+          "outcome": "correct"
+        }
+      }
+    },
+    "reserve_windows": [
+      {
+        "window": [
+          "mobilize",
+          "quote",
+          "amendment",
+          "receipt"
+        ],
+        "progress": true,
+        "points": 2,
+        "minimum_after_voluntary_wheat_spend": null,
+        "breach_events": []
+      },
+      {
+        "window": [
+          "spur",
+          "outpost"
+        ],
+        "progress": true,
+        "points": 0,
+        "minimum_after_voluntary_wheat_spend": 0,
+        "breach_events": [
+          239
+        ]
+      },
+      {
+        "window": [
+          "handoff_to_operations",
+          "supply_turn"
+        ],
+        "progress": true,
+        "points": 2,
+        "minimum_after_voluntary_wheat_spend": null,
+        "breach_events": []
+      },
+      {
+        "window": [
+          "production_turn",
+          "working_capital"
+        ],
+        "progress": true,
+        "points": 0,
+        "minimum_after_voluntary_wheat_spend": 1,
+        "breach_events": [
+          314
+        ]
+      },
+      {
+        "window": [
+          "decision_record",
+          "capital_market",
+          "commission"
+        ],
+        "progress": true,
+        "points": 0,
+        "minimum_after_voluntary_wheat_spend": 0,
+        "breach_events": [
+          389,
+          391
+        ]
+      },
+      {
+        "window": [
+          "protect_delivery",
+          "recovery",
+          "final_handover"
+        ],
+        "progress": true,
+        "points": 2,
+        "minimum_after_voluntary_wheat_spend": null,
+        "breach_events": []
+      }
+    ]
+  },
+  "east-capital": {
+    "archived_grade": 100,
+    "new_execution_score": 100,
+    "authorization": {
+      "correct": 2,
+      "observed": 2,
+      "scheduled": 2,
+      "decisions": {
+        "route": {
+          "expected": [
+            23,
+            52
+          ],
+          "actual": [
+            23,
+            52
+          ],
+          "outcome": "correct"
+        },
+        "city": {
+          "expected": 46,
+          "actual": 46,
+          "outcome": "correct"
+        }
+      }
+    },
+    "reserve_windows": [
+      {
+        "window": [
+          "mobilize",
+          "quote",
+          "amendment",
+          "receipt"
+        ],
+        "progress": true,
+        "points": 2,
+        "minimum_after_voluntary_wheat_spend": null,
+        "breach_events": []
+      },
+      {
+        "window": [
+          "spur",
+          "outpost"
+        ],
+        "progress": true,
+        "points": 2,
+        "minimum_after_voluntary_wheat_spend": 2,
+        "breach_events": []
+      },
+      {
+        "window": [
+          "handoff_to_operations",
+          "supply_turn"
+        ],
+        "progress": true,
+        "points": 2,
+        "minimum_after_voluntary_wheat_spend": null,
+        "breach_events": []
+      },
+      {
+        "window": [
+          "production_turn",
+          "working_capital"
+        ],
+        "progress": true,
+        "points": 2,
+        "minimum_after_voluntary_wheat_spend": null,
+        "breach_events": []
+      },
+      {
+        "window": [
+          "decision_record",
+          "capital_market",
+          "commission"
+        ],
+        "progress": true,
+        "points": 2,
+        "minimum_after_voluntary_wheat_spend": 5,
+        "breach_events": []
+      },
+      {
+        "window": [
+          "protect_delivery",
+          "recovery",
+          "final_handover"
+        ],
+        "progress": true,
+        "points": 2,
+        "minimum_after_voluntary_wheat_spend": null,
+        "breach_events": []
+      }
+    ]
+  }
+}

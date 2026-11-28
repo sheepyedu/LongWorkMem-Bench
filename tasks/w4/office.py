@@ -67,6 +67,14 @@ def invoke(run, t, image, name, args):
             run / "work", args["command"], "docker", image=image, check_runtime=True
         )
     if name == "receipt_query":
+        manifest = run / "manifest.json"
+        if (
+            manifest.is_file()
+            and json.loads(manifest.read_text()).get("protocol") == "w4-release-v4"
+        ):
+            from .quota.desk import query
+
+            return query(run, t, args)
         raw = args["as_of"].strip()
         match = re.fullmatch(r"(?:(?:06-|6月))?(\d{1,2})(?:日)?", raw)
         if raw and not match:

@@ -1,0 +1,172 @@
+[
+  {
+    "task": "v4 original evidence",
+    "strategy": "published DeepSeek",
+    "frozen": 85.5083,
+    "points": 88.8361,
+    "customer_days_correct": 42,
+    "customer_days": 48,
+    "customers_always_correct": 7,
+    "customers": 12
+  },
+  {
+    "task": "v4 original evidence",
+    "strategy": "gold",
+    "frozen": 100.0,
+    "points": 100.0,
+    "customer_days_correct": 48,
+    "customer_days": 48,
+    "customers_always_correct": 12,
+    "customers": 12
+  },
+  {
+    "task": "v4 original evidence",
+    "strategy": "latest",
+    "frozen": 64.8824,
+    "points": 45.048,
+    "customer_days_correct": 19,
+    "customer_days": 48,
+    "customers_always_correct": 0,
+    "customers": 12
+  },
+  {
+    "task": "v4 original evidence",
+    "strategy": "opening",
+    "frozen": 68.4364,
+    "points": 52.6144,
+    "customer_days_correct": 23,
+    "customer_days": 48,
+    "customers_always_correct": 1,
+    "customers": 12
+  },
+  {
+    "task": "v4 original evidence",
+    "strategy": "arrival",
+    "frozen": 80.2216,
+    "points": 53.273,
+    "customer_days_correct": 22,
+    "customer_days": 48,
+    "customers_always_correct": 0,
+    "customers": 12
+  },
+  {
+    "task": "v4 original evidence",
+    "strategy": "ignore_feedback",
+    "frozen": 91.7556,
+    "points": 70.2708,
+    "customer_days_correct": 29,
+    "customer_days": 48,
+    "customers_always_correct": 0,
+    "customers": 12
+  },
+  {
+    "task": "v4 original evidence",
+    "strategy": "recover",
+    "frozen": 98.8917,
+    "points": 96.8953,
+    "customer_days_correct": 46,
+    "customer_days": 48,
+    "customers_always_correct": 10,
+    "customers": 12
+  },
+  {
+    "task": "v4 original evidence",
+    "strategy": "empty",
+    "frozen": 0,
+    "points": 0,
+    "customer_days_correct": 0,
+    "customer_days": 48,
+    "customers_always_correct": 0,
+    "customers": 12
+  },
+  {
+    "task": "v4.2 new work",
+    "strategy": "gold",
+    "points": 100.0,
+    "customer_days_correct": 48,
+    "customer_days": 48,
+    "customers_always_correct": 12,
+    "customers": 12
+  },
+  {
+    "task": "v4.2 new work",
+    "strategy": "latest",
+    "points": 47.7281,
+    "customer_days_correct": 21,
+    "customer_days": 48,
+    "customers_always_correct": 0,
+    "customers": 12
+  },
+  {
+    "task": "v4.2 new work",
+    "strategy": "opening",
+    "points": 51.9378,
+    "customer_days_correct": 23,
+    "customer_days": 48,
+    "customers_always_correct": 1,
+    "customers": 12
+  },
+  {
+    "task": "v4.2 new work",
+    "strategy": "arrival",
+    "points": 53.4341,
+    "customer_days_correct": 23,
+    "customer_days": 48,
+    "customers_always_correct": 0,
+    "customers": 12
+  },
+  {
+    "task": "v4.2 new work",
+    "strategy": "ignore_feedback",
+    "points": 72.0498,
+    "customer_days_correct": 30,
+    "customer_days": 48,
+    "customers_always_correct": 1,
+    "customers": 12
+  },
+  {
+    "task": "v4.2 new work",
+    "strategy": "recover",
+    "points": 96.8953,
+    "customer_days_correct": 46,
+    "customer_days": 48,
+    "customers_always_correct": 10,
+    "customers": 12
+  },
+  {
+    "task": "v4.2 new work",
+    "strategy": "empty",
+    "points": 0,
+    "customer_days_correct": 0,
+    "customer_days": 48,
+    "customers_always_correct": 0,
+    "customers": 12
+  },
+  {
+    "task": "v4.2 new work",
+    "strategy": "ignore_transfer",
+    "points": 87.6472,
+    "customer_days_correct": 42,
+    "customer_days": 48,
+    "customers_always_correct": 6,
+    "customers": 12
+  },
+  {
+    "task": "v4.2 new work",
+    "strategy": "always_add",
+    "points": 95.4247,
+    "customer_days_correct": 46,
+    "customer_days": 48,
+    "customers_always_correct": 10,
+    "customers": 12
+  },
+  {
+    "task": "v4.2 new work",
+    "strategy": "all_or_wait",
+    "points": 99.808,
+    "customer_days_correct": 48,
+    "customer_days": 48,
+    "customers_always_correct": 12,
+    "customers": 12
+  }
+]

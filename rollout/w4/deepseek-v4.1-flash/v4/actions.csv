@@ -1,0 +1,135 @@
+turn,action,tool,case_or_command,observed,tool_error
+1,1,shell,cat input/办公室/发布规程.txt,exit=0 bytes=4801,False
+1,2,shell,ls -R input/ inbox/ 2>/dev/null | head -100,exit=0 bytes=1023,False
+1,3,shell,cat input/办公室/上班遗留.csv; echo ---; ls -R input/站务 input/部门共享 input/渠道伙伴 | head -80; echo ---; cat input/客户档案/索引.csv | head -40,exit=0 bytes=1596,False
+1,4,shell,"ls -la; echo ---; ls -la input; echo ---; find . -name ""*.xlsx"" -o -name ""*.csv"" | grep -v 客户档案 | head -50",exit=0 bytes=3165,False
+1,5,shell,ls -R input/站务; echo ---; ls -R input/部门共享; echo ---; ls -la out notes scratch inbox,exit=0 bytes=1636,False
+1,6,shell,"cat input/站务/期初容量.csv; echo ---章程---; cat input/站务/章程.csv; echo ---; for f in input/站务/表头/*.csv; do echo ""== $f""; cat ""$f""; done",exit=0 bytes=1202,False
+1,7,shell,"cd /root 2>/dev/null; python3 -c """,exit=0 bytes=808,False
+1,8,receipt_query,开班 @ 1,12 records,False
+1,9,shell,"find input -type f | grep -viE ""工单|服务网点|历史/|人事|会务|培训|设施"" ; echo ===; find input -type f | wc -l",exit=0 bytes=929,False
+1,10,shell,"for f in input/客户档案/*/在用/*.md; do echo ""=== $f""; cat ""$f""; done",exit=0 bytes=1308,False
+1,11,shell,"which soffice libreoffice localc python3; python3 -c ""import openpyxl;print(openpyxl.__version__)""; echo ---; head -5 input/客户档案/北安/历史/01/A-005.md; echo --",exit=0 bytes=495,False
+1,12,shell,cd . && python3 - <<'PY',exit=0 bytes=159,False
+1,13,shell,cd . && python3 - <<'PY',exit=0 bytes=3,False
+1,14,shell,"cd . && rm -rf scratch/chk && mkdir -p scratch/chk && soffice --headless --convert-to 'csv:Text - txt - csv (StarCalc):44,34,76,1,,0,false,true,true,false,",exit=0 bytes=359,False
+1,15,shell,cd . && python3 - <<'PY',exit=0 bytes=239,False
+1,16,shell,cd . && rm -rf scratch/recalc && mkdir -p scratch/recalc && soffice --headless --convert-to xlsx --outdir scratch/recalc out/预约.xlsx >/dev/null 2>&1 && cp ,exit=0 bytes=562,False
+1,17,shell,cd . && cp out/预约.xlsx scratch/t.xlsx && python3 - <<'PY',exit=0 bytes=239,False
+1,18,shell,cd . && cp out/预约.xlsx scratch/t2.xlsx && python3 - <<'PY',exit=0 bytes=239,False
+1,19,shell,cd . && rm -f scratch/t.xlsx scratch/t2.xlsx && rm -rf scratch/o2 scratch/o3 scratch/chk scratch/recalc && cat out/接班.csv && echo --- && cat > notes/day01.,exit=0 bytes=180,False
+1,20,shell,cd . && python3 - <<'PY',exit=0 bytes=291,False
+2,1,shell,"ls -laR inbox/ | head -40; echo ===; for f in inbox/*; do echo ""== $f""; cat ""$f""; done 2>/dev/null",exit=1 bytes=401,True
+2,2,shell,"cd inbox/06-02 && ls -R; echo ""=== 签发原件""; cat 签发原件.csv; echo ""=== 续办券""; cat 续办券.csv",exit=0 bytes=1255,False
+2,3,receipt_query,* @ 2,12 records,False
+2,4,shell,cd . && cat input/站务/表头/授权.csv; echo ---; cat input/站务/表头/委托.csv; echo ---; ls inbox/06-02,exit=0 bytes=117,False
+2,5,shell,cd . && mkdir -p scratch/inbox && cp inbox/06-02/*.csv scratch/inbox/ && python3 - <<'PY',exit=0 bytes=513,False
+2,6,shell,cd . && cat out/授权.csv && python3 - <<'PY',exit=0 bytes=896,False
+2,7,shell,cd . && cat > notes/day02.md <<'EOF',exit=0 bytes=80,False
+3,1,shell,"ls -R inbox/06-03 2>/dev/null; for f in inbox/06-03/*; do echo ""== $f""; cat ""$f""; echo; done",exit=0 bytes=175,False
+3,2,receipt_query,开班 @ 3,12 records,False
+3,3,shell,cd . && mkdir -p scratch/inbox && cp inbox/06-03/*.csv scratch/inbox/ && python3 - <<'PY',exit=0 bytes=775,False
+3,4,shell,cd . && python3 - <<'PY',exit=0 bytes=723,False
+3,5,deliver,站务申请,"quota@office.test {'receipt': 'M-6982e858bad944af', 'action': 'deliver'}",False
+3,6,receipt_query,* @ 3,12 records,False
+3,7,shell,cd . && python3 - <<'PY',exit=0 bytes=111,False
+3,8,deliver,站务申请,"quota@office.test {'receipt': 'M-75b316e677f54a7c', 'action': 'deliver'}",False
+3,9,receipt_query,* @ 3,5 records,False
+3,10,receipt_query,* @ 3,12 records,False
+3,11,shell,cd . && python3 - <<'PY',exit=0 bytes=458,False
+3,12,shell,cd . && cat > notes/day03.md <<'EOF',exit=0 bytes=3,False
+4,1,shell,"cd . && ls -R inbox/ | tail -5; for f in inbox/06-04/*; do echo ""== $f""; cat ""$f""; echo; done 2>/dev/null",exit=0 bytes=136,False
+4,2,receipt_query,开班 @ 4,12 records,False
+4,3,shell,cd . && cp inbox/06-04/提取回单.csv scratch/inbox/ && python3 - <<'PY',exit=0 bytes=265,False
+4,4,receipt_query,* @ 4,12 records,False
+4,5,receipt_query,* @ 4,5 records,False
+4,6,shell,cd . && cat > notes/day04.md <<'EOF',exit=0 bytes=69,False
+5,1,shell,"cd . && ls inbox/06-05; for f in inbox/06-05/*; do echo ""== $f""; cat ""$f""; echo; done",exit=0 bytes=203,False
+5,2,shell,cd . && cat input/客户档案/*/服务网点/*.csv 2>/dev/null | grep -o '[a-z]*\.[a-z]*@[a-z.]*' | sort | uniq -c | sort -rn | head; echo ---; cat input/客户档案/索引.csv,exit=0 bytes=421,False
+5,3,shell,cd . && cp inbox/06-05/通讯签收.txt scratch/inbox/ && python3 - <<'PY',exit=0 bytes=628,False
+5,4,receipt_query,* @ 5,12 records,False
+5,5,shell,cd . && cat > notes/day05.md <<'EOF',exit=0 bytes=3,False
+6,1,shell,"cd . && ls inbox/06-06; for f in inbox/06-06/*; do echo ""== $f""; cat ""$f""; echo; done",exit=0 bytes=128,False
+6,2,shell,cd . && cp inbox/06-06/委托.csv scratch/inbox/ && python3 - <<'PY',exit=0 bytes=1036,False
+6,3,receipt_query,* @ 6,12 records,False
+6,4,shell,cd . && cat > notes/day06.md <<'EOF',exit=0 bytes=150,False
+7,1,shell,"cd . && ls inbox/06-07; for f in inbox/06-07/*; do echo ""== $f""; cat ""$f""; echo; done",exit=0 bytes=981,False
+7,2,shell,cd . && cp inbox/06-07/签发原件.csv scratch/inbox/签发原件-0607.csv && python3 - <<'PY',exit=1 bytes=161,True
+7,3,shell,cd . && ls -R inbox scratch/inbox,exit=0 bytes=377,False
+7,4,shell,cd . && head -2 scratch/inbox/委托.csv && python3 - <<'PY',exit=0 bytes=1666,False
+7,5,receipt_query,* @ 7,12 records,False
+7,6,shell,cd . && cat > notes/day07.md <<'EOF',exit=0 bytes=3,False
+8,1,shell,"cd . && ls inbox/06-08 2>/dev/null && for f in inbox/06-08/*; do echo ""== $f""; cat ""$f""; echo; done",exit=2 bytes=0,True
+8,2,receipt_query,* @ 8,12 records,False
+8,3,shell,cd . && python3 - <<'PY',exit=0 bytes=1055,False
+8,4,shell,cd . && rm -rf scratch/rc2 && mkdir -p scratch/rc2 && soffice --headless --convert-to xlsx --outdir scratch/rc2 out/预约.xlsx >/dev/null 2>&1 && cp scratch/r,exit=0 bytes=563,False
+8,5,shell,cd . && cp out/预约.xlsx scratch/t8.xlsx && python3 - <<'PY',exit=0 bytes=239,False
+8,6,shell,cd . && cat > notes/day08.md <<'EOF',exit=0 bytes=161,False
+9,1,shell,"cd . && ls inbox/06-09; for f in inbox/06-09/*; do echo ""== $f""; cat ""$f""; echo; done",exit=0 bytes=503,False
+9,2,receipt_query,开班 @ 9,12 records,False
+9,3,shell,cd . && mkdir -p scratch/inbox && cp inbox/06-09/*.csv scratch/inbox/ && python3 - <<'PY',exit=0 bytes=1753,False
+9,4,shell,cd . && python3 - <<'PY',exit=0 bytes=1552,False
+9,5,shell,cd . && python3 - <<'PY',exit=0 bytes=125,False
+9,6,deliver,站务申请,"quota@office.test {'receipt': 'M-e0b410b7090e49f8', 'action': 'deliver'}",False
+9,7,receipt_query,* @ 9,6 records,False
+9,8,shell,cd . && python3 - <<'PY',exit=0 bytes=153,False
+9,9,deliver,站务申请,"quota@office.test {'receipt': 'M-2ab84725e7df4df0', 'action': 'deliver'}",False
+9,10,receipt_query,* @ 9,8 records,False
+9,11,shell,cd . && python3 - <<'PY',exit=0 bytes=69,False
+9,12,deliver,站务申请,"quota@office.test {'receipt': 'M-59376c5ee4084d0b', 'action': 'deliver'}",False
+9,13,receipt_query,* @ 9,2 records,False
+9,14,receipt_query,* @ 9,12 records,False
+9,15,shell,cd . && python3 - <<'PY',exit=0 bytes=3,False
+10,1,shell,"cd . && ls inbox/06-10; for f in inbox/06-10/*; do echo ""== $f""; cat ""$f""; echo; done",exit=0 bytes=468,False
+10,2,receipt_query,开班 @ 10,12 records,False
+10,3,shell,cd . && mkdir -p scratch/inbox && cp inbox/06-10/*.csv scratch/inbox/ 2>/dev/null; python3 - <<'PY',exit=0 bytes=1722,False
+10,4,shell,cd . && python3 - <<'PY',exit=0 bytes=116,False
+10,5,deliver,站务申请,"quota@office.test {'receipt': 'M-0afdf3ef65a84ba5', 'action': 'deliver'}",False
+10,6,receipt_query,* @ 10,5 records,False
+10,7,shell,cd . && python3 - <<'PY',exit=0 bytes=146,False
+10,8,deliver,站务申请,"quota@office.test {'receipt': 'M-985bdd8dae404da7', 'action': 'deliver'}",False
+10,9,receipt_query,* @ 10,7 records,False
+10,10,shell,cd . && python3 - <<'PY',exit=0 bytes=56,False
+10,11,deliver,站务申请,"quota@office.test {'receipt': 'M-bc28180d671243c7', 'action': 'deliver'}",False
+10,12,receipt_query,* @ 10,1 records,False
+10,13,receipt_query,* @ 10,12 records,False
+10,14,shell,cd . && python3 - <<'PY',exit=0 bytes=3,False
+11,1,shell,"cd . && ls inbox/06-11; for f in inbox/06-11/*; do echo ""== $f""; cat ""$f""; echo; done",exit=0 bytes=404,False
+11,2,receipt_query,开班 @ 11,12 records,False
+11,3,shell,cd . && mkdir -p scratch/inbox && cp inbox/06-11/*.csv scratch/inbox/ 2>/dev/null; python3 - <<'PY',exit=0 bytes=1789,False
+11,4,shell,cd . && python3 - <<'PY',exit=0 bytes=86,False
+11,5,deliver,站务申请,"quota@office.test {'receipt': 'M-fc9cfd9c13484ca9', 'action': 'deliver'}",False
+11,6,receipt_query,* @ 11,3 records,False
+11,7,shell,cd . && python3 - <<'PY',exit=0 bytes=146,False
+11,8,deliver,站务申请,"quota@office.test {'receipt': 'M-32c7602b0aae43da', 'action': 'deliver'}",False
+11,9,receipt_query,* @ 11,7 records,False
+11,10,shell,cd . && python3 - <<'PY',exit=0 bytes=86,False
+11,11,deliver,站务申请,"quota@office.test {'receipt': 'M-a25137ecf2f44ae2', 'action': 'deliver'}",False
+11,12,receipt_query,* @ 11,3 records,False
+11,13,shell,cd . && python3 - <<'PY',exit=0 bytes=86,False
+11,14,deliver,站务申请,"quota@office.test {'receipt': 'M-7ab32cec794045b4', 'action': 'deliver'}",False
+11,15,receipt_query,* @ 11,3 records,False
+11,16,receipt_query,* @ 11,12 records,False
+11,17,shell,cd . && python3 - <<'PY',exit=0 bytes=1330,False
+11,18,deliver,J01,"hz.review@office.test {'receipt': 'M-db27911ae0f54245', 'action': 'deliver'}",False
+11,19,deliver,J02,"jl.service@office.test {'receipt': 'M-6b136c527f6743de', 'action': 'deliver'}",False
+11,20,deliver,J03,"np.review@office.test {'receipt': 'M-98a90cbf548540b9', 'action': 'deliver'}",False
+11,21,deliver,J04,"hz.review@office.test {'receipt': 'M-ee666cd93e364d8c', 'action': 'deliver'}",False
+11,22,deliver,J05,"yc.service@office.test {'receipt': 'M-69aaca3f81d54b8c', 'action': 'deliver'}",False
+11,23,deliver,J06,"qh.service@office.test {'receipt': 'M-9f7ef465871f43a5', 'action': 'deliver'}",False
+11,24,deliver,J08,"ba.service@office.test {'receipt': 'M-750a537ea25f454d', 'action': 'deliver'}",False
+11,25,deliver,J09,"qh.service@office.test {'receipt': 'M-f8d39e24a8ae4f66', 'action': 'deliver'}",False
+11,26,deliver,J10,"np.review@office.test {'receipt': 'M-71f9a60ffd3e44cd', 'action': 'deliver'}",False
+11,27,deliver,J11,"yc.service@office.test {'receipt': 'M-f412449061d248dc', 'action': 'deliver'}",False
+11,28,deliver,J12,"ba.review@office.test {'receipt': 'M-818f72e001da4726', 'action': 'deliver'}",False
+11,29,shell,cd . && python3 - <<'PY',exit=0 bytes=567,False
+12,1,shell,"cd . && ls inbox/06-12 2>/dev/null; for f in inbox/06-12/*; do echo ""== $f""; cat ""$f""; echo; done 2>/dev/null; echo ""(end)""",exit=0 bytes=24,False
+12,2,receipt_query,* @ 12,12 records,False
+12,3,shell,cd . && cp out/预约.xlsx scratch/预约-0608.xlsx && python3 - <<'PY',exit=0 bytes=1295,False
+12,4,shell,cd . && cp out/结班.csv scratch/结班-0603.csv && python3 - <<'PY',exit=0 bytes=387,False
+12,5,receipt_query,* @ 12,12 records,False
+12,6,shell,cd . && python3 - <<'PY',exit=0 bytes=2078,False
+12,7,shell,"cd . && for f in input/站务/表头/结班.csv input/站务/表头/接班.csv; do echo ""--- $f""; cat ""$f""; echo; done; ls out/ | head -50",exit=0 bytes=709,False
+12,8,shell,cd . && cat > notes/day12.md <<'MD',exit=0 bytes=243,False
+12,9,shell,cd scratch && rm -rf t12 && mkdir t12 && python3 - <<'PY',exit=1 bytes=38,True
+12,10,shell,cd scratch/t12 && soffice --headless -env:UserInstallation=file:///tmp/lo12 --convert-to xlsx --outdir recalc t.xlsx 2>&1 | tail -3; python3 - <<'PY',exit=0 bytes=399,False

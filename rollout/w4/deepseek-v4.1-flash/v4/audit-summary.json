@@ -1,0 +1,17 @@
+{
+  "score": 85.5083,
+  "attempts": 123,
+  "usage": {
+    "input": 10119093,
+    "output": 137864,
+    "peak_input": 167961,
+    "cached_input": 9930240,
+    "native_compactions": 1
+  },
+  "flags": [],
+  "actions": 134,
+  "rejected": 0,
+  "raw_files": 1136,
+  "raw_inventory_sha256": "917462d64bc32193052f7515e08ff102b882556aa689b9a19004a964315eb25e",
+  "ungrounded_receipts": []
+}

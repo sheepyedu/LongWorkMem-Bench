@@ -1,6 +1,6 @@
 # S4 轨迹
 
-S4 使用 Claude Code 和 DeepSeek V4.1 Flash，三场 Catan 完整对局及六桌固定回放练习。真实竞赛、原生压缩和短记忆对照按各自的场次记录。
+历史联赛使用 Claude Code 和 DeepSeek V4.1 Flash，三场 Catan 完整对局及六桌固定回放练习。真实竞赛、原生压缩和短记忆对照按各自的场次记录。
 
 完整记录保存于实验机的 `rollout/s4/catan-v1-20261128/`。每场保存逐段委托、Claude Code 原始事件、上游请求与响应、本席操作日志、进程退出状态、阶段棋局和笔记快照。复评由固定引擎重放实际操作。结果报告与逐条审阅入口见 [S4 正式实测](../../docs/results/s4-catan-20261128/)。
 
@@ -27,3 +27,7 @@ python -m tasks.s4.grade "$run" --image longworkmem-catan:1 --first-road
 ## 单桌长程资本工程
 
 `long-league-20261128/` 为实验机的完整原始轨迹。公开复评包含题面、工具日志和状态指纹。[结果与离线复评](../../docs/results/s4-long-league-20261128/)。
+
+## 单节点正式版与轮数对照
+
+[试跑证据与离线复评](../../docs/results/s4-duration-20261128/)。完整本机归档位于 `duration-20261128/`。

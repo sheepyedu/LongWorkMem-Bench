@@ -51,6 +51,7 @@ class Episode:
     opponents: tuple[str, ...]
     # Completed own turns permitted and events that close the segment early.
     rules: dict[str, tuple[int, tuple[str, ...]]] | None = None
+    shared_turns: tuple[tuple[str, str], ...] = ()
 
 
 GAME_CONTEXT = CONTEXT.split("A practice position")[0].replace(
@@ -110,7 +111,7 @@ def digest(value):
 
 
 class Desk:
-    def __init__(self, main, stack, trace, image, arm, rules=None):
+    def __init__(self, main, stack, trace, image, arm, rules=None, shared_turns=()):
         self.main, self.stack, self.trace, self.image, self.arm = (
             main,
             stack,
@@ -120,10 +121,13 @@ class Desk:
         )
         self.side = None
         self.rules = rules
+        self.shared_turns = shared_turns
+        self.phase = None
         self.seq = 0
         self.lock = threading.Lock()
 
     def start(self, phase):
+        previous = self.phase
         self.phase = phase
         self.label = "B" if phase == "interlude" and self.arm == "switch" else "A"
         if self.label == "B":
@@ -142,7 +146,8 @@ class Desk:
             self.stop_actions = (STOP_ACTION.get(phase),)
         else:
             turns, self.stop_actions = self.rules[phase]
-            self.active.set_goal(turns)
+            if (previous, phase) not in self.shared_turns:
+                self.active.set_goal(turns)
             self.readonly = turns == 0
         self.closed = self.readonly
 
@@ -181,7 +186,7 @@ class Desk:
 
 
 @contextmanager
-def environment(image, trace, notes, arm, opponent, rules=None):
+def environment(image, trace, notes, arm, opponent, rules=None, shared_turns=()):
     with ExitStack() as stack:
         main = Table(
             stack.enter_context(connect(image)), trace / "engine-a.jsonl", notes
@@ -192,7 +197,7 @@ def environment(image, trace, notes, arm, opponent, rules=None):
         if rules is not None:
             options["track_wheat"] = True
         main.open("continuation", **options)
-        yield Desk(main, stack, trace, image, arm, rules)
+        yield Desk(main, stack, trace, image, arm, rules, shared_turns)
 
 
 def state_receipt(desk):
@@ -295,7 +300,24 @@ CONTINUATION = Episode(
 )
 
 
-def run(dest, arm, case, opponent, key, upstream, image, *, episode=CONTINUATION):
+def run(
+    dest,
+    arm,
+    case,
+    opponent,
+    key,
+    upstream,
+    image,
+    *,
+    episode=CONTINUATION,
+    compact_percent=None,
+):
+    if (
+        case not in episode.cases
+        or arm not in episode.arms
+        or opponent not in episode.opponents
+    ):
+        raise ValueError("Unsupported run condition for the selected protocol")
     dest.mkdir(mode=0o700, parents=True)
     trace = dest / "trace"
     trace.mkdir()
@@ -318,11 +340,19 @@ def run(dest, arm, case, opponent, key, upstream, image, *, episode=CONTINUATION
             ["docker", "image", "inspect", "-f", "{{.Id}}", image], text=True
         ).strip(),
     }
+    if compact_percent is not None:
+        meta["auto_compact_percent"] = compact_percent
     write(dest / "manifest.json", meta)
     try:
         with (
             environment(
-                meta["image"], trace, dest / "memory.json", arm, opponent, episode.rules
+                meta["image"],
+                trace,
+                dest / "memory.json",
+                arm,
+                opponent,
+                episode.rules,
+                episode.shared_turns,
             ) as desk,
             broker(desk) as (address, token),
             Gateway(
@@ -379,6 +409,7 @@ def run(dest, arm, case, opponent, key, upstream, image, *, episode=CONTINUATION
                     context=episode.context,
                     allowed=ALLOWED,
                     first_session=index == 1,
+                    compact_percent=compact_percent,
                 )
                 after = state_receipt(desk)
                 row.update(
@@ -419,7 +450,13 @@ def replay(dest, image=None, *, episode=CONTINUATION):
     with TemporaryDirectory() as tmp:
         trace = Path(tmp)
         with environment(
-            image or meta["image"], trace, trace / "notes", arm, opponent, episode.rules
+            image or meta["image"],
+            trace,
+            trace / "notes",
+            arm,
+            opponent,
+            episode.rules,
+            episode.shared_turns,
         ) as desk:
             states = {}
             for index, block in enumerate(blocks, 1):

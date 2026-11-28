@@ -1,8 +1,28 @@
-# S4 · Catan 跨局联赛
+# S4 · 单桌资本工程
+
+正式实例固定一个四人棋盘、一个连续会话、一个城市授权节点 21，默认 16 段。三个对手使用固定战略配置。从报价、收货、路线修订到定居点交付，再用开局授权完成城市升级。24 段是同一实例的长度对照。
+
+```sh
+docker build -t longworkmem-catan:long-league tasks/s4
+python -m tasks.s4.long_league /path/to/new/run
+python -m tasks.s4.long_league /path/to/length-study --length 24
+python -m tasks.s4.long_league /path/to/new/run --replay --image longworkmem-catan:long-league
+python -m tasks.s4.audit /path/to/new/run
+```
+
+正式报告列两项。**授权应用**报告两个决策的预期、实际、正确／错误／未观察，分别给出正确数、可观察数及计划数。**经营执行**以 100 分记录施工时机、材料、贸易及库存。城市按正确窗口实际建成计经营分，早期批准的节点是否选对由授权轴判定。总分字段 `score` 的含义为经营执行。
+
+小麦预留占经营分 12 分。六个固定窗口各 2 分。实质推进且无违规可得分，包括没有花麦的有效推进。强制损失豁免，业务空转不给分；全部交付后现场验收可构成最后一个窗口的进度。每次自愿支出后低于两麦均保留事件编号和该窗口最低余额，同一窗口多次违规最多扣 2 分。
+
+两版有相同的四个交割库存单、动作机会和累计游戏回合。24 段把每个运营班次拆为开局、运营、只读核对。城市授权的兑现从第 13 段移到第 21 段。库存单单列核验，有效记忆的证据来自实际授权行动。可给 24 段另加 `--compact-percent 20` 做原生压缩诊断，清单记录阈值，用量以服务回执为准。公开历史包依清单协议复评，旧节点仅用于历史档案。
+
+[评分修订、16/24 轮证据与复评](../../docs/results/s4-duration-20261128/) · [早期双节点试跑](../../docs/results/s4-long-league-20261128/)
+
+## 历史版本 · Catan 跨局联赛
 
 一个待测模型坐一席，Ash、Flint 和 Sail 是本地策略机器人。三局基础 Catan 开新会话、换地图与颜色，名称保持一致。六个独立练习局面随后打开。每个练习从固定中盘开始，模型控制当前一轮。模型能通过文本查看棋盘和自己的牌，完成建造、出价、确认交易，并维护自己的跨局笔记。
 
-## 运行
+### 历史联赛运行
 
 使用仓库根目录、Python 3.12、Docker 和 Claude Code。游戏容器基于上游 Catanatron 的固定提交，容器以无网络、只读根文件系统和非特权用户运行。使用模型服务的主机进程与容器以标准输入输出交互。Claude Code 只连接桌面 MCP 的 `look`、`act`、`notes`，评分代码和指标表仅供评测端使用。
 
@@ -50,20 +70,3 @@ python -m tasks.s4.audit /path/to/new/run
 ```
 
 将 `--case` 改为 `revise` 即运行另一条历史。原始 v1 样题可继续按上文运行。续作试验的[A/B 结果与复评](../../docs/results/s4-continuation-20261128/)独立归档。
-
-
-## 单桌长程资本工程
-
-`catan-long-league-v1` 保持同一四人棋盘和同一个模型会话，包含 16 段用户交互。玩家从主干和分段交易开始，经路线修订、定居点交付、生产和资本筹措，最终使用早期授权升级城市。参评者可见棋盘邻接、港口、手牌、合法动作及每笔实际自愿支出后的小麦余量。后段不会重新给出早期城市节点。
-
-正式试跑采用 `strategic` 对手。Ash 保留最后一张砖及两张矿石，Flint 结合公开胜利点和受影响的产出选择盗贼落点。维护对照可使用 `--opponent cautious`。`east`、`east-capital` 使用同一地图和路线修订，改变早期的城市授权。9 个评分检查点共 100 分，对局中的合法替代交易和补救路径可按交付得分。
-
-```sh
-docker build -t longworkmem-catan:long-league tasks/s4
-python -m tasks.s4.long_league /path/to/new/run --case east
-python -m tasks.s4.long_league /path/to/another/run --case east-capital
-python -m tasks.s4.long_league /path/to/new/run --replay --image longworkmem-catan:long-league
-python -m tasks.s4.audit /path/to/new/run
-```
-
-[单桌长程版试跑与对照](../../docs/results/s4-long-league-20261128/)单独保留历史版本。两次模型试跑采用同模型、同棋盘的配对授权，用量和压缩按实际回执汇报。

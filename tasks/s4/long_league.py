@@ -1,14 +1,6 @@
 """One persistent Catan board with staged work orders and delayed authorizations."""
 
-import argparse
-import json
-import os
-from pathlib import Path
-
-from tasks.w1.gateway import URL
-
-from .continuation import FEEDER, SPURS, Episode, replay, run
-from .pilot import write
+from .continuation import FEEDER, SPURS, Episode
 from .public import CONTEXT
 
 IMAGE = "longworkmem-catan:long-league"
@@ -244,32 +236,9 @@ EPISODE = Episode(
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("dest", type=Path)
-    parser.add_argument("--replay", action="store_true")
-    parser.add_argument("--case", choices=CASES, default="east")
-    parser.add_argument("--opponent", choices=OPPONENTS, default="strategic")
-    parser.add_argument("--image")
-    parser.add_argument("--upstream", default=URL)
-    args = parser.parse_args()
-    if not args.replay:
-        key = os.getenv("ARK_API_KEY")
-        if not key:
-            parser.error("Set ARK_API_KEY in the host or use the approved local relay")
-        run(
-            args.dest,
-            "single",
-            args.case,
-            args.opponent,
-            key,
-            args.upstream,
-            args.image or IMAGE,
-            episode=EPISODE,
-        )
-    result = replay(args.dest, args.image, episode=EPISODE)
-    write(args.dest / "grade.json", result)
+    from .single_site import main as official_main
 
-    print(json.dumps(result, ensure_ascii=False, indent=2))
+    official_main()
 
 
 if __name__ == "__main__":
