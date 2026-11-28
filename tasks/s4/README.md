@@ -36,3 +36,17 @@ Docker 镜像重建后的本机复评分可用 `grade --image longworkmem-catan:
 另外可以用 `python -m tasks.s4.grade RUN --calibration` 运行 v1.2 校准评分。该口径满分 60，降低整局胜负和常规铺路的权重，单独核验首报与实际成本。原始正式成绩仍使用 v1。[复评对照与加压设计](../../docs/results/s4-catan-20261128/scoring-calibration.md)
 
 **设计边界。** 练习从已保存的局面开始，整局反映真实对手互动。当前版本的一个赛程只支持单个实例的难度判断。同行赛对照应交换同一席位和牌局种子，并在同一练习棋局分别比较自写记忆、空记忆和正确历史事实。跨局新会话与 Claude 原生压缩单列报告。参考轨迹受到上游 GPL-3.0-or-later 引擎启发，游戏规则和合法动作直接由 [Catanatron](https://github.com/bcollazo/catanatron/tree/ecf931181b9a65bb4116a2153fb78c16f1438e00) 执行。Docker 保留引擎及依赖的许可证。
+
+## 续作与切桌实验
+
+`catan-continuation-v1` 是单独的 20 分检查。A 桌固定于一段真实四人棋局，先铺主干，随后收到路线通知，继续铺支路、买入缺少的资源并完成定居点。复盘计算还原棋局状态、主动支出后的保留资源和真实动作。A 版在中间做只读进度确认，B 版切去独立棋局完成购砖、铺路与回合结束，再回到同一个 A 状态。两版同用一条原生 Claude 会话，桌面回执用桌号标识本次操作。两条历史（`keep` 与 `revise`）改变授权目标，保持当前棋盘和行动可见性一致。可选 `--opponent base` 保留原策略，默认 `cautious` 对照中 Ash 保留手里最后的砖。
+
+```sh
+docker build -t longworkmem-catan:continuation tasks/s4
+python -m tasks.s4.continuation /path/to/new/run --arm single --case keep
+python -m tasks.s4.continuation /path/to/another/run --arm switch --case keep
+python -m tasks.s4.continuation /path/to/new/run --replay --image longworkmem-catan:continuation
+python -m tasks.s4.audit /path/to/new/run
+```
+
+将 `--case` 改为 `revise` 即运行另一条历史。原始 v1 样题可继续按上文运行。续作试验的[A/B 结果与复评](../../docs/results/s4-continuation-20261128/)独立归档。
