@@ -1,0 +1,58 @@
+{
+  "model": "deepseek-v4-1-flash-261017",
+  "harness": "Claude Code",
+  "cli": "2.1.314 (Claude Code)",
+  "image": "sha256:936b55ee37791494bc1b499515ea8529c06fa8cdab25192a943220e53003fbb8",
+  "session": "session-1",
+  "turns": [
+    {
+      "turn": 1,
+      "calls": 30
+    },
+    {
+      "turn": 2,
+      "calls": 47
+    },
+    {
+      "turn": 3,
+      "calls": 27
+    },
+    {
+      "turn": 4,
+      "calls": 19
+    },
+    {
+      "turn": 5,
+      "calls": 14
+    },
+    {
+      "turn": 6,
+      "calls": 18
+    },
+    {
+      "turn": 7,
+      "calls": 42
+    },
+    {
+      "turn": 8,
+      "calls": 31
+    },
+    {
+      "turn": 9,
+      "calls": 33
+    },
+    {
+      "turn": 10,
+      "calls": 27
+    }
+  ],
+  "seed": 17217,
+  "variant": "A",
+  "protocol": "calendar-cohorts-v2",
+  "status": "complete",
+  "reasoning": "provider-default",
+  "limit": null,
+  "git": "e45012886d7255817c06d4261e762cd3fefd3956",
+  "material_revision": "registrations-1",
+  "scoring_revision": "calendar-cohorts-v2/atoms-1"
+}

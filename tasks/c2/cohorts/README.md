@@ -35,3 +35,5 @@ python -m tasks.c2.evolution.audit /path/to/shared/new-run grade.json
 ```
 
 协议为 `calendar-cohorts-v2`，评分为 `calendar-cohorts-v2/atoms-1`。通用入口 `tasks.c2.evolution.grade` 也能按运行清单分派评分器。旧版完整成绩在原协议下复现。[工程验收、分项和限制](../../../docs/results/c2-cohorts/)
+
+[首次 DeepSeek 4.1 Flash 盲测](../../../docs/results/c2-cohorts-pilot-20261128/)记录十轮实测、93.60 分及扣分复核。
