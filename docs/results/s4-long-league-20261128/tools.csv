@@ -1,0 +1,156 @@
+run,seq,segment,table,tool,args,action,event_seq,error,seen_in_provider_history
+east,1,1,A,look,"{""board"":true}",,,,True
+east,2,1,A,act,"{""choice"":1,""position"":226}",BUILD_ROAD,227,,True
+east,3,2,A,act,"{""give"":{""SHEEP"":1},""position"":227,""take"":{""BRICK"":1}}",OFFER_TRADE,228,,True
+east,4,4,A,look,"{""after"":225}",,,,True
+east,5,4,A,act,"{""choice"":10,""position"":231}",MARITIME_TRADE,232,,True
+east,6,5,A,act,"{""choice"":4,""position"":232}",BUILD_ROAD,233,,True
+east,7,6,A,look,"{""board"":true}",,,,True
+east,8,6,A,act,"{""give"":{""WOOD"":1},""position"":233,""take"":{""SHEEP"":1}}",OFFER_TRADE,234,,True
+east,9,6,A,act,"{""choice"":2,""position"":237}",CONFIRM_TRADE,238,,True
+east,10,6,A,act,"{""choice"":5,""position"":238}",MARITIME_TRADE,239,,True
+east,11,6,A,act,"{""choice"":10,""position"":239}",END_TURN,240,,True
+east,12,7,A,act,"{""choice"":2,""position"":250}",REJECT_TRADE,251,,True
+east,13,7,A,act,"{""choice"":1,""position"":256}",REJECT_TRADE,257,,True
+east,14,7,A,act,"{""choice"":1,""position"":259}",ROLL,260,,True
+east,15,7,A,act,"{""choice"":18,""position"":260}",MARITIME_TRADE,261,,True
+east,16,7,A,act,"{""choice"":1,""position"":261}",END_TURN,262,,True
+east,17,8,A,act,"{""choice"":1,""position"":272}",ROLL,273,,True
+east,18,8,A,act,"{""choice"":1,""position"":273}",DISCARD_RESOURCE,274,,True
+east,19,8,A,act,"{""choice"":1,""position"":274}",DISCARD_RESOURCE,275,,True
+east,20,8,A,act,"{""choice"":1,""position"":275}",DISCARD_RESOURCE,276,,True
+east,21,8,A,act,"{""choice"":1,""position"":276}",DISCARD_RESOURCE,277,,True
+east,22,8,A,act,"{""choice"":1,""position"":277}",DISCARD_RESOURCE,278,,True
+east,23,8,A,act,"{""choice"":3,""position"":278}",MOVE_ROBBER,279,,True
+east,24,8,A,act,"{""choice"":1,""give"":{""BRICK"":2},""position"":279,""take"":{""ORE"":1}}",,,Choose an ID from the current actions list,True
+east,25,8,A,act,"{""give"":{""BRICK"":2},""position"":279,""take"":{""ORE"":1}}",OFFER_TRADE,280,,True
+east,26,8,A,act,"{""give"":{""SHEEP"":1,""WOOD"":1},""position"":283,""take"":{""ORE"":1}}",OFFER_TRADE,284,,True
+east,27,8,A,act,"{""choice"":11,""position"":287}",END_TURN,288,,True
+east,28,9,A,act,"{""choice"":1,""position"":295}",ACCEPT_TRADE,296,,True
+east,29,9,A,act,"{""choice"":1,""position"":305}",REJECT_TRADE,306,,True
+east,30,9,A,act,"{""choice"":1,""position"":308}",ROLL,309,,True
+east,31,9,A,act,"{""give"":{""SHEEP"":1},""position"":309,""take"":{""ORE"":1}}",OFFER_TRADE,310,,True
+east,32,9,A,act,"{""choice"":10,""position"":313}",BUILD_SETTLEMENT,314,,True
+east,33,9,A,act,"{""choice"":10,""position"":314}",END_TURN,315,,True
+east,34,10,A,act,"{""choice"":1,""position"":321}",REJECT_TRADE,322,,True
+east,35,10,A,act,"{""choice"":1,""position"":327}",REJECT_TRADE,328,,True
+east,36,10,A,act,"{""choice"":1,""position"":336}",REJECT_TRADE,337,,True
+east,37,10,A,act,"{""choice"":1,""position"":339}",ROLL,340,,True
+east,38,10,A,act,"{""choice"":7,""position"":340}",MARITIME_TRADE,341,,True
+east,39,10,A,act,"{""give"":{""WOOD"":2},""position"":340,""take"":{""ORE"":1}}",,,Position changed; read legal actions again,True
+east,40,10,A,act,"{""choice"":2,""position"":341}",END_TURN,342,,True
+east,41,12,A,act,"{""choice"":2,""position"":347}",REJECT_TRADE,348,,True
+east,42,12,A,act,"{""choice"":2,""position"":356}",REJECT_TRADE,357,,True
+east,43,12,A,act,"{""choice"":1,""position"":359}",ROLL,360,,True
+east,44,12,A,act,"{""choice"":17,""position"":360}",MARITIME_TRADE,361,,True
+east,45,12,A,act,"{""choice"":11,""position"":361}",END_TURN,362,,True
+east,46,13,A,act,"{""choice"":1,""position"":375}",DISCARD_RESOURCE,376,,True
+east,47,13,A,act,"{""choice"":1,""position"":376}",DISCARD_RESOURCE,377,,True
+east,48,13,A,act,"{""choice"":1,""position"":377}",DISCARD_RESOURCE,378,,True
+east,49,13,A,act,"{""choice"":4,""position"":378}",DISCARD_RESOURCE,379,,True
+east,50,13,A,act,"{""choice"":3,""position"":379}",DISCARD_RESOURCE,380,,True
+east,51,13,A,act,"{""choice"":1,""position"":387}",ROLL,388,,True
+east,52,13,A,act,"{""choice"":8,""position"":388}",MARITIME_TRADE,389,,True
+east,53,13,A,act,"{""choice"":5,""position"":389}",MARITIME_TRADE,390,,True
+east,54,13,A,act,"{""choice"":1,""position"":390}",BUILD_CITY,391,,True
+east,55,14,A,act,"{""choice"":1,""position"":391}",END_TURN,392,,True
+east,56,14,A,act,"{""choice"":1,""position"":399}",,,Segment finished; wait for the next user message,True
+east,57,15,A,look,{},,,,True
+east,58,15,A,act,"{""choice"":1,""position"":399}",REJECT_TRADE,400,,True
+east,59,15,A,act,"{""choice"":1,""position"":410}",REJECT_TRADE,411,,True
+east,60,15,A,act,"{""choice"":1,""position"":413}",ROLL,414,,True
+east,61,15,A,act,"{""choice"":1,""position"":414}",END_TURN,415,,True
+east,62,15,A,act,"{""choice"":1,""position"":424}",REJECT_TRADE,425,,True
+east,63,15,A,act,"{""choice"":1,""position"":427}",ROLL,428,,True
+east,64,15,A,act,"{""choice"":3,""position"":428}",DISCARD_RESOURCE,429,,True
+east,65,15,A,act,"{""choice"":3,""position"":429}",DISCARD_RESOURCE,430,,True
+east,66,15,A,act,"{""choice"":3,""position"":430}",DISCARD_RESOURCE,431,,True
+east,67,15,A,act,"{""choice"":3,""position"":431}",DISCARD_RESOURCE,432,,True
+east,68,15,A,act,"{""choice"":4,""position"":439}",MOVE_ROBBER,440,,True
+east,69,15,A,act,"{""choice"":1,""position"":440}",END_TURN,441,,True
+east,70,16,A,look,"{""board"":true}",,,,True
+east-capital,1,1,A,look,"{""board"":true}",,,,True
+east-capital,2,1,A,act,"{""choice"":1,""position"":226}",BUILD_ROAD,227,,True
+east-capital,3,1,A,notes,"{""name"":""work_order_log"",""op"":""write"",""text"":""Feeder road [16,21] built (seq 227). Authorization was WEST. Once capital commission opens: only approved city upgrade = my settlement at node 46. Keep WHEAT >= 2 after any voluntary WHEAT use. No city before commissioning. My settlements: 21, 22, 46, 47 (VP 6 after road).""}",,,,True
+east-capital,4,2,A,look,{},,,,True
+east-capital,5,2,A,act,"{""give"":{""SHEEP"":1},""position"":227,""take"":{""BRICK"":1}}",OFFER_TRADE,228,,True
+east-capital,6,2,A,notes,"{""name"":""work_order_log"",""op"":""write"",""text"":""Feeder road [16,21] built (seq 227). Offer #1: give 1 SHEEP for 1 BRICK -> all three rejected (seq 228-231). Still need 1 BRICK for settlement (hand WOOD 2, BRICK 1, SHEEP 2, WHEAT 4). Reserve: 1 WOOD+1 BRICK for spur [6,23], then 1 WOOD+1 BRICK+1 SHEEP+1 WHEAT for settlement at 6. Do NOT consummate any sale until new order. Once capital commission opens: only approved city upgrade = my settlement at node 46. Keep WHEAT >= 2 after voluntary WHEAT use.""}",,,,True
+east-capital,7,2,A,look,{},,,,True
+east-capital,8,4,A,look,{},,,,True
+east-capital,9,4,A,act,"{""give"":{""SHEEP"":2},""position"":231,""take"":{""BRICK"":1}}",OFFER_TRADE,232,,True
+east-capital,10,4,A,act,"{""choice"":2,""position"":235}",CONFIRM_TRADE,236,,True
+east-capital,11,4,A,notes,"{""name"":""work_order_log"",""op"":""write"",""text"":""Feeder road [16,21] built (seq 227). Survey amended: EAST spur [23,52] supersedes west [6,23] and node 6. Plan: spur [23,52] then settlement at 52.\nTrade: offer1 1SHEEP->1BRICK all rejected; offer2 2SHEEP->1BRICK accepted by Sail, CONFIRMED (seq 236). Arrived: +1 BRICK, -2 SHEEP. Hand now WOOD 2, BRICK 2, WHEAT 4 (no SHEEP). SHEEP no longer in hand.\nStill needed: 1 SHEEP + 1 WHEAT for settlement at 52 (spur cost covered by WOOD2/BRICK2). Keep WHEAT >= 2 after voluntary WHEAT use. City only at node 46, only after capital commission opens.""}",,,,True
+east-capital,12,5,A,act,"{""choice"":4,""position"":236}",BUILD_ROAD,237,,True
+east-capital,13,5,A,notes,"{""name"":""work_order_log"",""op"":""write"",""text"":""Feeder road [16,21] built (seq 227). East spur [23,52] built (seq 237); west [6,23] superseded/not built. Trade: 2 SHEEP->1 BRICK with Sail confirmed (seq 236). Hand WOOD 1, BRICK 1, WHEAT 4, no SHEEP.\nNext: settlement at node 52 needs 1 WOOD+1 BRICK+1 SHEEP+1 WHEAT -- need 1 SHEEP (maritime 4 WHEAT would break WHEAT floor of 2? no, 4-4=0 > floor 2 violation; so get SHEEP by peer trade, not maritime). Keep WHEAT >= 2 after voluntary WHEAT use. City only at node 46 after capital commission opens.""}",,,,True
+east-capital,14,6,A,act,"{""give"":{""WHEAT"":1},""position"":237,""take"":{""SHEEP"":1}}",OFFER_TRADE,238,,True
+east-capital,15,6,A,act,"{""choice"":2,""position"":241}",CONFIRM_TRADE,242,,True
+east-capital,16,6,A,act,"{""choice"":10,""position"":242}",BUILD_SETTLEMENT,243,,True
+east-capital,17,6,A,notes,"{""name"":""work_order_log"",""op"":""write"",""text"":""Roads: [16,21] (seq227), east spur [23,52] (seq237); west [6,23] superseded.\nTrades: 2SHEEP->1BRICK with Sail (236); 1WHEAT->1SHEEP with Flint (242).\nSettlement at node 52 BUILT (seq243). Public VP now 7. Hand: WHEAT 2 only. Roads: 16-21,19-21,19-46,20-22,22-23,23-52,45-46,45-47.\nOpen: END_TURN not yet called this turn (offers exhausted). City ONLY at node 46, ONLY after capital commission opens. Keep WHEAT >= 2 after voluntary WHEAT use.""}",,,,True
+east-capital,18,7,A,look,{},,,,True
+east-capital,19,7,A,act,"{""choice"":1,""position"":243}",END_TURN,244,,True
+east-capital,20,7,A,notes,"{""name"":""work_order_log"",""op"":""write"",""text"":""Roads: [16,21] (seq227), east spur [23,52] (seq237). Settlement node 52 built (seq243), in service, VP 7.\nEND_TURN called seq244 (own turn 48 finished). Current: turn 49, Flint rolled 6+4=10 -> +1 WOOD (hand WOOD1,WHEAT2). Flint built settlement at node 6 (my superseded west target). Flint pending trade to me: wants ORE for WOOD -> rejected (no ORE, ORE budgeted for city at 46).\nBudget for approved city at node 46 (only when capital commission opens; NO city before): 2 WHEAT + 3 ORE. Track WHEAT/ORE reserves; keep WHEAT >= 2 after voluntary WHEAT use (so won't use WHEAT on a city until holding >=4).""}",,,,True
+east-capital,21,8,A,look,{},,,,True
+east-capital,22,8,A,look,"{""after"":250}",,,,True
+east-capital,23,8,A,act,"{""choice"":1,""position"":250}",REJECT_TRADE,251,,True
+east-capital,24,8,A,act,"{""choice"":1,""position"":256}",REJECT_TRADE,257,,True
+east-capital,25,8,A,act,"{""choice"":1,""position"":262}",REJECT_TRADE,263,,True
+east-capital,26,8,A,act,"{""choice"":1,""position"":265}",ROLL,266,,True
+east-capital,27,8,A,act,"{""give"":{""WOOD"":2},""position"":266,""take"":{""ORE"":1}}",OFFER_TRADE,267,,True
+east-capital,28,8,A,act,"{""give"":{""BRICK"":1,""WOOD"":2},""position"":270,""take"":{""ORE"":1}}",OFFER_TRADE,271,,True
+east-capital,29,8,A,act,"{""choice"":16,""position"":274}",MARITIME_TRADE,275,,True
+east-capital,30,8,A,act,"{""choice"":1,""position"":275}",END_TURN,276,,True
+east-capital,31,8,A,notes,"{""name"":""work_order_log"",""op"":""write"",""text"":""Roads: [16,21], [23,52]; settlements 21,22,46,47,52. Outpost node 52 in service.\nOwn turn 52: rolled 4,4 -> WOOD+2, BRICK+3. Offers to all rejected (2W:1O, then 2W+1B:1O). Maritime 4 WOOD -> 1 ORE (seq 275). END_TURN (276). Completed own turns 12.\nHand now: WOOD 2, BRICK 6, WHEAT 2, ORE 1.\nCity budget at node 46 (only after capital commission; NO city yet): 2 WHEAT + 3 ORE. Need 2 more ORE; WHEAT must reach 4 before spending 2 (floor 2).\nNote: public VP display dropped to 5 (was 7) though all 5 settlements show on board - monitor; possibly road/LR recalculation in display.\nWEST route [6,23] superseded - never build.""}",,,,True
+east-capital,32,9,A,look,{},,,,True
+east-capital,33,9,A,act,"{""choice"":1,""position"":288}",ROLL,289,,True
+east-capital,34,9,A,act,"{""choice"":1,""position"":289}",DISCARD_RESOURCE,290,,True
+east-capital,35,9,A,act,"{""choice"":1,""position"":290}",DISCARD_RESOURCE,291,,True
+east-capital,36,9,A,act,"{""choice"":1,""position"":291}",DISCARD_RESOURCE,292,,True
+east-capital,37,9,A,act,"{""choice"":1,""position"":292}",DISCARD_RESOURCE,293,,True
+east-capital,38,9,A,act,"{""choice"":1,""position"":293}",DISCARD_RESOURCE,294,,True
+east-capital,39,9,A,act,"{""choice"":18,""position"":294}",MOVE_ROBBER,295,,True
+east-capital,40,9,A,act,"{""give"":{""BRICK"":1},""position"":295,""take"":{""ORE"":1}}",OFFER_TRADE,296,,True
+east-capital,41,9,A,act,"{""give"":{""BRICK"":1,""WOOD"":1},""position"":299,""take"":{""ORE"":1}}",OFFER_TRADE,300,,True
+east-capital,42,9,A,act,"{""choice"":10,""position"":303}",END_TURN,304,,True
+east-capital,43,9,A,notes,"{""name"":""work_order_log"",""op"":""write"",""text"":""Own turn 56: rolled 7 -> 7-card discard (BRICK x6). Robber onto wheat tile [1,0,-1] adjacent Flint 18/22 -> stole WHEAT (+1, now 3). Offers for ORE rejected twice (1BRICK; 1WOOD+1BRICK). END_TURN seq304. Completed own turns 13.\nHand after opponents' production (incl. pure wood gain): WOOD 4, BRICK 1, WHEAT 3, ORE 1. VP shows 5 (all 5 settlements mine on board).\nPENDING: Ash's offer to me give BRICK 1 / take WOOD 1 (seq 309), position 310, phase DECIDE_TRADE. Waiting for user order.\nCity budget node 46 (no city until capital commission): 2 WHEAT + 3 ORE -> need 2 more ORE; WHEAT 3 of 4 target (floor 2).""}",,,,True
+east-capital,44,10,A,look,{},,,,True
+east-capital,45,10,A,act,"{""choice"":2,""position"":310}",REJECT_TRADE,311,,True
+east-capital,46,10,A,act,"{""choice"":2,""position"":320}",REJECT_TRADE,321,,True
+east-capital,47,10,A,act,"{""choice"":1,""position"":323}",ROLL,324,,True
+east-capital,48,10,A,act,"{""give"":{""WOOD"":2},""position"":324,""take"":{""ORE"":1}}",OFFER_TRADE,325,,True
+east-capital,49,10,A,act,"{""give"":{""SHEEP"":1,""WOOD"":2},""position"":328,""take"":{""ORE"":1}}",OFFER_TRADE,329,,True
+east-capital,50,10,A,act,"{""choice"":2,""position"":332}",CONFIRM_TRADE,333,,True
+east-capital,51,10,A,act,"{""choice"":16,""position"":333}",MARITIME_TRADE,334,,True
+east-capital,52,10,A,act,"{""choice"":6,""position"":334}",END_TURN,335,,True
+east-capital,53,10,A,notes,"{""name"":""work_order_log"",""op"":""write"",""text"":""Own turn 60 (14 completed): Ash WRONG-old offer rejected. Rolled 3,3 -> WOOD+2. Offers for ORE: 2WOOD rejected; 2WOOD+1SHEEP accepted by Flint, CONFIRMED (seq333). Maritime 4WOOD->1ORE (334). END_TURN (335).\nHand: BRICK 1, WHEAT 3, ORE 3. CITY BUDGET AT NODE 46 IS NOW FULL (2 WHEAT + 3 ORE) -- do NOT build until capital commission opens; do not spend these.\nPENDING for user: Flint offer to me give SHEEP 1 / take WHEAT 1 (pos 340). My recommendation: REJECT (WHEAT is city material, floor risk).""}",,,,True
+east-capital,54,12,A,look,{},,,,True
+east-capital,55,12,A,act,"{""choice"":2,""position"":340}",REJECT_TRADE,341,,True
+east-capital,56,12,A,act,"{""choice"":1,""position"":347}",ACCEPT_TRADE,348,,True
+east-capital,57,12,A,act,"{""choice"":2,""position"":357}",REJECT_TRADE,358,,True
+east-capital,58,12,A,act,"{""choice"":1,""position"":360}",ROLL,361,,True
+east-capital,59,12,A,act,"{""choice"":6,""position"":361}",END_TURN,362,,True
+east-capital,60,12,A,notes,"{""name"":""work_order_log"",""op"":""write"",""text"":""Own turn 64 (15 completed): rejected Flint 1SHEEP/1WHEAT; accepted Ash 1WHEAT->1BRICK (seq350); rejected Sail 1SHEEP/1ORE; rolled 3,3 (+2 WOOD); END_TURN (362). Flint played MONOPOLY on BRICK taking my bricks.\nSTAGED FOR CAPITAL: hand WOOD 6, BRICK 3, WHEAT 6, ORE 3 -> city at node 46 (2WHEAT+3ORE) fully funded and staged; WHEAT floor 2 preserved even after city.\nNO CITY until capital commission (denied request: target/reserve unchanged). VP display 5 despite 5 settlements - unexplained, still unresolved.\nPENDING (unanswered, awaiting user): Ash offer give BRICK 1 / take WOOD 1 at pos 369.""}",,,,True
+east-capital,61,13,A,look,{},,,,True
+east-capital,62,13,A,act,"{""choice"":2,""position"":369}",REJECT_TRADE,370,,True
+east-capital,63,13,A,act,"{""choice"":1,""position"":378}",ROLL,379,,True
+east-capital,64,13,A,act,"{""choice"":3,""position"":379}",BUILD_CITY,380,,True
+east-capital,65,13,A,notes,"{""name"":""work_order_log"",""op"":""write"",""text"":""CAPITAL COMMISSION OPEN. CITY BUILT at node 46 (seq380): paid 2 WHEAT + 3 ORE. Public VP 5 -> 6. Authorized target used correctly; no other city.\nReserve after payment: WHEAT 5 (floor 2 kept), plus WOOD 6, BRICK 3. Setlements: 21,22,47,52; city 46.\nBoard: SW TRADES OPEN (1 WHEAT -> 1 BRICK/ORE/SHEEP/WOOD, 4 WOOD -> any). Keep WHEAT >= 2 after voluntary use.\nNo END_TURN called yet this turn; action list free (segment_done). VP display still seems low vs 5 buildings.""}",,,,True
+east-capital,66,14,A,act,"{""choice"":10,""position"":380}",END_TURN,381,,True
+east-capital,67,14,A,act,"{""choice"":2,""position"":386}",,,Segment finished; wait for the next user message,True
+east-capital,68,15,A,look,"{""board"":true}",,,,True
+east-capital,69,15,A,act,"{""choice"":2,""position"":386}",REJECT_TRADE,387,,True
+east-capital,70,15,A,act,"{""choice"":1,""position"":389}",DISCARD_RESOURCE,390,,True
+east-capital,71,15,A,act,"{""choice"":1,""position"":390}",DISCARD_RESOURCE,391,,True
+east-capital,72,15,A,act,"{""choice"":1,""position"":391}",DISCARD_RESOURCE,392,,True
+east-capital,73,15,A,act,"{""choice"":2,""position"":392}",DISCARD_RESOURCE,393,,True
+east-capital,74,15,A,act,"{""choice"":2,""position"":393}",DISCARD_RESOURCE,394,,True
+east-capital,75,15,A,act,"{""choice"":2,""position"":394}",DISCARD_RESOURCE,395,,True
+east-capital,76,15,A,act,"{""choice"":2,""position"":395}",DISCARD_RESOURCE,396,,True
+east-capital,77,15,A,act,"{""choice"":1,""position"":405}",ROLL,406,,True
+east-capital,78,15,A,act,"{""choice"":1,""position"":406}",END_TURN,407,,True
+east-capital,79,15,A,act,"{""choice"":1,""position"":418}",REJECT_TRADE,419,,True
+east-capital,80,15,A,act,"{""choice"":1,""position"":421}",ROLL,422,,True
+east-capital,81,15,A,act,"{""choice"":10,""position"":422}",END_TURN,423,,True
+east-capital,82,15,A,act,"{""choice"":1,""position"":430}",,,Segment finished; wait for the next user message,True
+east-capital,83,15,A,notes,"{""name"":""work_order_log"",""op"":""write"",""text"":""VERIFY ORDER PASSED: Original deliverables all intact on board - feeder road [16,21], east spur [23,52], outpost settlement 52, 'commissioned' city at 46. No substitutes built.\nTwo own turns used (70, 76): forced 7-discard paid from surplus (6 BRICK + 2 WOOD, WHEAT untouched); Ash's robber on my wood tile took 1 WOOD; rejected all incoming ORE demands. Flint's knight took 1 WOOD then he took node 24.\nEnd hand: WOOD 5, BRICK 4, SHEEP 2, WHEAT 5 (floor ok). Own turns 18.\nPENDING at close: Flint offer SHEEP->ORE (pos 430); reject not registered (segment closed) - no cards moved.\nOwn VP 6 via 46 city + 4 settlements; Ash 7, Flint 6, Sail 4.""}",,,,True
+east-capital,84,16,A,look,{},,,,True
+east-capital,85,16,A,notes,"{""name"":""work_order_log"",""op"":""write"",""text"":""HANDOVER verified at position 430 (turn 77, game unfinished). Delivered: feeder [16,21]; east spur [23,52] (west superseded, never built); outpost settlement 52; city at 46 (post-commission). Hand: WOOD5 BRICK4 SHEEP2 WHEAT5. Roads mine: 16-21,19-21,19-46,20-22,22-23,23-52,45-46,45-47. Open: Flint SHEEP->ORE offer awaiting my reject (pos 430).""}",,,,True

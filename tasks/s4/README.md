@@ -50,3 +50,20 @@ python -m tasks.s4.audit /path/to/new/run
 ```
 
 将 `--case` 改为 `revise` 即运行另一条历史。原始 v1 样题可继续按上文运行。续作试验的[A/B 结果与复评](../../docs/results/s4-continuation-20261128/)独立归档。
+
+
+## 单桌长程资本工程
+
+`catan-long-league-v1` 保持同一四人棋盘和同一个模型会话，包含 16 段用户交互。玩家从主干和分段交易开始，经路线修订、定居点交付、生产和资本筹措，最终使用早期授权升级城市。参评者可见棋盘邻接、港口、手牌、合法动作及每笔实际自愿支出后的小麦余量。后段不会重新给出早期城市节点。
+
+正式试跑采用 `strategic` 对手。Ash 保留最后一张砖及两张矿石，Flint 结合公开胜利点和受影响的产出选择盗贼落点。维护对照可使用 `--opponent cautious`。`east`、`east-capital` 使用同一地图和路线修订，改变早期的城市授权。9 个评分检查点共 100 分，对局中的合法替代交易和补救路径可按交付得分。
+
+```sh
+docker build -t longworkmem-catan:long-league tasks/s4
+python -m tasks.s4.long_league /path/to/new/run --case east
+python -m tasks.s4.long_league /path/to/another/run --case east-capital
+python -m tasks.s4.long_league /path/to/new/run --replay --image longworkmem-catan:long-league
+python -m tasks.s4.audit /path/to/new/run
+```
+
+[单桌长程版试跑与对照](../../docs/results/s4-long-league-20261128/)单独保留历史版本。两次模型试跑采用同模型、同棋盘的配对授权，用量和压缩按实际回执汇报。
