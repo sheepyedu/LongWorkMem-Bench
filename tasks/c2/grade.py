@@ -6,7 +6,8 @@ import json
 import os
 from pathlib import Path
 import shutil
-import sqlite3
+import secrets
+import subprocess
 import tempfile
 
 from tasks.c1.runstate import freeze
@@ -154,9 +155,18 @@ def probe(snap, t, image):
                 w / "scratch/done.json",
                 [dict(key="relay-other", receipt="B-00900", rows={row["uid"]: row})],
             )
+        tag = secrets.token_hex(16)
+        (w / ("mount-" + tag)).write_text(tag)
+        echo = w / "scratch" / ("mount-" + tag)
         result = execute(
-            w, "python3 - " + str(t) + " <<'PY'\n" + PROBE.read_text() + "\nPY", image
+            w,
+            f"cp mount-{tag} scratch/mount-{tag} && python3 - {t} <<'PYPROBE'\n"
+            + PROBE.read_text()
+            + "\nPYPROBE",
+            image,
         )
+        if not echo.is_file() or echo.read_text() != tag:
+            raise RuntimeError("Docker did not round-trip the frozen worktree mount")
         if result["status"] != 0:
             return {"fault": result["output"][-500:]}
         try:
@@ -169,10 +179,17 @@ def probe(snap, t, image):
         return out
 
 
-def grade(run):
+def grade(run, *, image=None):
     meta = json.loads((run / "manifest.json").read_text())
     if meta["status"] != "complete" or len(meta["turns"]) != 8:
         raise ValueError("incomplete run")
+    replay_image = (
+        meta["image"]
+        if image is None
+        else subprocess.check_output(
+            ["docker", "image", "inspect", "--format", "{{.Id}}", image], text=True
+        ).strip()
+    )
     checks = {}
     diagnostics = {}
 
@@ -188,7 +205,7 @@ def grade(run):
             raise ValueError(f"missing frozen snapshot {t}")
         log = json.loads((run / "receipts" / f"{t}.json").read_text())
         state[t] = log
-        p = probe(snap, t, meta["image"]) if t in (1, 2, 4, 5, 6, 7, 8) else {}
+        p = probe(snap, t, replay_image) if t in (1, 2, 4, 5, 6, 7, 8) else {}
         if "fault" in p:
             raise RuntimeError(f"probe transport failed in snapshot {t}: {p['fault']}")
         diagnostics[t] = {k: v for k, v in p.items() if k == "errors"}
@@ -381,6 +398,7 @@ def grade(run):
     assert sum(x["weight"] for x in checks.values()) == 100
     return dict(
         version="calendar-score/1.1",
+        replay_image=replay_image,
         total=round(sum(x["points"] for x in checks.values()), 4),
         checks=checks,
         diagnostics=diagnostics,
@@ -388,6 +406,13 @@ def grade(run):
 
 
 if __name__ == "__main__":
-    import sys
+    import argparse
 
-    print(json.dumps(grade(Path(sys.argv[1]).resolve()), indent=2))
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("run", type=Path)
+    parser.add_argument(
+        "--image",
+        help="Explicit rebuild on a machine without the original recorded Docker image",
+    )
+    args = parser.parse_args()
+    print(json.dumps(grade(args.run.resolve(), image=args.image), indent=2))

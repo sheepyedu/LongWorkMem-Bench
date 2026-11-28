@@ -20,4 +20,4 @@ jobs:
           S1_TEST_DOCKER=1 python -m unittest tasks.s1.tests.test_engine
       - run: |
           docker build -t longworkmem-calendar:1 -f tasks/c2/Dockerfile tasks/c2
-          C2_TEST_ROOT="$RUNNER_TEMP" python -m unittest tasks.c2.tests.test_calendar -v
+          C2_TEST_ROOT="$RUNNER_TEMP" python -m unittest discover -s tasks/c2/tests -t . -v

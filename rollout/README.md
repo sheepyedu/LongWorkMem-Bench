@@ -26,6 +26,10 @@ python -m tasks.codex_bench s1 "$run" --replay
 
 W1、C1 替换相应题号和目录即可。W1 需宿主 LibreOffice Calc；C1 需 Docker 和指定的 Python 镜像，独立 VM 的 `C1_TEST_ROOT` 应指向双方可写的共享目录。[环境准备](../README.md#运行与验证)
 
+## C2 · Claude Code + DeepSeek 4.1 Flash
+
+[正式场和诊断场](c2/)均保留八轮业务交互及可独立复评的冻结交付。
+
 ## DeepSeek 与千问历史批次
 
 `advanced-audit-20261127-203015` 按题归档，每题八场。该批的完整记录保存在实验机 `rollout/<题号>/<批次>/<运行>/`，GitHub 提供[逐场分数、用量和原始档案校验值](../docs/results/advanced-audit-20261127/runs.csv)。

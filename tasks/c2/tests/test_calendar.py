@@ -1,4 +1,6 @@
 import json
+from datetime import datetime
+from zoneinfo import ZoneInfo
 import os
 from pathlib import Path
 import shutil
@@ -85,46 +87,68 @@ def reference(run):
             assert (
                 execute(work, "python3 project/portal.py migrate", IMAGE)["status"] == 0
             )
-        if t == 3:
-            write(
-                work / "out/preview.json",
-                [
-                    dict(uid=k, local=v["utc"][:16].replace("T", " "))
-                    for k, v in g.expected(3, "A").items()
-                ],
-            )
-        if t >= 4:
-            if t == 7:
-                interrupt(run)
+        if t == 7:
+            interrupt(run)
+        for ch in "AB":
             with sqlite3.connect(work / "data/portal.sqlite") as db:
-                for ch in ("A", "B"):
-                    want = g.expected(t, ch, g.APRIL if t == 8 else g.MARCH)
-                    for k, v in g.changed(
-                        g.expected(2, ch, g.APRIL if t == 8 else g.MARCH), want
-                    ).items():
-                        db.execute(
-                            "insert or replace into patch values(?,?,?)",
-                            (ch, k, v["utc"]),
-                        )
-                    if t == 6 and ch == "B":
-                        db.execute(
-                            "delete from patch where ch='B' and uid='M42-20260320'"
-                        )
-                    delta = g.changed(g.view(receipts(run, ch)), want)
-                    if delta:
-                        (work / "out/send.ics").write_text(encode(delta.values()))
-                        publish(
-                            run,
-                            t,
-                            ch,
-                            "urgent-0327-" + ch if t == 7 else f"release-{t}-{ch}",
-                            "out/send.ics",
-                        )
-            if t == 8:
-                shutil.copyfile(work / "data/portal.sqlite", work / "out/backup.sqlite")
-                (work / "out/new-A.ics").write_text(
-                    encode(g.expected(t, "A", g.APRIL).values())
+                if t == 5:
+                    db.executemany(
+                        "insert into patch values(?,?,?)",
+                        [
+                            (ch, "K17-20260320", "2026-03-19T14:00:00Z"),
+                            (ch, "M42-20260313", "2026-03-13T17:00:00Z"),
+                            (ch, "M42-20260320", "2026-03-20T17:00:00Z"),
+                        ],
+                    )
+                if t == 6 and ch == "B":
+                    db.execute("delete from patch where ch='B' and uid='M42-20260320'")
+                if t == 7:
+                    job = json.loads((work / "input/incident.json").read_text())[ch]
+                    db.execute(
+                        "insert into patch values(?,?,?)", (ch, job["uid"], job["utc"])
+                    )
+            if t < 3:
+                continue
+            dates = "2026-04-01 2026-06-30" if t == 8 else "2026-03-06 2026-03-27"
+            result = execute(
+                work,
+                f"python3 project/prepare.py {ch} {dates} out/full-{ch}.ics",
+                IMAGE,
+            )
+            assert result["status"] == 0, result
+            full = work / f"out/full-{ch}.ics"
+            desired = decode(full.read_bytes())
+            if t == 3:
+                if ch == "A":
+                    write(
+                        work / "out/preview.json",
+                        [
+                            dict(
+                                uid=k,
+                                local=datetime.fromisoformat(row["utc"])
+                                .astimezone(ZoneInfo("Europe/London"))
+                                .strftime("%Y-%m-%d %H:%M"),
+                            )
+                            for k, row in desired.items()
+                        ],
+                    )
+                continue
+            prior = {}
+            for accepted in receipts(run, ch):
+                prior.update(accepted["rows"])
+            delta = [row for k, row in desired.items() if prior.get(k) != row]
+            if delta:
+                (work / "out/send.ics").write_text(encode(delta))
+                publish(
+                    run,
+                    t,
+                    ch,
+                    "urgent-0327-" + ch if t == 7 else f"release-{t}-{ch}",
+                    "out/send.ics",
                 )
+            if t == 8 and ch == "A":
+                shutil.copyfile(work / "data/portal.sqlite", work / "out/backup.sqlite")
+                shutil.copyfile(full, work / "out/new-A.ics")
         freeze(work, run / "snapshots" / str(t))
         write(run / "receipts" / f"{t}.json", {ch: receipts(run, ch) for ch in "AB"})
     write(

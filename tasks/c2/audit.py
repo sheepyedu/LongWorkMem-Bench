@@ -112,10 +112,13 @@ def audit(run):
         t = entry["turn"]
         journal = lines(trace / f"tools-{t}.jsonl")
         cli = lines(trace / f"turn-{t}.jsonl")
+        denied = []
         pending = {}
         matched = Counter()
         actions = []
         answers = []
+        compact = sum(event.get("subtype") == "compact_boundary" for event in cli)
+        usage["native_compactions"] += compact
         for event in cli:
             if event.get("session_id", meta["session"]) != meta["session"]:
                 flags.append([t, "session changed"])
@@ -138,6 +141,15 @@ def audit(run):
                         continue
                     if content not in forwarded.get(cid, set()):
                         flags.append([t, "tool result not returned upstream", cid])
+                    if (
+                        use[0] not in ALLOWED
+                        and content.startswith("<tool_use_error>")
+                        and "No such tool available" in content
+                    ):
+                        denied.append(
+                            dict(id=cid, name=use[0], args=use[1], error=content)
+                        )
+                        continue
                     matched[enc([use[0].split("__")[-1], use[1], content])] += 1
         if (
             pending
@@ -191,7 +203,9 @@ def audit(run):
             terminal[c] = batches[c]
         per[t] = dict(
             calls=entry["calls"],
+            compactions=compact,
             actions=actions,
+            rejected_by_client=denied,
             answer=answers,
             subscriber={
                 c: [
