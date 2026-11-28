@@ -8,6 +8,7 @@ from .scenario import (
     PROMPTS,
     VERSION,
     MATERIAL_REVISION,
+    SCORING_REVISION,
     CHANNELS,
     release as issue,
 )

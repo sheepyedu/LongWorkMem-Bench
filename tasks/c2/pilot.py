@@ -147,6 +147,7 @@ def run(dest, edition=None):
     )
     if edition:
         m["material_revision"] = edition.MATERIAL_REVISION
+        m["scoring_revision"] = edition.SCORING_REVISION
     write(dest / "manifest.json", m)
     try:
         with (

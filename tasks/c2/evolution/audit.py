@@ -14,6 +14,8 @@ def examine(run, scores):
     private = set(scores["checks"]) | {
         "tasks/c2/evolution/grade",
         "tasks.c2.evolution.grade",
+        "tasks/c2/evolution/case_grade",
+        "tasks.c2.evolution.case_grade",
         "tasks/c2/evolution/reference",
         "tasks/c2/evolution/oracle",
         "tasks.c2.evolution.oracle",
