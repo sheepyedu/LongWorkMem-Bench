@@ -7,7 +7,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from tasks.s4.continuation import FEEDER, SPURS, environment, replay, state_receipt
-from tasks.s4.long_league import CASES, EPISODE, evaluate, user_prompt
+from tasks.s4.long_league import CASES, EPISODE, evaluate
 from tasks.s4.pilot import write
 
 from .test_continuation import offer, play
@@ -51,7 +51,7 @@ def operate(desk, until_city=None):
             raise AssertionError("Non-terminal board did not offer any pending action")
 
 
-def witness(root, image, case, opponent, *, wrong_city=False):
+def witness(root, image, case, opponent, *, wrong_city=False, episode=EPISODE):
     route, target = CASES[case]
     edge, node = SPURS[route]
     trace = root / "trace"
@@ -59,14 +59,20 @@ def witness(root, image, case, opponent, *, wrong_city=False):
     blocks = []
     saw_sail_offer = False
     with environment(
-        image, trace, root / "notes", "single", opponent, EPISODE.rules
+        image,
+        trace,
+        root / "notes",
+        "single",
+        opponent,
+        episode.rules,
+        episode.shared_turns,
     ) as desk:
-        for index, phase in enumerate(EPISODE.phases, 1):
+        for index, phase in enumerate(episode.phases, 1):
             desk.start(phase)
             before = state_receipt(desk)
             first = desk.seq + 1
             (trace / f"prompt-{index}.txt").write_text(
-                user_prompt(phase, "single", case)
+                episode.prompt(phase, "single", case)
             )
             if phase == "mobilize":
                 play(desk, "BUILD_ROAD", FEEDER)
@@ -95,6 +101,26 @@ def witness(root, image, case, opponent, *, wrong_city=False):
                 "final_handover",
             ):
                 operate(desk)
+            if episode is not EPISODE:
+                from tasks.s4.single_site import SHIFTS, base_phase
+
+                shift = base_phase(phase)
+                if phase.endswith("_ledger") or (
+                    shift in SHIFTS
+                    and shift + "_ledger" not in episode.phases
+                    and phase == shift
+                ):
+                    live = desk.active.state
+                    desk.dispatch(
+                        "notes",
+                        {
+                            "op": "write",
+                            "name": shift,
+                            "text": json.dumps(
+                                {"position": live["position"], "hand": live["hand"]}
+                            ),
+                        },
+                    )
             blocks.append(
                 {
                     "index": index,
@@ -107,7 +133,7 @@ def witness(root, image, case, opponent, *, wrong_city=False):
                 }
             )
     meta = {
-        "protocol": EPISODE.protocol,
+        "protocol": episode.protocol,
         "status": "complete",
         "arm": "single",
         "case": case,
@@ -117,7 +143,7 @@ def witness(root, image, case, opponent, *, wrong_city=False):
     }
     write(root / "manifest.json", meta)
     assert saw_sail_offer
-    return replay(root, episode=EPISODE), blocks
+    return replay(root, episode=episode), blocks
 
 
 @unittest.skipUnless(os.getenv("S4_TEST_DOCKER"), "Docker opt-in")
